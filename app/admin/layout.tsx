@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "../globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AdminHeader } from "@/components/admin/AdminHeader";
+import { AdminNav } from "@/components/admin/AdminNav";
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -29,6 +30,7 @@ export default function AdminLayout({
         <ThemeProvider>
           <div className="flex min-h-dvh flex-col">
             <AdminHeader />
+            <AdminNav />
             <main className="flex-1">{children}</main>
           </div>
         </ThemeProvider>
