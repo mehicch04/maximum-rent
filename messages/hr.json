@@ -373,5 +373,14 @@
       "title": "Kontakt i lokacije",
       "description": "Kontaktirajte Maximum Rent a Car — telefon, email, WhatsApp i sve lokacije u Hercegovini (Mostar, Međugorje, Čitluk, Čapljina, Ljubuški). Radno vrijeme 07:30–20:30h."
     }
+  },
+  "WeddingCars": {
+    "eyebrow": "Posebne prilike",
+    "heading": "Automobili za Vaše vjenčanje",
+    "p1": "Vjenčanje je poseban dan koji ćete pamtiti cijeli svoj život.",
+    "p2": "Na svoj poseban dan ne prepustite ništa slučaju. Nudimo Vam više vrsta luksuznih vozila, uključujući i nova vozila. Također nudimo i mogućnost najma dodatnih vozila za prijevoz kumova, roditelja, rodbine, prijatelja.",
+    "p3": "Budite zamijećeni sa stilom i elegancijom. Pretvorite Vaše vjenčanje u vjenčanje iz snova.",
+    "cta": "Zatraži ponudu",
+    "imageAlt": "Luksuzno vozilo za vjenčanje {n}"
   }
 }

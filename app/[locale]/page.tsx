@@ -12,6 +12,7 @@ import { HowItWorks } from "@/components/home/HowItWorks";
 import { Locations } from "@/components/home/Locations";
 import { Reviews } from "@/components/home/Reviews";
 import { BusinessTeaser } from "@/components/home/BusinessTeaser";
+import { WeddingCarsSection } from "@/components/home/WeddingCarsSection";
 import { Faq } from "@/components/home/Faq";
 import { FinalCta } from "@/components/home/FinalCta";
 import { ReservationSearchForm } from "@/components/reservation/ReservationSearchForm";
@@ -109,6 +110,8 @@ export default async function HomePage({
       <Reviews />
 
       <BusinessTeaser />
+
+      <WeddingCarsSection />
 
       <Faq />
 

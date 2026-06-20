@@ -373,5 +373,14 @@
       "title": "Contact & Locations",
       "description": "Contact Maximum Rent a Car — phone, email, WhatsApp and all locations across Herzegovina (Mostar, Međugorje, Čitluk, Čapljina, Ljubuški). Open 07:30–20:30h."
     }
+  },
+  "WeddingCars": {
+    "eyebrow": "Special occasions",
+    "heading": "Cars for your wedding",
+    "p1": "Your wedding is a special day you will remember for the rest of your life.",
+    "p2": "On your special day, leave nothing to chance. We offer several types of luxury vehicles, including brand-new models. We can also arrange additional vehicles to transport your best man and maid of honour, parents, relatives and friends.",
+    "p3": "Be noticed, with style and elegance. Turn your wedding into the wedding of your dreams.",
+    "cta": "Request a quote",
+    "imageAlt": "Luxury wedding vehicle {n}"
   }
 }
