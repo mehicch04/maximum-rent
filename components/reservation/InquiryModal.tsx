@@ -8,6 +8,7 @@ import type { AppLocale } from "@/i18n/routing";
 import type { CarListItem, SearchContext } from "@/lib/types";
 import { buildWhatsAppUrl, type InquiryContext } from "@/lib/whatsapp";
 import { DateField } from "@/components/ui/DateField";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 
 type Props = {
   car: CarListItem | null;
@@ -406,9 +407,7 @@ export function InquiryModal({ car, search, locations = [], onClose }: Props) {
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-muted px-5 py-3 text-sm font-semibold transition-colors hover:border-brand hover:text-brand"
                   >
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-                      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 2.1.55 4.06 1.6 5.83L2 22l4.4-1.15a9.86 9.86 0 0 0 5.64 1.76h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm5.96 14.13c-.25.7-1.45 1.34-2 1.42-.51.08-1.16.11-1.87-.12-.43-.14-.98-.32-1.69-.62-2.97-1.28-4.9-4.27-5.05-4.47-.15-.2-1.2-1.6-1.2-3.05 0-1.45.76-2.16 1.03-2.46.27-.3.59-.37.79-.37.2 0 .39 0 .56.01.18.01.42-.07.66.5.25.59.84 2.04.91 2.19.07.15.12.32.02.52-.1.2-.15.32-.3.49-.15.17-.31.39-.45.52-.15.15-.3.31-.13.6.17.3.77 1.27 1.65 2.06 1.13 1.01 2.09 1.32 2.39 1.47.3.15.47.12.64-.07.17-.2.74-.86.94-1.16.2-.3.39-.25.66-.15.27.1 1.71.81 2 .96.3.15.5.22.57.35.07.13.07.7-.18 1.4Z" />
-                    </svg>
+                    <WhatsAppIcon className="h-4 w-4" />
                     {t("whatsapp")}
                   </a>
                 </div>

@@ -1,0 +1,30 @@
+MAXIMUM RENT A CAR — prava WhatsApp ikonica
+============================================
+
+ŠTA JE PROMIJENJENO
+-------------------
+Stara ikonica je bila tanka "outline" verzija WhatsApp glifa pa je na maloj
+veličini izgledala kao obična chat ikonica. Zamijenjena je zvaničnim,
+prepoznatljivim WhatsApp logom (popunjeni balon sa slušalicom kao negativnim
+prostorom).
+
+FAJLOVI U OVOM ZIP-u
+--------------------
+1) components/ui/WhatsAppIcon.tsx        (NOVO — zajednička ikonica)
+2) components/fleet/CarCard.tsx          (koristi novu ikonicu na karticama)
+3) components/reservation/InquiryModal.tsx (koristi novu ikonicu u modalu)
+
+Ikonica je jedna zajednička komponenta, pa svako buduće mijenjanje ide na
+jednom mjestu (components/ui/WhatsAppIcon.tsx). Boja se nasljeđuje preko
+currentColor, veličina preko className — dizajn sistem ostao netaknut.
+
+KORACI
+------
+1. Raspakuj ovaj zip preko root-a projekta (prepiši fajlove).
+2. npm run dev
+3. Provjeri: karticu vozila (dugme pored "Izaberi") i WhatsApp dugme u
+   inquiry modalu — u dark i light temi, HR i EN.
+4. git add . && git commit -m "fix: prava WhatsApp ikonica na karticama i u modalu"
+   git push   (Vercel auto-deploy)
+
+Napomena: schema se NIJE mijenjala — nema prisma generate / db push.
