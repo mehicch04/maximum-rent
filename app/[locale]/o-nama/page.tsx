@@ -56,7 +56,7 @@ export default async function AboutPage({
     <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
       {/* Hero */}
       <header className="max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">
+        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-strong">
           {t("eyebrow")}
         </p>
         <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl">

@@ -1,56 +1,64 @@
-MAXIMUM RENT A CAR — Performance (hero video)
-=============================================
+MAXIMUM RENT A CAR — Accessibility 100 + dodatne performanse (mobitel)
+=====================================================================
 
-GLAVNI PROBLEM: hero.mp4 je bio 6.2 MB (1920x1080, 30fps, +audio), sa
-preload="auto" -> to je ~6.8 MB payload sa slike i glavni ubica LCP-a na
-mobitelu. Kod je vec trazio /hero.webm prvi, ali taj fajl NIJE postojao,
-pa se ucitavao 6.2 MB mp4.
+ACCESSIBILITY -> 100
+--------------------
+Preostali kontrast fail bio je eyebrow natpis "VOZNI PARK" (i isti na o-nama i
+poslovna-ponuda). U proslom prolazu sam sredio eyebrowe u components/, ali ova
+tri su bila u app/ stranicama pa su promakla. Sad su svi na text-brand-strong.
+=> Accessibility bi trebao biti 100.
 
-STA JE URADJENO
----------------
-Video prekodiran (720p, bez audia jer je ionako muted; pozadinski je i
-zatamnjen 55% overlayom pa je kvalitet i dalje sasvim dovoljan):
+PERFORMANCE (dodatni dobici)
+----------------------------
+1) "Improve image delivery" — hero poster:
+   hero-poster.jpg (92 KB) -> hero-poster.webp (51 KB). Hero.tsx sad koristi webp.
+   Usteda ~41 KB na LCP asset-u.
 
-  hero.webm   1.5 MB   (VP9 — moderni browseri ucitavaju ovaj, prvi je u kodu)
-  hero.mp4    2.1 MB   (H.264 fallback za starije)
-  hero-poster.jpg  92 KB  (prvi frame — prikaze se ODMAH kao LCP)
+2) "LCP request discovery" — fetchpriority=high:
+   U home stranici dodan ReactDOM.preload("/hero-poster.webp",
+   { as:"image", fetchPriority:"high" }) -> poster se ucitava rano i s visokim
+   prioritetom (ranije se otkrivao tek pri parsiranju <video>).
 
-Original 6.2 MB  ->  moderni browser sada ucita ~1.6 MB (webm + poster) = -74%.
-
-Hero.tsx:
-  - dodan poster="/hero-poster.jpg"  (LCP je sad lagani poster, ne video)
-  - preload="auto" -> preload="none"  (video ne blokira inicijalno ucitavanje)
+3) "Improve image delivery" — fleet slika (Audi Q8 i ostale):
+   sizes je bio 100vw na mobitelu iako slika ima p-6 padding (object-contain),
+   pa je next/image dovlacio prevelik candidate. Novi sizes uskladjen s grid
+   breakpointima (1/2/3 kolone): "(max-width:639px) 84vw, (max-width:1023px)
+   44vw, 31vw". Manji fetch, bez zamucenja.
 
 FAJLOVI U ZIP-u
 ---------------
-  components/home/Hero.tsx     (izmijenjen)
-  public/hero.webm             (NOVO)
-  public/hero.mp4              (ZAMJENA — manji)
-  public/hero-poster.jpg       (NOVO)
+  app/[locale]/page.tsx                 (eyebrow -> strong + preload postera)
+  app/[locale]/o-nama/page.tsx          (eyebrow -> strong)
+  app/[locale]/poslovna-ponuda/page.tsx (eyebrow -> strong)
+  components/home/Hero.tsx              (poster -> .webp)
+  components/fleet/CarGallery.tsx       (tacniji sizes)
+  public/hero-poster.webp              (NOVO)
 
-RUCNO (nije u zipu): obrisi app/hero.mp4 — to je duplikat od 6.2 MB koji se
-NE servira (servira se samo public/hero.mp4), samo bespotrebno napuhuje repo:
-    git rm app/hero.mp4
+Opcionalno: obrisi stari public/hero-poster.jpg — vise se ne koristi.
 
-OSTALE PSI STAVKE (iskreno, mali dobitak — ne obecavam Performance 100)
-----------------------------------------------------------------------
-- Render-blocking ~450ms: fontovi vec idu preko next/font (ok); ostatak je
-  uglavnom CSS bundle frameworka — tesko se skroz eliminise, mali ROI.
-- Legacy JavaScript (12 KiB) / Reduce unused JS (21 KiB): dolazi iz Next/
-  next-intl/framer-motion i polyfilla. Moze se malo smanjiti modernim
-  browserslist targetom (opcionalno) — javi ako zelis da to ubacim.
-- Improve image delivery (44 KiB): slike vec koriste next/image (lazy,
-  optimizirano) — dobitak je mali; wedding slike su ispod pregiba.
-- Layout shift / long main-thread task: dijagnostika, minoran uticaj.
+ISKRENO O "SVE 100 NA MOBITELU"
+-------------------------------
+Accessibility 100 je siguran. Performance 100 na mobitelu NIJE zagarantovan,
+i evo zasto (ovo su realne granice, ne izgovor):
 
-Najveci realni skok na mobilnom Performance dolazi od ovog video fixa.
-Ako zelis GURATI dalje: na mobitelu prikazati SAMO poster (bez videa) —
-payload na telefonu padne na ~92 KB. To mijenja UX (staticni hero na
-telefonu) pa je odvojena odluka; javi pa implementiram.
+- "Render-blocking requests ~450ms": to su Next-ovi CSS chunkovi (1.2 KB + 9.1
+  KB). 450ms je uglavnom mrezna latencija/kriticni put, ne velicina. App Router
+  ubacuje CSS kao render-blocking po dizajnu — tesko se skroz eliminise iz koda.
+- "Legacy JavaScript ~12 KB": dolazi iz polyfilla za starije browsere. Moze se
+  smanjiti dodavanjem modernog browserslist targeta u package.json, npr.:
+      "browserslist": ["last 2 years", "not dead", "> 0.3%"]
+  ALI to je odluka o podrsci browsera (neki stariji telefoni klijenata). Nisam
+  je ukljucio da ne mijenjam podrsku bez tvoje odluke. Javi ako zelis.
+- Hero video sam po sebi ima cijenu; najveci mobilni skok bio bi da se na
+  telefonu prikaze SAMO poster (bez videa) — payload padne na ~50 KB. To
+  mijenja UX (staticni hero na mobitelu). Reci pa implementiram ako zelis
+  gurati ka 100.
 
 KORACI
 ------
-1. Raspakuj preko root-a (prepisi Hero.tsx i public/ video fajlove).
-2. npm run dev -> provjeri hero (poster odmah, video krene odmah zatim).
-3. (opcionalno) git rm app/hero.mp4
-4. git add . && git commit -m "perf: compress hero video (webm+mp4+poster), preload none" && git push
+1. Raspakuj preko root-a.
+2. npm run dev -> provjeri home (poster, eyebrowe), vozila (slike).
+3. git add . && git commit -m "a11y: preostali eyebrowi; perf: webp poster, LCP preload, fleet sizes" && git push
+4. Ponovo PageSpeed (mobitel): Accessibility 100; Performance vise, LCP bolji.
+
+Schema/i18n nisu mijenjani.

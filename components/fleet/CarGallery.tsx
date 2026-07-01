@@ -56,7 +56,7 @@ export function CarGallery({ images, title, onOpen }: Props) {
           src={images[index]}
           alt={`${title} — ${index + 1}/${count}`}
           fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          sizes="(max-width: 639px) 84vw, (max-width: 1023px) 44vw, 31vw"
           className="object-contain p-6 transition-transform duration-500 ease-out group-hover/gallery:scale-[1.03]"
         />
       </button>

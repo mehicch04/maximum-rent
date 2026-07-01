@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ReactDOM from "react-dom";
 import { buildPageMetadata } from "@/lib/seo";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
@@ -42,6 +43,14 @@ export default async function HomePage({
   params: { locale: string };
 }) {
   setRequestLocale(locale);
+
+  // Preload the hero poster (LCP image) early and at high priority so the
+  // above-the-fold paint doesn't wait for the video element to be parsed.
+  ReactDOM.preload("/hero-poster.webp", {
+    as: "image",
+    fetchPriority: "high",
+  });
+
   const t = await getTranslations("Fleet");
 
   const [locations, featured] = await Promise.all([
@@ -79,7 +88,7 @@ export default async function HomePage({
       {cars.length > 0 && (
         <section className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
           <div className="mb-10 max-w-2xl">
-            <p className="mb-3 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-brand">
+            <p className="mb-3 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-brand-strong">
               <span className="h-px w-7 bg-brand" />
               {t("title")}
             </p>

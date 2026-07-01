@@ -85,7 +85,7 @@ export function Hero() {
           loop
           playsInline
           preload="none"
-          poster="/hero-poster.jpg"
+          poster="/hero-poster.webp"
           disablePictureInPicture
           aria-hidden
           tabIndex={-1}
