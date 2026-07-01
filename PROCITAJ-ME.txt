@@ -1,12 +1,47 @@
-MAXIMUM RENT A CAR — preconnect na Supabase (zadnja sigurna poluga)
-==================================================================
+MAXIMUM RENT A CAR — PRAVI fix: video se vise NE ucitava na mobitelu
+===================================================================
 
-STA JE DODANO  [app/[locale]/page.tsx]
---------------
-ReactDOM.preconnect(SUPABASE_URL) — browser unaprijed otvori vezu (DNS+TLS)
-prema Supabase Storage-u odakle se ucitavaju fotke vozila. Rjesava "no origins
-were preconnected" iz "Network dependency tree" audita.
-Bezbjedno, bez UX promjene. (Koristi postojeci SUPABASE_URL iz env-a.)
+STA JE BILO POGRESNO
+--------------------
+Prosli pokusaj je video skrivao preko CSS-a (display:none / hidden md:block).
+ALI browser ga je svejedno DOVLACIO: PageSpeed je pokazao da se na mobitelu
+ucitavaju OBA fajla -> /hero.mp4 (2.133 KiB) + /hero.webm (1.504 KiB) = ~3.6 MB.
+Razlog: <video autoplay preload="none"> se ipak fetch-a iako je display:none.
 
-To je jedina preostala izmjena koju vrijedi raditi iz koda bez zrtvovanja
-necega vaznijeg. Ispod je iskren pregled ostatka.
+PRAVI FIX  [components/home/Hero.tsx]
+---------
+Video se sada renderuje USLOVNO — tek nakon mounta i SAMO na tablet/desktop
+(min-width: 768px), i to preko React state-a (showVideo). Posljedica:
+  - Server-rendered HTML i mobilni DOM NE sadrze <video> uopce.
+  - Browser na telefonu nema sta da fetch-a -> 0 KB videa na mobitelu.
+  - Poster (hero-poster.webp, ~51 KB) ostaje pozadina svuda i on je LCP.
+  - Na desktopu se video montira preko postera nakon hydration-a (radi normalno).
+  - Bonus: postuje "prefers-reduced-motion" (ko trazi manje animacija -> poster).
+
+OCEKIVANI EFEKAT NA MOBITELU
+----------------------------
+"Avoid enormous network payloads": ~4.144 KiB -> ~500 KiB (skida se ~3.6 MB
+videa). Ovo je NAJVECI stvarni dobitak do sada za mobilni Performance (payload,
+LCP, TBT). Trebao bi biti primjetan skok na mobilnom scoreu.
+
+STA OSTAJE (i dalje ne vrijedi juriti)
+--------------------------------------
+- "Reduce unused JavaScript 21 KiB" i preostali JS/font chunkovi: frameworkski
+  kod (Next / next-intl / framer). Oznaceni su "Unscored" -> ne uticu direktno
+  na score. Uklanjanje bi znacilo skidanje funkcionalnosti/animacija.
+- Render-blocking CSS / forced reflow: framework, objasnjeno ranije.
+
+FAJL U ZIP-u
+------------
+  components/home/Hero.tsx   (uslovni mount videa)
+
+Napomena: hero na telefonu je i dalje statican poster (svjestan trade-off za
+performanse). Na desktopu je video.
+
+KORACI
+------
+1. Raspakuj preko root-a.
+2. npm run dev -> uski prozor (mobilna sirina): SAMO poster, bez mreznog
+   zahtjeva za hero.mp4/webm (provjeri u Network tabu). Siroki prozor: video.
+3. git add . && git commit -m "perf(mobile): don't mount hero video on phones (0 video download)" && git push
+4. Ponovo PageSpeed (mobitel) -> payload drasticno manji.
