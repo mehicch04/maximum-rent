@@ -52,7 +52,7 @@ export function WeddingCarsSection() {
           transition={{ duration: 0.55, ease }}
           className="flex flex-col"
         >
-          <p className="mb-3 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-brand">
+          <p className="mb-3 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-brand-strong">
             <span className="h-px w-7 bg-brand" />
             {t("eyebrow")}
           </p>

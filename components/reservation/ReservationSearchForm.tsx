@@ -33,11 +33,13 @@ function StyledSelect({
   value,
   onChange,
   children,
+  ariaLabel,
 }: {
   id?: string;
   value: string;
   onChange: (v: string) => void;
   children: React.ReactNode;
+  ariaLabel?: string;
 }) {
   return (
     <div className="relative">
@@ -45,6 +47,7 @@ function StyledSelect({
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        aria-label={ariaLabel}
         className={`${CONTROL} appearance-none pr-10`}
       >
         {children}
@@ -171,7 +174,7 @@ export function ReservationSearchForm({ locations }: { locations: SimpleLocation
                 className={DATE_CONTROL}
               />
               <div className="w-28 shrink-0">
-                <StyledSelect value={pickupTime} onChange={setPickupTime}>
+                <StyledSelect value={pickupTime} onChange={setPickupTime} ariaLabel={`${t("pickupDate")} – ${t("time")}`}>
                   {TIME_SLOTS.map((s) => (
                     <option key={s} value={s}>
                       {s}
@@ -197,7 +200,7 @@ export function ReservationSearchForm({ locations }: { locations: SimpleLocation
                 className={DATE_CONTROL}
               />
               <div className="w-28 shrink-0">
-                <StyledSelect value={returnTime} onChange={setReturnTime}>
+                <StyledSelect value={returnTime} onChange={setReturnTime} ariaLabel={`${t("returnDate")} – ${t("time")}`}>
                   {TIME_SLOTS.map((s) => (
                     <option key={s} value={s}>
                       {s}
@@ -230,7 +233,7 @@ export function ReservationSearchForm({ locations }: { locations: SimpleLocation
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0 }}
                 role="alert"
-                className="flex items-center gap-1.5 text-sm font-medium text-brand"
+                className="flex items-center gap-1.5 text-sm font-medium text-brand-strong"
               >
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 {error}

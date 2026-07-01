@@ -13,6 +13,8 @@
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 40%;
     --ring: 356 95% 46%;
+    /* Brand red used as small TEXT. Light theme keeps the logo red (passes AA on white). */
+    --brand-strong: #e30613;
   }
 
   .dark {
@@ -25,6 +27,8 @@
     --muted: 0 0% 13%;
     --muted-foreground: 0 0% 64%;
     --ring: 356 95% 52%;
+    /* Lighter red so brand-colored TEXT clears WCAG AA (4.5:1) on dark surfaces. */
+    --brand-strong: #ff4b54;
   }
 
   * {

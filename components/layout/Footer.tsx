@@ -126,7 +126,7 @@ export function Footer() {
               href="https://mehiccdev.com"
               target="_blank"
               rel="noopener"
-              className="font-semibold text-brand underline decoration-brand/40 decoration-1 underline-offset-4 transition-colors hover:text-brand-700 hover:decoration-brand"
+              className="font-semibold text-brand-strong underline decoration-brand/40 decoration-1 underline-offset-4 transition-colors hover:text-brand-700 hover:decoration-brand"
             >
               mehiccdev
             </a>

@@ -29,7 +29,7 @@ export function SectionHeading({
       className={`${centered ? "mx-auto max-w-2xl text-center" : "max-w-2xl"} ${className}`}
     >
       <p
-        className={`mb-3 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-brand ${
+        className={`mb-3 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-brand-strong ${
           centered ? "justify-center" : ""
         }`}
       >

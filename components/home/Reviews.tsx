@@ -24,7 +24,7 @@ export function Reviews() {
         transition={{ duration: 0.6, ease }}
         className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-brand/[0.08] via-surface to-surface px-6 py-12 text-center sm:px-12 sm:py-16"
       >
-        <p className="mb-3 flex items-center justify-center gap-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-brand">
+        <p className="mb-3 flex items-center justify-center gap-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-brand-strong">
           <span className="h-px w-7 bg-brand" />
           {t("eyebrow")}
           <span className="h-px w-7 bg-brand" />

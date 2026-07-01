@@ -198,7 +198,7 @@ export function InquiryModal({ car, search, locations = [], onClose }: Props) {
               <h3 className="pr-8 font-display text-xl font-semibold tracking-tight">
                 {t("title")}
               </h3>
-              <p className="mt-1 text-sm font-medium text-brand">{car.title}</p>
+              <p className="mt-1 text-sm font-medium text-brand-strong">{car.title}</p>
               <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
 
               <form
@@ -217,6 +217,7 @@ export function InquiryModal({ car, search, locations = [], onClose }: Props) {
                         <select
                           value={pickupLoc}
                           onChange={(e) => setPickupLoc(e.target.value)}
+                          aria-label={t("pickupLocation")}
                           className={`${input} appearance-none pr-8 ${pickupLoc ? "" : "text-muted-foreground"}`}
                           required
                         >
@@ -238,6 +239,7 @@ export function InquiryModal({ car, search, locations = [], onClose }: Props) {
                         <select
                           value={returnLoc}
                           onChange={(e) => setReturnLoc(e.target.value)}
+                          aria-label={t("returnLocation")}
                           className={`${input} appearance-none pr-8`}
                         >
                           <option value="">{t("sameAsPickup")}</option>
@@ -269,6 +271,7 @@ export function InquiryModal({ car, search, locations = [], onClose }: Props) {
                         <select
                           value={pickupTime}
                           onChange={(e) => setPickupTime(e.target.value)}
+                          aria-label={t("summaryPickup")}
                           className={`${input} w-full appearance-none pr-8`}
                           required
                         >
@@ -296,6 +299,7 @@ export function InquiryModal({ car, search, locations = [], onClose }: Props) {
                         <select
                           value={returnTime}
                           onChange={(e) => setReturnTime(e.target.value)}
+                          aria-label={t("summaryReturn")}
                           className={`${input} w-full appearance-none pr-8`}
                           required
                         >
@@ -379,7 +383,7 @@ export function InquiryModal({ car, search, locations = [], onClose }: Props) {
                 </div>
 
                 {status === "error" && (
-                  <p className="text-sm font-medium text-brand">{errorMsg}</p>
+                  <p className="text-sm font-medium text-brand-strong">{errorMsg}</p>
                 )}
 
                 {/* Actions */}

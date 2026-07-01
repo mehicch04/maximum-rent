@@ -90,16 +90,16 @@ export function CarCard({ car, search, onSelect, index = 0 }: Props) {
           </p>
         </div>
 
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+        <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5">
           {specs.map((spec, i) => (
-            <div key={i} className="flex items-center gap-2.5">
+            <li key={i} className="flex items-center gap-2.5">
               <spec.icon className="h-4 w-4 shrink-0 text-brand" />
-              <dd className="truncate text-sm font-medium text-foreground">
+              <span className="truncate text-sm font-medium text-foreground">
                 {spec.value}
-              </dd>
-            </div>
+              </span>
+            </li>
           ))}
-        </dl>
+        </ul>
 
         {car.pricePerDay != null && (
           <p className="text-sm text-muted-foreground">

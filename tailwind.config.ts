@@ -44,6 +44,8 @@ const config: Config = {
           DEFAULT: "#E30613",
           foreground: "#FFFFFF",
         },
+        // Theme-aware red for small brand-colored TEXT (AA-safe on dark).
+        "brand-strong": "var(--brand-strong)",
       },
       fontFamily: {
         sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],

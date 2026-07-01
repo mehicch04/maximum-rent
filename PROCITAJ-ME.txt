@@ -1,30 +1,56 @@
-MAXIMUM RENT A CAR — prava WhatsApp ikonica
-============================================
+MAXIMUM RENT A CAR — Performance (hero video)
+=============================================
 
-ŠTA JE PROMIJENJENO
--------------------
-Stara ikonica je bila tanka "outline" verzija WhatsApp glifa pa je na maloj
-veličini izgledala kao obična chat ikonica. Zamijenjena je zvaničnim,
-prepoznatljivim WhatsApp logom (popunjeni balon sa slušalicom kao negativnim
-prostorom).
+GLAVNI PROBLEM: hero.mp4 je bio 6.2 MB (1920x1080, 30fps, +audio), sa
+preload="auto" -> to je ~6.8 MB payload sa slike i glavni ubica LCP-a na
+mobitelu. Kod je vec trazio /hero.webm prvi, ali taj fajl NIJE postojao,
+pa se ucitavao 6.2 MB mp4.
 
-FAJLOVI U OVOM ZIP-u
---------------------
-1) components/ui/WhatsAppIcon.tsx        (NOVO — zajednička ikonica)
-2) components/fleet/CarCard.tsx          (koristi novu ikonicu na karticama)
-3) components/reservation/InquiryModal.tsx (koristi novu ikonicu u modalu)
+STA JE URADJENO
+---------------
+Video prekodiran (720p, bez audia jer je ionako muted; pozadinski je i
+zatamnjen 55% overlayom pa je kvalitet i dalje sasvim dovoljan):
 
-Ikonica je jedna zajednička komponenta, pa svako buduće mijenjanje ide na
-jednom mjestu (components/ui/WhatsAppIcon.tsx). Boja se nasljeđuje preko
-currentColor, veličina preko className — dizajn sistem ostao netaknut.
+  hero.webm   1.5 MB   (VP9 — moderni browseri ucitavaju ovaj, prvi je u kodu)
+  hero.mp4    2.1 MB   (H.264 fallback za starije)
+  hero-poster.jpg  92 KB  (prvi frame — prikaze se ODMAH kao LCP)
+
+Original 6.2 MB  ->  moderni browser sada ucita ~1.6 MB (webm + poster) = -74%.
+
+Hero.tsx:
+  - dodan poster="/hero-poster.jpg"  (LCP je sad lagani poster, ne video)
+  - preload="auto" -> preload="none"  (video ne blokira inicijalno ucitavanje)
+
+FAJLOVI U ZIP-u
+---------------
+  components/home/Hero.tsx     (izmijenjen)
+  public/hero.webm             (NOVO)
+  public/hero.mp4              (ZAMJENA — manji)
+  public/hero-poster.jpg       (NOVO)
+
+RUCNO (nije u zipu): obrisi app/hero.mp4 — to je duplikat od 6.2 MB koji se
+NE servira (servira se samo public/hero.mp4), samo bespotrebno napuhuje repo:
+    git rm app/hero.mp4
+
+OSTALE PSI STAVKE (iskreno, mali dobitak — ne obecavam Performance 100)
+----------------------------------------------------------------------
+- Render-blocking ~450ms: fontovi vec idu preko next/font (ok); ostatak je
+  uglavnom CSS bundle frameworka — tesko se skroz eliminise, mali ROI.
+- Legacy JavaScript (12 KiB) / Reduce unused JS (21 KiB): dolazi iz Next/
+  next-intl/framer-motion i polyfilla. Moze se malo smanjiti modernim
+  browserslist targetom (opcionalno) — javi ako zelis da to ubacim.
+- Improve image delivery (44 KiB): slike vec koriste next/image (lazy,
+  optimizirano) — dobitak je mali; wedding slike su ispod pregiba.
+- Layout shift / long main-thread task: dijagnostika, minoran uticaj.
+
+Najveci realni skok na mobilnom Performance dolazi od ovog video fixa.
+Ako zelis GURATI dalje: na mobitelu prikazati SAMO poster (bez videa) —
+payload na telefonu padne na ~92 KB. To mijenja UX (staticni hero na
+telefonu) pa je odvojena odluka; javi pa implementiram.
 
 KORACI
 ------
-1. Raspakuj ovaj zip preko root-a projekta (prepiši fajlove).
-2. npm run dev
-3. Provjeri: karticu vozila (dugme pored "Izaberi") i WhatsApp dugme u
-   inquiry modalu — u dark i light temi, HR i EN.
-4. git add . && git commit -m "fix: prava WhatsApp ikonica na karticama i u modalu"
-   git push   (Vercel auto-deploy)
-
-Napomena: schema se NIJE mijenjala — nema prisma generate / db push.
+1. Raspakuj preko root-a (prepisi Hero.tsx i public/ video fajlove).
+2. npm run dev -> provjeri hero (poster odmah, video krene odmah zatim).
+3. (opcionalno) git rm app/hero.mp4
+4. git add . && git commit -m "perf: compress hero video (webm+mp4+poster), preload none" && git push

@@ -22,7 +22,7 @@ export function BusinessTeaser() {
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6, ease }}
         >
-          <p className="mb-3 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-brand">
+          <p className="mb-3 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-brand-strong">
             <span className="h-px w-7 bg-brand" />
             {t("eyebrow")}
           </p>
