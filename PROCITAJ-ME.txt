@@ -1,64 +1,60 @@
-MAXIMUM RENT A CAR — Accessibility 100 + dodatne performanse (mobitel)
-=====================================================================
+MAXIMUM RENT A CAR — zadnje poluge za mobilni Performance
+=========================================================
 
-ACCESSIBILITY -> 100
---------------------
-Preostali kontrast fail bio je eyebrow natpis "VOZNI PARK" (i isti na o-nama i
-poslovna-ponuda). U proslom prolazu sam sredio eyebrowe u components/, ali ova
-tri su bila u app/ stranicama pa su promakla. Sad su svi na text-brand-strong.
-=> Accessibility bi trebao biti 100.
+Dvije stvari koje STVARNO pomjeraju mobilni score:
 
-PERFORMANCE (dodatni dobici)
-----------------------------
-1) "Improve image delivery" — hero poster:
-   hero-poster.jpg (92 KB) -> hero-poster.webp (51 KB). Hero.tsx sad koristi webp.
-   Usteda ~41 KB na LCP asset-u.
+1) MOBITEL = SAMO POSTER (bez videa)         [components/home/Hero.tsx]
+   Na telefonima se sada prikazuje samo hero-poster.webp (~51 KB), a video se
+   NE ucitava (display:none + preload="none" -> browser ga ne dohvaca na
+   mobitelu). Na tabletu/desktopu (md+) video radi normalno.
+   -> Skida ~2 MB s mobilnog payloada ("Avoid enormous network payloads"),
+      poster postaje LCP (vec je preload + fetchPriority high), manje posla na
+      glavnoj niti (bolji TBT).
+   NAPOMENA: hero na telefonu je sada STATICAN (bez animacije videa). To je
+   svjestan trade-off za performanse. Ako ti se ne svidja, lako se vraca —
+   javi.
 
-2) "LCP request discovery" — fetchpriority=high:
-   U home stranici dodan ReactDOM.preload("/hero-poster.webp",
-   { as:"image", fetchPriority:"high" }) -> poster se ucitava rano i s visokim
-   prioritetom (ranije se otkrivao tek pri parsiranju <video>).
+2) BROWSERSLIST (moderni target)             [package.json]
+   Dodano: "browserslist": ["last 2 years", "not dead", "> 0.3%"]
+   -> Smanjuje "Legacy JavaScript" (~12 KB) jer se ne ubacuju polyfilli za jako
+      stare browsere.
+   TRADE-OFF: ispadaju browseri stariji od ~2 godine. Za rent-a-car je ovo
+   sasvim ok (kupci su na modernim telefonima), ali ako zelis siru podrsku,
+   obrisi ovaj kljuc iz package.json i vrati se na Next default.
 
-3) "Improve image delivery" — fleet slika (Audi Q8 i ostale):
-   sizes je bio 100vw na mobitelu iako slika ima p-6 padding (object-contain),
-   pa je next/image dovlacio prevelik candidate. Novi sizes uskladjen s grid
-   breakpointima (1/2/3 kolone): "(max-width:639px) 84vw, (max-width:1023px)
-   44vw, 31vw". Manji fetch, bez zamucenja.
+STA NAMJERNO NISAM DIRAO (i zasto)
+----------------------------------
+Ovo daje ~0 na scoreu ili nije popravljivo iz koda (PSI i sam kaze da
+"diagnostics ne uticu direktno na Performance score"):
+- "Render-blocking requests ~450ms": Next-ovi CSS chunkovi; 450ms je mrezna
+  latencija na kriticnom putu. App Router ubacuje CSS render-blocking po
+  dizajnu — ne moze se ukloniti iz koda bez zaobilazaka koji lome stil.
+- "Forced reflow" / "long main-thread tasks": dolazi iz Framer Motion animacija
+  (useScroll/whileInView). Popravak bi znacio skidanje animacija = losiji UX
+  za mizeran dobitak na scoreu.
+- "Network dependency tree" / "Reduce unused JS 23 KB": frameworkski kod
+  (Next/next-intl/framer) — realno se ne moze znacajno smanjiti bez rewrite-a.
 
-FAJLOVI U ZIP-u
----------------
-  app/[locale]/page.tsx                 (eyebrow -> strong + preload postera)
-  app/[locale]/o-nama/page.tsx          (eyebrow -> strong)
-  app/[locale]/poslovna-ponuda/page.tsx (eyebrow -> strong)
-  components/home/Hero.tsx              (poster -> .webp)
-  components/fleet/CarGallery.tsx       (tacniji sizes)
-  public/hero-poster.webp              (NOVO)
+ISKRENO O 100 NA MOBITELU
+-------------------------
+Ove dvije izmjene bi trebale gurnuti mobilni Performance osjetno navise (video
+je bio najveci teret). Ali TACNO 100 na "Slow 4G" throttlingu za dinamican
+Next sajt s animacijama NIJE zagarantovano — render-blocking CSS frameworka je
+prakticna granica. Realan cilj: visoki 90-ci, moguce 100 ovisno o mjerenju
+(score varira izmedju pokretanja). Desktop je vec ~92+ i trebao bi ici na
+gotovo/100.
 
-Opcionalno: obrisi stari public/hero-poster.jpg — vise se ne koristi.
-
-ISKRENO O "SVE 100 NA MOBITELU"
--------------------------------
-Accessibility 100 je siguran. Performance 100 na mobitelu NIJE zagarantovan,
-i evo zasto (ovo su realne granice, ne izgovor):
-
-- "Render-blocking requests ~450ms": to su Next-ovi CSS chunkovi (1.2 KB + 9.1
-  KB). 450ms je uglavnom mrezna latencija/kriticni put, ne velicina. App Router
-  ubacuje CSS kao render-blocking po dizajnu — tesko se skroz eliminise iz koda.
-- "Legacy JavaScript ~12 KB": dolazi iz polyfilla za starije browsere. Moze se
-  smanjiti dodavanjem modernog browserslist targeta u package.json, npr.:
-      "browserslist": ["last 2 years", "not dead", "> 0.3%"]
-  ALI to je odluka o podrsci browsera (neki stariji telefoni klijenata). Nisam
-  je ukljucio da ne mijenjam podrsku bez tvoje odluke. Javi ako zelis.
-- Hero video sam po sebi ima cijenu; najveci mobilni skok bio bi da se na
-  telefonu prikaze SAMO poster (bez videa) — payload padne na ~50 KB. To
-  mijenja UX (staticni hero na mobitelu). Reci pa implementiram ako zelis
-  gurati ka 100.
+Ako zelis apsolutni maksimum: sljedeci korak bi bio smanjiti Framer Motion na
+naslovnoj (manje animacija = manje JS/reflow), ali to mijenja dojam sajta.
 
 KORACI
 ------
-1. Raspakuj preko root-a.
-2. npm run dev -> provjeri home (poster, eyebrowe), vozila (slike).
-3. git add . && git commit -m "a11y: preostali eyebrowi; perf: webp poster, LCP preload, fleet sizes" && git push
-4. Ponovo PageSpeed (mobitel): Accessibility 100; Performance vise, LCP bolji.
+1. Raspakuj preko root-a (Hero.tsx + package.json).
+2. npm install   (da browserslist promjena udje u build; nije obavezno lokalno,
+   ali Vercel ce svakako rebuild-ati)
+3. npm run dev   -> na uskom prozoru (mobilna sirina) hero je poster; na sirokom
+   je video.
+4. git add . && git commit -m "perf(mobile): poster-only hero on phones + modern browserslist" && git push
+5. Ponovo PageSpeed (mobitel).
 
 Schema/i18n nisu mijenjani.

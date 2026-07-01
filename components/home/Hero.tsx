@@ -76,9 +76,19 @@ export function Hero() {
 
   return (
     <section className="relative flex min-h-[92vh] items-center overflow-hidden">
-      {/* Background video — self-hosted, autoplay + loop, no player UI.
-          Loads far faster than a YouTube embed and has no controls/branding. */}
+      {/* Background: on phones a static poster only (no video download);
+          on tablet/desktop the autoplay loop. */}
       <div className="absolute inset-0 -z-10 bg-black">
+        {/* Mobile — poster image is the LCP; video is never fetched here. */}
+        <img
+          src="/hero-poster.webp"
+          alt=""
+          aria-hidden
+          fetchPriority="high"
+          className="absolute inset-0 h-full w-full object-cover md:hidden"
+        />
+        {/* Tablet / desktop — background video (display:none on mobile means
+            the browser does not download it there). */}
         <video
           autoPlay
           muted
@@ -89,7 +99,7 @@ export function Hero() {
           disablePictureInPicture
           aria-hidden
           tabIndex={-1}
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 hidden h-full w-full object-cover md:block"
         >
           <source src="/hero.webm" type="video/webm" />
           <source src="/hero.mp4" type="video/mp4" />
