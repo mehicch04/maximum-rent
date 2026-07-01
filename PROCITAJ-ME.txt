@@ -1,60 +1,12 @@
-MAXIMUM RENT A CAR — zadnje poluge za mobilni Performance
-=========================================================
+MAXIMUM RENT A CAR — preconnect na Supabase (zadnja sigurna poluga)
+==================================================================
 
-Dvije stvari koje STVARNO pomjeraju mobilni score:
+STA JE DODANO  [app/[locale]/page.tsx]
+--------------
+ReactDOM.preconnect(SUPABASE_URL) — browser unaprijed otvori vezu (DNS+TLS)
+prema Supabase Storage-u odakle se ucitavaju fotke vozila. Rjesava "no origins
+were preconnected" iz "Network dependency tree" audita.
+Bezbjedno, bez UX promjene. (Koristi postojeci SUPABASE_URL iz env-a.)
 
-1) MOBITEL = SAMO POSTER (bez videa)         [components/home/Hero.tsx]
-   Na telefonima se sada prikazuje samo hero-poster.webp (~51 KB), a video se
-   NE ucitava (display:none + preload="none" -> browser ga ne dohvaca na
-   mobitelu). Na tabletu/desktopu (md+) video radi normalno.
-   -> Skida ~2 MB s mobilnog payloada ("Avoid enormous network payloads"),
-      poster postaje LCP (vec je preload + fetchPriority high), manje posla na
-      glavnoj niti (bolji TBT).
-   NAPOMENA: hero na telefonu je sada STATICAN (bez animacije videa). To je
-   svjestan trade-off za performanse. Ako ti se ne svidja, lako se vraca —
-   javi.
-
-2) BROWSERSLIST (moderni target)             [package.json]
-   Dodano: "browserslist": ["last 2 years", "not dead", "> 0.3%"]
-   -> Smanjuje "Legacy JavaScript" (~12 KB) jer se ne ubacuju polyfilli za jako
-      stare browsere.
-   TRADE-OFF: ispadaju browseri stariji od ~2 godine. Za rent-a-car je ovo
-   sasvim ok (kupci su na modernim telefonima), ali ako zelis siru podrsku,
-   obrisi ovaj kljuc iz package.json i vrati se na Next default.
-
-STA NAMJERNO NISAM DIRAO (i zasto)
-----------------------------------
-Ovo daje ~0 na scoreu ili nije popravljivo iz koda (PSI i sam kaze da
-"diagnostics ne uticu direktno na Performance score"):
-- "Render-blocking requests ~450ms": Next-ovi CSS chunkovi; 450ms je mrezna
-  latencija na kriticnom putu. App Router ubacuje CSS render-blocking po
-  dizajnu — ne moze se ukloniti iz koda bez zaobilazaka koji lome stil.
-- "Forced reflow" / "long main-thread tasks": dolazi iz Framer Motion animacija
-  (useScroll/whileInView). Popravak bi znacio skidanje animacija = losiji UX
-  za mizeran dobitak na scoreu.
-- "Network dependency tree" / "Reduce unused JS 23 KB": frameworkski kod
-  (Next/next-intl/framer) — realno se ne moze znacajno smanjiti bez rewrite-a.
-
-ISKRENO O 100 NA MOBITELU
--------------------------
-Ove dvije izmjene bi trebale gurnuti mobilni Performance osjetno navise (video
-je bio najveci teret). Ali TACNO 100 na "Slow 4G" throttlingu za dinamican
-Next sajt s animacijama NIJE zagarantovano — render-blocking CSS frameworka je
-prakticna granica. Realan cilj: visoki 90-ci, moguce 100 ovisno o mjerenju
-(score varira izmedju pokretanja). Desktop je vec ~92+ i trebao bi ici na
-gotovo/100.
-
-Ako zelis apsolutni maksimum: sljedeci korak bi bio smanjiti Framer Motion na
-naslovnoj (manje animacija = manje JS/reflow), ali to mijenja dojam sajta.
-
-KORACI
-------
-1. Raspakuj preko root-a (Hero.tsx + package.json).
-2. npm install   (da browserslist promjena udje u build; nije obavezno lokalno,
-   ali Vercel ce svakako rebuild-ati)
-3. npm run dev   -> na uskom prozoru (mobilna sirina) hero je poster; na sirokom
-   je video.
-4. git add . && git commit -m "perf(mobile): poster-only hero on phones + modern browserslist" && git push
-5. Ponovo PageSpeed (mobitel).
-
-Schema/i18n nisu mijenjani.
+To je jedina preostala izmjena koju vrijedi raditi iz koda bez zrtvovanja
+necega vaznijeg. Ispod je iskren pregled ostatka.

@@ -51,6 +51,13 @@ export default async function HomePage({
     fetchPriority: "high",
   });
 
+  // Warm up the connection to Supabase Storage (fleet photos load from there),
+  // so the browser doesn't pay DNS+TLS cost only when the images are needed.
+  const supabaseUrl = process.env.SUPABASE_URL;
+  if (supabaseUrl) {
+    ReactDOM.preconnect(supabaseUrl, { crossOrigin: "anonymous" });
+  }
+
   const t = await getTranslations("Fleet");
 
   const [locations, featured] = await Promise.all([
