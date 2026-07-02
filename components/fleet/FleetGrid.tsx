@@ -19,6 +19,8 @@ type Props = {
   locations?: { id: string; name: string }[];
   /** Hide the type-filter bar (e.g. on the homepage featured section). */
   showFilters?: boolean;
+  /** Eagerly load the first few car photos (use on the dedicated fleet page). */
+  eagerFirstImages?: boolean;
 };
 
 /**
@@ -26,7 +28,7 @@ type Props = {
  * active type filter. Filtering is done client-side because the fleet is small
  * — instant, no extra requests. Cars can match several categories at once.
  */
-export function FleetGrid({ cars, search, locations, showFilters = true }: Props) {
+export function FleetGrid({ cars, search, locations, showFilters = true, eagerFirstImages = false }: Props) {
   const t = useTranslations("Fleet");
   const [selected, setSelected] = useState<CarListItem | null>(null);
   const [active, setActive] = useState<CarCategory | "ALL">("ALL");
@@ -84,6 +86,7 @@ export function FleetGrid({ cars, search, locations, showFilters = true }: Props
               car={car}
               search={search}
               index={i}
+              priority={eagerFirstImages && i < 3}
               onSelect={setSelected}
             />
           ))}

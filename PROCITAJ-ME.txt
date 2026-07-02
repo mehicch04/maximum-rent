@@ -1,31 +1,40 @@
-MAXIMUM RENT A CAR — popravka "duplog učitavanja" kartica
-=========================================================
+MAXIMUM RENT A CAR — brže učitavanje stranice vozila
+====================================================
 
-GDJE
-----
-Kartice u sekcijama "Najam bez kompromisa" (WhyChoose) i "Preuzimanje širom
-Hercegovine" (Locations).
+CILJ: da se auti pojave brže kad neko dodje na stranicu /vozila.
 
-UZROK
------
-Te kartice su imale Tailwind klasu "transition-all duration-300" (za hover), a
-Framer Motion istovremeno animira opacity i transform pri ulasku u vidokrug.
-CSS "transition-all" pokusava da animira BAS te iste osobine (opacity/transform)
-koje Framer vec mijenja frame po frame, pa se ulazna animacija efektivno odigra
-dvaput -> "ucita se, trepne, ucita opet". (Zato je pogadjalo bas kartice, jer
-samo one imaju i whileInView i transition-all na istom elementu.)
+STA JE URADJENO (sigurne izmjene, bez rizika)
+---------------------------------------------
+1) Prioritet prvih slika
+   Prve 3 kartice sada ucitavaju sliku ODMAH (eager + visok prioritet) umjesto
+   lazy. Ostale ostaju lazy (ucitaju se kako skrolas). Rezultat: auti "iznad
+   pregiba" se pojave gotovo odmah, bez cekanja.
+   Vazno: ovo je ukljuceno SAMO na stranici /vozila (eagerFirstImages), NE na
+   naslovnoj, da ne krade prioritet od hero slike na home-u.
 
-RJESENJE  [WhyChoose.tsx, Locations.tsx]
---------
-- "transition-all" -> "transition-shadow" (CSS sada dira samo sjenku, ne dira
-  opacity ni transform koje Framer animira).
-- Hover podizanje ("hover:-translate-y-1") prebaceno na Framer: whileHover={{ y: -4 }}
-  sa vlastitim kratkim trajanjem. Tako Framer sam vlada transformom, bez sukoba,
-  a hover ostaje gladak.
-Rezultat: kartice ulaze jednom, glatko, bez treptanja. Hover efekat radi isto kao prije.
+2) Preconnect na Supabase (odakle dolaze fotke auta)
+   Browser ranije otvori vezu (DNS+TLS) prema Supabase Storage-u, pa slike krenu
+   da se ucitavaju brze cim zatrebaju.
+
+FAJLOVI
+-------
+  components/fleet/CarGallery.tsx     (priority na prvoj slici)
+  components/fleet/CarCard.tsx        (prosljedjuje priority)
+  components/fleet/FleetGrid.tsx      (eagerFirstImages -> prve 3 kartice)
+  app/[locale]/vozila/page.tsx        (ukljucuje eager + Supabase preconnect)
+  components/ui/WhatsAppIcon.tsx      (zavisnost CarCard-a, ukljucena za svaki slucaj)
 
 KORACI
 ------
 1. Raspakuj preko root-a.
-2. npm run dev -> skrolaj do te dvije sekcije: kartice se pojave jednom, cisto.
-3. git add . && git commit -m "fix: ukloni Framer/transition-all sukob na karticama (duplo ucitavanje)" && git push
+2. npm run dev -> otvori /vozila: prve kartice auta se pojave odmah.
+3. git add . && git commit -m "perf(fleet): eager+priority za prve slike auta, Supabase preconnect" && git push
+
+OPCIONALNO (veci dobitak na TTFB, ali trazi malo paznje)
+--------------------------------------------------------
+Kad se NE pretrazuje po datumu, lista auta se moze KESIRATI (unstable_cache +
+revalidate), pa se baza ne poziva pri svakoj posjeti. Auti se mijenjaju rijetko
+(samo kad ti u adminu dodas/obrises), pa bi kes sa osvezavanjem npr. svakih
+2 min bio siguran. Nisam to ukljucio sada da ostane jednostavno i bez rizika od
+prikaza zastarjelih podataka. Ako zelis, javi pa dodam (uz osvezavanje kesa kad
+u adminu promijenis flotu).

@@ -10,13 +10,15 @@ type Props = {
   title: string;
   /** Called when the visitor taps/clicks the photo (opens the lightbox). */
   onOpen?: (index: number) => void;
+  /** Load the first shown image eagerly + high priority (above-the-fold cards). */
+  priority?: boolean;
 };
 
 /**
  * Compact gallery for car cards: arrows + dots + touch swipe, no separate
  * page needed. Falls back to the car icon when there are no photos.
  */
-export function CarGallery({ images, title, onOpen }: Props) {
+export function CarGallery({ images, title, onOpen, priority = false }: Props) {
   const t = useTranslations("Common");
   const [index, setIndex] = useState(0);
   const touchX = useRef<number | null>(null);
@@ -56,6 +58,7 @@ export function CarGallery({ images, title, onOpen }: Props) {
           src={images[index]}
           alt={`${title} — ${index + 1}/${count}`}
           fill
+          priority={priority && index === 0}
           sizes="(max-width: 639px) 84vw, (max-width: 1023px) 44vw, 31vw"
           className="object-contain p-6 transition-transform duration-500 ease-out group-hover/gallery:scale-[1.03]"
         />

@@ -22,9 +22,11 @@ type Props = {
   search?: SearchContext;
   onSelect?: (car: CarListItem) => void;
   index?: number;
+  /** Eagerly load this card's photo (first above-the-fold cards on the fleet page). */
+  priority?: boolean;
 };
 
-export function CarCard({ car, search, onSelect, index = 0 }: Props) {
+export function CarCard({ car, search, onSelect, index = 0, priority = false }: Props) {
   const locale = useLocale() as AppLocale;
   const t = useTranslations("Fleet");
   const common = useTranslations("Common");
@@ -71,7 +73,7 @@ export function CarCard({ car, search, onSelect, index = 0 }: Props) {
         {label(CLASS_LABELS[car.carClass], locale)}
       </span>
 
-      <CarGallery images={images} title={car.title} onOpen={setLightbox} />
+      <CarGallery images={images} title={car.title} onOpen={setLightbox} priority={priority} />
 
       <ImageLightbox
         images={images}
