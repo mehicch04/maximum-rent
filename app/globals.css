@@ -141,9 +141,19 @@
 }
 
 @layer components {
+  /* Mobitel/tablet: puna (neprozirna) pozadina BEZ backdrop-filtera.
+     Jak backdrop-blur na sticky traci izaziva stalni repaint tokom skrola
+     (treptanje, posebno na iOS Safariju), pa ga tu izbjegavamo. */
   .glass {
-    @apply backdrop-blur-xl backdrop-saturate-150;
-    background: hsl(var(--background) / 0.72);
+    background: hsl(var(--background));
     border-bottom: 1px solid hsl(var(--border) / 0.6);
+  }
+  /* Desktop: vraćamo stakleni (blur) izgled — tamo nema scroll flickera. */
+  @media (min-width: 1024px) {
+    .glass {
+      background: hsl(var(--background) / 0.72);
+      -webkit-backdrop-filter: blur(24px) saturate(1.5);
+      backdrop-filter: blur(24px) saturate(1.5);
+    }
   }
 }
