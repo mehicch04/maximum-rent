@@ -1,34 +1,31 @@
-MAXIMUM RENT A CAR — popravka "treptanja/duplog učitavanja" na mobitelu
-======================================================================
+MAXIMUM RENT A CAR — popravka "duplog učitavanja" kartica
+=========================================================
+
+GDJE
+----
+Kartice u sekcijama "Najam bez kompromisa" (WhyChoose) i "Preuzimanje širom
+Hercegovine" (Locations).
 
 UZROK
 -----
-Navbar je sticky (lijepi se na vrh) i cim skrolas dobija .glass klasu koja
-koristi jak backdrop-blur (backdrop-blur-xl + saturate) preko poluprozirne
-pozadine. Na mobitelu (narocito iOS Safari) backdrop-blur na sticky traci tjera
-browser da CIJELU oblast ispod trake iznova iscrtava tokom skrola. To izgleda
-kao da se sadrzaj "ucita, trepne pa ucita opet", i to kroz cijeli sajt.
+Te kartice su imale Tailwind klasu "transition-all duration-300" (za hover), a
+Framer Motion istovremeno animira opacity i transform pri ulasku u vidokrug.
+CSS "transition-all" pokusava da animira BAS te iste osobine (opacity/transform)
+koje Framer vec mijenja frame po frame, pa se ulazna animacija efektivno odigra
+dvaput -> "ucita se, trepne, ucita opet". (Zato je pogadjalo bas kartice, jer
+samo one imaju i whileInView i transition-all na istom elementu.)
 
-(Provjereno: reveal animacije vec imaju once:true pa NISU uzrok; nema parallaxa
-ni remounta. Krivac je backdrop-blur na sticky navbaru.)
-
-RJESENJE  [app/globals.css -> .glass]
+RJESENJE  [WhyChoose.tsx, Locations.tsx]
 --------
-- Mobitel i tablet (< 1024px): traka sada ima PUNU, neprozirnu pozadinu BEZ
-  backdrop-filtera. Nema blura -> nema repaint-a -> nema treptanja.
-- Desktop (>= 1024px): stakleni (blur) izgled ostaje, jer tamo nema tog
-  problema. Vizuelno na desktopu sve izgleda isto kao prije.
-
-Nista drugo nije dirano. .glass koristi samo Navbar (i mobilni meni), pa promjena
-ne utice na ostatak sajta.
+- "transition-all" -> "transition-shadow" (CSS sada dira samo sjenku, ne dira
+  opacity ni transform koje Framer animira).
+- Hover podizanje ("hover:-translate-y-1") prebaceno na Framer: whileHover={{ y: -4 }}
+  sa vlastitim kratkim trajanjem. Tako Framer sam vlada transformom, bez sukoba,
+  a hover ostaje gladak.
+Rezultat: kartice ulaze jednom, glatko, bez treptanja. Hover efekat radi isto kao prije.
 
 KORACI
 ------
-1. Raspakuj preko root-a (prepisi app/globals.css).
-2. npm run dev -> na mobilnoj sirini skrolaj: traka je puna, sadrzaj vise ne
-   trepce. Na desktopu blur ostaje.
-3. git add . && git commit -m "fix(mobile): ukloni backdrop-blur na sticky navbaru (scroll flicker)" && git push
-
-Ako bi treptanje kojim slucajem i dalje ostalo (manje vjerovatno), sljedeci
-osumnjiceni su reveal animacije na tvom konkretnom telefonu, pa javi pa ih
-dodatno smirimo (npr. laksi efekat na mobitelu).
+1. Raspakuj preko root-a.
+2. npm run dev -> skrolaj do te dvije sekcije: kartice se pojave jednom, cisto.
+3. git add . && git commit -m "fix: ukloni Framer/transition-all sukob na karticama (duplo ucitavanje)" && git push

@@ -28,9 +28,10 @@ export function WhyChoose() {
               key={i}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -4, transition: { duration: 0.25, ease } }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, delay: Math.min(i * 0.08, 0.32), ease }}
-              className="group rounded-2xl border border-border bg-surface p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover"
+              className="group rounded-2xl border border-border bg-surface p-6 shadow-card transition-shadow duration-300 hover:shadow-card-hover"
             >
               <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 text-brand transition-colors duration-300 group-hover:bg-brand group-hover:text-brand-foreground">
                 <Icon className="h-6 w-6" />

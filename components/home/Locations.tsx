@@ -28,9 +28,10 @@ export function Locations() {
               key={loc.name}
               initial={{ opacity: 0, y: 18 }}
               whileInView={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -4, transition: { duration: 0.25, ease } }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, delay: Math.min(i * 0.06, 0.3), ease }}
-              className={`group relative overflow-hidden rounded-2xl border p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover ${
+              className={`group relative overflow-hidden rounded-2xl border p-6 shadow-card transition-shadow duration-300 hover:shadow-card-hover ${
                 isAirport
                   ? "border-brand/40 bg-gradient-to-br from-brand/[0.07] to-surface"
                   : "border-border bg-surface"
