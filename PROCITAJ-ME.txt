@@ -1,41 +1,28 @@
-MAXIMUM RENT A CAR — jos brze ucitavanje vozila (keširanje)
-===========================================================
+MAXIMUM RENT A CAR — ikonica vrata AUTA umjesto kucnih vrata
+============================================================
 
-STA JE DODANO (na prethodni fix sa prioritetom slika)
------------------------------------------------------
-Lista auta i lokacije se sada KESIRAJU. Ranije se baza pozivala pri SVAKOJ
-posjeti stranici /vozila. Sada se odgovor cuva u Next Data Cache-u, pa stranica
-krece gotovo trenutno (nema DB poziva na kriticnom putu = brzi TTFB).
-
-Svjezina podataka (sigurno):
-  - Kes se osvjezava svakih 5 minuta, ILI
-  - ODMAH kad u adminu dodas / uredis / obrises auto (revalidateTag("fleet")).
-Znaci nikad ne vidi zastarjelu listu nakon tvoje izmjene.
-
-Vazno: pretraga PO DATUMU (dostupnost) NIJE kesirana — ostaje uzivo, da se
-nikad ne prikaze vec rezervisan auto kao slobodan.
+STA JE URADJENO
+---------------
+lucide nema ikonicu automobilskih vrata (DoorOpen izgleda kao kucna vrata).
+Napravljena je custom ikonica vrata AUTA (components/ui/CarDoorIcon.tsx) u istom
+stroke-stilu kao ostale ikonice na kartici, pa se uklapa. CarCard je sada
+koristi za broj vrata umjesto DoorOpen.
 
 FAJLOVI
 -------
-  lib/fleet-data.ts                 (NOVO — kesirani upiti: getBrowseCars, getActiveLocations)
-  app/[locale]/vozila/page.tsx      (koristi kesirane upite + prioritet slika + preconnect)
-  app/admin/vozila/actions.ts       (revalidateTag("fleet") pri izmjeni flote)
-  components/fleet/FleetGrid.tsx    ]
-  components/fleet/CarCard.tsx      ]  (prioritet prvih slika — iz proslog fixa,
-  components/fleet/CarGallery.tsx   ]   ukljuceno da zip radi samostalno)
-  components/ui/WhatsAppIcon.tsx     (zavisnost CarCard-a)
+  components/ui/CarDoorIcon.tsx     (NOVO — ikonica vrata auta)
+  components/fleet/CarCard.tsx      (koristi CarDoorIcon)
+  components/ui/WhatsAppIcon.tsx    (zavisnost CarCard-a)
 
-STA SVE SADA UBRZAVA /vozila
-----------------------------
-1. Prve 3 slike auta se ucitavaju odmah (eager + prioritet).
-2. Preconnect na Supabase (brza veza za slike).
-3. Lista auta iz kesa (bez DB poziva svaki put) -> brzi TTFB.
+VAZNO
+-----
+Nisam mogao vizuelno provjeriti izgled ikonice u ovoj sesiji (alat za prikaz
+slika je bio u kvaru). Molim te baci pogled u "npm run dev" na /vozila. Ako
+ti nesto ne stima (npr. deblji stroke, veci prozor, jasnija kvaka), javi pa
+podesim -- geometrija je u jednom malom SVG-u, lako se stela.
 
 KORACI
 ------
 1. Raspakuj preko root-a.
-2. npm run dev -> /vozila se ucita brze; dodaj auto u adminu pa provjeri da se
-   odmah pojavi u listi (kes se busta).
-3. git add . && git commit -m "perf(fleet): kesiraj listu auta + on-demand revalidate" && git push
-
-Schema NIJE mijenjana -> nema prisma generate / db push.
+2. npm run dev -> /vozila: provjeri ikonicu vrata na kartici.
+3. git add . && git commit -m "feat(card): ikonica vrata auta umjesto kucnih vrata" && git push

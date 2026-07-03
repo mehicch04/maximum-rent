@@ -14,6 +14,7 @@ import {
 import { buildWhatsAppUrl, type InquiryContext } from "@/lib/whatsapp";
 import type { CarListItem, SearchContext } from "@/lib/types";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
+import { CarDoorIcon } from "@/components/ui/CarDoorIcon";
 import { CarGallery } from "./CarGallery";
 import { ImageLightbox } from "./ImageLightbox";
 
@@ -54,6 +55,7 @@ export function CarCard({ car, search, onSelect, index = 0, priority = false }: 
         .filter(Boolean)
         .join(" · "),
     },
+    { icon: CarDoorIcon, value: String(car.doors) },
   ];
 
   return (
