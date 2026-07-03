@@ -15,6 +15,7 @@ import { buildWhatsAppUrl, type InquiryContext } from "@/lib/whatsapp";
 import type { CarListItem, SearchContext } from "@/lib/types";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { CarDoorIcon } from "@/components/ui/CarDoorIcon";
+import { Price } from "@/components/currency/Price";
 import { CarGallery } from "./CarGallery";
 import { ImageLightbox } from "./ImageLightbox";
 
@@ -108,9 +109,10 @@ export function CarCard({ car, search, onSelect, index = 0, priority = false }: 
         {car.pricePerDay != null && (
           <p className="text-sm text-muted-foreground">
             {common("from")}{" "}
-            <span className="text-base font-semibold text-foreground">
-              {car.pricePerDay.toFixed(0)} {car.currency}
-            </span>{" "}
+            <Price
+              bam={car.pricePerDay}
+              className="text-base font-semibold text-foreground"
+            />{" "}
             / {common("perDay")}
           </p>
         )}

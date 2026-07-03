@@ -203,3 +203,21 @@ model ContactRequest {
 
   @@index([createdAt])
 }
+
+// Brute-force protection for the admin login. One row per client IP.
+// Written on failed attempts, cleared on success, and read on every attempt.
+model AdminLoginAttempt {
+  ip          String    @id
+  failedCount Int       @default(0)
+  windowStart DateTime  @default(now())
+  lockedUntil DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  @@index([lockedUntil])
+}
+
+// Simple key/value store for site-wide settings (e.g. primary currency).
+model Setting {
+  key   String @id
+  value String
+}

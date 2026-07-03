@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarCheck, Car } from "lucide-react";
+import { CalendarCheck, Car, Settings } from "lucide-react";
 
 const TABS = [
   { href: "/admin", label: "Rezervacije", icon: CalendarCheck, exact: true },
   { href: "/admin/vozila", label: "Vozila", icon: Car, exact: false },
+  { href: "/admin/postavke", label: "Postavke", icon: Settings, exact: false },
 ];
 
 export function AdminNav() {

@@ -1,66 +1,73 @@
-MAXIMUM RENT A CAR — ubrzanje admin panela (sigurne izmjene)
-===========================================================
+MAXIMUM RENT A CAR — dvije valute (KM i €) + admin izbor primarne valute
+========================================================================
 
-U ZIP-u su DVIJE izmjene, obje bez rizika:
+KLJUCNO: marka je ZAKONSKI fiksno vezana za euro: 1 EUR = 1.95583 KM.
+Zato NEMA zivog kursa ni API-ja — konverzija je konstanta i uvijek tacna.
 
-1) vercel.json  ->  "regions": ["fra1"]
-   Postavlja Vercel funkcije u Frankfurt, da budu BLIZU tvoje Supabase baze.
-   Ovo je najveci dobitak: svaki upit vise ne putuje preko Atlantika.
-   *** MORAS PROVJERITI DA LI JE fra1 TACAN ZA TEBE (vidi dole). ***
-   Postojeci cron je sacuvan netaknut.
+STA JE DODANO
+-------------
+1) Prekidac valute (KM / €) u vrhu sajta (navbar). Posjetilac klikne i SVE
+   cijene se odmah preracunaju. Izbor se pamti (localStorage).
+2) Cijene se i dalje UNOSE u markama u adminu. Prikaz u eurima se racuna
+   automatski i ZAOKRUZUJE (npr. 110 KM -> 56 €).
+3) Admin postavka primarne valute: /admin/postavke (novi tab "Postavke").
+   Vlasnik bira da li se sajtu podrazumijevano prikazuje KM ili € (posjetilac
+   svejedno moze prebaciti). Cuva se u bazi.
 
-2) app/admin/loading.tsx  (NOVO)
-   Instant skeleton koji se prikaze ODMAH pri svakoj navigaciji na admin
-   (i odmah nakon logina), umjesto praznog ekrana dok server dohvaca podatke.
-   Osjeti se kao da je panel puno brzi.
+KAKO RADI (ukratko)
+-------------------
+- Cijene su u bazi u KM (kao i do sada).
+- lib/currency.ts radi konverziju (fiksni kurs) + zaokruzivanje + format.
+- CurrencyProvider drzi trenutnu valutu; pocetna = admin postavka; posjetilac
+  je mijenja preko CurrencySwitch u navbaru.
+- Price komponenta prikazuje bilo koji KM iznos u odabranoj valuti.
+- Kartica auta (CarCard) sada koristi <Price/> umjesto fiksnog "KM".
 
------------------------------------------------------------------------
-STA JOS TREBAS URADITI RUCNO (nije u zipu, jer nije u kodu)
------------------------------------------------------------------------
+FAJLOVI
+-------
+  lib/currency.ts                              (NOVO — kurs/konverzija/format)
+  lib/settings.ts                              (NOVO — cita primarnu valutu, kesirano)
+  components/currency/CurrencyProvider.tsx     (NOVO)
+  components/currency/CurrencySwitch.tsx       (NOVO — KM/€ prekidac)
+  components/currency/Price.tsx                (NOVO)
+  components/fleet/CarCard.tsx                 (koristi <Price/>)
+  components/layout/Navbar.tsx                 (dodan prekidac)
+  app/[locale]/layout.tsx                      (CurrencyProvider + cita postavku)
+  components/admin/AdminNav.tsx                (novi tab "Postavke")
+  app/admin/postavke/page.tsx                  (NOVO — izbor valute)
+  app/admin/postavke/actions.ts                (NOVO — cuvanje u bazu)
+  prisma/schema.prisma                         (NOVO model: Setting)
+  components/ui/WhatsAppIcon.tsx, CarDoorIcon.tsx  (zavisnosti CarCard-a)
 
-A) PROVJERI REGIJU (2 minute, najvazniji korak)
-   1. Vercel -> tvoj projekat -> Settings -> Environment Variables -> DATABASE_URL.
-   2. Pogledaj HOST u toj adresi, npr:  aws-0-eu-central-1.pooler.supabase.com
-      -> "eu-central-1" znaci Frankfurt  ->  Vercel kod je "fra1"  (vec upisano)
-      -> "eu-west-1"    = Irska          ->  promijeni u "dub1"
-      -> "us-east-1"    = Virginia       ->  promijeni u "iad1"
-      -> "eu-west-2"    = London         ->  promijeni u "lhr1"
-   3. Ako tvoj region NIJE eu-central-1, otvori vercel.json i zamijeni "fra1"
-      odgovarajucim kodom iz gornje liste. Ako JESTE eu-central-1, ne diras nista.
+*** SCHEMA SE PROMIJENILA -> OBAVEZNO: ***
+  npx prisma generate
+  npx prisma db push        (kreira tabelu Setting — nedestruktivno)
 
-B) DODAJ connection_limit U DATABASE_URL (Vercel env, ne u kodu)
-   U Vercel -> Settings -> Environment Variables -> DATABASE_URL, na KRAJ dodaj
-   &connection_limit=1  , npr:
-     ...pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
-   (Ubrzava pooling na serverless-u i sprjecava iscrpljivanje konekcija.)
-   Nakon izmjene -> Redeploy.
+Napomena: schema.prisma mozda sadrzi i model AdminLoginAttempt (iz ranijeg
+security fix-a). Ako ga vec imas, sve je isto; ako nemas, samo se kreira jos
+jedna prazna tabela — bezopasno.
 
-C) (OPCIONALNO) Suzeni upit
-   U app/admin/page.tsx, prvom prisma.inquiry.findMany dodaj "select" sa samo
-   poljima koja tabela crta (ti znas markup), da payload bude manji. Nisam to
-   ubacio da ne slomim prikaz ako neko polje fali u select-u.
+KORACI
+------
+1. Raspakuj preko root-a.
+2. npx prisma generate && npx prisma db push
+3. npm run dev  -> u navbaru probaj KM/€; na /admin/postavke promijeni primarnu
+   valutu i provjeri da se default na sajtu promijenio.
+4. git add . && git commit -m "feat: KM/EUR prekidac + admin primarna valuta (fiksni kurs)" && git push
 
-KORACI ZA DEPLOY
-----------------
-1. Raspakuj zip preko root-a projekta (dodaje loading.tsx, mijenja vercel.json).
-2. Provjeri/ispravi regiju u vercel.json (tacka A).
-3. Dodaj connection_limit u Vercel env (tacka B) i Redeploy.
-4. git add . && git commit -m "perf(admin): vercel region + instant loading skeleton" && git push
+VAZNO (testiranje)
+------------------
+Alat za prikaz slika mi je u ovoj sesiji bio u kvaru pa NISAM mogao vizuelno
+provjeriti izgled. TypeScript je cist i sve je wire-ovano po tvom postojecem
+kodu, ali molim te pokreni "npm run dev" i baci pogled prije push-a:
+  - prekidac KM/€ u navbaru (i na mobitelu da ne stiska)
+  - cijena na kartici se mijenja i zaokruzuje
+  - /admin/postavke cuva izbor
+Ako nesto ne stima (razmak u navbaru, zaokruzivanje na .5 umjesto na cijeli
+broj, itd.) javi — lako se stela.
 
-KAKO TESTIRATI (prije/poslije)
-------------------------------
-- Login brzina (hladno pa toplo), preko terminala:
-    curl -o /dev/null -s -w "ttfb:%{time_starttransfer}s total:%{time_total}s\n" \
-      -X POST https://maximum-rent.vercel.app/api/admin/login \
-      -H "Content-Type: application/json" -d '{"password":"TVOJA_LOZINKA"}'
-  Uporedi prvi (cold) i drugi (warm) poziv.
-- Chrome DevTools -> Network: otvori admin, gledaj TTFB na dokumentu i na
-  "?_rsc=" dohvatima pri navigaciji. Visok TTFB = ceka se baza (regija/cold),
-  ne tvoja mreza.
-- Vercel -> Logs: trajanje funkcije po pozivu (prije/poslije regije).
-
-OCEKIVANJE
-----------
-Tacke 1 (regija) + 2 (loading) + B (connection_limit) obicno rijese najveci dio
-"tromosti" logina i navigacije, jer napadaju pravi uzrok: mreznu latenciju do
-baze i prazan ekran tokom cekanja. Sam hash lozinke je vec brz i nije problem.
+ZAOKRUZIVANJE
+-------------
+Trenutno zaokruzujem na CIJELI broj (110 KM -> 56 €). Ako zelis na 2 decimale
+(56.24 €) ili na najblizih 5, promjena je jedna linija u lib/currency.ts
+(funkcija displayAmount) — javi.

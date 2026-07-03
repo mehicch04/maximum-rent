@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { NAV_LINKS } from "@/lib/site-config";
 import { ThemeToggle } from "./ThemeToggle";
+import { CurrencySwitch } from "@/components/currency/CurrencySwitch";
 import { LanguageToggle } from "./LanguageToggle";
 
 export function Navbar() {
@@ -74,6 +75,7 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           {/* Language is always visible (replaces the theme toggle on mobile) */}
           <LanguageToggle />
+          <CurrencySwitch />
           {/* Theme toggle only from sm and up */}
           <div className="hidden sm:block">
             <ThemeToggle />
