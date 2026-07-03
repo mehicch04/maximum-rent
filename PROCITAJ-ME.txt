@@ -1,28 +1,66 @@
-MAXIMUM RENT A CAR — ikonica vrata AUTA umjesto kucnih vrata
-============================================================
+MAXIMUM RENT A CAR — ubrzanje admin panela (sigurne izmjene)
+===========================================================
 
-STA JE URADJENO
----------------
-lucide nema ikonicu automobilskih vrata (DoorOpen izgleda kao kucna vrata).
-Napravljena je custom ikonica vrata AUTA (components/ui/CarDoorIcon.tsx) u istom
-stroke-stilu kao ostale ikonice na kartici, pa se uklapa. CarCard je sada
-koristi za broj vrata umjesto DoorOpen.
+U ZIP-u su DVIJE izmjene, obje bez rizika:
 
-FAJLOVI
--------
-  components/ui/CarDoorIcon.tsx     (NOVO — ikonica vrata auta)
-  components/fleet/CarCard.tsx      (koristi CarDoorIcon)
-  components/ui/WhatsAppIcon.tsx    (zavisnost CarCard-a)
+1) vercel.json  ->  "regions": ["fra1"]
+   Postavlja Vercel funkcije u Frankfurt, da budu BLIZU tvoje Supabase baze.
+   Ovo je najveci dobitak: svaki upit vise ne putuje preko Atlantika.
+   *** MORAS PROVJERITI DA LI JE fra1 TACAN ZA TEBE (vidi dole). ***
+   Postojeci cron je sacuvan netaknut.
 
-VAZNO
------
-Nisam mogao vizuelno provjeriti izgled ikonice u ovoj sesiji (alat za prikaz
-slika je bio u kvaru). Molim te baci pogled u "npm run dev" na /vozila. Ako
-ti nesto ne stima (npr. deblji stroke, veci prozor, jasnija kvaka), javi pa
-podesim -- geometrija je u jednom malom SVG-u, lako se stela.
+2) app/admin/loading.tsx  (NOVO)
+   Instant skeleton koji se prikaze ODMAH pri svakoj navigaciji na admin
+   (i odmah nakon logina), umjesto praznog ekrana dok server dohvaca podatke.
+   Osjeti se kao da je panel puno brzi.
 
-KORACI
-------
-1. Raspakuj preko root-a.
-2. npm run dev -> /vozila: provjeri ikonicu vrata na kartici.
-3. git add . && git commit -m "feat(card): ikonica vrata auta umjesto kucnih vrata" && git push
+-----------------------------------------------------------------------
+STA JOS TREBAS URADITI RUCNO (nije u zipu, jer nije u kodu)
+-----------------------------------------------------------------------
+
+A) PROVJERI REGIJU (2 minute, najvazniji korak)
+   1. Vercel -> tvoj projekat -> Settings -> Environment Variables -> DATABASE_URL.
+   2. Pogledaj HOST u toj adresi, npr:  aws-0-eu-central-1.pooler.supabase.com
+      -> "eu-central-1" znaci Frankfurt  ->  Vercel kod je "fra1"  (vec upisano)
+      -> "eu-west-1"    = Irska          ->  promijeni u "dub1"
+      -> "us-east-1"    = Virginia       ->  promijeni u "iad1"
+      -> "eu-west-2"    = London         ->  promijeni u "lhr1"
+   3. Ako tvoj region NIJE eu-central-1, otvori vercel.json i zamijeni "fra1"
+      odgovarajucim kodom iz gornje liste. Ako JESTE eu-central-1, ne diras nista.
+
+B) DODAJ connection_limit U DATABASE_URL (Vercel env, ne u kodu)
+   U Vercel -> Settings -> Environment Variables -> DATABASE_URL, na KRAJ dodaj
+   &connection_limit=1  , npr:
+     ...pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
+   (Ubrzava pooling na serverless-u i sprjecava iscrpljivanje konekcija.)
+   Nakon izmjene -> Redeploy.
+
+C) (OPCIONALNO) Suzeni upit
+   U app/admin/page.tsx, prvom prisma.inquiry.findMany dodaj "select" sa samo
+   poljima koja tabela crta (ti znas markup), da payload bude manji. Nisam to
+   ubacio da ne slomim prikaz ako neko polje fali u select-u.
+
+KORACI ZA DEPLOY
+----------------
+1. Raspakuj zip preko root-a projekta (dodaje loading.tsx, mijenja vercel.json).
+2. Provjeri/ispravi regiju u vercel.json (tacka A).
+3. Dodaj connection_limit u Vercel env (tacka B) i Redeploy.
+4. git add . && git commit -m "perf(admin): vercel region + instant loading skeleton" && git push
+
+KAKO TESTIRATI (prije/poslije)
+------------------------------
+- Login brzina (hladno pa toplo), preko terminala:
+    curl -o /dev/null -s -w "ttfb:%{time_starttransfer}s total:%{time_total}s\n" \
+      -X POST https://maximum-rent.vercel.app/api/admin/login \
+      -H "Content-Type: application/json" -d '{"password":"TVOJA_LOZINKA"}'
+  Uporedi prvi (cold) i drugi (warm) poziv.
+- Chrome DevTools -> Network: otvori admin, gledaj TTFB na dokumentu i na
+  "?_rsc=" dohvatima pri navigaciji. Visok TTFB = ceka se baza (regija/cold),
+  ne tvoja mreza.
+- Vercel -> Logs: trajanje funkcije po pozivu (prije/poslije regije).
+
+OCEKIVANJE
+----------
+Tacke 1 (regija) + 2 (loading) + B (connection_limit) obicno rijese najveci dio
+"tromosti" logina i navigacije, jer napadaju pravi uzrok: mreznu latenciju do
+baze i prazan ekran tokom cekanja. Sam hash lozinke je vec brz i nije problem.
