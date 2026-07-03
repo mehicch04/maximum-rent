@@ -1,40 +1,41 @@
-MAXIMUM RENT A CAR — brže učitavanje stranice vozila
-====================================================
+MAXIMUM RENT A CAR — jos brze ucitavanje vozila (keširanje)
+===========================================================
 
-CILJ: da se auti pojave brže kad neko dodje na stranicu /vozila.
+STA JE DODANO (na prethodni fix sa prioritetom slika)
+-----------------------------------------------------
+Lista auta i lokacije se sada KESIRAJU. Ranije se baza pozivala pri SVAKOJ
+posjeti stranici /vozila. Sada se odgovor cuva u Next Data Cache-u, pa stranica
+krece gotovo trenutno (nema DB poziva na kriticnom putu = brzi TTFB).
 
-STA JE URADJENO (sigurne izmjene, bez rizika)
----------------------------------------------
-1) Prioritet prvih slika
-   Prve 3 kartice sada ucitavaju sliku ODMAH (eager + visok prioritet) umjesto
-   lazy. Ostale ostaju lazy (ucitaju se kako skrolas). Rezultat: auti "iznad
-   pregiba" se pojave gotovo odmah, bez cekanja.
-   Vazno: ovo je ukljuceno SAMO na stranici /vozila (eagerFirstImages), NE na
-   naslovnoj, da ne krade prioritet od hero slike na home-u.
+Svjezina podataka (sigurno):
+  - Kes se osvjezava svakih 5 minuta, ILI
+  - ODMAH kad u adminu dodas / uredis / obrises auto (revalidateTag("fleet")).
+Znaci nikad ne vidi zastarjelu listu nakon tvoje izmjene.
 
-2) Preconnect na Supabase (odakle dolaze fotke auta)
-   Browser ranije otvori vezu (DNS+TLS) prema Supabase Storage-u, pa slike krenu
-   da se ucitavaju brze cim zatrebaju.
+Vazno: pretraga PO DATUMU (dostupnost) NIJE kesirana — ostaje uzivo, da se
+nikad ne prikaze vec rezervisan auto kao slobodan.
 
 FAJLOVI
 -------
-  components/fleet/CarGallery.tsx     (priority na prvoj slici)
-  components/fleet/CarCard.tsx        (prosljedjuje priority)
-  components/fleet/FleetGrid.tsx      (eagerFirstImages -> prve 3 kartice)
-  app/[locale]/vozila/page.tsx        (ukljucuje eager + Supabase preconnect)
-  components/ui/WhatsAppIcon.tsx      (zavisnost CarCard-a, ukljucena za svaki slucaj)
+  lib/fleet-data.ts                 (NOVO — kesirani upiti: getBrowseCars, getActiveLocations)
+  app/[locale]/vozila/page.tsx      (koristi kesirane upite + prioritet slika + preconnect)
+  app/admin/vozila/actions.ts       (revalidateTag("fleet") pri izmjeni flote)
+  components/fleet/FleetGrid.tsx    ]
+  components/fleet/CarCard.tsx      ]  (prioritet prvih slika — iz proslog fixa,
+  components/fleet/CarGallery.tsx   ]   ukljuceno da zip radi samostalno)
+  components/ui/WhatsAppIcon.tsx     (zavisnost CarCard-a)
+
+STA SVE SADA UBRZAVA /vozila
+----------------------------
+1. Prve 3 slike auta se ucitavaju odmah (eager + prioritet).
+2. Preconnect na Supabase (brza veza za slike).
+3. Lista auta iz kesa (bez DB poziva svaki put) -> brzi TTFB.
 
 KORACI
 ------
 1. Raspakuj preko root-a.
-2. npm run dev -> otvori /vozila: prve kartice auta se pojave odmah.
-3. git add . && git commit -m "perf(fleet): eager+priority za prve slike auta, Supabase preconnect" && git push
+2. npm run dev -> /vozila se ucita brze; dodaj auto u adminu pa provjeri da se
+   odmah pojavi u listi (kes se busta).
+3. git add . && git commit -m "perf(fleet): kesiraj listu auta + on-demand revalidate" && git push
 
-OPCIONALNO (veci dobitak na TTFB, ali trazi malo paznje)
---------------------------------------------------------
-Kad se NE pretrazuje po datumu, lista auta se moze KESIRATI (unstable_cache +
-revalidate), pa se baza ne poziva pri svakoj posjeti. Auti se mijenjaju rijetko
-(samo kad ti u adminu dodas/obrises), pa bi kes sa osvezavanjem npr. svakih
-2 min bio siguran. Nisam to ukljucio sada da ostane jednostavno i bez rizika od
-prikaza zastarjelih podataka. Ako zelis, javi pa dodam (uz osvezavanje kesa kad
-u adminu promijenis flotu).
+Schema NIJE mijenjana -> nema prisma generate / db push.

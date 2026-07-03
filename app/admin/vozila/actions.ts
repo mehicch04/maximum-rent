@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE, tokenValid } from "@/lib/admin-auth";
 import { uploadVehicleImage } from "@/lib/supabase-admin";
@@ -109,6 +109,7 @@ export async function saveVehicle(formData: FormData): Promise<SaveResult> {
   revalidatePath("/admin/vozila");
   revalidatePath("/vozila");
   revalidatePath("/");
+  revalidateTag("fleet");
   return { ok: true };
 }
 
@@ -126,5 +127,6 @@ export async function deleteVehicle(formData: FormData) {
   revalidatePath("/admin/vozila");
   revalidatePath("/vozila");
   revalidatePath("/");
+  revalidateTag("fleet");
   redirect("/admin/vozila");
 }

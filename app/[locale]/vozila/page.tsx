@@ -4,9 +4,9 @@ import { buildPageMetadata } from "@/lib/seo";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AlertTriangle } from "lucide-react";
 
-import { prisma } from "@/lib/prisma";
-import { toCarListItem, type SearchContext } from "@/lib/types";
+import { type SearchContext } from "@/lib/types";
 import { getAvailableCars, isValidPeriod } from "@/lib/availability";
+import { getBrowseCars, getActiveLocations } from "@/lib/fleet-data";
 import { ReservationSearchForm } from "@/components/reservation/ReservationSearchForm";
 import { ReservationSummary } from "@/components/reservation/ReservationSummary";
 import { FleetGrid } from "@/components/fleet/FleetGrid";
@@ -66,19 +66,8 @@ export default async function VehiclesPage({
   const periodInvalid = hasDates && !periodValid;
 
   const [cars, locations] = await Promise.all([
-    periodValid
-      ? getAvailableCars(pickupDate!, returnDate!)
-      : prisma.car
-          .findMany({
-            where: { isAvailable: true },
-            orderBy: { sortOrder: "asc" },
-          })
-          .then((rows) => rows.map(toCarListItem)),
-    prisma.location.findMany({
-      where: { isActive: true },
-      orderBy: { sortOrder: "asc" },
-      select: { id: true, name: true, city: true },
-    }),
+    periodValid ? getAvailableCars(pickupDate!, returnDate!) : getBrowseCars(),
+    getActiveLocations(),
   ]);
 
   const byId = new Map(locations.map((l) => [l.id, l]));
