@@ -1,73 +1,50 @@
-MAXIMUM RENT A CAR — dvije valute (KM i €) + admin izbor primarne valute
-========================================================================
+MAXIMUM RENT A CAR — dvije valute (KM/€), BEZ admin opcije
+==========================================================
 
-KLJUCNO: marka je ZAKONSKI fiksno vezana za euro: 1 EUR = 1.95583 KM.
-Zato NEMA zivog kursa ni API-ja — konverzija je konstanta i uvijek tacna.
+FINALNO STANJE (po tvom zahtjevu):
+  - Posjetilac ima prekidac KM / € u vrhu sajta i sve cijene se preracunavaju
+    (fiksni kurs 1 EUR = 1.95583 KM, zaokruzeno).
+  - Primarna valuta je MARKA (default). Opcija za mijenjanje valute u admin
+    panelu je UKLONJENA.
+  - Nema nikakve postavke u bazi -> NEMA prisma db push.
 
-STA JE DODANO
--------------
-1) Prekidac valute (KM / €) u vrhu sajta (navbar). Posjetilac klikne i SVE
-   cijene se odmah preracunaju. Izbor se pamti (localStorage).
-2) Cijene se i dalje UNOSE u markama u adminu. Prikaz u eurima se racuna
-   automatski i ZAOKRUZUJE (npr. 110 KM -> 56 €).
-3) Admin postavka primarne valute: /admin/postavke (novi tab "Postavke").
-   Vlasnik bira da li se sajtu podrazumijevano prikazuje KM ili € (posjetilac
-   svejedno moze prebaciti). Cuva se u bazi.
+Kad pozelis promijeniti primarnu valutu (npr. da default bude €), javi pa
+zamijenim jednu liniju.
 
-KAKO RADI (ukratko)
--------------------
-- Cijene su u bazi u KM (kao i do sada).
-- lib/currency.ts radi konverziju (fiksni kurs) + zaokruzivanje + format.
-- CurrencyProvider drzi trenutnu valutu; pocetna = admin postavka; posjetilac
-  je mijenja preko CurrencySwitch u navbaru.
-- Price komponenta prikazuje bilo koji KM iznos u odabranoj valuti.
-- Kartica auta (CarCard) sada koristi <Price/> umjesto fiksnog "KM".
-
-FAJLOVI
--------
-  lib/currency.ts                              (NOVO — kurs/konverzija/format)
-  lib/settings.ts                              (NOVO — cita primarnu valutu, kesirano)
-  components/currency/CurrencyProvider.tsx     (NOVO)
-  components/currency/CurrencySwitch.tsx       (NOVO — KM/€ prekidac)
-  components/currency/Price.tsx                (NOVO)
-  components/fleet/CarCard.tsx                 (koristi <Price/>)
-  components/layout/Navbar.tsx                 (dodan prekidac)
-  app/[locale]/layout.tsx                      (CurrencyProvider + cita postavku)
-  components/admin/AdminNav.tsx                (novi tab "Postavke")
-  app/admin/postavke/page.tsx                  (NOVO — izbor valute)
-  app/admin/postavke/actions.ts                (NOVO — cuvanje u bazu)
-  prisma/schema.prisma                         (NOVO model: Setting)
+STA JE U ZIP-u (samodovoljno)
+-----------------------------
+  lib/currency.ts                              (kurs/konverzija/format)
+  components/currency/CurrencyProvider.tsx     (default = "BAM")
+  components/currency/CurrencySwitch.tsx       (KM/€ prekidac)
+  components/currency/Price.tsx
+  components/fleet/CarCard.tsx                 (cijena kroz <Price/>)
+  components/layout/Navbar.tsx                 (prekidac u traci)
+  app/[locale]/layout.tsx                      (default valuta "BAM", bez baze)
+  components/admin/AdminNav.tsx                (BEZ taba "Postavke")
   components/ui/WhatsAppIcon.tsx, CarDoorIcon.tsx  (zavisnosti CarCard-a)
 
-*** SCHEMA SE PROMIJENILA -> OBAVEZNO: ***
-  npx prisma generate
-  npx prisma db push        (kreira tabelu Setting — nedestruktivno)
+*** AKO SI RANIJE PRIMIJENIO PROSLI (dual-currency) ZIP, OBRISI OVE FAJLOVE ***
+(zip ih ne moze obrisati sam):
+  app/admin/postavke/page.tsx
+  app/admin/postavke/actions.ts
+  lib/settings.ts
+Ta tri fajla su bila admin opcija koju uklanjamo. Idu zajedno.
+(Model "Setting" u prisma/schema.prisma, ako ga imas, moze ostati -- prazna
+neiskoristena tabela, bezopasno. Ne treba db push.)
 
-Napomena: schema.prisma mozda sadrzi i model AdminLoginAttempt (iz ranijeg
-security fix-a). Ako ga vec imas, sve je isto; ako nemas, samo se kreira jos
-jedna prazna tabela — bezopasno.
+Ako NISI ranije primjenjivao dual-currency zip, ti fajlovi ne postoje pa nemas
+sta brisati -- samo raspakuj ovaj.
 
 KORACI
 ------
-1. Raspakuj preko root-a.
-2. npx prisma generate && npx prisma db push
-3. npm run dev  -> u navbaru probaj KM/€; na /admin/postavke promijeni primarnu
-   valutu i provjeri da se default na sajtu promijenio.
-4. git add . && git commit -m "feat: KM/EUR prekidac + admin primarna valuta (fiksni kurs)" && git push
+1. Raspakuj preko root-a (prepisi fajlove).
+2. Ako postoje, obrisi tri fajla gore (app/admin/postavke/* i lib/settings.ts).
+3. npm run dev -> provjeri KM/€ prekidac u navbaru i da admin NEMA vise "Postavke".
+4. git add -A && git commit -m "feat: KM/EUR prekidac (default marke), bez admin opcije" && git push
+   (git add -A da uhvati i brisanje fajlova.)
 
-VAZNO (testiranje)
-------------------
-Alat za prikaz slika mi je u ovoj sesiji bio u kvaru pa NISAM mogao vizuelno
-provjeriti izgled. TypeScript je cist i sve je wire-ovano po tvom postojecem
-kodu, ali molim te pokreni "npm run dev" i baci pogled prije push-a:
-  - prekidac KM/€ u navbaru (i na mobitelu da ne stiska)
-  - cijena na kartici se mijenja i zaokruzuje
-  - /admin/postavke cuva izbor
-Ako nesto ne stima (razmak u navbaru, zaokruzivanje na .5 umjesto na cijeli
-broj, itd.) javi — lako se stela.
+NEMA prisma db push. Schema se ne mijenja.
 
-ZAOKRUZIVANJE
--------------
-Trenutno zaokruzujem na CIJELI broj (110 KM -> 56 €). Ako zelis na 2 decimale
-(56.24 €) ili na najblizih 5, promjena je jedna linija u lib/currency.ts
-(funkcija displayAmount) — javi.
+Napomena: alat za prikaz slika mi je u ovoj sesiji u kvaru pa nisam mogao
+vizuelno provjeriti izgled. TypeScript je cist. Baci pogled u npm run dev prije
+push-a (posebno da prekidac ne stiska navbar na mobitelu).
