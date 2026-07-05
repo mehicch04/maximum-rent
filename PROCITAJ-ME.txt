@@ -1,50 +1,40 @@
-MAXIMUM RENT A CAR — dvije valute (KM/€), BEZ admin opcije
-==========================================================
+MAXIMUM RENT A CAR — sortiranje na fleet stranici
+=================================================
 
-FINALNO STANJE (po tvom zahtjevu):
-  - Posjetilac ima prekidac KM / € u vrhu sajta i sve cijene se preracunavaju
-    (fiksni kurs 1 EUR = 1.95583 KM, zaokruzeno).
-  - Primarna valuta je MARKA (default). Opcija za mijenjanje valute u admin
-    panelu je UKLONJENA.
-  - Nema nikakve postavke u bazi -> NEMA prisma db push.
+STA JE DODANO  [components/fleet/FleetGrid.tsx]
+--------------
+Padajuci meni "Sortiraj:" iznad mreze vozila (desno, ispod filtera po tipu),
+sa opcijama:
+  - Preporuceno            (redoslijed koji TI postavis u adminu — sortOrder;
+                            ovo je i pocetna/default opcija)
+  - Cijena: od najnize
+  - Cijena: od najvise
+  - Godiste: najnovije
+  - Naziv: A–Z
+  - Naziv: Z–A
 
-Kad pozelis promijeniti primarnu valutu (npr. da default bude €), javi pa
-zamijenim jednu liniju.
+Detalji:
+  - Sortiranje je trenutno (klijentski, bez novih zahtjeva) i radi ZAJEDNO s
+    postojecim filterima po tipu (prvo filter, pa sort).
+  - Auti bez unesene cijene idu na kraj kod sortiranja po cijeni.
+  - A–Z koristi lokalno poredjenje (č/ć/š/ž ispravno sortirani).
+  - Prikazuje se samo na fleet stranici (showFilters), ne na naslovnoj.
+  - Select ima label ("Sortiraj:") povezan preko htmlFor -> accessibility 100
+    ostaje netaknut.
 
-STA JE U ZIP-u (samodovoljno)
------------------------------
-  lib/currency.ts                              (kurs/konverzija/format)
-  components/currency/CurrencyProvider.tsx     (default = "BAM")
-  components/currency/CurrencySwitch.tsx       (KM/€ prekidac)
-  components/currency/Price.tsx
-  components/fleet/CarCard.tsx                 (cijena kroz <Price/>)
-  components/layout/Navbar.tsx                 (prekidac u traci)
-  app/[locale]/layout.tsx                      (default valuta "BAM", bez baze)
-  components/admin/AdminNav.tsx                (BEZ taba "Postavke")
-  components/ui/WhatsAppIcon.tsx, CarDoorIcon.tsx  (zavisnosti CarCard-a)
+i18n: dodani Fleet.sort.* kljucevi u messages/hr.json i en.json (parity 1:1
+provjeren, 274 kljuceva u oba).
 
-*** AKO SI RANIJE PRIMIJENIO PROSLI (dual-currency) ZIP, OBRISI OVE FAJLOVE ***
-(zip ih ne moze obrisati sam):
-  app/admin/postavke/page.tsx
-  app/admin/postavke/actions.ts
-  lib/settings.ts
-Ta tri fajla su bila admin opcija koju uklanjamo. Idu zajedno.
-(Model "Setting" u prisma/schema.prisma, ako ga imas, moze ostati -- prazna
-neiskoristena tabela, bezopasno. Ne treba db push.)
-
-Ako NISI ranije primjenjivao dual-currency zip, ti fajlovi ne postoje pa nemas
-sta brisati -- samo raspakuj ovaj.
+VAZNO: messages fajlovi u zipu su KOMPLETNI hr.json/en.json — prepisi ih preko
+postojecih. Ako si u medjuvremenu sam mijenjao prevode, javi prije nego
+prepises (da ti ne pregazim izmjene).
 
 KORACI
 ------
-1. Raspakuj preko root-a (prepisi fajlove).
-2. Ako postoje, obrisi tri fajla gore (app/admin/postavke/* i lib/settings.ts).
-3. npm run dev -> provjeri KM/€ prekidac u navbaru i da admin NEMA vise "Postavke".
-4. git add -A && git commit -m "feat: KM/EUR prekidac (default marke), bez admin opcije" && git push
-   (git add -A da uhvati i brisanje fajlova.)
+1. Raspakuj preko root-a.
+2. npm run dev -> /vozila: probaj svih 6 sortiranja + kombinaciju s filterom.
+3. git add . && git commit -m "feat(fleet): sortiranje (cijena, godiste, naziv, preporuceno)" && git push
 
-NEMA prisma db push. Schema se ne mijenja.
-
-Napomena: alat za prikaz slika mi je u ovoj sesiji u kvaru pa nisam mogao
-vizuelno provjeriti izgled. TypeScript je cist. Baci pogled u npm run dev prije
-push-a (posebno da prekidac ne stiska navbar na mobitelu).
+Napomena: nisam mogao vizuelno provjeriti izgled u ovoj sesiji (alat za slike u
+kvaru) — TypeScript je cist i select koristi tvoje postojece tokene (surface/
+border/ring). Baci pogled da dropdown lijepo sjedi i na mobitelu.

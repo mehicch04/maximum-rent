@@ -68,7 +68,16 @@
     },
     "swipeHint": "Prevucite za više",
     "invalidPeriod": "Odabrani period nije ispravan — datum povrata mora biti nakon preuzimanja. Prikazujemo sva vozila.",
-    "viewAll": "Pogledajte sva vozila"
+    "viewAll": "Pogledajte sva vozila",
+    "sort": {
+      "label": "Sortiraj:",
+      "recommended": "Preporučeno",
+      "priceAsc": "Cijena: od najniže",
+      "priceDesc": "Cijena: od najviše",
+      "yearDesc": "Godište: najnovije",
+      "nameAsc": "Naziv: A–Z",
+      "nameDesc": "Naziv: Z–A"
+    }
   },
   "Inquiry": {
     "title": "Upit za rezervaciju",

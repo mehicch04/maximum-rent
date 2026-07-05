@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { ChevronDown } from "lucide-react";
 import { CarCard } from "./CarCard";
 import { FleetFilters, type FilterItem } from "./FleetFilters";
 import { InquiryModal } from "@/components/reservation/InquiryModal";
@@ -23,15 +24,25 @@ type Props = {
   eagerFirstImages?: boolean;
 };
 
+export type SortKey =
+  | "RECOMMENDED"
+  | "PRICE_ASC"
+  | "PRICE_DESC"
+  | "YEAR_DESC"
+  | "NAME_ASC"
+  | "NAME_DESC";
+
 /**
- * Client wrapper: owns the selected-car state (for the inquiry modal) and the
- * active type filter. Filtering is done client-side because the fleet is small
- * — instant, no extra requests. Cars can match several categories at once.
+ * Client wrapper: owns the selected-car state (for the inquiry modal), the
+ * active type filter and the sort order. Filtering/sorting is done client-side
+ * because the fleet is small — instant, no extra requests. Cars can match
+ * several categories at once.
  */
 export function FleetGrid({ cars, search, locations, showFilters = true, eagerFirstImages = false }: Props) {
   const t = useTranslations("Fleet");
   const [selected, setSelected] = useState<CarListItem | null>(null);
   const [active, setActive] = useState<CarCategory | "ALL">("ALL");
+  const [sort, setSort] = useState<SortKey>("RECOMMENDED");
 
   // Effective categories per car (explicit, else derived from carClass).
   const carCats = useMemo(
@@ -62,9 +73,41 @@ export function FleetGrid({ cars, search, locations, showFilters = true, eagerFi
   }, [counts, cars.length, t]);
 
   const visibleCars = useMemo(() => {
-    if (active === "ALL") return cars;
-    return cars.filter((c) => carCats.get(c.id)?.includes(active));
-  }, [active, cars, carCats]);
+    const filtered =
+      active === "ALL"
+        ? [...cars]
+        : cars.filter((c) => carCats.get(c.id)?.includes(active));
+
+    switch (sort) {
+      case "PRICE_ASC":
+        // Cars without a price go last.
+        return filtered.sort(
+          (a, b) => (a.pricePerDay ?? Infinity) - (b.pricePerDay ?? Infinity),
+        );
+      case "PRICE_DESC":
+        return filtered.sort(
+          (a, b) => (b.pricePerDay ?? -Infinity) - (a.pricePerDay ?? -Infinity),
+        );
+      case "YEAR_DESC":
+        return filtered.sort((a, b) => b.year - a.year);
+      case "NAME_ASC":
+        return filtered.sort((a, b) => a.title.localeCompare(b.title, "hr"));
+      case "NAME_DESC":
+        return filtered.sort((a, b) => b.title.localeCompare(a.title, "hr"));
+      case "RECOMMENDED":
+      default:
+        return filtered; // owner's order from the admin (sortOrder)
+    }
+  }, [active, sort, cars, carCats]);
+
+  const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+    { value: "RECOMMENDED", label: t("sort.recommended") },
+    { value: "PRICE_ASC", label: t("sort.priceAsc") },
+    { value: "PRICE_DESC", label: t("sort.priceDesc") },
+    { value: "YEAR_DESC", label: t("sort.yearDesc") },
+    { value: "NAME_ASC", label: t("sort.nameAsc") },
+    { value: "NAME_DESC", label: t("sort.nameDesc") },
+  ];
 
   return (
     <>
@@ -76,6 +119,32 @@ export function FleetGrid({ cars, search, locations, showFilters = true, eagerFi
           label={t("filterLabel")}
           swipeHint={t("swipeHint")}
         />
+      )}
+
+      {showFilters && (
+        <div className="mb-6 flex items-center justify-end gap-2">
+          <label
+            htmlFor="fleet-sort"
+            className="text-sm text-muted-foreground"
+          >
+            {t("sort.label")}
+          </label>
+          <div className="relative">
+            <select
+              id="fleet-sort"
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortKey)}
+              className="h-10 appearance-none rounded-xl border border-border bg-surface pl-3 pr-9 text-sm font-medium text-foreground outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-ring/30"
+            >
+              {SORT_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          </div>
+        </div>
       )}
 
       {visibleCars.length > 0 ? (

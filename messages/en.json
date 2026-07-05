@@ -68,7 +68,16 @@
     },
     "swipeHint": "Swipe for more",
     "invalidPeriod": "The selected period isn't valid — the return date must be after pick-up. Showing all vehicles.",
-    "viewAll": "View all vehicles"
+    "viewAll": "View all vehicles",
+    "sort": {
+      "label": "Sort by:",
+      "recommended": "Recommended",
+      "priceAsc": "Price: low to high",
+      "priceDesc": "Price: high to low",
+      "yearDesc": "Year: newest first",
+      "nameAsc": "Name: A–Z",
+      "nameDesc": "Name: Z–A"
+    }
   },
   "Inquiry": {
     "title": "Reservation inquiry",
