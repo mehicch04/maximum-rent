@@ -75,16 +75,36 @@ export function Hero() {
   const locale = useLocale();
 
   // Mount the background video ONLY on tablet/desktop (and not when the user
-  // prefers reduced motion). It starts as false so the server-rendered HTML
-  // and the mobile DOM contain NO <video> at all — the browser therefore never
-  // downloads hero.webm / hero.mp4 on phones. The poster image stays as the
-  // background everywhere and is the LCP.
-  const [showVideo, setShowVideo] = useState(false);
+  // Only mount the background video on tablet/desktop (and not when the user
+  // prefers reduced motion). It starts as null so the server-rendered HTML and
+  // the mobile DOM contain NO <video> at all — phones never download it. The
+  // poster stays as the background everywhere and is the LCP.
+  //
+  // We also pick a SINGLE source (webm for browsers that support it, mp4 as
+  // fallback) instead of listing both <source> elements. With two sources some
+  // browsers fetch both files (~3.6 MB); choosing one keeps it to ~1.5 MB.
+  const [video, setVideo] = useState<{ src: string; type: string } | null>(
+    null,
+  );
 
   useEffect(() => {
     const wide = window.matchMedia("(min-width: 768px)");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setShowVideo(wide.matches && !reduce.matches);
+    const update = () => {
+      if (!(wide.matches && !reduce.matches)) {
+        setVideo(null);
+        return;
+      }
+      const probe = document.createElement("video");
+      const canWebm =
+        probe.canPlayType('video/webm; codecs="vp9, opus"') ||
+        probe.canPlayType("video/webm");
+      setVideo(
+        canWebm
+          ? { src: "/hero.webm", type: "video/webm" }
+          : { src: "/hero.mp4", type: "video/mp4" },
+      );
+    };
     update();
     wide.addEventListener("change", update);
     reduce.addEventListener("change", update);
@@ -106,7 +126,7 @@ export function Hero() {
           fetchPriority="high"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        {showVideo && (
+        {video && (
           <video
             autoPlay
             muted
@@ -119,8 +139,7 @@ export function Hero() {
             tabIndex={-1}
             className="absolute inset-0 h-full w-full object-cover"
           >
-            <source src="/hero.webm" type="video/webm" />
-            <source src="/hero.mp4" type="video/mp4" />
+            <source src={video.src} type={video.type} />
           </video>
         )}
       </div>

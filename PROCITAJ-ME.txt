@@ -1,43 +1,50 @@
-MAXIMUM RENT A CAR — popravka konzolnih React grešaka (Best Practices 96 -> 100)
-================================================================================
+MAXIMUM RENT A CAR — desktop payload (video se ne skida dvaput)
+==============================================================
+
+PRVO, ISKRENO: sve stavke sa tvog screenshota su "Unscored" -> PageSpeed sam
+pise "These numbers don't directly affect the Performance score". Tvoj desktop
+Performance je skoro sigurno vec 99-100. Znaci ovo NE obara ocjenu, samo su
+dijagnostika. Ali jedna od njih (payload) ima realnog smisla pa je rjesavam.
 
 STA JE BILO
 -----------
-PageSpeed je prijavljivao React greske #418 / #423 / #425 u konzoli. Sve su to
-"hydration mismatch" -- server iscrta jedan HTML, a browser pri hidraciji
-drugaciji, pa React prijavi gresku (i to obara "Best Practices" na 96).
+Na desktopu su se ucitavala OBA video fajla: /hero.mp4 (2.1MB) I /hero.webm
+(1.5MB) = ~3.6MB. Video element je imao dva <source> (webm + mp4), a umjesto
+da uzme jedan, browser je povlacio oba. Zbog toga je ukupan payload bio 4.3MB.
 
-UZROK  [components/reservation/ReservationSearchForm.tsx]
------
-Search forma u herou je racunala default datume iz new Date() VEC pri renderu
-(useState(dateOffset(1)) itd.). Server je u UTC vremenu, a posjetilac/testni
-browser u drugoj vremenskoj zoni, pa se izracunati datum (value/min inputa)
-razlikovao server vs browser -> mismatch.
-
-(Provjereno: OpenStatus je vec ispravno gejtan; InquiryModal vraca null dok se
-auto ne odabere pa nije u SSR-u; nema drugih render-time uzroka na naslovnoj.)
-
-RJESENJE
+RJESENJE  [components/home/Hero.tsx]
 --------
-Default datumi (preuzimanje, vracanje) i "min" datum se sada racunaju NAKON
-mounta (useEffect), jer default treba da bude KORISNIKOV lokalni "sutra", sto
-samo browser zna. Pocetno stanje je prazno -> isto na serveru i klijentu ->
-nema mismatcha. Datumi se popune istog trena po ucitavanju.
+Sada se bira SAMO JEDAN izvor, feature-detekcijom:
+  - browseri koji podrzavaju webm (Chrome, Edge, Firefox, moderni Safari) ->
+    ucitavaju samo hero.webm (~1.5MB)
+  - stariji (bez webm-a) -> fallback na hero.mp4
+Nikad se ne skidaju oba.
 
-Ponasanje je isto kao prije za korisnika (polja se popune sama), samo bez
-konzolnih gresaka.
+Efekat:
+  - Desktop payload ~4.3MB -> ~2.2MB.
+  - Posto je Lighthouse prag za "enormous payloads" oko 3MB, taj flag bi trebao
+    NESTATI.
+  - Mobitel je i dalje samo poster (bez videa) kao i prije.
+
+STA OSTAJE (i dalje ne vrijedi juriti — sve "Unscored")
+-------------------------------------------------------
+- "Reduce unused JavaScript 23 KiB": Next/next-intl/framer kod. Ne moze se
+  smanjiti bez skidanja funkcionalnosti.
+- "Non-composited animations (2)" i "Long main-thread tasks (2)": sitni
+  frameworkski efekti/hidracija. Ne uticu na ocjenu.
 
 FAJL
 ----
-  components/reservation/ReservationSearchForm.tsx
+  components/home/Hero.tsx
 
 KORACI
 ------
 1. Raspakuj preko root-a.
-2. npm run dev -> naslovna: search forma se popuni datumima; u DevTools Console
-   nema vise React #418/#423/#425.
-3. git add . && git commit -m "fix: hydration mismatch u search formi (default datumi -> useEffect)" && git push
-4. Ponovo PageSpeed -> Best Practices bi trebao biti 100 (mobitel i desktop).
+2. npm run dev -> desktop: u DevTools Network otvori naslovnu, provjeri da se
+   ucitava SAMO hero.webm (ne i hero.mp4).
+3. git add . && git commit -m "perf(desktop): jedan video izvor (webm|mp4), pola manji payload" && git push
+4. Ponovo PageSpeed (desktop) -> "enormous payloads" bi trebao nestati.
 
 Napomena: alat za prikaz slika mi je u ovoj sesiji u kvaru pa nisam vizuelno
-provjerio, ali TypeScript je cist i logika je standardni fix za ovaj tip greske.
+provjerio, ali TS je cist. Baci pogled da video na desktopu i dalje radi
+(pusta se poster pa video).
