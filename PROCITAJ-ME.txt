@@ -1,40 +1,30 @@
-MAXIMUM RENT A CAR — sortiranje na fleet stranici
-=================================================
+MAXIMUM RENT A CAR — currency prekidac kao clean dropdown
+=========================================================
 
-STA JE DODANO  [components/fleet/FleetGrid.tsx]
---------------
-Padajuci meni "Sortiraj:" iznad mreze vozila (desno, ispod filtera po tipu),
-sa opcijama:
-  - Preporuceno            (redoslijed koji TI postavis u adminu — sortOrder;
-                            ovo je i pocetna/default opcija)
-  - Cijena: od najnize
-  - Cijena: od najvise
-  - Godiste: najnovije
-  - Naziv: A–Z
-  - Naziv: Z–A
+STA JE PROMIJENJENO  [components/currency/CurrencySwitch.tsx]
+-------------------
+Umjesto crvenog KM/€ pill-a koji je previse "bo o oci", sada je suptilan
+dropdown:
+  - Trigger: malo dugme sa okvirom koje pokazuje SAMO trenutnu valutu (KM ili €)
+    + strelica. Bez crvenog fila -> smireno, ne bode oci.
+  - Klik otvara mali meni: "KM  Marka" i "€  Euro". Aktivna opcija je oznacena
+    (blagi brand tint + kvacica).
+  - Zatvara se klikom vani, tipkom Escape, ili odabirom.
+  - Vidljivo je i dalje (nije sakriveno), samo urednije.
 
-Detalji:
-  - Sortiranje je trenutno (klijentski, bez novih zahtjeva) i radi ZAJEDNO s
-    postojecim filterima po tipu (prvo filter, pa sort).
-  - Auti bez unesene cijene idu na kraj kod sortiranja po cijeni.
-  - A–Z koristi lokalno poredjenje (č/ć/š/ž ispravno sortirani).
-  - Prikazuje se samo na fleet stranici (showFilters), ne na naslovnoj.
-  - Select ima label ("Sortiraj:") povezan preko htmlFor -> accessibility 100
-    ostaje netaknut.
+Pristupacnost: aria-haspopup / aria-expanded / role=listbox/option, Escape.
+Koristi tvoje postojece tokene (border, surface, surface-muted, brand-strong,
+shadow-card) pa se uklapa u light i dark temu.
 
-i18n: dodani Fleet.sort.* kljucevi u messages/hr.json i en.json (parity 1:1
-provjeren, 274 kljuceva u oba).
-
-VAZNO: messages fajlovi u zipu su KOMPLETNI hr.json/en.json — prepisi ih preko
-postojecih. Ako si u medjuvremenu sam mijenjao prevode, javi prije nego
-prepises (da ti ne pregazim izmjene).
+Samo JEDAN fajl je promijenjen. Navbar ga vec koristi, nista drugo ne treba.
 
 KORACI
 ------
-1. Raspakuj preko root-a.
-2. npm run dev -> /vozila: probaj svih 6 sortiranja + kombinaciju s filterom.
-3. git add . && git commit -m "feat(fleet): sortiranje (cijena, godiste, naziv, preporuceno)" && git push
+1. Raspakuj preko root-a (prepisi CurrencySwitch.tsx).
+2. npm run dev -> u navbaru klikni valutu: otvara se cist dropdown.
+3. git add . && git commit -m "ui: currency kao clean dropdown umjesto pill-a" && git push
 
-Napomena: nisam mogao vizuelno provjeriti izgled u ovoj sesiji (alat za slike u
-kvaru) — TypeScript je cist i select koristi tvoje postojece tokene (surface/
-border/ring). Baci pogled da dropdown lijepo sjedi i na mobitelu.
+Napomena: alat za prikaz slika mi je u ovoj sesiji u kvaru pa nisam mogao
+vizuelno provjeriti. TS je cist. Baci pogled da dropdown lijepo sjedi (posebno
+poravnanje desno i na mobitelu). Ako zelis da trigger umjesto "KM" pokazuje
+npr. "KM ▾" krupnije, ili da doda i puni naziv, lako se stela.
