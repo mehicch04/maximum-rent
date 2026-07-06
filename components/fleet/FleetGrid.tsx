@@ -22,6 +22,8 @@ type Props = {
   showFilters?: boolean;
   /** Eagerly load the first few car photos (use on the dedicated fleet page). */
   eagerFirstImages?: boolean;
+  /** Override the image `sizes` (e.g. smaller on the homepage teaser grid). */
+  imageSizes?: string;
 };
 
 export type SortKey =
@@ -38,7 +40,7 @@ export type SortKey =
  * because the fleet is small — instant, no extra requests. Cars can match
  * several categories at once.
  */
-export function FleetGrid({ cars, search, locations, showFilters = true, eagerFirstImages = false }: Props) {
+export function FleetGrid({ cars, search, locations, showFilters = true, eagerFirstImages = false, imageSizes }: Props) {
   const t = useTranslations("Fleet");
   const [selected, setSelected] = useState<CarListItem | null>(null);
   const [active, setActive] = useState<CarCategory | "ALL">("ALL");
@@ -156,6 +158,7 @@ export function FleetGrid({ cars, search, locations, showFilters = true, eagerFi
               search={search}
               index={i}
               priority={eagerFirstImages && i < 3}
+              imageSizes={imageSizes}
               onSelect={setSelected}
             />
           ))}

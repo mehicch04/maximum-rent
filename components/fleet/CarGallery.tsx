@@ -12,13 +12,21 @@ type Props = {
   onOpen?: (index: number) => void;
   /** Load the first shown image eagerly + high priority (above-the-fold cards). */
   priority?: boolean;
+  /** Override the responsive `sizes` (e.g. smaller on the homepage teaser). */
+  sizes?: string;
 };
 
 /**
  * Compact gallery for car cards: arrows + dots + touch swipe, no separate
  * page needed. Falls back to the car icon when there are no photos.
  */
-export function CarGallery({ images, title, onOpen, priority = false }: Props) {
+export function CarGallery({
+  images,
+  title,
+  onOpen,
+  priority = false,
+  sizes = "(max-width: 639px) 84vw, (max-width: 1023px) 44vw, 31vw",
+}: Props) {
   const t = useTranslations("Common");
   const [index, setIndex] = useState(0);
   const touchX = useRef<number | null>(null);
@@ -59,7 +67,7 @@ export function CarGallery({ images, title, onOpen, priority = false }: Props) {
           alt={`${title} — ${index + 1}/${count}`}
           fill
           priority={priority && index === 0}
-          sizes="(max-width: 639px) 84vw, (max-width: 1023px) 44vw, 31vw"
+          sizes={sizes}
           className="object-contain p-6 transition-transform duration-500 ease-out group-hover/gallery:scale-[1.03]"
         />
       </button>

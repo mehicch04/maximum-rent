@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import ReactDOM from "react-dom";
 import { buildPageMetadata } from "@/lib/seo";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AlertTriangle } from "lucide-react";
@@ -44,13 +43,6 @@ export default async function VehiclesPage({
 }) {
   setRequestLocale(locale);
   const t = await getTranslations("Fleet");
-
-  // Warm up the Supabase Storage connection early — the car photos load from
-  // there, so the browser doesn't pay DNS+TLS cost only once they're needed.
-  const supabaseUrl = process.env.SUPABASE_URL;
-  if (supabaseUrl) {
-    ReactDOM.preconnect(supabaseUrl, { crossOrigin: "anonymous" });
-  }
 
   const pickupLocationId = one(searchParams.pickupLocationId);
   const returnLocationId = one(searchParams.returnLocationId);

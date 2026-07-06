@@ -26,9 +26,11 @@ type Props = {
   index?: number;
   /** Eagerly load this card's photo (first above-the-fold cards on the fleet page). */
   priority?: boolean;
+  /** Override the image `sizes` (smaller on the homepage teaser). */
+  imageSizes?: string;
 };
 
-export function CarCard({ car, search, onSelect, index = 0, priority = false }: Props) {
+export function CarCard({ car, search, onSelect, index = 0, priority = false, imageSizes }: Props) {
   const locale = useLocale() as AppLocale;
   const t = useTranslations("Fleet");
   const common = useTranslations("Common");
@@ -76,7 +78,7 @@ export function CarCard({ car, search, onSelect, index = 0, priority = false }: 
         {label(CLASS_LABELS[car.carClass], locale)}
       </span>
 
-      <CarGallery images={images} title={car.title} onOpen={setLightbox} priority={priority} />
+      <CarGallery images={images} title={car.title} onOpen={setLightbox} priority={priority} sizes={imageSizes} />
 
       <ImageLightbox
         images={images}

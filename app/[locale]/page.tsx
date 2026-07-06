@@ -51,13 +51,6 @@ export default async function HomePage({
     fetchPriority: "high",
   });
 
-  // Warm up the connection to Supabase Storage (fleet photos load from there),
-  // so the browser doesn't pay DNS+TLS cost only when the images are needed.
-  const supabaseUrl = process.env.SUPABASE_URL;
-  if (supabaseUrl) {
-    ReactDOM.preconnect(supabaseUrl, { crossOrigin: "anonymous" });
-  }
-
   const t = await getTranslations("Fleet");
 
   const [locations, featured] = await Promise.all([
@@ -107,6 +100,7 @@ export default async function HomePage({
             cars={cars}
             showFilters={false}
             locations={locations.map((l) => ({ id: l.id, name: l.name }))}
+            imageSizes="(max-width: 639px) 45vw, (max-width: 1023px) 30vw, 20vw"
           />
 
           <div className="mt-10 flex justify-center">
