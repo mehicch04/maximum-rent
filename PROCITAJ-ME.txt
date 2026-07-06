@@ -1,30 +1,43 @@
-MAXIMUM RENT A CAR — currency prekidac kao clean dropdown
-=========================================================
+MAXIMUM RENT A CAR — popravka konzolnih React grešaka (Best Practices 96 -> 100)
+================================================================================
 
-STA JE PROMIJENJENO  [components/currency/CurrencySwitch.tsx]
--------------------
-Umjesto crvenog KM/€ pill-a koji je previse "bo o oci", sada je suptilan
-dropdown:
-  - Trigger: malo dugme sa okvirom koje pokazuje SAMO trenutnu valutu (KM ili €)
-    + strelica. Bez crvenog fila -> smireno, ne bode oci.
-  - Klik otvara mali meni: "KM  Marka" i "€  Euro". Aktivna opcija je oznacena
-    (blagi brand tint + kvacica).
-  - Zatvara se klikom vani, tipkom Escape, ili odabirom.
-  - Vidljivo je i dalje (nije sakriveno), samo urednije.
+STA JE BILO
+-----------
+PageSpeed je prijavljivao React greske #418 / #423 / #425 u konzoli. Sve su to
+"hydration mismatch" -- server iscrta jedan HTML, a browser pri hidraciji
+drugaciji, pa React prijavi gresku (i to obara "Best Practices" na 96).
 
-Pristupacnost: aria-haspopup / aria-expanded / role=listbox/option, Escape.
-Koristi tvoje postojece tokene (border, surface, surface-muted, brand-strong,
-shadow-card) pa se uklapa u light i dark temu.
+UZROK  [components/reservation/ReservationSearchForm.tsx]
+-----
+Search forma u herou je racunala default datume iz new Date() VEC pri renderu
+(useState(dateOffset(1)) itd.). Server je u UTC vremenu, a posjetilac/testni
+browser u drugoj vremenskoj zoni, pa se izracunati datum (value/min inputa)
+razlikovao server vs browser -> mismatch.
 
-Samo JEDAN fajl je promijenjen. Navbar ga vec koristi, nista drugo ne treba.
+(Provjereno: OpenStatus je vec ispravno gejtan; InquiryModal vraca null dok se
+auto ne odabere pa nije u SSR-u; nema drugih render-time uzroka na naslovnoj.)
+
+RJESENJE
+--------
+Default datumi (preuzimanje, vracanje) i "min" datum se sada racunaju NAKON
+mounta (useEffect), jer default treba da bude KORISNIKOV lokalni "sutra", sto
+samo browser zna. Pocetno stanje je prazno -> isto na serveru i klijentu ->
+nema mismatcha. Datumi se popune istog trena po ucitavanju.
+
+Ponasanje je isto kao prije za korisnika (polja se popune sama), samo bez
+konzolnih gresaka.
+
+FAJL
+----
+  components/reservation/ReservationSearchForm.tsx
 
 KORACI
 ------
-1. Raspakuj preko root-a (prepisi CurrencySwitch.tsx).
-2. npm run dev -> u navbaru klikni valutu: otvara se cist dropdown.
-3. git add . && git commit -m "ui: currency kao clean dropdown umjesto pill-a" && git push
+1. Raspakuj preko root-a.
+2. npm run dev -> naslovna: search forma se popuni datumima; u DevTools Console
+   nema vise React #418/#423/#425.
+3. git add . && git commit -m "fix: hydration mismatch u search formi (default datumi -> useEffect)" && git push
+4. Ponovo PageSpeed -> Best Practices bi trebao biti 100 (mobitel i desktop).
 
-Napomena: alat za prikaz slika mi je u ovoj sesiji u kvaru pa nisam mogao
-vizuelno provjeriti. TS je cist. Baci pogled da dropdown lijepo sjedi (posebno
-poravnanje desno i na mobitelu). Ako zelis da trigger umjesto "KM" pokazuje
-npr. "KM ▾" krupnije, ili da doda i puni naziv, lako se stela.
+Napomena: alat za prikaz slika mi je u ovoj sesiji u kvaru pa nisam vizuelno
+provjerio, ali TypeScript je cist i logika je standardni fix za ovaj tip greske.

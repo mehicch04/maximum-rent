@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, CalendarDays, Clock, ArrowRight, AlertCircle, ChevronDown } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
@@ -65,13 +65,24 @@ export function ReservationSearchForm({ locations }: { locations: SimpleLocation
   const [sameLocation, setSameLocation] = useState(true);
   const [pickupLocationId, setPickupLocationId] = useState("");
   const [returnLocationId, setReturnLocationId] = useState("");
-  const [pickupDate, setPickupDate] = useState(dateOffset(1));
+  const [pickupDate, setPickupDate] = useState("");
   const [pickupTime, setPickupTime] = useState("09:00");
-  const [returnDate, setReturnDate] = useState(dateOffset(3));
+  const [returnDate, setReturnDate] = useState("");
   const [returnTime, setReturnTime] = useState("09:00");
+  const [today, setToday] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const today = useMemo(() => dateOffset(0), []);
+  // Default dates and the min date are relative to the visitor's LOCAL calendar
+  // day, which only the browser knows. Compute them after mount so the
+  // server-rendered HTML (UTC clock) matches the first client render — otherwise
+  // the differing <input> values cause a hydration mismatch (React #418/#423/#425
+  // logged to the console, which drops the PageSpeed "Best Practices" score).
+  useEffect(() => {
+    setToday(dateOffset(0));
+    setPickupDate((v) => v || dateOffset(1));
+    setReturnDate((v) => v || dateOffset(3));
+  }, []);
+
   const effectiveReturnId = sameLocation ? pickupLocationId : returnLocationId;
 
   function handleSubmit() {
