@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { inquirySchema } from "@/lib/validations";
-import { sendInquiryEmail } from "@/lib/email";
+import { sendInquiryEmail, sendGuestConfirmationEmail } from "@/lib/email";
 import { buildOwnerSummaryText } from "@/lib/whatsapp";
 import { sendOwnerNotification } from "@/lib/notify";
 
@@ -55,12 +55,18 @@ export async function POST(req: Request) {
       },
     });
 
-    const email = await sendInquiryEmail({
+    const emailData = {
       ...d,
       reference: inquiry.reference,
       pickupLocationName: pickup?.name ?? null,
       returnLocationName: ret?.name ?? null,
-    });
+    };
+
+    const email = await sendInquiryEmail(emailData);
+
+    // Confirmation to the guest, in the language they browsed in.
+    // Non-fatal — the inquiry is already stored either way.
+    await sendGuestConfirmationEmail(emailData);
 
     // Automatic Telegram summary to the owner. Non-fatal — the inquiry
     // is already stored either way.
