@@ -4,6 +4,7 @@ import { SITE } from "@/lib/site-config";
 import {
   ownerInquiryHtml,
   guestConfirmationHtml,
+  decisionHtml,
 } from "@/lib/email-templates";
 
 type InquiryEmailData = InquiryInput & {
@@ -203,14 +204,21 @@ const DECISION_COPY = {
     confirmedTitle: "Vaša rezervacija je potvrđena!",
     cancelledTitle: "Vaša rezervacija nažalost nije potvrđena",
     confirmedIntro: (name: string) =>
-      `Poštovani/a ${name}, s zadovoljstvom potvrđujemo vašu rezervaciju. Detalji su ispod — vidimo se!`,
+      `s zadovoljstvom potvrđujemo vašu rezervaciju. Detalji su ispod — vidimo se!`,
     cancelledIntro: (name: string) =>
-      `Poštovani/a ${name}, nažalost nismo u mogućnosti potvrditi vašu rezervaciju za traženi period. Slobodno nas kontaktirajte — rado ćemo pronaći alternativni termin ili vozilo.`,
+      `nažalost nismo u mogućnosti potvrditi vašu rezervaciju za traženi period.`,
     car: "Vozilo",
     period: "Period",
     reference: "Referenca",
     contact: "Kontakt",
     footer: "Maximum Rent a Car · Hercegovina",
+    greeting: (name: string) => `Poštovani ${name}`,
+    confirmedNotice:
+      '<strong style="color:#111111;">Vozilo je rezervisano</strong> za navedeni period. Molimo ponesite važeću vozačku dozvolu i osobni dokument pri preuzimanju.',
+    cancelledNotice:
+      '<strong style="color:#111111;">Rezervacija nije potvrđena.</strong> Slobodno nas kontaktirajte — rado ćemo pronaći alternativni termin ili vozilo.',
+    confirmedPre: (ref: string) => `Rezervacija ${ref} je potvrđena.`,
+    cancelledPre: (ref: string) => `Rezervacija ${ref} nije potvrđena.`,
   },
   EN: {
     confirmedSubject: (ref: string) => `Reservation confirmed ✔ (${ref})`,
@@ -218,14 +226,21 @@ const DECISION_COPY = {
     confirmedTitle: "Your reservation is confirmed!",
     cancelledTitle: "Unfortunately, your reservation was not confirmed",
     confirmedIntro: (name: string) =>
-      `Dear ${name}, we're happy to confirm your reservation. Details below — see you soon!`,
+      `we're happy to confirm your reservation. Details below — see you soon!`,
     cancelledIntro: (name: string) =>
-      `Dear ${name}, unfortunately we are unable to confirm your reservation for the requested period. Feel free to contact us — we'll gladly find an alternative date or vehicle.`,
+      `unfortunately we are unable to confirm your reservation for the requested period.`,
     car: "Vehicle",
     period: "Period",
     reference: "Reference",
     contact: "Contact",
     footer: "Maximum Rent a Car · Herzegovina",
+    greeting: (name: string) => `Dear ${name}`,
+    confirmedNotice:
+      '<strong style="color:#111111;">Your vehicle is reserved</strong> for the selected period. Please bring a valid driving licence and ID at pick-up.',
+    cancelledNotice:
+      '<strong style="color:#111111;">The reservation was not confirmed.</strong> Feel free to contact us — we will gladly find an alternative date or vehicle.',
+    confirmedPre: (ref: string) => `Reservation ${ref} is confirmed.`,
+    cancelledPre: (ref: string) => `Reservation ${ref} was not confirmed.`,
   },
 } as const;
 
@@ -253,30 +268,29 @@ export async function sendReservationDecisionEmail({
   const c = DECISION_COPY[inquiry.locale] ?? DECISION_COPY.HR;
   const confirmed = decision === "CONFIRMED";
   const name = `${inquiry.firstName} ${inquiry.lastName}`;
-  const accent = confirmed ? "#16a34a" : "#E30613";
+  const locale = inquiry.locale;
 
-  const html = `
-  <div style="font-family:Inter,Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff">
-    <div style="background:#E30613;padding:20px 24px;border-radius:12px 12px 0 0">
-      <h1 style="margin:0;color:#fff;font-size:18px;letter-spacing:.02em">Maximum Rent a Car</h1>
-      <p style="margin:4px 0 0;color:#ffd7d9;font-size:13px">${c.reference}: ${inquiry.reference}</p>
-    </div>
-    <div style="border:1px solid #eee;border-top:0;border-radius:0 0 12px 12px;padding:24px">
-      <h2 style="margin:0 0 8px;color:${accent};font-size:17px">
-        ${confirmed ? c.confirmedTitle : c.cancelledTitle}
-      </h2>
-      <p style="margin:0 0 16px;color:#444;font-size:14px;line-height:1.6">
-        ${confirmed ? c.confirmedIntro(name) : c.cancelledIntro(name)}
-      </p>
-      <table style="width:100%;border-collapse:collapse">
-        ${row(c.car, inquiry.carTitle)}
-        ${row(c.period, `${fmtTz(inquiry.pickupAt, inquiry.locale)} → ${fmtTz(inquiry.returnAt, inquiry.locale)}`)}
-        <tr><td colspan="2" style="border-top:1px solid #eee;padding-top:8px"></td></tr>
-        ${row(c.contact, `${"info@maximum-rent.com"} · +387 63 660 444 · WhatsApp +387 63 660 444`)}
-      </table>
-      <p style="margin:20px 0 0;color:#999;font-size:12px">${c.footer}</p>
-    </div>
-  </div>`;
+  const html = decisionHtml(
+    {
+      ref: esc(inquiry.reference),
+      vehicle: esc(inquiry.carTitle),
+      pickupLine: fmtTz(inquiry.pickupAt, locale),
+      dropoffLine: fmtTz(inquiry.returnAt, locale),
+      agencyPhone: esc(SITE.phones[0]?.value ?? ""),
+      agencyEmail: esc(SITE.email),
+      agencyAddress: esc(SITE.name),
+      title: confirmed ? c.confirmedTitle : c.cancelledTitle,
+      greeting: c.greeting(esc(name)),
+      intro: confirmed ? c.confirmedIntro(esc(name)) : c.cancelledIntro(esc(name)),
+      notice: confirmed ? c.confirmedNotice : c.cancelledNotice,
+      preheader: confirmed
+        ? c.confirmedPre(esc(inquiry.reference))
+        : c.cancelledPre(esc(inquiry.reference)),
+      // Green reads as "done" for a confirmation; brand red for the rest.
+      accent: confirmed ? "#16a34a" : "#E30613",
+    },
+    locale,
+  );
 
   try {
     const resend = new Resend(apiKey);
