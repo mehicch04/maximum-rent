@@ -1,37 +1,66 @@
-MAXIMUM RENT A CAR — manji hero poster (brzi mobilni LCP)
-========================================================
+MAXIMUM RENT A CAR — animirana "Kako funkcioniše" sekcija
+=========================================================
 
-STA JE PROMIJENJENO
--------------------
-public/hero-poster.webp: 51.7 KB -> 35.5 KB (-31%).
-Poster je na mobitelu LCP element (najveca stvar na ekranu), pa manji fajl =
-brzi LCP na sporoj vezi. Kvalitet je snizen, ali posto je hero zatamnjen 55%
-overlayom, razlika se ne vidi. Desktop koristi VIDEO (poster se jedva prikaze)
-pa nema nikakvog uticaja na desktop.
+IDEJA
+-----
+Sadržaj te sekcije je stvarni SLIJED (izaberi vozilo -> pošalji upit ->
+preuzmi ključeve), pa animacija koja napreduje kroz korake nosi značenje
+umjesto da bude ukras. Sekcija se sama "odvija" i time drži pažnju.
 
-*** VAZNO: samo prepisi public/hero-poster.webp ovim fajlom. ***
+ŠTA SE DEŠAVA
+-------------
+- Koraci se smjenjuju sami, svakih 2,8 sekundi: 1 -> 2 -> 3 -> 1.
+- Linija između koraka se puni brend crvenom i prati napredak.
+- Aktivan korak: ikonica se blago uveća, dobije brend sjaj (halo) i
+  ispod teksta se izvuče kratka crvena linija. Broj u krugu se popuni.
+- Prelaskom miša (ili dodirom na telefonu) sekvenca STAJE i ostaje na tom
+  koraku dok ne skloniš kursor. Posjetilac preuzima kontrolu kad hoće.
 
-STA JOS TREBA (iz ranijeg zipa)
--------------------------------
-"Legacy JavaScript (12 KiB)" jos stoji jer browserslist fix iz proslog zipa
-(desktop-cleanup) NIJE deploy-an. Kad pushas taj zip, Legacy JS nestaje.
-(Znak: chunk hash se mijenja pri svakom deployu, ali polyfilli su isti dok se
-browserslist ne aktivira.)
+ZAŠTO OVAKO, A NE VIŠE OD TOGA
+------------------------------
+Namjerno je jedna jasna ideja umjesto više sitnih efekata. Naslovi i opisi
+se NE mijenjaju i ne blijede — animira se samo ikonica i linija. Tako
+tekst ostaje čitljiv cijelo vrijeme i sekcija djeluje smireno, a ne
+"skakutavo".
 
-ISKRENO O MOBILNOM 100
-----------------------
-Mobitel 90 / desktop 100 je odlican rezultat. Test je na "Slow 4G" throttlingu
-(vrlo spor), a mobilni LCP/Speed Index su ograniceni RENDER-BLOCKING CSS-om
-koji Next App Router ubacuje po dizajnu -- to se ne mice iz koda bez rizicnih
-zaobilaznica. Zato je 100 na mobitelu (Slow 4G) jako tesko dostici, i score
-ionako varira +-3-5 izmedju mjerenja.
+OPTIMIZACIJA
+------------
+- Animira se samo transform i opacity (bez pomjeranja rasporeda), što je
+  najjeftinije za browser i ne pravi trzanje pri skrolu.
+- Sekvenca radi SAMO dok je sekcija na ekranu (IntersectionObserver).
+  Kad posjetilac odskrola dalje, tajmer se gasi — ne troši bateriju.
+- Nema novih biblioteka; koristi Framer Motion koji već imaš.
+- Izbjegnut je Tailwind "transition-all" na elementima koje animira Framer
+  (to je bio uzrok ranijeg "duplog učitavanja" kartica).
 
-Sto se moglo bez uticaja na desktop -- uradjeno (manji poster + browserslist iz
-proslog zipa). Dalje juriti nema smisla: dobitak je nula ili trazi zrtvu
-(skidanje CSS-a/animacija) za par bodova koji variraju.
+PRISTUPAČNOST (Accessibility 100 ostaje)
+----------------------------------------
+- Poštuje "prefers-reduced-motion": kome je u sistemu isključena animacija,
+  svi koraci su odmah prikazani kao aktivni i ništa se ne pomjera.
+- Koraci su dugmad, pa rade i tastaturom (Tab) uz vidljiv fokus prsten.
+- Aktivan korak nosi aria-current="step".
+- Kontrast nije diran: naslovi i opisi zadržavaju postojeće boje.
+
+TEME
+----
+Radi u svijetloj i tamnoj temi jer koristi tvoje postojeće tokene
+(brand, brand-strong, surface, border, muted-foreground, shadow-brand).
+U tamnoj temi broj u krugu koristi brand-strong (#ff4b54) koji smo ranije
+uveli zbog kontrasta.
+
+MOBITEL
+-------
+Na mobitelu se koraci slažu jedan ispod drugog kao i do sada, linija se
+sakriva (kao i prije), a smjena koraka i dalje radi. Dodir na korak ga
+zaustavlja na tom mjestu.
+
+i18n: NIJE mijenjan. Koriste se postojeći ključevi HowItWorks (3 koraka,
+HR i EN) — messages fajlove ne treba dirati.
 
 KORACI
 ------
-1. Raspakuj -> prepisi public/hero-poster.webp.
-2. (ako vec nisi) deploy proslog "desktop-cleanup" zipa za Legacy JS.
-3. git add . && git commit -m "perf(mobile): manji hero poster (brzi LCP)" && git push
+1. Raspakuj preko root-a projekta (prepisuje components/home/HowItWorks.tsx).
+2. npm run dev -> skrolaj do sekcije, probaj hover i tamnu temu.
+3. git add components/home/HowItWorks.tsx
+   git commit -m "feat(home): animirana sekcija Kako funkcionise"
+   git push
