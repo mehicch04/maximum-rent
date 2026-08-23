@@ -17,7 +17,9 @@ export type ExtraLine = {
   lineTotal: number;
 };
 
-type InquiryEmailData = InquiryInput & {
+// `extras` is replaced, not extended: the request carries { id, qty } while the
+// emails need resolved names and prices, so the two shapes must not intersect.
+type InquiryEmailData = Omit<InquiryInput, "extras"> & {
   reference: string;
   extras?: ExtraLine[];
   days?: number;
