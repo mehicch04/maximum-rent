@@ -1,66 +1,79 @@
-MAXIMUM RENT A CAR — animirana "Kako funkcioniše" sekcija
-=========================================================
+MAXIMUM RENT A CAR — redizajn sekcije "Svadbena vozila"
+=======================================================
 
-IDEJA
------
-Sadržaj te sekcije je stvarni SLIJED (izaberi vozilo -> pošalji upit ->
-preuzmi ključeve), pa animacija koja napreduje kroz korake nosi značenje
-umjesto da bude ukras. Sekcija se sama "odvija" i time drži pažnju.
+ŠTA SAM NAŠAO (i popravio)
+--------------------------
+Prije dizajna sam pregledao kako sekcija radi i našao dvije prave greške u
+performansama:
 
-ŠTA SE DEŠAVA
+1) Glavna slika je imala "priority" iako je sekcija ISPOD pregiba.
+   To znači da se ta slika učitavala HITNO, otimajući propusnost hero slici
+   na vrhu stranice. Klasična greška koja usporava prvi dojam cijele
+   naslovnice. -> uklonjeno, sada se učitava tek kad zatreba.
+
+2) Sličice su tražile "20vw" širine, a prikazuju se na oko 112px.
+   Na širokom ekranu to je značilo da se dovlači slika 2-3 puta veća nego
+   što treba, deset puta. -> sada traže tačno 112px.
+
+BRŽE UČITAVANJE
+---------------
+- Slike prebačene u WebP i smanjene na 1200px širine (dovoljno i za retina
+  ekrane jer se prikazuju na ~600px): 1.640 KB -> 1.018 KB, 38% manje.
+- Svaka slika ima ugrađen sićušni "blur" pregled (oko 900 znakova) koji se
+  prikaže ODMAH iz HTML-a. Slika se izlijeva iz vlastitih boja umjesto da
+  iskoči iz praznog okvira. To je najveći dobitak u DOŽIVLJENOJ brzini.
+- Sličice se učitavaju lijeno (tek kad dođu na red).
+
+REDIZAJN — ŠTA JE NOVO
+----------------------
+- Raspored je sada asimetričan (5:7 umjesto 50:50). Fotografije dobijaju
+  više prostora, tekst je uži i lakši za čitanje. Djeluje uređivački,
+  a ne kao šablon.
+- Glavna slika je u kino formatu 3:2 umjesto zdepastog 4:3.
+- Brojač "01 / 10" u uglu — mala tipografska stvar koja odmah kaže koliko
+  ih ima i gdje ste.
+- Strelice za listanje na samoj slici, plus tipke ← → na tastaturi.
+- Klik na dugme za uvećanje otvara sliku PREKO CIJELOG EKRANA. Koristi tvoj
+  postojeći lightbox iz sekcije vozila, pa je ponašanje isto na cijelom sajtu.
+- Sličice više nisu mreža 5x2 nego traka koja se skroluje i sama prati
+  aktivnu sliku. Zauzima manje visine i djeluje kao prava galerija.
+- Prvi pasus je izdvojen tankom crvenom linijom s lijeve strane — daje
+  tekstu ritam umjesto tri jednaka bloka.
+
+ZADRŽANO ČISTO
+--------------
+Gradijent je samo na dnu slike, tamo gdje stoje kontrole, da fotografije
+ostanu neokaljane. Kontrole se pojavljuju na hover, a ne stoje stalno.
+Nema auto-listanja — sekcija "Kako funkcioniše" već ima svoju animaciju,
+pa bi dvije stvari koje se same vrte na istoj stranici bile previše.
+
+PRISTUPAČNOST
 -------------
-- Koraci se smjenjuju sami, svakih 2,8 sekundi: 1 -> 2 -> 3 -> 1.
-- Linija između koraka se puni brend crvenom i prati napredak.
-- Aktivan korak: ikonica se blago uveća, dobije brend sjaj (halo) i
-  ispod teksta se izvuče kratka crvena linija. Broj u krugu se popuni.
-- Prelaskom miša (ili dodirom na telefonu) sekvenca STAJE i ostaje na tom
-  koraku dok ne skloniš kursor. Posjetilac preuzima kontrolu kad hoće.
+Sve kontrole su dugmad s aria oznakama i vidljivim fokusom. Sličice imaju
+aria-pressed. Dekorativne slike u traci su skrivene od čitača ekrana
+(alt="") da se opis ne ponavlja deset puta. Poštuje prefers-reduced-motion.
 
-ZAŠTO OVAKO, A NE VIŠE OD TOGA
-------------------------------
-Namjerno je jedna jasna ideja umjesto više sitnih efekata. Naslovi i opisi
-se NE mijenjaju i ne blijede — animira se samo ikonica i linija. Tako
-tekst ostaje čitljiv cijelo vrijeme i sekcija djeluje smireno, a ne
-"skakutavo".
-
-OPTIMIZACIJA
-------------
-- Animira se samo transform i opacity (bez pomjeranja rasporeda), što je
-  najjeftinije za browser i ne pravi trzanje pri skrolu.
-- Sekvenca radi SAMO dok je sekcija na ekranu (IntersectionObserver).
-  Kad posjetilac odskrola dalje, tajmer se gasi — ne troši bateriju.
-- Nema novih biblioteka; koristi Framer Motion koji već imaš.
-- Izbjegnut je Tailwind "transition-all" na elementima koje animira Framer
-  (to je bio uzrok ranijeg "duplog učitavanja" kartica).
-
-PRISTUPAČNOST (Accessibility 100 ostaje)
-----------------------------------------
-- Poštuje "prefers-reduced-motion": kome je u sistemu isključena animacija,
-  svi koraci su odmah prikazani kao aktivni i ništa se ne pomjera.
-- Koraci su dugmad, pa rade i tastaturom (Tab) uz vidljiv fokus prsten.
-- Aktivan korak nosi aria-current="step".
-- Kontrast nije diran: naslovi i opisi zadržavaju postojeće boje.
-
-TEME
-----
-Radi u svijetloj i tamnoj temi jer koristi tvoje postojeće tokene
-(brand, brand-strong, surface, border, muted-foreground, shadow-brand).
-U tamnoj temi broj u krugu koristi brand-strong (#ff4b54) koji smo ranije
-uveli zbog kontrasta.
-
-MOBITEL
+FAJLOVI
 -------
-Na mobitelu se koraci slažu jedan ispod drugog kao i do sada, linija se
-sakriva (kao i prije), a smjena koraka i dalje radi. Dodir na korak ga
-zaustavlja na tom mjestu.
+  components/home/WeddingCarsSection.tsx   (redizajnirana komponenta)
+  public/wed-1.webp ... wed-10.webp        (nove, optimizovane slike)
 
-i18n: NIJE mijenjan. Koriste se postojeći ključevi HowItWorks (3 koraka,
-HR i EN) — messages fajlove ne treba dirati.
+NAKON RASPAKIVANJA — OBRIŠI STARE SLIKE
+---------------------------------------
+Stare .jpg datoteke se više ne koriste. Iz foldera projekta pokreni:
+
+    Remove-Item public\wed-placeholder-*.jpg
+
+(Ako ih ostaviš, samo bespotrebno stoje u repou; sajt radi ispravno.)
 
 KORACI
 ------
-1. Raspakuj preko root-a projekta (prepisuje components/home/HowItWorks.tsx).
-2. npm run dev -> skrolaj do sekcije, probaj hover i tamnu temu.
-3. git add components/home/HowItWorks.tsx
-   git commit -m "feat(home): animirana sekcija Kako funkcionise"
+1. Raspakuj preko root-a projekta.
+2. Obriši stare slike (komanda iznad).
+3. npm run dev -> skrolaj do sekcije, probaj strelice, tastaturu, uvećanje
+   i tamnu temu.
+4. git add -A
+   git commit -m "feat(home): redizajn svadbene sekcije + optimizovane slike"
    git push
+
+i18n nije mijenjan — koriste se postojeći ključevi WeddingCars.
