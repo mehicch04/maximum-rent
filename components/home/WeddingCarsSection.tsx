@@ -51,10 +51,22 @@ export function WeddingCarsSection() {
   );
 
   // Keep the filmstrip scrolled to whichever photo is showing.
+  //
+  // We set scrollLeft on the strip itself instead of calling scrollIntoView:
+  // that method also scrolls the PAGE to reveal the element, which on first
+  // render would jump the visitor straight down to this section.
+  const firstRun = useRef(true);
   useEffect(() => {
     const strip = stripRef.current;
     const el = strip?.children[active] as HTMLElement | undefined;
-    el?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    if (!strip || !el) return;
+
+    const left = el.offsetLeft - (strip.clientWidth - el.clientWidth) / 2;
+    strip.scrollTo({
+      left: Math.max(0, left),
+      behavior: firstRun.current ? "auto" : "smooth",
+    });
+    firstRun.current = false;
   }, [active]);
 
   return (
