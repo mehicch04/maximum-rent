@@ -1,79 +1,82 @@
-MAXIMUM RENT A CAR — redizajn sekcije "Svadbena vozila"
-=======================================================
+MAXIMUM RENT A CAR — bolji kvalitet hero videa + video radi i na mobitelu
+=========================================================================
 
-ŠTA SAM NAŠAO (i popravio)
---------------------------
-Prije dizajna sam pregledao kako sekcija radi i našao dvije prave greške u
-performansama:
+ZAŠTO JE BIO PIKSELIZIRAN
+-------------------------
+Trenutni video je 720p, ali na samo 756 kbps. To je vrlo nizak protok za tu
+rezoluciju — otud "mrljanje" u pokretu i na prijelazima. Rezolucija nije bila
+problem, nego kompresija (ranije smo ga previše stisnuli radi brzine).
 
-1) Glavna slika je imala "priority" iako je sekcija ISPOD pregiba.
-   To znači da se ta slika učitavala HITNO, otimajući propusnost hero slici
-   na vrhu stranice. Klasična greška koja usporava prvi dojam cijele
-   naslovnice. -> uklonjeno, sada se učitava tek kad zatreba.
+Srećom, originalni 1080p izvor je još bio u repou (app/hero.mp4), pa je novi
+enkod rađen iz njega, a ne iz već stisnute verzije.
 
-2) Sličice su tražile "20vw" širine, a prikazuju se na oko 112px.
-   Na širokom ekranu to je značilo da se dovlači slika 2-3 puta veća nego
-   što treba, deset puta. -> sada traže tačno 112px.
+ŠTA JE NOVO
+-----------
+  public/hero.mp4          3.514 KB   720p, ~1,25 Mbps   (desktop)
+  public/hero-mobile.mp4   1.673 KB   480p               (mobitel)
+  public/hero-poster.webp     46 KB   (bio 36 KB, sada oštriji)
 
-BRŽE UČITAVANJE
----------------
-- Slike prebačene u WebP i smanjene na 1200px širine (dovoljno i za retina
-  ekrane jer se prikazuju na ~600px): 1.640 KB -> 1.018 KB, 38% manje.
-- Svaka slika ima ugrađen sićušni "blur" pregled (oko 900 znakova) koji se
-  prikaže ODMAH iz HTML-a. Slika se izlijeva iz vlastitih boja umjesto da
-  iskoči iz praznog okvira. To je najveći dobitak u DOŽIVLJENOJ brzini.
-- Sličice se učitavaju lijeno (tek kad dođu na red).
+Protok je skočio sa 756 kbps na ~1,25 Mbps — to je ono što se vidi kao
+"čistija slika".
 
-REDIZAJN — ŠTA JE NOVO
-----------------------
-- Raspored je sada asimetričan (5:7 umjesto 50:50). Fotografije dobijaju
-  više prostora, tekst je uži i lakši za čitanje. Djeluje uređivački,
-  a ne kao šablon.
-- Glavna slika je u kino formatu 3:2 umjesto zdepastog 4:3.
-- Brojač "01 / 10" u uglu — mala tipografska stvar koja odmah kaže koliko
-  ih ima i gdje ste.
-- Strelice za listanje na samoj slici, plus tipke ← → na tastaturi.
-- Klik na dugme za uvećanje otvara sliku PREKO CIJELOG EKRANA. Koristi tvoj
-  postojeći lightbox iz sekcije vozila, pa je ponašanje isto na cijelom sajtu.
-- Sličice više nisu mreža 5x2 nego traka koja se skroluje i sama prati
-  aktivnu sliku. Zauzima manje visine i djeluje kao prava galerija.
-- Prvi pasus je izdvojen tankom crvenom linijom s lijeve strane — daje
-  tekstu ritam umjesto tri jednaka bloka.
+VIDEO SADA RADI I NA MOBITELU
+-----------------------------
+Ranije je na telefonima stajala samo statična slika (bila je to odluka radi
+performansi). Sada se video vrti i tamo, ali dobija LAKŠU datoteku (480p,
+1,7 MB umjesto 3,5 MB) da ne troši previše mobilnih podataka.
 
-ZADRŽANO ČISTO
+Poster i dalje "pada" prvi i on je LCP — video se zatim blago pretopi preko
+njega kad je spreman. Tako početno učitavanje ostaje brzo.
+
+ZAŠTO NE 1080p
 --------------
-Gradijent je samo na dnu slike, tamo gdje stoje kontrole, da fotografije
-ostanu neokaljane. Kontrole se pojavljuju na hover, a ne stoje stalno.
-Nema auto-listanja — sekcija "Kako funkcioniše" već ima svoju animaciju,
-pa bi dvije stvari koje se same vrte na istoj stranici bile previše.
+Probao sam: 1080p bi bio 5.336 KB, dakle skoro kao neoptimizovani original.
+Pošto je video pozadina zatamnjena 55% i iza teksta, razlika 720p -> 1080p
+se praktično ne vidi, a payload skoro duplo raste. 720p uz veći protok je
+bolja razmjena.
 
-PRISTUPAČNOST
--------------
-Sve kontrole su dugmad s aria oznakama i vidljivim fokusom. Sličice imaju
-aria-pressed. Dekorativne slike u traci su skrivene od čitača ekrana
-(alt="") da se opis ne ponavlja deset puta. Poštuje prefers-reduced-motion.
+WEBM JE UKLONJEN
+----------------
+Ostaje samo MP4 (H.264), koji podržava svaki browser. Ranije su postojale dvije
+verzije i pojedini browseri su znali povući OBJE. Sa jednim izvorom taj rizik
+nestaje, a kod je jednostavniji.
+
+ISKRENO O PERFORMANSAMA
+-----------------------
+Ovo je svjesna razmjena: kvalitet slike naspram veličine.
+- Ukupan payload raste (desktop ~3,5 MB videa umjesto 1,5 MB).
+- PageSpeed će vjerovatno opet prijaviti "Avoid enormous network payloads".
+  TA STAVKA JE "Unscored" — ne obara ocjenu. Ocjena brzine ostaje dobra jer
+  video ne blokira prvo iscrtavanje (poster je LCP).
+- Ako ipak primijetiš pad na mobilnoj ocjeni, najlakša poluga je vratiti
+  mobilnu verziju na 360p (oko 1 MB) — javi pa zamijenim.
+
+NAPOMENA ZA iPhone
+------------------
+Ako je na telefonu uključen "Low Power Mode", iOS blokira automatsko
+puštanje videa i prikazuje samo poster. To je ponašanje sistema, ne sajta.
 
 FAJLOVI
 -------
-  components/home/WeddingCarsSection.tsx   (redizajnirana komponenta)
-  public/wed-1.webp ... wed-10.webp        (nove, optimizovane slike)
+  components/home/Hero.tsx   (video na svim ekranima, jedan izvor, fade-in)
+  public/hero.mp4            (zamjena)
+  public/hero-mobile.mp4     (NOVO)
+  public/hero-poster.webp    (zamjena, oštriji)
 
-NAKON RASPAKIVANJA — OBRIŠI STARE SLIKE
----------------------------------------
-Stare .jpg datoteke se više ne koriste. Iz foldera projekta pokreni:
+NAKON RASPAKIVANJA — OBRIŠI NEPOTREBNO
+--------------------------------------
+    Remove-Item public\hero.webm
+    Remove-Item app\hero.mp4
 
-    Remove-Item public\wed-placeholder-*.jpg
-
-(Ako ih ostaviš, samo bespotrebno stoje u repou; sajt radi ispravno.)
+Drugi je duplikat originala od 6,4 MB koji se NE servira, samo napuhuje repo.
+(Ako želiš zadržati original izvan repoa za buduće enkode, prvo ga prekopiraj
+negdje van projekta — dobro je imati ga.)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. Obriši stare slike (komanda iznad).
-3. npm run dev -> skrolaj do sekcije, probaj strelice, tastaturu, uvećanje
-   i tamnu temu.
+2. Obriši dva fajla (komande iznad).
+3. npm run dev -> provjeri hero na širokom prozoru i na uskom (mobitel).
 4. git add -A
-   git commit -m "feat(home): redizajn svadbene sekcije + optimizovane slike"
+   git commit -m "feat(hero): bolji kvalitet videa + reprodukcija na mobitelu"
    git push
-
-i18n nije mijenjan — koriste se postojeći ključevi WeddingCars.

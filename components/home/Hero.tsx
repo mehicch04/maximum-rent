@@ -74,36 +74,24 @@ export function Hero() {
   const t = useTranslations("Hero");
   const locale = useLocale();
 
-  // Mount the background video ONLY on tablet/desktop (and not when the user
-  // Only mount the background video on tablet/desktop (and not when the user
-  // prefers reduced motion). It starts as null so the server-rendered HTML and
-  // the mobile DOM contain NO <video> at all — phones never download it. The
-  // poster stays as the background everywhere and is the LCP.
+  // The background video plays on every screen size, with a lighter file on
+  // phones so it doesn't eat mobile data. It mounts only after hydration, so
+  // the server-rendered HTML ships the poster alone — the poster is the LCP
+  // and paints immediately, then the video fades in over it.
   //
-  // We also pick a SINGLE source (webm for browsers that support it, mp4 as
-  // fallback) instead of listing both <source> elements. With two sources some
-  // browsers fetch both files (~3.6 MB); choosing one keeps it to ~1.5 MB.
-  const [video, setVideo] = useState<{ src: string; type: string } | null>(
-    null,
-  );
+  // A single <source> (H.264, universally supported) is chosen on purpose:
+  // listing several makes some browsers fetch more than one file.
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
 
   useEffect(() => {
     const wide = window.matchMedia("(min-width: 768px)");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => {
-      if (!(wide.matches && !reduce.matches)) {
-        setVideo(null);
+      if (reduce.matches) {
+        setVideoSrc(null); // respect the visitor's motion preference
         return;
       }
-      const probe = document.createElement("video");
-      const canWebm =
-        probe.canPlayType('video/webm; codecs="vp9, opus"') ||
-        probe.canPlayType("video/webm");
-      setVideo(
-        canWebm
-          ? { src: "/hero.webm", type: "video/webm" }
-          : { src: "/hero.mp4", type: "video/mp4" },
-      );
+      setVideoSrc(wide.matches ? "/hero.mp4" : "/hero-mobile.mp4");
     };
     update();
     wide.addEventListener("change", update);
@@ -116,8 +104,8 @@ export function Hero() {
 
   return (
     <section className="relative flex min-h-[92vh] items-center overflow-hidden">
-      {/* Background: static poster everywhere (LCP); the autoplay video is
-          mounted on top only on tablet/desktop, so phones never fetch it. */}
+      {/* Background: the poster paints first (it is the LCP), then the
+          autoplay video fades in over it — on phones too, with a lighter file. */}
       <div className="absolute inset-0 -z-10 bg-black">
         <img
           src="/hero-poster.webp"
@@ -126,8 +114,9 @@ export function Hero() {
           fetchPriority="high"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        {video && (
+        {videoSrc && (
           <video
+            key={videoSrc}
             autoPlay
             muted
             loop
@@ -137,9 +126,10 @@ export function Hero() {
             disablePictureInPicture
             aria-hidden
             tabIndex={-1}
-            className="absolute inset-0 h-full w-full object-cover"
+            onCanPlay={(e) => e.currentTarget.classList.add("opacity-100")}
+            className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-700"
           >
-            <source src={video.src} type={video.type} />
+            <source src={videoSrc} type="video/mp4" />
           </video>
         )}
       </div>
