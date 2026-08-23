@@ -77,7 +77,11 @@
       "yearDesc": "Year: newest first",
       "nameAsc": "Name: A–Z",
       "nameDesc": "Name: Z–A"
-    }
+    },
+    "brandLabel": "Brand",
+    "allBrands": "All brands",
+    "resultsCount": "{count, plural, one {# vehicle} other {# vehicles}}",
+    "clearFilters": "Clear filters"
   },
   "Inquiry": {
     "title": "Reservation inquiry",

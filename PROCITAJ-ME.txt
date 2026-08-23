@@ -1,110 +1,62 @@
-MAXIMUM RENT A CAR — popravke iz revizije (redom)
-=================================================
+MAXIMUM RENT A CAR — uklonjena postavka valute + filteri na stranici vozila
+===========================================================================
 
-Ovaj zip sadrži SVE popravke iz revizije, uključujući i onu iz prethodnog
-zipa (linkovi u mejlovima). Ako prethodni nisi primijenio, ovaj ga pokriva.
-
------------------------------------------------------------------------
-1) LINKOVI U MEJLOVIMA — POPRAVLJENO
------------------------------------------------------------------------
-Svi mailto: i tel: linkovi vodili su na podatke iz makete
-(amar.hodzic@example.com, +387 33 000 000, pogrešna domena agencije).
-Prikazani tekst je bio tačan, pa se greška vidjela tek na klik.
-
-Sada koriste stvarne podatke. Dodana je i ispravna obrada telefona:
-"+387 (0) 63 660 444" -> tel:+38763660444 (nula u zagradi je nacionalni
-prefiks i mora otpasti, inače poziv ne prolazi).
+VAŽNO: ovaj zip pretpostavlja da si primijenio prethodni ("revizija popravke").
+Ako nisi, prvo primijeni njega — AdminNav ovdje sadrži tab "Poruke".
 
 -----------------------------------------------------------------------
-2) KONTAKT FORMA — POPRAVLJENO (najozbiljnije)
+1) POSTAVKA VALUTE UKLONJENA IZ ADMINA
 -----------------------------------------------------------------------
-Poruke s kontakt stranice i stranice poslovne ponude upisivale su se u bazu
-i tu je priča stajala: nikakva obavijest nije išla, a u adminu ih nije bilo
-nigdje. Poslovni upiti — najvrjedniji tip — nestajali su bez traga.
+- Layout se vraća na fiksnu primarnu valutu: marke (BAM).
+- Tab "Postavke" uklonjen iz admin navigacije.
+- Prekidač KM/€ za posjetioce ostaje i radi kao i do sada.
 
-Sada:
-  - Vlasnik dobija EMAIL o svakoj poruci, u istom dizajnu kao ostali mejlovi.
-    Poslovni upiti su jasno označeni, kao i jezik pošiljaoca (HR/EN).
-    "Odgovori emailom" dugme otvara odgovor direktno pošiljaocu.
-  - Vlasnik dobija i TELEGRAM poruku, isto kao za rezervacije.
-  - Oba kanala su non-fatal: ako mejl ili bot padnu, poruka je već sačuvana.
+*** RUČNO OBRISI (zip ne može brisati fajlove): ***
+    Remove-Item -Recurse -Force app\admin\postavke
+    Remove-Item -Force lib\settings.ts
 
-  - NOVI EKRAN U ADMINU: /admin/poruke
-    Prikazuje sve poruke, novije prvo. Ima filtere (Sve / Nepročitane /
-    Poslovne), broj nepročitanih, klikabilan mejl i telefon, označavanje
-    kao riješeno i brisanje uz potvrdu.
+Ako ih ne obrišeš, build će pući jer postavke stranica uvozi lib/settings.
 
 -----------------------------------------------------------------------
-3) POSTAVKA VALUTE U ADMINU — POPRAVLJENO
+2) FILTERI NA STRANICI VOZILA
 -----------------------------------------------------------------------
-Ekran /admin/postavke nudio je izbor primarne valute, pisao "Sačuvano",
-ali sajt to nikad nije čitao — layout je imao fiksno "BAM". Klijent bi
-mijenjao i ništa se ne bi desilo.
+Dodan filter po MARKI vozila. Marke se izvlače same iz voznog parka,
+poredane abecedno, sa brojem vozila uz svaku (npr. "Audi (5)"). Kad dodaš
+novo vozilo, marka se pojavi sama — ništa se ne podešava ručno.
 
-Sada layout čita postavku iz baze, a admin akcija već ispravno osvježava
-keš, pa promjena djeluje odmah.
+Filter po marki i filter po tipu rade zajedno (npr. SUV + Audi).
 
-Napomena: ranije smo dogovorili da opcije nema. Pošto ekran postoji u
-projektu, ispravnije je da RADI nego da laže. Ako je ipak ne želiš,
-obriši app/admin/postavke/ i ukloni tab iz AdminNav — javi pa pošaljem
-verziju bez toga.
+PREGLEDNIJI RASPORED
+Prije: čipovi za tip u jednom redu, pa sortiranje samo za sebe u drugom.
+Sada je ispod čipova jedna uredna traka odvojena tankom linijom:
 
------------------------------------------------------------------------
-4) GOOGLE RECENZIJE — POPRAVLJENO
------------------------------------------------------------------------
-U Reviews sekciji stajao je TODO i privremeni "search" link na Google.
-Uz to su ocjena i broj recenzija bili napisani DVAPUT (i tu i u
-site-config), pa bi se lako razišli.
+    35 vozila   ·  Poništi filtere        [Marka ▾]  [Sortiraj ▾]
+    └ lijevo: koliko je rezultata          └ desno: dorada izbora
 
-Sada se oboje čita iz site-config, a link koristi pravi Google Maps profil
-koji si već imao upisan. Mijenjaš na jednom mjestu.
+- Broj rezultata se mijenja uživo dok filtriraš.
+- "Poništi filtere" se pojavljuje SAMO kad je neki filter aktivan.
+- Padajući izbornici su usklađeni (ista visina, isti stil, ista širina
+  ponašanja na mobitelu).
+- Filter po marki se prikazuje samo ako u floti postoji više od jedne marke.
 
------------------------------------------------------------------------
-5) ADMIN NAVIGACIJA
------------------------------------------------------------------------
-Dodani tabovi "Poruke" i "Postavke" (postavke ranije nisu bile dostupne
-kroz navigaciju, iako stranica postoji).
-
------------------------------------------------------------------------
-ŠTA NISAM DIRAO I ZAŠTO
------------------------------------------------------------------------
-Lokacije su upisane na dva mjesta: u bazi (model Location, koristi ih
-naslovna i stranica vozila) i hardkodirano u site-config (koristi ih
-kontakt, o-nama, footer i sekcija lokacija).
-
-Nisam to spajao sada jer bi izmjena dirala pet fajlova, a klijent i dalje
-ne bi mogao uređivati lokacije — nema admin ekrana za njih. Dobio bi rizik
-bez ijedne nove mogućnosti.
-
-Ispravno je to riješiti ZAJEDNO s ekranom "Podaci firme" u adminu
-(telefoni, radno vrijeme, ocjena, lokacije). Tada baza postaje jedini
-izvor i klijent sve mijenja sam. To je sljedeći korak ako ga odobriš.
+i18n: dodani ključevi Fleet.brandLabel, allBrands, resultsCount, clearFilters
+(HR i EN, parity provjeren — 278 ključeva u oba).
 
 -----------------------------------------------------------------------
 FAJLOVI
 -----------------------------------------------------------------------
-  lib/email-templates.ts        (pravi linkovi + novi šablon za poruke)
-  lib/email.ts                  (sendContactEmail)
-  app/api/contact/route.ts      (šalje mejl + Telegram)
-  app/admin/poruke/page.tsx     (NOVO — pregled poruka)
-  app/admin/poruke/actions.ts   (NOVO — status i brisanje)
-  components/admin/AdminNav.tsx (tabovi Poruke i Postavke)
-  components/home/Reviews.tsx   (jedan izvor podataka)
-  app/[locale]/layout.tsx       (čita primarnu valutu)
+  components/fleet/FleetGrid.tsx    (filter po marki + nova traka)
+  components/admin/AdminNav.tsx     (bez taba Postavke)
+  app/[locale]/layout.tsx           (fiksno BAM)
+  messages/hr.json, messages/en.json
 
 -----------------------------------------------------------------------
 KORACI
 -----------------------------------------------------------------------
 1. Raspakuj preko root-a projekta.
-2. npx prisma generate
-   (schema se NIJE mijenjala — model ContactRequest je već postojao —
-    ali generate je potreban da TypeScript zna za contactRequest tipove)
-3. npm run dev
-   - pošalji poruku s /kontakt i s /poslovna-ponuda
-   - provjeri mejl i Telegram
-   - otvori /admin/poruke i vidi je li stigla
+2. Obriši dva fajla/foldera (komande gore) — OBAVEZNO.
+3. npm run dev -> /vozila: probaj marku + tip zajedno, poništavanje filtera,
+   i provjeri da admin više nema tab Postavke.
 4. git add -A
-   git commit -m "fix: kontakt forma salje obavijesti + admin ekran poruka, ziva postavka valute, pravi linkovi u mejlovima"
+   git commit -m "feat(fleet): filter po marki i pregledniji filteri; ukloni postavku valute"
    git push
-
-NEMA prisma db push — baza se ne mijenja.

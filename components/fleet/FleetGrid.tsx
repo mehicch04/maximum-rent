@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import { CarCard } from "./CarCard";
 import { FleetFilters, type FilterItem } from "./FleetFilters";
 import { InquiryModal } from "@/components/reservation/InquiryModal";
@@ -26,6 +26,38 @@ type Props = {
   imageSizes?: string;
 };
 
+/** Compact labelled dropdown used by the fleet toolbar. */
+function Select({
+  id,
+  label,
+  value,
+  onChange,
+  children,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="relative">
+      <label htmlFor={id} className="sr-only">
+        {label}
+      </label>
+      <select
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-10 max-w-[13rem] appearance-none truncate rounded-xl border border-border bg-surface pl-3 pr-9 text-sm font-medium text-foreground outline-none transition-colors hover:border-brand/50 focus:border-brand focus:ring-2 focus:ring-ring/30"
+      >
+        {children}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+    </div>
+  );
+}
+
 export type SortKey =
   | "RECOMMENDED"
   | "PRICE_ASC"
@@ -44,6 +76,7 @@ export function FleetGrid({ cars, search, locations, showFilters = true, eagerFi
   const t = useTranslations("Fleet");
   const [selected, setSelected] = useState<CarListItem | null>(null);
   const [active, setActive] = useState<CarCategory | "ALL">("ALL");
+  const [brand, setBrand] = useState<string>("ALL");
   const [sort, setSort] = useState<SortKey>("RECOMMENDED");
 
   // Effective categories per car (explicit, else derived from carClass).
@@ -74,11 +107,28 @@ export function FleetGrid({ cars, search, locations, showFilters = true, eagerFi
     return items;
   }, [counts, cars.length, t]);
 
+  // Brands present in the fleet, alphabetical, with how many cars each has.
+  const brands = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const c of cars) {
+      const b = c.brand?.trim();
+      if (b) m.set(b, (m.get(b) ?? 0) + 1);
+    }
+    return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0], "hr"));
+  }, [cars]);
+
+  const filtersActive = active !== "ALL" || brand !== "ALL";
+  const clearFilters = () => {
+    setActive("ALL");
+    setBrand("ALL");
+  };
+
   const visibleCars = useMemo(() => {
-    const filtered =
-      active === "ALL"
-        ? [...cars]
-        : cars.filter((c) => carCats.get(c.id)?.includes(active));
+    const filtered = cars.filter((c) => {
+      const byType = active === "ALL" || carCats.get(c.id)?.includes(active);
+      const byBrand = brand === "ALL" || c.brand === brand;
+      return byType && byBrand;
+    });
 
     switch (sort) {
       case "PRICE_ASC":
@@ -100,7 +150,7 @@ export function FleetGrid({ cars, search, locations, showFilters = true, eagerFi
       default:
         return filtered; // owner's order from the admin (sortOrder)
     }
-  }, [active, sort, cars, carCats]);
+  }, [active, brand, sort, cars, carCats]);
 
   const SORT_OPTIONS: { value: SortKey; label: string }[] = [
     { value: "RECOMMENDED", label: t("sort.recommended") },
@@ -113,38 +163,68 @@ export function FleetGrid({ cars, search, locations, showFilters = true, eagerFi
 
   return (
     <>
-      {showFilters && filterItems.length > 1 && (
-        <FleetFilters
-          items={filterItems}
-          active={active}
-          onChange={setActive}
-          label={t("filterLabel")}
-          swipeHint={t("swipeHint")}
-        />
-      )}
-
       {showFilters && (
-        <div className="mb-6 flex items-center justify-end gap-2">
-          <label
-            htmlFor="fleet-sort"
-            className="text-sm text-muted-foreground"
-          >
-            {t("sort.label")}
-          </label>
-          <div className="relative">
-            <select
-              id="fleet-sort"
-              value={sort}
-              onChange={(e) => setSort(e.target.value as SortKey)}
-              className="h-10 appearance-none rounded-xl border border-border bg-surface pl-3 pr-9 text-sm font-medium text-foreground outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-ring/30"
-            >
-              {SORT_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="mb-8">
+          {/* Type chips — the filter people reach for first. */}
+          {filterItems.length > 1 && (
+            <FleetFilters
+              items={filterItems}
+              active={active}
+              onChange={setActive}
+              label={t("filterLabel")}
+              swipeHint={t("swipeHint")}
+            />
+          )}
+
+          {/* One tidy row: how many results on the left, refinements on the
+              right — instead of controls scattered above the grid. */}
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-border pt-4">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-foreground">
+                {t("resultsCount", { count: visibleCars.length })}
+              </span>
+              {filtersActive && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="inline-flex items-center gap-1 text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-brand-strong hover:underline"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  {t("clearFilters")}
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {brands.length > 1 && (
+                <Select
+                  id="fleet-brand"
+                  label={t("brandLabel")}
+                  value={brand}
+                  onChange={setBrand}
+                >
+                  <option value="ALL">{t("allBrands")}</option>
+                  {brands.map(([name, count]) => (
+                    <option key={name} value={name}>
+                      {name} ({count})
+                    </option>
+                  ))}
+                </Select>
+              )}
+
+              <Select
+                id="fleet-sort"
+                label={t("sort.label")}
+                value={sort}
+                onChange={(v) => setSort(v as SortKey)}
+              >
+                {SORT_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
           </div>
         </div>
       )}

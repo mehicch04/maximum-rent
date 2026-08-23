@@ -77,7 +77,11 @@
       "yearDesc": "Godište: najnovije",
       "nameAsc": "Naziv: A–Z",
       "nameDesc": "Naziv: Z–A"
-    }
+    },
+    "brandLabel": "Marka",
+    "allBrands": "Sve marke",
+    "resultsCount": "{count, plural, one {# vozilo} few {# vozila} other {# vozila}}",
+    "clearFilters": "Poništi filtere"
   },
   "Inquiry": {
     "title": "Upit za rezervaciju",
