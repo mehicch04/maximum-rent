@@ -2,6 +2,7 @@ import { Resend } from "resend";
 import type { InquiryInput } from "@/lib/validations";
 import { SITE } from "@/lib/site-config";
 import {
+  contactRequestHtml,
   ownerInquiryHtml,
   guestConfirmationHtml,
   decisionHtml,
@@ -166,6 +167,79 @@ export async function sendGuestConfirmationEmail(
     return { sent: true };
   } catch (err) {
     console.error("[email] guest confirmation failed:", err);
+    return { sent: false, error: "send_failed" };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Contact / business enquiry -> OWNER
+// ---------------------------------------------------------------------------
+
+export type ContactEmailData = {
+  reference: string;
+  type: "CONTACT" | "BUSINESS";
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  company?: string | null;
+  message?: string | null;
+  locale?: "hr" | "en" | string;
+};
+
+/**
+ * Notifies the owner about a message from the contact page or the business
+ * offer page. These used to be stored silently, so nobody ever saw them.
+ *
+ * Non-fatal: a failure here never blocks storing the message.
+ */
+export async function sendContactEmail(
+  data: ContactEmailData,
+): Promise<{ sent: boolean; error?: string }> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const to = process.env.INQUIRY_TO_EMAIL ?? SITE.email;
+  const from =
+    process.env.INQUIRY_FROM_EMAIL ?? "Maximum Rent <onboarding@resend.dev>";
+
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY missing — contact email skipped.");
+    return { sent: false, error: "missing_api_key" };
+  }
+
+  const isBusiness = data.type === "BUSINESS";
+  const isEn = data.locale === "en";
+  const resend = new Resend(apiKey);
+
+  const html = contactRequestHtml({
+    ref: esc(data.reference),
+    kind: isBusiness ? "Poslovna ponuda" : "Kontakt",
+    name: esc(`${data.firstName} ${data.lastName}`),
+    email: esc(data.email),
+    phone: esc(data.phone),
+    company: esc(data.company),
+    message: esc(data.message),
+    guestLocale: isEn ? "EN" : "HR",
+  });
+
+  const subject =
+    `${isEn ? "[EN] " : ""}${isBusiness ? "Poslovni upit" : "Nova poruka"}` +
+    ` · ${data.reference.slice(-8)} · ${data.firstName} ${data.lastName}`;
+
+  try {
+    const { error } = await resend.emails.send({
+      from,
+      to,
+      replyTo: data.email,
+      subject,
+      html,
+    });
+    if (error) {
+      console.error("[email] contact error:", error);
+      return { sent: false, error: String(error) };
+    }
+    return { sent: true };
+  } catch (err) {
+    console.error("[email] contact send failed:", err);
     return { sent: false, error: "send_failed" };
   }
 }

@@ -3,13 +3,15 @@
 import { motion } from "framer-motion";
 import { Star, ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { SITE } from "@/lib/site-config";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const RATING = 4.8;
-const COUNT = 108;
-// TODO: replace with the exact Google Business profile / Maps URL
-const GOOGLE_URL = "https://www.google.com/maps/search/Maximum+Rent+a+Car+Mostar";
+// Rating and the Maps link live in site-config so they are stated once and
+// stay in step with the hero — they used to be duplicated here.
+const RATING = SITE.rating.score;
+const COUNT = SITE.rating.count;
+const GOOGLE_URL = SITE.map.link;
 
 export function Reviews() {
   const t = useTranslations("Reviews");

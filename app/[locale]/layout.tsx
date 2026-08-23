@@ -9,6 +9,7 @@ import { routing, type AppLocale } from "@/i18n/routing";
 import { SITE } from "@/lib/site-config";
 import { ThemeProvider } from "@/components/theme-provider";
 import { CurrencyProvider } from "@/components/currency/CurrencyProvider";
+import { getPrimaryCurrency } from "@/lib/settings";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { PageBackground } from "@/components/layout/PageBackground";
@@ -84,6 +85,8 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   const messages = await getMessages();
+  // Default currency the owner picked in the admin panel.
+  const primaryCurrency = await getPrimaryCurrency();
 
   return (
     <html lang={locale} suppressHydrationWarning className={inter.variable}>
@@ -91,7 +94,7 @@ export default async function LocaleLayout({
         <JsonLd locale={locale} />
         <ThemeProvider>
           <NextIntlClientProvider messages={messages}>
-            <CurrencyProvider defaultCurrency="BAM">
+            <CurrencyProvider defaultCurrency={primaryCurrency}>
               <PageBackground />
               <div className="flex min-h-dvh flex-col">
                 <Navbar />

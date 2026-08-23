@@ -1,82 +1,110 @@
-MAXIMUM RENT A CAR — bolji kvalitet hero videa + video radi i na mobitelu
-=========================================================================
+MAXIMUM RENT A CAR — popravke iz revizije (redom)
+=================================================
 
-ZAŠTO JE BIO PIKSELIZIRAN
--------------------------
-Trenutni video je 720p, ali na samo 756 kbps. To je vrlo nizak protok za tu
-rezoluciju — otud "mrljanje" u pokretu i na prijelazima. Rezolucija nije bila
-problem, nego kompresija (ranije smo ga previše stisnuli radi brzine).
+Ovaj zip sadrži SVE popravke iz revizije, uključujući i onu iz prethodnog
+zipa (linkovi u mejlovima). Ako prethodni nisi primijenio, ovaj ga pokriva.
 
-Srećom, originalni 1080p izvor je još bio u repou (app/hero.mp4), pa je novi
-enkod rađen iz njega, a ne iz već stisnute verzije.
+-----------------------------------------------------------------------
+1) LINKOVI U MEJLOVIMA — POPRAVLJENO
+-----------------------------------------------------------------------
+Svi mailto: i tel: linkovi vodili su na podatke iz makete
+(amar.hodzic@example.com, +387 33 000 000, pogrešna domena agencije).
+Prikazani tekst je bio tačan, pa se greška vidjela tek na klik.
 
-ŠTA JE NOVO
------------
-  public/hero.mp4          3.514 KB   720p, ~1,25 Mbps   (desktop)
-  public/hero-mobile.mp4   1.673 KB   480p               (mobitel)
-  public/hero-poster.webp     46 KB   (bio 36 KB, sada oštriji)
+Sada koriste stvarne podatke. Dodana je i ispravna obrada telefona:
+"+387 (0) 63 660 444" -> tel:+38763660444 (nula u zagradi je nacionalni
+prefiks i mora otpasti, inače poziv ne prolazi).
 
-Protok je skočio sa 756 kbps na ~1,25 Mbps — to je ono što se vidi kao
-"čistija slika".
+-----------------------------------------------------------------------
+2) KONTAKT FORMA — POPRAVLJENO (najozbiljnije)
+-----------------------------------------------------------------------
+Poruke s kontakt stranice i stranice poslovne ponude upisivale su se u bazu
+i tu je priča stajala: nikakva obavijest nije išla, a u adminu ih nije bilo
+nigdje. Poslovni upiti — najvrjedniji tip — nestajali su bez traga.
 
-VIDEO SADA RADI I NA MOBITELU
------------------------------
-Ranije je na telefonima stajala samo statična slika (bila je to odluka radi
-performansi). Sada se video vrti i tamo, ali dobija LAKŠU datoteku (480p,
-1,7 MB umjesto 3,5 MB) da ne troši previše mobilnih podataka.
+Sada:
+  - Vlasnik dobija EMAIL o svakoj poruci, u istom dizajnu kao ostali mejlovi.
+    Poslovni upiti su jasno označeni, kao i jezik pošiljaoca (HR/EN).
+    "Odgovori emailom" dugme otvara odgovor direktno pošiljaocu.
+  - Vlasnik dobija i TELEGRAM poruku, isto kao za rezervacije.
+  - Oba kanala su non-fatal: ako mejl ili bot padnu, poruka je već sačuvana.
 
-Poster i dalje "pada" prvi i on je LCP — video se zatim blago pretopi preko
-njega kad je spreman. Tako početno učitavanje ostaje brzo.
+  - NOVI EKRAN U ADMINU: /admin/poruke
+    Prikazuje sve poruke, novije prvo. Ima filtere (Sve / Nepročitane /
+    Poslovne), broj nepročitanih, klikabilan mejl i telefon, označavanje
+    kao riješeno i brisanje uz potvrdu.
 
-ZAŠTO NE 1080p
---------------
-Probao sam: 1080p bi bio 5.336 KB, dakle skoro kao neoptimizovani original.
-Pošto je video pozadina zatamnjena 55% i iza teksta, razlika 720p -> 1080p
-se praktično ne vidi, a payload skoro duplo raste. 720p uz veći protok je
-bolja razmjena.
+-----------------------------------------------------------------------
+3) POSTAVKA VALUTE U ADMINU — POPRAVLJENO
+-----------------------------------------------------------------------
+Ekran /admin/postavke nudio je izbor primarne valute, pisao "Sačuvano",
+ali sajt to nikad nije čitao — layout je imao fiksno "BAM". Klijent bi
+mijenjao i ništa se ne bi desilo.
 
-WEBM JE UKLONJEN
-----------------
-Ostaje samo MP4 (H.264), koji podržava svaki browser. Ranije su postojale dvije
-verzije i pojedini browseri su znali povući OBJE. Sa jednim izvorom taj rizik
-nestaje, a kod je jednostavniji.
+Sada layout čita postavku iz baze, a admin akcija već ispravno osvježava
+keš, pa promjena djeluje odmah.
 
-ISKRENO O PERFORMANSAMA
------------------------
-Ovo je svjesna razmjena: kvalitet slike naspram veličine.
-- Ukupan payload raste (desktop ~3,5 MB videa umjesto 1,5 MB).
-- PageSpeed će vjerovatno opet prijaviti "Avoid enormous network payloads".
-  TA STAVKA JE "Unscored" — ne obara ocjenu. Ocjena brzine ostaje dobra jer
-  video ne blokira prvo iscrtavanje (poster je LCP).
-- Ako ipak primijetiš pad na mobilnoj ocjeni, najlakša poluga je vratiti
-  mobilnu verziju na 360p (oko 1 MB) — javi pa zamijenim.
+Napomena: ranije smo dogovorili da opcije nema. Pošto ekran postoji u
+projektu, ispravnije je da RADI nego da laže. Ako je ipak ne želiš,
+obriši app/admin/postavke/ i ukloni tab iz AdminNav — javi pa pošaljem
+verziju bez toga.
 
-NAPOMENA ZA iPhone
-------------------
-Ako je na telefonu uključen "Low Power Mode", iOS blokira automatsko
-puštanje videa i prikazuje samo poster. To je ponašanje sistema, ne sajta.
+-----------------------------------------------------------------------
+4) GOOGLE RECENZIJE — POPRAVLJENO
+-----------------------------------------------------------------------
+U Reviews sekciji stajao je TODO i privremeni "search" link na Google.
+Uz to su ocjena i broj recenzija bili napisani DVAPUT (i tu i u
+site-config), pa bi se lako razišli.
 
+Sada se oboje čita iz site-config, a link koristi pravi Google Maps profil
+koji si već imao upisan. Mijenjaš na jednom mjestu.
+
+-----------------------------------------------------------------------
+5) ADMIN NAVIGACIJA
+-----------------------------------------------------------------------
+Dodani tabovi "Poruke" i "Postavke" (postavke ranije nisu bile dostupne
+kroz navigaciju, iako stranica postoji).
+
+-----------------------------------------------------------------------
+ŠTA NISAM DIRAO I ZAŠTO
+-----------------------------------------------------------------------
+Lokacije su upisane na dva mjesta: u bazi (model Location, koristi ih
+naslovna i stranica vozila) i hardkodirano u site-config (koristi ih
+kontakt, o-nama, footer i sekcija lokacija).
+
+Nisam to spajao sada jer bi izmjena dirala pet fajlova, a klijent i dalje
+ne bi mogao uređivati lokacije — nema admin ekrana za njih. Dobio bi rizik
+bez ijedne nove mogućnosti.
+
+Ispravno je to riješiti ZAJEDNO s ekranom "Podaci firme" u adminu
+(telefoni, radno vrijeme, ocjena, lokacije). Tada baza postaje jedini
+izvor i klijent sve mijenja sam. To je sljedeći korak ako ga odobriš.
+
+-----------------------------------------------------------------------
 FAJLOVI
--------
-  components/home/Hero.tsx   (video na svim ekranima, jedan izvor, fade-in)
-  public/hero.mp4            (zamjena)
-  public/hero-mobile.mp4     (NOVO)
-  public/hero-poster.webp    (zamjena, oštriji)
+-----------------------------------------------------------------------
+  lib/email-templates.ts        (pravi linkovi + novi šablon za poruke)
+  lib/email.ts                  (sendContactEmail)
+  app/api/contact/route.ts      (šalje mejl + Telegram)
+  app/admin/poruke/page.tsx     (NOVO — pregled poruka)
+  app/admin/poruke/actions.ts   (NOVO — status i brisanje)
+  components/admin/AdminNav.tsx (tabovi Poruke i Postavke)
+  components/home/Reviews.tsx   (jedan izvor podataka)
+  app/[locale]/layout.tsx       (čita primarnu valutu)
 
-NAKON RASPAKIVANJA — OBRIŠI NEPOTREBNO
---------------------------------------
-    Remove-Item public\hero.webm
-    Remove-Item app\hero.mp4
-
-Drugi je duplikat originala od 6,4 MB koji se NE servira, samo napuhuje repo.
-(Ako želiš zadržati original izvan repoa za buduće enkode, prvo ga prekopiraj
-negdje van projekta — dobro je imati ga.)
-
+-----------------------------------------------------------------------
 KORACI
-------
+-----------------------------------------------------------------------
 1. Raspakuj preko root-a projekta.
-2. Obriši dva fajla (komande iznad).
-3. npm run dev -> provjeri hero na širokom prozoru i na uskom (mobitel).
+2. npx prisma generate
+   (schema se NIJE mijenjala — model ContactRequest je već postojao —
+    ali generate je potreban da TypeScript zna za contactRequest tipove)
+3. npm run dev
+   - pošalji poruku s /kontakt i s /poslovna-ponuda
+   - provjeri mejl i Telegram
+   - otvori /admin/poruke i vidi je li stigla
 4. git add -A
-   git commit -m "feat(hero): bolji kvalitet videa + reprodukcija na mobitelu"
+   git commit -m "fix: kontakt forma salje obavijesti + admin ekran poruka, ziva postavka valute, pravi linkovi u mejlovima"
    git push
+
+NEMA prisma db push — baza se ne mijenja.

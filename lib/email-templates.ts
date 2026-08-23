@@ -5,6 +5,20 @@
  * renders through the Word engine and breaks div/flex layouts.
  */
 
+/**
+ * Builds a dialable tel: value. Numbers here are written like
+ * "+387 (0) 63 660 444" — the bracketed 0 is the national trunk prefix and must
+ * be dropped when the country code is used, otherwise the call fails.
+ */
+function telHref(phone: string): string {
+  const digits = String(phone ?? "")
+    .replace(/\([^)]*\)/g, "") // drop "(0)" and anything else in brackets
+    .replace(/[^\d+]/g, "");
+  // If the visitor typed a local number ("063 660 444") we leave it as-is:
+  // guessing a country code would produce an unreachable number.
+  return digits;
+}
+
 export type OwnerInquiryVars = {
   ref: string;
   vehicle: string;
@@ -33,6 +47,112 @@ export type GuestConfirmationVars = {
 };
 
 /** Owner notification — always in Croatian, with a badge showing the guest's language. */
+export type ContactRequestVars = {
+  ref: string;
+  kind: string;
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
+  message: string;
+  guestLocale: "HR" | "EN";
+};
+
+/**
+ * Message from the contact page or the business-offer page, sent to the owner.
+ * Same shell as the inquiry email so the inbox looks consistent.
+ */
+export function contactRequestHtml(v: ContactRequestVars): string {
+  const isEn = v.guestLocale === "EN";
+  const langColor = isEn ? "#E30613" : "#111111";
+  const langBadge = isEn ? "EN &middot; ENGLISH" : "HR &middot; HRVATSKI";
+  const langPrefix = isEn ? "EN" : "HR";
+  const langNote = isEn
+    ? "Poruka je poslana s engleske verzije stranice &mdash; o\u010dekujte komunikaciju na engleskom."
+    : "Poruka je poslana s hrvatske verzije stranice.";
+
+  const row = (label: string, value: string) =>
+    value
+      ? `<tr>
+          <td style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#6b7280;width:40%;">${label}</td>
+          <td style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;color:#111111;">${value}</td>
+         </tr>`
+      : "";
+
+  const messageBlock = v.message
+    ? `<tr><td style="padding:20px 32px 0 32px;" class="px">
+         <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#fafafa;">
+         <tr><td style="padding:14px 24px 4px 24px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:16px;letter-spacing:2px;color:#6b7280;text-transform:uppercase;">Poruka</td></tr>
+         <tr><td style="padding:0 24px 14px 24px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:22px;color:#111111;">${v.message}</td></tr>
+         </table>
+       </td></tr>`
+    : "";
+
+  return `<!doctype html>
+<html lang="hr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>@media only screen and (max-width:620px){.px{padding-left:20px !important;padding-right:20px !important}.stack-right{display:block !important;width:100% !important;text-align:left !important;padding-top:14px !important}}</style>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f5;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${langPrefix} &middot; ${v.kind} &mdash; ${v.name}</div>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f4f4f5;">
+<tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;max-width:100%;background-color:#ffffff;">
+
+  <tr><td style="background-color:#E30613;padding:22px 32px;" class="px">
+    <span style="font-family:Arial,Helvetica,sans-serif;font-size:19px;font-weight:bold;color:#ffffff;letter-spacing:1px;">MAXIMUM</span>
+    <span style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#ffffff;letter-spacing:3px;"> RENT A CAR</span>
+  </td></tr>
+
+  <tr><td style="padding:32px 32px 0 32px;" class="px">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+      <td align="left" valign="top">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+        <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:16px;letter-spacing:2px;color:#6b7280;text-transform:uppercase;">${v.kind}</td></tr>
+        <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:26px;line-height:32px;color:#E30613;font-weight:bold;padding-top:2px;">${v.ref.slice(-8)}</td></tr>
+        </table>
+      </td>
+      <td align="right" valign="top" class="stack-right">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+        <tr><td style="border:2px solid ${langColor};padding:7px 13px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:16px;color:${langColor};font-weight:bold;letter-spacing:1px;white-space:nowrap;">${langBadge}</td></tr>
+        </table>
+      </td>
+    </tr>
+    <tr><td colspan="2" style="font-family:Arial,Helvetica,sans-serif;font-size:18px;line-height:26px;color:#111111;font-weight:bold;padding-top:16px;">Nova poruka s web stranice</td></tr>
+    <tr><td colspan="2" style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:22px;color:#6b7280;padding-top:4px;">${langNote}</td></tr>
+    </table>
+  </td></tr>
+
+  <tr><td style="padding:22px 32px 0 32px;" class="px">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+      ${row("Ime i prezime", v.name)}
+      ${row("Firma", v.company)}
+      ${row("Email", `<a href="mailto:${v.email}" style="color:#E30613;text-decoration:underline;">${v.email}</a>`)}
+      ${row("Telefon", `<a href="tel:${telHref(v.phone)}" style="color:#E30613;text-decoration:underline;">${v.phone}</a>`)}
+    </table>
+  </td></tr>
+
+  ${messageBlock}
+
+  <tr><td style="padding:24px 32px 32px 32px;" class="px">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="background-color:#E30613;">
+      <a href="mailto:${v.email}?subject=${encodeURIComponent(`Odgovor na va\u0161 upit \u2014 Maximum Rent a Car`)}" style="display:block;padding:12px 30px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:18px;color:#ffffff;font-weight:bold;text-decoration:none;">Odgovori emailom</a>
+    </td></tr>
+    </table>
+  </td></tr>
+
+  <tr><td style="padding:0 32px 28px 32px;" class="px">
+    <div style="border-top:1px solid #e5e7eb;padding-top:16px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#9ca3af;">
+      Automatska poruka s web stranice Maximum Rent a Car.
+    </div>
+  </td></tr>
+
+</table>
+</td></tr></table>
+</body></html>`;
+}
+
 export function ownerInquiryHtml(v: OwnerInquiryVars): string {
   const isEn = v.guestLocale === "EN";
 
@@ -165,11 +285,11 @@ td {mso-line-height-rule:exactly;}
       </tr>
       <tr>
         <td width="180" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">Email</td>
-        <td style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;"><a href="mailto:amar.hodzic@example.com" style="color:#E30613;text-decoration:underline;">${v.guestEmail}</a></td>
+        <td style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;"><a href="mailto:${v.guestEmail}" style="color:#E30613;text-decoration:underline;">${v.guestEmail}</a></td>
       </tr>
       <tr>
         <td width="180" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">Telefon</td>
-        <td style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;"><a href="tel:+38761123456" style="color:#E30613;text-decoration:underline;">${v.guestPhone}</a></td>
+        <td style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;"><a href="tel:${telHref(v.guestPhone)}" style="color:#E30613;text-decoration:underline;">${v.guestPhone}</a></td>
       </tr>
       <tr>
         <td width="180" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">Broj leta</td>
@@ -191,11 +311,11 @@ ${noteBlock}
       <table role="presentation" cellpadding="0" cellspacing="0" border="0">
       <tr>
         <td bgcolor="#E30613" style="background-color:#E30613;">
-          <a href="tel:+38761123456" style="display:block;padding:13px 28px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:18px;color:#ffffff;font-weight:bold;text-decoration:none;text-align:left;">Pozovi gosta</a>
+          <a href="tel:${telHref(v.guestPhone)}" style="display:block;padding:13px 28px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:18px;color:#ffffff;font-weight:bold;text-decoration:none;text-align:left;">Pozovi gosta</a>
         </td>
         <td width="12" style="font-size:0;line-height:0;">&nbsp;</td>
         <td style="border:2px solid #111111;">
-          <a href="mailto:amar.hodzic@example.com?subject=Upit%20MR-2026-0142%20%E2%80%94%20Maximum%20Rent%20a%20Car" style="display:block;padding:11px 28px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:18px;color:#111111;font-weight:bold;text-decoration:none;text-align:left;">Odgovori emailom</a>
+          <a href="mailto:${v.guestEmail}?subject=${encodeURIComponent(`Upit ${v.ref} — Maximum Rent a Car`)}" style="display:block;padding:11px 28px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:18px;color:#111111;font-weight:bold;text-decoration:none;text-align:left;">Odgovori emailom</a>
         </td>
       </tr>
       </table>
@@ -309,8 +429,8 @@ td {mso-line-height-rule:exactly;}
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
       <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:2px;color:#6b7280;text-transform:uppercase;padding-bottom:8px;">Imate pitanje? Kontaktirajte nas</td></tr>
       <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:24px;color:#111111;">
-        Telefon: <a href="tel:+38733000000" style="color:#E30613;text-decoration:underline;">${v.agencyPhone}</a><br>
-        Email: <a href="mailto:info@maximumrentacar.com" style="color:#E30613;text-decoration:underline;">${v.agencyEmail}</a>
+        Telefon: <a href="tel:${telHref(v.agencyPhone)}" style="color:#E30613;text-decoration:underline;">${v.agencyPhone}</a><br>
+        Email: <a href="mailto:${v.agencyEmail}" style="color:#E30613;text-decoration:underline;">${v.agencyEmail}</a>
       </td></tr>
       </table>
     </td></tr>
@@ -423,8 +543,8 @@ td {mso-line-height-rule:exactly;}
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
       <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:2px;color:#6b7280;text-transform:uppercase;padding-bottom:8px;">Questions? Get in touch</td></tr>
       <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:24px;color:#111111;">
-        Phone: <a href="tel:+38733000000" style="color:#E30613;text-decoration:underline;">${v.agencyPhone}</a><br>
-        Email: <a href="mailto:info@maximumrentacar.com" style="color:#E30613;text-decoration:underline;">${v.agencyEmail}</a>
+        Phone: <a href="tel:${telHref(v.agencyPhone)}" style="color:#E30613;text-decoration:underline;">${v.agencyPhone}</a><br>
+        Email: <a href="mailto:${v.agencyEmail}" style="color:#E30613;text-decoration:underline;">${v.agencyEmail}</a>
       </td></tr>
       </table>
     </td></tr>
@@ -567,8 +687,8 @@ td {mso-line-height-rule:exactly;}
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
       <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:2px;color:#6b7280;text-transform:uppercase;padding-bottom:8px;">Imate pitanje? Kontaktirajte nas</td></tr>
       <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:24px;color:#111111;">
-        Telefon: <a href="tel:+38733000000" style="color:#E30613;text-decoration:underline;">${v.agencyPhone}</a><br>
-        Email: <a href="mailto:info@maximumrentacar.com" style="color:#E30613;text-decoration:underline;">${v.agencyEmail}</a>
+        Telefon: <a href="tel:${telHref(v.agencyPhone)}" style="color:#E30613;text-decoration:underline;">${v.agencyPhone}</a><br>
+        Email: <a href="mailto:${v.agencyEmail}" style="color:#E30613;text-decoration:underline;">${v.agencyEmail}</a>
       </td></tr>
       </table>
     </td></tr>
@@ -680,8 +800,8 @@ td {mso-line-height-rule:exactly;}
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
       <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:2px;color:#6b7280;text-transform:uppercase;padding-bottom:8px;">Questions? Get in touch</td></tr>
       <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:24px;color:#111111;">
-        Phone: <a href="tel:+38733000000" style="color:#E30613;text-decoration:underline;">${v.agencyPhone}</a><br>
-        Email: <a href="mailto:info@maximumrentacar.com" style="color:#E30613;text-decoration:underline;">${v.agencyEmail}</a>
+        Phone: <a href="tel:${telHref(v.agencyPhone)}" style="color:#E30613;text-decoration:underline;">${v.agencyPhone}</a><br>
+        Email: <a href="mailto:${v.agencyEmail}" style="color:#E30613;text-decoration:underline;">${v.agencyEmail}</a>
       </td></tr>
       </table>
     </td></tr>
