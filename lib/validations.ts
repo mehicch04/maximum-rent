@@ -14,6 +14,19 @@ export const inquirySchema = z.object({
   flightNumber: z.string().trim().max(20).optional().or(z.literal("")),
   message: z.string().trim().max(1000).optional().or(z.literal("")),
   locale: z.enum(["hr", "en"]).default("hr"),
+  /**
+   * Optional equipment picked by the guest. Only ids and quantities travel —
+   * prices are re-read from the database so they cannot be tampered with.
+   */
+  extras: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        qty: z.number().int().min(1).max(20),
+      }),
+    )
+    .max(20)
+    .optional(),
 });
 
 export type InquiryInput = z.infer<typeof inquirySchema>;

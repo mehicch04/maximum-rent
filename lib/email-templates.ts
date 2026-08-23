@@ -19,6 +19,66 @@ function telHref(phone: string): string {
   return digits;
 }
 
+export type ExtraLine = {
+  nameHr: string;
+  nameEn: string;
+  pricing: "PER_DAY" | "PER_RENTAL" | "INCLUDED";
+  qty: number;
+  unitPrice: number;
+  lineTotal: number;
+};
+
+/**
+ * Renders the chosen extras as a small block. Returns "" when nothing was
+ * picked, so the section disappears instead of showing an empty box.
+ */
+function extrasBlock(
+  extras: ExtraLine[],
+  days: number,
+  locale: "HR" | "EN",
+): string {
+  if (!extras.length) return "";
+  const isEn = locale === "EN";
+  const heading = isEn ? "Optional extras" : "Dodatna oprema";
+  const included = isEn ? "Included" : "Uključeno";
+  const perDay = isEn ? "day" : "dan";
+  const totalLbl = isEn ? "Extras total (estimate)" : "Ukupno oprema (procjena)";
+
+  const rows = extras
+    .map((e) => {
+      const name = isEn ? e.nameEn : e.nameHr;
+      const qty = e.qty > 1 ? ` &times; ${e.qty}` : "";
+      const right =
+        e.pricing === "INCLUDED"
+          ? included
+          : e.pricing === "PER_DAY"
+            ? `${e.unitPrice.toFixed(0)} KM / ${perDay} &middot; ${e.lineTotal.toFixed(0)} KM`
+            : `${e.lineTotal.toFixed(0)} KM`;
+      return `<tr>
+        <td style="padding:8px 0;border-bottom:1px solid #eceef1;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;color:#111111;">${name}${qty}</td>
+        <td align="right" style="padding:8px 0;border-bottom:1px solid #eceef1;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#6b7280;white-space:nowrap;">${right}</td>
+      </tr>`;
+    })
+    .join("");
+
+  const sum = extras.reduce((a, e) => a + e.lineTotal, 0);
+  const totalRow = sum
+    ? `<tr>
+        <td style="padding:10px 0 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#6b7280;">${totalLbl}${days > 1 ? ` &middot; ${days} ${isEn ? "days" : "dana"}` : ""}</td>
+        <td align="right" style="padding:10px 0 0 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:bold;color:#111111;white-space:nowrap;">${sum.toFixed(0)} KM</td>
+      </tr>`
+    : "";
+
+  return `<tr><td style="padding:20px 32px 0 32px;" class="px">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#fafafa;">
+    <tr><td style="padding:14px 24px 0 24px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:16px;letter-spacing:2px;color:#6b7280;text-transform:uppercase;">${heading}</td></tr>
+    <tr><td style="padding:6px 24px 16px 24px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${rows}${totalRow}</table>
+    </td></tr>
+    </table>
+  </td></tr>`;
+}
+
 export type OwnerInquiryVars = {
   ref: string;
   vehicle: string;
@@ -33,9 +93,13 @@ export type OwnerInquiryVars = {
   note: string;
   /** "HR" | "EN" — the language the guest browsed the site in. */
   guestLocale: "HR" | "EN";
+  extras?: ExtraLine[];
+  days?: number;
 };
 
 export type GuestConfirmationVars = {
+  extras?: ExtraLine[];
+  days?: number;
   ref: string;
   vehicle: string;
   guestFirstName: string;
@@ -167,6 +231,7 @@ export function ownerInquiryHtml(v: OwnerInquiryVars): string {
     : "Gost je poslao upit na hrvatskoj verziji stranice.";
 
   const note = v.note?.trim() ?? "";
+  const extrasHtml = extrasBlock(v.extras ?? [], v.days ?? 1, "HR");
   const noteBlock = note ? `    <!-- Note (optional block: remove entire <tr> if empty) -->
     <tr><td style="padding:20px 32px 0 32px;" class="px">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#fafafa;">
@@ -302,7 +367,7 @@ td {mso-line-height-rule:exactly;}
       </table>
     </td></tr>
 
-${noteBlock}
+${extrasHtml}${noteBlock}
       </table>
     </td></tr>
 
@@ -342,6 +407,7 @@ ${noteBlock}
 
 /** Guest confirmation ("inquiry received") — Croatian version. */
 export function guestConfirmationHtmlHr(v: GuestConfirmationVars): string {
+  const extrasHtml = extrasBlock(v.extras ?? [], v.days ?? 1, "HR");
   return `<!DOCTYPE html>
 <html lang="hr">
 <head>
@@ -403,7 +469,8 @@ td {mso-line-height-rule:exactly;}
     </td></tr>
 
     <!-- Summary -->
-    <tr><td style="padding:24px 32px 0 32px;" class="px">
+    ${extrasHtml}
+  <tr><td style="padding:24px 32px 0 32px;" class="px">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
       <tr>
         <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">Broj upita</td>
@@ -456,6 +523,7 @@ td {mso-line-height-rule:exactly;}
 
 /** Guest confirmation ("inquiry received") — English version. */
 export function guestConfirmationHtmlEn(v: GuestConfirmationVars): string {
+  const extrasHtml = extrasBlock(v.extras ?? [], v.days ?? 1, "EN");
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -517,7 +585,8 @@ td {mso-line-height-rule:exactly;}
     </td></tr>
 
     <!-- Summary -->
-    <tr><td style="padding:24px 32px 0 32px;" class="px">
+    ${extrasHtml}
+  <tr><td style="padding:24px 32px 0 32px;" class="px">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
       <tr>
         <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">Inquiry no.</td>

@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
+import { getActiveExtras } from "@/lib/extras";
 import { toCarListItem } from "@/lib/types";
 import { Hero } from "@/components/home/Hero";
 import { WhyChoose } from "@/components/home/WhyChoose";
@@ -53,7 +54,7 @@ export default async function HomePage({
 
   const t = await getTranslations("Fleet");
 
-  const [locations, featured] = await Promise.all([
+  const [locations, featured, extras] = await Promise.all([
     prisma.location.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: "asc" },
@@ -64,6 +65,7 @@ export default async function HomePage({
       orderBy: { sortOrder: "asc" },
       take: 3,
     }),
+      getActiveExtras(),
   ]);
 
   const cars = featured.map(toCarListItem);
@@ -101,6 +103,7 @@ export default async function HomePage({
             showFilters={false}
             locations={locations.map((l) => ({ id: l.id, name: l.name }))}
             imageSizes="(max-width: 639px) 45vw, (max-width: 1023px) 30vw, 20vw"
+            extras={extras}
           />
 
           <div className="mt-10 flex justify-center">

@@ -11,6 +11,7 @@ import {
   type CarCategory,
 } from "@/lib/car-categories";
 import type { CarListItem, SearchContext } from "@/lib/types";
+import type { ExtraItem } from "@/lib/extras";
 
 type Props = {
   cars: CarListItem[];
@@ -23,6 +24,8 @@ type Props = {
   eagerFirstImages?: boolean;
   /** Override the image `sizes` (e.g. smaller on the homepage teaser grid). */
   imageSizes?: string;
+  /** Optional equipment offered in the inquiry modal. */
+  extras?: ExtraItem[];
 };
 
 /** Compact labelled dropdown used by the fleet toolbar. */
@@ -73,7 +76,7 @@ export type SortKey =
  * because the fleet is small — instant, no extra requests. Cars can match
  * several categories at once.
  */
-export function FleetGrid({ cars, search, locations, showFilters = true, eagerFirstImages = false, imageSizes }: Props) {
+export function FleetGrid({ cars, search, locations, showFilters = true, eagerFirstImages = false, imageSizes, extras }: Props) {
   const t = useTranslations("Fleet");
   const [selected, setSelected] = useState<CarListItem | null>(null);
   const [active, setActive] = useState<CarCategory | "ALL">("ALL");
@@ -259,6 +262,7 @@ export function FleetGrid({ cars, search, locations, showFilters = true, eagerFi
         car={selected}
         search={search}
         locations={locations}
+        extras={extras}
         onClose={() => setSelected(null)}
       />
     </>

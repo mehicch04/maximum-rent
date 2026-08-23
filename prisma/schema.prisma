@@ -167,6 +167,8 @@ model Inquiry {
   @@index([carId])
   // Fast overlap lookups for availability (CONFIRMED reservations only).
   @@index([carId, status, pickupAt, returnAt])
+  extras     InquiryExtra[]
+
 }
 
 // Manual unavailability window for a car (service, damage, internal use).
@@ -220,4 +222,52 @@ model AdminLoginAttempt {
 model Setting {
   key   String @id
   value String
+}
+
+/// How an extra is charged. INCLUDED items cost nothing but are still worth
+/// showing — "second driver included" strengthens the offer.
+enum ExtraPricing {
+  PER_DAY
+  PER_RENTAL
+  INCLUDED
+}
+
+/// Optional equipment / services the guest can request with a booking
+/// (child seat, additional driver, cross-border permit, ...). Managed by the
+/// owner in the admin panel.
+model Extra {
+  id         String       @id @default(cuid())
+  nameHr     String
+  nameEn     String
+  noteHr     String?
+  noteEn     String?
+  pricing    ExtraPricing @default(PER_DAY)
+  price      Decimal      @default(0) @db.Decimal(10, 2)
+  /// 1 = simple yes/no. Above 1 the guest picks a quantity (e.g. 3 child seats).
+  maxQty     Int          @default(1)
+  isActive   Boolean      @default(true)
+  sortOrder  Int          @default(0)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  inquiries  InquiryExtra[]
+
+  @@index([isActive, sortOrder])
+}
+
+/// Extras chosen on one inquiry. Name and price are copied over so an old
+/// inquiry still reads correctly after the owner edits or deletes the extra.
+model InquiryExtra {
+  id        String       @id @default(cuid())
+  inquiry   Inquiry      @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  inquiryId String
+  extra     Extra?       @relation(fields: [extraId], references: [id], onDelete: SetNull)
+  extraId   String?
+  nameHr    String
+  nameEn    String
+  pricing   ExtraPricing
+  unitPrice Decimal      @default(0) @db.Decimal(10, 2)
+  qty       Int          @default(1)
+
+  @@index([inquiryId])
 }

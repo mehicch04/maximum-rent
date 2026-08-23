@@ -8,8 +8,19 @@ import {
   decisionHtml,
 } from "@/lib/email-templates";
 
+export type ExtraLine = {
+  nameHr: string;
+  nameEn: string;
+  pricing: "PER_DAY" | "PER_RENTAL" | "INCLUDED";
+  qty: number;
+  unitPrice: number;
+  lineTotal: number;
+};
+
 type InquiryEmailData = InquiryInput & {
   reference: string;
+  extras?: ExtraLine[];
+  days?: number;
   pickupLocationName?: string | null;
   returnLocationName?: string | null;
 };
@@ -79,6 +90,8 @@ export async function sendInquiryEmail(
     guestPhone: esc(data.phone),
     flightNumber: esc(data.flightNumber),
     note: esc(data.message),
+    extras: data.extras ?? [],
+    days: data.days ?? 1,
     guestLocale,
   });
 
@@ -143,6 +156,8 @@ export async function sendGuestConfirmationEmail(
       agencyPhone: esc(SITE.phones[0]?.value ?? ""),
       agencyEmail: esc(SITE.email),
       agencyAddress: esc(SITE.name),
+      extras: data.extras ?? [],
+      days: data.days ?? 1,
     },
     locale,
   );

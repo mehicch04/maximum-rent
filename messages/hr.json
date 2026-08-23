@@ -395,5 +395,14 @@
     "p3": "Budite zamijećeni sa stilom i elegancijom. Pretvorite Vaše vjenčanje u vjenčanje iz snova.",
     "cta": "Zatraži ponudu",
     "imageAlt": "Luksuzno vozilo za vjenčanje {n}"
+  },
+  "Extras": {
+    "title": "Dodatna oprema",
+    "subtitle": "Nije obavezno — javite nam šta vam treba, potvrđujemo uz rezervaciju.",
+    "perDay": "dan",
+    "included": "Uključeno",
+    "increase": "Dodaj: {name}",
+    "decrease": "Ukloni: {name}",
+    "summaryTitle": "Dodatna oprema"
   }
 }

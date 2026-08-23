@@ -7,6 +7,7 @@ import {
   Mail,
   Phone,
   Plane,
+  Package,
   StickyNote,
   Trash2,
   X,
@@ -113,7 +114,7 @@ export default async function AdminPage({
       where,
       orderBy: { createdAt: "desc" },
       take: 100,
-      include: { car: { select: { title: true } } },
+      include: { car: { select: { title: true } }, extras: true },
     }),
     prisma.carBlock.findMany({
       orderBy: { startAt: "asc" },
@@ -327,6 +328,19 @@ export default async function AdminPage({
                 {q.flightNumber && (
                   <span className="flex items-center gap-1.5">
                     <Plane className="h-3.5 w-3.5 shrink-0" /> {q.flightNumber}
+                  </span>
+                )}
+                {q.extras.length > 0 && (
+                  <span className="flex items-start gap-1.5 sm:col-span-2">
+                    <Package className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                    <span>
+                      {q.extras
+                        .map(
+                          (x) =>
+                            `${x.nameHr}${x.qty > 1 ? ` ×${x.qty}` : ""}`,
+                        )
+                        .join(" · ")}
+                    </span>
                   </span>
                 )}
                 {q.message && (

@@ -6,6 +6,7 @@ import { AlertTriangle } from "lucide-react";
 import { type SearchContext } from "@/lib/types";
 import { getAvailableCars, isValidPeriod } from "@/lib/availability";
 import { getBrowseCars, getActiveLocations } from "@/lib/fleet-data";
+import { getActiveExtras } from "@/lib/extras";
 import { ReservationSearchForm } from "@/components/reservation/ReservationSearchForm";
 import { ReservationSummary } from "@/components/reservation/ReservationSummary";
 import { FleetGrid } from "@/components/fleet/FleetGrid";
@@ -57,9 +58,10 @@ export default async function VehiclesPage({
     !!pickupDate && !!returnDate && isValidPeriod(pickupDate, returnDate);
   const periodInvalid = hasDates && !periodValid;
 
-  const [cars, locations] = await Promise.all([
+  const [cars, locations, extras] = await Promise.all([
     periodValid ? getAvailableCars(pickupDate!, returnDate!) : getBrowseCars(),
     getActiveLocations(),
+    getActiveExtras(),
   ]);
 
   const byId = new Map(locations.map((l) => [l.id, l]));
@@ -113,6 +115,7 @@ export default async function VehiclesPage({
           search={search}
           locations={locations.map((l) => ({ id: l.id, name: l.name }))}
           eagerFirstImages
+          extras={extras}
         />
       ) : (
         <p className="rounded-2xl border border-border bg-surface p-8 text-center text-muted-foreground">

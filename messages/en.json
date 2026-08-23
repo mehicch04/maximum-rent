@@ -395,5 +395,14 @@
     "p3": "Be noticed, with style and elegance. Turn your wedding into the wedding of your dreams.",
     "cta": "Request a quote",
     "imageAlt": "Luxury wedding vehicle {n}"
+  },
+  "Extras": {
+    "title": "Optional extras",
+    "subtitle": "Not required — tell us what you need and we'll confirm it with your booking.",
+    "perDay": "day",
+    "included": "Included",
+    "increase": "Add: {name}",
+    "decrease": "Remove: {name}",
+    "summaryTitle": "Optional extras"
   }
 }

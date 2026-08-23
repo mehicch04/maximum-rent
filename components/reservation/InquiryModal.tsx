@@ -8,12 +8,16 @@ import type { AppLocale } from "@/i18n/routing";
 import type { CarListItem, SearchContext } from "@/lib/types";
 import { buildWhatsAppUrl, type InquiryContext } from "@/lib/whatsapp";
 import { DateField } from "@/components/ui/DateField";
+import { ExtrasPicker, type ExtraSelection } from "./ExtrasPicker";
+import type { ExtraItem } from "@/lib/extras";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 
 type Props = {
   car: CarListItem | null;
   search?: SearchContext;
   locations?: { id: string; name: string }[];
+  /** Optional equipment the owner offers (empty list hides the section). */
+  extras?: ExtraItem[];
   onClose: () => void;
 };
 
@@ -40,7 +44,7 @@ function snapTime(t: string) {
   return `${pad(Math.floor(total / 60))}:${pad(total % 60)}`;
 }
 
-export function InquiryModal({ car, search, locations = [], onClose }: Props) {
+export function InquiryModal({ car, search, locations = [], extras = [], onClose }: Props) {
   const locale = useLocale() as AppLocale;
   const t = useTranslations("Inquiry");
 
@@ -59,6 +63,7 @@ export function InquiryModal({ car, search, locations = [], onClose }: Props) {
   const [phone, setPhone] = useState("");
   const [flightNumber, setFlightNumber] = useState("");
   const [message, setMessage] = useState("");
+  const [chosenExtras, setChosenExtras] = useState<ExtraSelection>({});
 
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -134,6 +139,7 @@ export function InquiryModal({ car, search, locations = [], onClose }: Props) {
           flightNumber,
           message,
           locale,
+          extras: Object.entries(chosenExtras).map(([id, qty]) => ({ id, qty })),
         }),
       });
       if (!res.ok) throw new Error(String(res.status));
@@ -371,6 +377,12 @@ export function InquiryModal({ car, search, locations = [], onClose }: Props) {
                     className={input}
                   />
                 </div>
+
+                <ExtrasPicker
+                  extras={extras}
+                  value={chosenExtras}
+                  onChange={setChosenExtras}
+                />
 
                 <div>
                   <label className={lbl}>{t("message")}</label>

@@ -1,57 +1,82 @@
-MAXIMUM RENT A CAR — filteri sređeni (isti oblik, jednostavno na mobitelu)
-=========================================================================
+MAXIMUM RENT A CAR — dodatna oprema uz rezervaciju
+==================================================
 
-VAŽNO: nadovezuje se na prethodni zip ("fleet filteri"). Ako njega nisi
-primijenio, primijeni prvo njega pa ovaj preko.
+*** SCHEMA SE MIJENJA — OBAVEZNO prisma generate && prisma db push ***
 
-ŠTA JE BILO KRIVO
------------------
-Dva različita oblika kontrole za isti posao: tip vozila kao dugmad (čipovi),
-marka kao padajući izbornik. Uz to okvir oko svega, pa je blok djelovao težak.
+ŠTA JE NAPRAVLJENO
+------------------
+Gost uz upit može zatražiti dodatnu opremu. Vlasnik tu opremu sam definiše u
+admin panelu — nazive na oba jezika, cijene i količine.
 
-Najveći problem bio je na mobitelu: čipovi su tražili prevlačenje ustranu, pa
-je i postojao "swipe" nagovještaj. Opcije koje se moraju otkriti prevlačenjem
-većina ljudi nikad ne vidi.
+1) GOST — u obrascu za upit
+   Jednostavna lista iznad polja za napomenu:
 
-ŠTA JE SADA
+     [✓] Dodatni vozač                                    Uključeno
+     [− 2 +] Dječija sjedalica · 0–4 godine           10 KM / dan
+     [ ] Prelazak granice · Zelena karta                     50 KM
+
+   - Stavke gdje ima smisla više komada imaju brojač (sjedalice).
+   - Ostale su obična kvačica.
+   - "Uključeno" je zeleno — ne košta, ali jača ponudu.
+   - Nema ukupnog iznosa u obrascu: ovo je UPIT, cijenu potvrđuje agencija.
+   - Ako oprema nije unesena u admin, sekcija se uopće ne prikazuje.
+
+2) VLASNIK — /admin/oprema (novi tab "Oprema")
+   Dodavanje, uređivanje, skrivanje i brisanje. Za svaku stavku:
+     - Naziv i napomena na HR i EN
+     - Način naplate: po danu / jednokratno po najmu / uključeno u cijenu
+     - Cijena u markama
+     - Najveća količina (1 = kvačica, više = brojač)
+     - Redoslijed prikaza i prikaži/sakrij
+
+3) OBAVIJESTI
+   - Vlasnikov mejl: blok "Dodatna oprema" s količinama, cijenom po stavci i
+     procjenom ukupnog iznosa (računato po broju dana najma).
+   - Gostova potvrda: ista oprema, na jeziku na kojem je pretraživao.
+   - Telegram: kratak popis odabrane opreme.
+   - Kartica rezervacije u adminu: popis opreme.
+   - Ako gost nije ništa izabrao, blok se nigdje ne prikazuje.
+
+SIGURNOST I ISPRAVNOST
+----------------------
+- Browser šalje SAMO id-eve i količine. Cijene se ponovo čitaju iz baze, pa se
+  ne mogu podvaliti kroz preglednik.
+- Količina se ograničava na maksimum koji si postavio.
+- Nazivi i cijene se PREPISUJU u rezervaciju u trenutku slanja. Ako kasnije
+  promijeniš cijenu ili obrišeš stavku, stara rezervacija i dalje ispravno
+  prikazuje ono što je gost tada izabrao.
+- Ako tabela opreme još ne postoji, sve se ponaša kao da opreme nema —
+  rezervacije rade normalno.
+
+PERFORMANSE
 -----------
-Oba filtera su ISTI padajući izbornik, iste visine i stila. Sortiranje je
-ostalo gdje je bilo (desno) i izgleda isto — jer je to ista vrsta kontrole.
+Lista se kešira (5 min) i osvježava odmah čim je promijeniš u adminu, isto kao
+vozni park. Nema dodatnog poziva baze po posjeti.
 
-    [Tip vozila ▾]  [Marka ▾]                          [Sortiraj ▾]
-    11 vozila  ·  Poništi filtere
+PRIJEDLOG ŠTA UNIJETI
+---------------------
+  Dječija sjedalica (0–4)         po danu      3 kom
+  Booster sjedalica (4–12)        po danu      3 kom
+  Dodatni vozač                   uključeno    1
+  Prelazak granice                po najmu     1   <- bitno da se najavi
+  GPS navigacija                  po danu      1
+  Preuzimanje van radnog vremena  po najmu     1
+  Dostava vozila na adresu        po najmu     1
+  Lanci / zimska oprema           po najmu     1
+  Krovni nosač                    po danu      1
 
-Na mobitelu: tip i marka stoje jedan pored drugog (pola-pola), sortiranje ide
-u red ispod, preko cijele širine. Klik otvara sistemski birač telefona koji
-prikaže SVE opcije odjednom — bez prevlačenja i bez sitnih meta.
-
-Detalji:
-- Uz svaku opciju stoji broj vozila: "SUV (4)", "Audi (3)".
-- Prikazuju se samo tipovi koji stvarno imaju vozila — nema slijepih ulica.
-- Filter marke se pojavljuje samo ako flota ima više od jedne marke.
-- "Poništi filtere" se vidi samo kad je nešto aktivno.
-- Uklonjen okvir; blok sada "diše" i ne otima pažnju od vozila.
-
-i18n: dodani Fleet.typeLabel i Fleet.allTypes; uklonjeni filterLabel i
-swipeHint koji više ne trebaju. HR i EN usklađeni (278 ključeva u oba).
-
-FAJLOVI
--------
-  components/fleet/FleetGrid.tsx
-  messages/hr.json, messages/en.json
-
-NAKON RASPAKIVANJA — OBRIŠI NEKORIŠTENO
----------------------------------------
-    Remove-Item -Force components\fleet\FleetFilters.tsx
-
-Ta komponenta (čipovi) se više nigdje ne koristi. Sajt radi i ako je ostaviš,
-samo bespotrebno stoji.
+"Prelazak granice" i "preuzimanje van radnog vremena" upiši i ako su besplatni
+— to je informacija koju MORAŠ znati unaprijed (zelena karta, noćni dolazak).
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. Obriši FleetFilters.tsx (komanda gore).
-3. npm run dev -> /vozila: probaj na širokom i na uskom prozoru.
-4. git add -A
-   git commit -m "ui(fleet): filteri kao jedinstveni izbornici, jednostavnije na mobitelu"
+2. npx prisma generate
+3. npx prisma db push        <-- OBAVEZNO, kreira nove tabele
+4. npm run dev
+   - /admin/oprema -> unesi par stavki
+   - /vozila -> otvori upit, izaberi opremu, pošalji
+   - provjeri mejl, Telegram i karticu u /admin
+5. git add -A
+   git commit -m "feat: dodatna oprema uz rezervaciju + upravljanje u adminu"
    git push
