@@ -53,7 +53,6 @@
     "gearbox": "Mjenjač",
     "seats": "Putnika",
     "fuel": "Gorivo",
-    "filterLabel": "Filtriraj po tipu",
     "all": "Sve",
     "categories": {
       "LIMUZINA": "Limuzina",
@@ -66,7 +65,6 @@
       "TRANSPORT": "Transport",
       "MINIBUS": "Minibus"
     },
-    "swipeHint": "Prevucite za više",
     "invalidPeriod": "Odabrani period nije ispravan — datum povrata mora biti nakon preuzimanja. Prikazujemo sva vozila.",
     "viewAll": "Pogledajte sva vozila",
     "sort": {
@@ -81,7 +79,9 @@
     "brandLabel": "Marka",
     "allBrands": "Sve marke",
     "resultsCount": "{count, plural, one {# vozilo} few {# vozila} other {# vozila}}",
-    "clearFilters": "Poništi filtere"
+    "clearFilters": "Poništi filtere",
+    "typeLabel": "Tip vozila",
+    "allTypes": "Svi tipovi"
   },
   "Inquiry": {
     "title": "Upit za rezervaciju",

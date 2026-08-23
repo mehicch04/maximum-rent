@@ -53,7 +53,6 @@
     "gearbox": "Gearbox",
     "seats": "Seats",
     "fuel": "Fuel",
-    "filterLabel": "Filter by type",
     "all": "All",
     "categories": {
       "LIMUZINA": "Sedan",
@@ -66,7 +65,6 @@
       "TRANSPORT": "Transport",
       "MINIBUS": "Minibus"
     },
-    "swipeHint": "Swipe for more",
     "invalidPeriod": "The selected period isn't valid — the return date must be after pick-up. Showing all vehicles.",
     "viewAll": "View all vehicles",
     "sort": {
@@ -81,7 +79,9 @@
     "brandLabel": "Brand",
     "allBrands": "All brands",
     "resultsCount": "{count, plural, one {# vehicle} other {# vehicles}}",
-    "clearFilters": "Clear filters"
+    "clearFilters": "Clear filters",
+    "typeLabel": "Vehicle type",
+    "allTypes": "All types"
   },
   "Inquiry": {
     "title": "Reservation inquiry",

@@ -1,62 +1,57 @@
-MAXIMUM RENT A CAR — uklonjena postavka valute + filteri na stranici vozila
-===========================================================================
+MAXIMUM RENT A CAR — filteri sređeni (isti oblik, jednostavno na mobitelu)
+=========================================================================
 
-VAŽNO: ovaj zip pretpostavlja da si primijenio prethodni ("revizija popravke").
-Ako nisi, prvo primijeni njega — AdminNav ovdje sadrži tab "Poruke".
+VAŽNO: nadovezuje se na prethodni zip ("fleet filteri"). Ako njega nisi
+primijenio, primijeni prvo njega pa ovaj preko.
 
------------------------------------------------------------------------
-1) POSTAVKA VALUTE UKLONJENA IZ ADMINA
------------------------------------------------------------------------
-- Layout se vraća na fiksnu primarnu valutu: marke (BAM).
-- Tab "Postavke" uklonjen iz admin navigacije.
-- Prekidač KM/€ za posjetioce ostaje i radi kao i do sada.
+ŠTA JE BILO KRIVO
+-----------------
+Dva različita oblika kontrole za isti posao: tip vozila kao dugmad (čipovi),
+marka kao padajući izbornik. Uz to okvir oko svega, pa je blok djelovao težak.
 
-*** RUČNO OBRISI (zip ne može brisati fajlove): ***
-    Remove-Item -Recurse -Force app\admin\postavke
-    Remove-Item -Force lib\settings.ts
+Najveći problem bio je na mobitelu: čipovi su tražili prevlačenje ustranu, pa
+je i postojao "swipe" nagovještaj. Opcije koje se moraju otkriti prevlačenjem
+većina ljudi nikad ne vidi.
 
-Ako ih ne obrišeš, build će pući jer postavke stranica uvozi lib/settings.
+ŠTA JE SADA
+-----------
+Oba filtera su ISTI padajući izbornik, iste visine i stila. Sortiranje je
+ostalo gdje je bilo (desno) i izgleda isto — jer je to ista vrsta kontrole.
 
------------------------------------------------------------------------
-2) FILTERI NA STRANICI VOZILA
------------------------------------------------------------------------
-Dodan filter po MARKI vozila. Marke se izvlače same iz voznog parka,
-poredane abecedno, sa brojem vozila uz svaku (npr. "Audi (5)"). Kad dodaš
-novo vozilo, marka se pojavi sama — ništa se ne podešava ručno.
+    [Tip vozila ▾]  [Marka ▾]                          [Sortiraj ▾]
+    11 vozila  ·  Poništi filtere
 
-Filter po marki i filter po tipu rade zajedno (npr. SUV + Audi).
+Na mobitelu: tip i marka stoje jedan pored drugog (pola-pola), sortiranje ide
+u red ispod, preko cijele širine. Klik otvara sistemski birač telefona koji
+prikaže SVE opcije odjednom — bez prevlačenja i bez sitnih meta.
 
-PREGLEDNIJI RASPORED
-Prije: čipovi za tip u jednom redu, pa sortiranje samo za sebe u drugom.
-Sada je ispod čipova jedna uredna traka odvojena tankom linijom:
+Detalji:
+- Uz svaku opciju stoji broj vozila: "SUV (4)", "Audi (3)".
+- Prikazuju se samo tipovi koji stvarno imaju vozila — nema slijepih ulica.
+- Filter marke se pojavljuje samo ako flota ima više od jedne marke.
+- "Poništi filtere" se vidi samo kad je nešto aktivno.
+- Uklonjen okvir; blok sada "diše" i ne otima pažnju od vozila.
 
-    35 vozila   ·  Poništi filtere        [Marka ▾]  [Sortiraj ▾]
-    └ lijevo: koliko je rezultata          └ desno: dorada izbora
+i18n: dodani Fleet.typeLabel i Fleet.allTypes; uklonjeni filterLabel i
+swipeHint koji više ne trebaju. HR i EN usklađeni (278 ključeva u oba).
 
-- Broj rezultata se mijenja uživo dok filtriraš.
-- "Poništi filtere" se pojavljuje SAMO kad je neki filter aktivan.
-- Padajući izbornici su usklađeni (ista visina, isti stil, ista širina
-  ponašanja na mobitelu).
-- Filter po marki se prikazuje samo ako u floti postoji više od jedne marke.
-
-i18n: dodani ključevi Fleet.brandLabel, allBrands, resultsCount, clearFilters
-(HR i EN, parity provjeren — 278 ključeva u oba).
-
------------------------------------------------------------------------
 FAJLOVI
------------------------------------------------------------------------
-  components/fleet/FleetGrid.tsx    (filter po marki + nova traka)
-  components/admin/AdminNav.tsx     (bez taba Postavke)
-  app/[locale]/layout.tsx           (fiksno BAM)
+-------
+  components/fleet/FleetGrid.tsx
   messages/hr.json, messages/en.json
 
------------------------------------------------------------------------
+NAKON RASPAKIVANJA — OBRIŠI NEKORIŠTENO
+---------------------------------------
+    Remove-Item -Force components\fleet\FleetFilters.tsx
+
+Ta komponenta (čipovi) se više nigdje ne koristi. Sajt radi i ako je ostaviš,
+samo bespotrebno stoji.
+
 KORACI
------------------------------------------------------------------------
+------
 1. Raspakuj preko root-a projekta.
-2. Obriši dva fajla/foldera (komande gore) — OBAVEZNO.
-3. npm run dev -> /vozila: probaj marku + tip zajedno, poništavanje filtera,
-   i provjeri da admin više nema tab Postavke.
+2. Obriši FleetFilters.tsx (komanda gore).
+3. npm run dev -> /vozila: probaj na širokom i na uskom prozoru.
 4. git add -A
-   git commit -m "feat(fleet): filter po marki i pregledniji filteri; ukloni postavku valute"
+   git commit -m "ui(fleet): filteri kao jedinstveni izbornici, jednostavnije na mobitelu"
    git push

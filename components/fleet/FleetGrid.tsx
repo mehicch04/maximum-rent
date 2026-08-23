@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, X } from "lucide-react";
 import { CarCard } from "./CarCard";
-import { FleetFilters, type FilterItem } from "./FleetFilters";
 import { InquiryModal } from "@/components/reservation/InquiryModal";
 import {
   CAR_CATEGORIES,
@@ -33,15 +32,17 @@ function Select({
   value,
   onChange,
   children,
+  className = "",
 }: {
   id: string;
   label: string;
   value: string;
   onChange: (v: string) => void;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="relative">
+    <div className={`relative ${className}`}>
       <label htmlFor={id} className="sr-only">
         {label}
       </label>
@@ -49,7 +50,7 @@ function Select({
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 max-w-[13rem] appearance-none truncate rounded-xl border border-border bg-surface pl-3 pr-9 text-sm font-medium text-foreground outline-none transition-colors hover:border-brand/50 focus:border-brand focus:ring-2 focus:ring-ring/30"
+        className="h-11 w-full appearance-none truncate rounded-xl border border-border bg-surface pl-3.5 pr-9 text-sm font-medium text-foreground outline-none transition-colors hover:border-brand/50 focus:border-brand focus:ring-2 focus:ring-ring/30"
       >
         {children}
       </select>
@@ -94,18 +95,16 @@ export function FleetGrid({ cars, search, locations, showFilters = true, eagerFi
     return m;
   }, [carCats]);
 
-  const filterItems = useMemo<FilterItem[]>(() => {
-    const items: FilterItem[] = [
-      { id: "ALL", label: t("all"), count: cars.length },
-    ];
-    for (const cat of CAR_CATEGORIES) {
-      const count = counts.get(cat) ?? 0;
-      if (count > 0) {
-        items.push({ id: cat, label: t(`categories.${cat}`), count });
-      }
-    }
-    return items;
-  }, [counts, cars.length, t]);
+  // Only categories that actually have cars, so the list never shows dead ends.
+  const typeOptions = useMemo(
+    () =>
+      CAR_CATEGORIES.filter((cat) => (counts.get(cat) ?? 0) > 0).map((cat) => ({
+        id: cat,
+        label: t(`categories.${cat}`),
+        count: counts.get(cat) ?? 0,
+      })),
+    [counts, t],
+  );
 
   // Brands present in the fleet, alphabetical, with how many cars each has.
   const brands = useMemo(() => {
@@ -165,43 +164,33 @@ export function FleetGrid({ cars, search, locations, showFilters = true, eagerFi
     <>
       {showFilters && (
         <div className="mb-8">
-          {/* Type chips — the filter people reach for first. */}
-          {filterItems.length > 1 && (
-            <FleetFilters
-              items={filterItems}
-              active={active}
-              onChange={setActive}
-              label={t("filterLabel")}
-              swipeHint={t("swipeHint")}
-            />
-          )}
+          {/* Filters and sort are the same control, so they look the same.
+              A native <select> also opens the phone's own picker, which shows
+              every option at once — no horizontal swiping to discover them. */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-1 gap-2 sm:flex-none">
+              <Select
+                id="fleet-type"
+                label={t("typeLabel")}
+                value={active}
+                onChange={(v) => setActive(v as CarCategory | "ALL")}
+                className="flex-1 sm:w-44"
+              >
+                <option value="ALL">{t("allTypes")}</option>
+                {typeOptions.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.label} ({o.count})
+                  </option>
+                ))}
+              </Select>
 
-          {/* One tidy row: how many results on the left, refinements on the
-              right — instead of controls scattered above the grid. */}
-          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-border pt-4">
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-foreground">
-                {t("resultsCount", { count: visibleCars.length })}
-              </span>
-              {filtersActive && (
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="inline-flex items-center gap-1 text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-brand-strong hover:underline"
-                >
-                  <X className="h-3.5 w-3.5" />
-                  {t("clearFilters")}
-                </button>
-              )}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
               {brands.length > 1 && (
                 <Select
                   id="fleet-brand"
                   label={t("brandLabel")}
                   value={brand}
                   onChange={setBrand}
+                  className="flex-1 sm:w-44"
                 >
                   <option value="ALL">{t("allBrands")}</option>
                   {brands.map(([name, count]) => (
@@ -211,20 +200,37 @@ export function FleetGrid({ cars, search, locations, showFilters = true, eagerFi
                   ))}
                 </Select>
               )}
-
-              <Select
-                id="fleet-sort"
-                label={t("sort.label")}
-                value={sort}
-                onChange={(v) => setSort(v as SortKey)}
-              >
-                {SORT_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </Select>
             </div>
+
+            <Select
+              id="fleet-sort"
+              label={t("sort.label")}
+              value={sort}
+              onChange={(v) => setSort(v as SortKey)}
+              className="w-full sm:ml-auto sm:w-52"
+            >
+              {SORT_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          <div className="mt-3 flex items-center gap-3 text-sm">
+            <span className="text-muted-foreground">
+              {t("resultsCount", { count: visibleCars.length })}
+            </span>
+            {filtersActive && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="inline-flex items-center gap-1 text-muted-foreground underline-offset-4 transition-colors hover:text-brand-strong hover:underline"
+              >
+                <X className="h-3.5 w-3.5" />
+                {t("clearFilters")}
+              </button>
+            )}
           </div>
         </div>
       )}
