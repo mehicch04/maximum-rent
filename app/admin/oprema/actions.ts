@@ -41,8 +41,14 @@ export async function saveExtra(formData: FormData) {
     isActive: formData.get("isActive") === "on",
   };
 
-  if (id) await prisma.extra.update({ where: { id }, data });
-  else await prisma.extra.create({ data });
+  try {
+    if (id) await prisma.extra.update({ where: { id }, data });
+    else await prisma.extra.create({ data });
+  } catch (err) {
+    // Most likely the table does not exist yet (`prisma db push` not run).
+    console.error("[extras] save failed:", err);
+    redirect("/admin/oprema?error=1");
+  }
 
   refresh();
   redirect("/admin/oprema?saved=1");

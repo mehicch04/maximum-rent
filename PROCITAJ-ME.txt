@@ -1,82 +1,66 @@
-MAXIMUM RENT A CAR — dodatna oprema uz rezervaciju
-==================================================
+OPREMA — zašto puca i zašto u obrascu nema ničega
+=================================================
 
-*** SCHEMA SE MIJENJA — OBAVEZNO prisma generate && prisma db push ***
+KRATAK ODGOVOR
+--------------
+Tabele za opremu još ne postoje u bazi. Nije pokrenut `prisma db push`.
 
-ŠTA JE NAPRAVLJENO
+Build je prošao jer `prisma generate` sređuje samo TIPOVE u kodu.
+`prisma db push` je zaseban korak koji mijenja STVARNU bazu — kreira tabele.
+
+POKRENI OVO U FOLDERU PROJEKTA
+------------------------------
+    npx prisma generate
+    npx prisma db push
+
+Nakon toga /admin/oprema radi, unesi par stavki i pojavit će se u obrascu
+za upit.
+
+ZAŠTO SU SIMPTOMI RAZLIČITI
+---------------------------
+  - Javna strana (obrazac za upit) IMA zaštitu: ako tabele nema, vrati praznu
+    listu i sekcija se tiho sakrije. Zato tamo "nema ničega", a sajt radi.
+  - Admin strana je NIJE imala: upit je pukao i dobio si "Application error".
+
+To je bio propust u mojoj isporuci — admin je trebao imati istu zaštitu.
+
+ŠTA JE U OVOM ZIPU
 ------------------
-Gost uz upit može zatražiti dodatnu opremu. Vlasnik tu opremu sam definiše u
-admin panelu — nazive na oba jezika, cijene i količine.
+  - /admin/oprema više ne puca. Ako tabele nema, prikaže jasnu poruku
+    s tačnim komandama koje treba pokrenuti.
+  - Spremanje stavke je također zaštićeno: ako baza nije spremna, dobiješ
+    poruku umjesto pada stranice.
 
-1) GOST — u obrascu za upit
-   Jednostavna lista iznad polja za napomenu:
+ČEMU SLUŽI STRANICA /admin/oprema
+---------------------------------
+To je katalog dodatne opreme koju nudiš uz najam. Ti tu definišeš ŠTA gost
+može zatražiti; gost to onda vidi u obrascu za upit i označi šta mu treba.
 
-     [✓] Dodatni vozač                                    Uključeno
-     [− 2 +] Dječija sjedalica · 0–4 godine           10 KM / dan
-     [ ] Prelazak granice · Zelena karta                     50 KM
+Za svaku stavku postavljaš:
+  - naziv i napomenu na HR i EN
+  - kako se naplaćuje: po danu / jednokratno / uključeno u cijenu
+  - cijenu u markama
+  - najveću količinu (1 = kvačica, više = brojač, npr. 3 sjedalice)
+  - redoslijed i prikaži/sakrij
 
-   - Stavke gdje ima smisla više komada imaju brojač (sjedalice).
-   - Ostale su obična kvačica.
-   - "Uključeno" je zeleno — ne košta, ali jača ponudu.
-   - Nema ukupnog iznosa u obrascu: ovo je UPIT, cijenu potvrđuje agencija.
-   - Ako oprema nije unesena u admin, sekcija se uopće ne prikazuje.
+Bez unesenih stavki sekcija se u obrascu NE prikazuje — što je i ispravno,
+da gost ne gleda prazan okvir.
 
-2) VLASNIK — /admin/oprema (novi tab "Oprema")
-   Dodavanje, uređivanje, skrivanje i brisanje. Za svaku stavku:
-     - Naziv i napomena na HR i EN
-     - Način naplate: po danu / jednokratno po najmu / uključeno u cijenu
-     - Cijena u markama
-     - Najveća količina (1 = kvačica, više = brojač)
-     - Redoslijed prikaza i prikaži/sakrij
-
-3) OBAVIJESTI
-   - Vlasnikov mejl: blok "Dodatna oprema" s količinama, cijenom po stavci i
-     procjenom ukupnog iznosa (računato po broju dana najma).
-   - Gostova potvrda: ista oprema, na jeziku na kojem je pretraživao.
-   - Telegram: kratak popis odabrane opreme.
-   - Kartica rezervacije u adminu: popis opreme.
-   - Ako gost nije ništa izabrao, blok se nigdje ne prikazuje.
-
-SIGURNOST I ISPRAVNOST
-----------------------
-- Browser šalje SAMO id-eve i količine. Cijene se ponovo čitaju iz baze, pa se
-  ne mogu podvaliti kroz preglednik.
-- Količina se ograničava na maksimum koji si postavio.
-- Nazivi i cijene se PREPISUJU u rezervaciju u trenutku slanja. Ako kasnije
-  promijeniš cijenu ili obrišeš stavku, stara rezervacija i dalje ispravno
-  prikazuje ono što je gost tada izabrao.
-- Ako tabela opreme još ne postoji, sve se ponaša kao da opreme nema —
-  rezervacije rade normalno.
-
-PERFORMANSE
------------
-Lista se kešira (5 min) i osvježava odmah čim je promijeniš u adminu, isto kao
-vozni park. Nema dodatnog poziva baze po posjeti.
-
-PRIJEDLOG ŠTA UNIJETI
----------------------
+PRIJEDLOG ZA POČETAK
+--------------------
   Dječija sjedalica (0–4)         po danu      3 kom
   Booster sjedalica (4–12)        po danu      3 kom
   Dodatni vozač                   uključeno    1
-  Prelazak granice                po najmu     1   <- bitno da se najavi
+  Prelazak granice                po najmu     1
   GPS navigacija                  po danu      1
   Preuzimanje van radnog vremena  po najmu     1
-  Dostava vozila na adresu        po najmu     1
-  Lanci / zimska oprema           po najmu     1
-  Krovni nosač                    po danu      1
-
-"Prelazak granice" i "preuzimanje van radnog vremena" upiši i ako su besplatni
-— to je informacija koju MORAŠ znati unaprijed (zelena karta, noćni dolazak).
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npx prisma generate
-3. npx prisma db push        <-- OBAVEZNO, kreira nove tabele
-4. npm run dev
-   - /admin/oprema -> unesi par stavki
-   - /vozila -> otvori upit, izaberi opremu, pošalji
-   - provjeri mejl, Telegram i karticu u /admin
+3. npx prisma db push
+4. npm run dev -> /admin/oprema -> unesi stavke -> provjeri obrazac za upit
 5. git add -A
-   git commit -m "feat: dodatna oprema uz rezervaciju + upravljanje u adminu"
+   git commit -m "fix(admin): oprema ne puca kad tabela ne postoji"
    git push

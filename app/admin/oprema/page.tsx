@@ -1,4 +1,4 @@
-import { Check, Eye, EyeOff, Package, Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, Check, Eye, EyeOff, Package, Plus, Trash2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { saveExtra, toggleExtra, deleteExtra } from "./actions";
@@ -25,11 +25,46 @@ export default async function AdminExtrasPage({
 }) {
   const editId = one(searchParams.edit);
   const saved = one(searchParams.saved) === "1";
+  const failed = one(searchParams.error) === "1";
 
-  const extras = await prisma.extra.findMany({
-    orderBy: [{ sortOrder: "asc" }, { nameHr: "asc" }],
-  });
+  // The table only exists after `prisma db push`. Until then, show a clear
+  // instruction instead of crashing the whole admin page.
+  let extras: Awaited<ReturnType<typeof prisma.extra.findMany>> = [];
+  let tableMissing = false;
+  try {
+    extras = await prisma.extra.findMany({
+      orderBy: [{ sortOrder: "asc" }, { nameHr: "asc" }],
+    });
+  } catch {
+    tableMissing = true;
+  }
   const editing = editId ? extras.find((e) => e.id === editId) : null;
+
+  if (tableMissing) {
+    return (
+      <div className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6">
+        <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
+          Dodatna oprema
+        </h1>
+        <div className="mt-6 rounded-2xl border border-brand/40 bg-brand/[0.06] p-6">
+          <p className="flex items-center gap-2 font-semibold text-foreground">
+            <AlertTriangle className="h-5 w-5 text-brand-strong" />
+            Baza još nije pripremljena
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Tabele za dodatnu opremu još ne postoje. Pokrenite jednom u folderu
+            projekta:
+          </p>
+          <pre className="mt-3 overflow-x-auto rounded-xl bg-surface-muted p-4 text-sm text-foreground">
+npx prisma generate{"\n"}npx prisma db push
+          </pre>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Nakon toga osvježite ovu stranicu.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6">
@@ -42,6 +77,13 @@ export default async function AdminExtrasPage({
           obrascu za upit, na hrvatskom i engleskom.
         </p>
       </div>
+
+      {failed && (
+        <div className="mt-6 flex items-center gap-2 rounded-xl border border-brand/40 bg-brand/[0.06] p-3 text-sm text-foreground">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-brand-strong" />
+          Spremanje nije uspjelo. Provjerite je li pokrenut <code className="mx-1">npx prisma db push</code>.
+        </div>
+      )}
 
       {saved && (
         <div className="mt-6 flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-300">
