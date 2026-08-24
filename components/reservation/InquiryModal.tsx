@@ -9,6 +9,8 @@ import type { CarListItem, SearchContext } from "@/lib/types";
 import { buildWhatsAppUrl, type InquiryContext } from "@/lib/whatsapp";
 import { DateField } from "@/components/ui/DateField";
 import { ExtrasPicker, type ExtraSelection } from "./ExtrasPicker";
+import { PriceBreakdown } from "./PriceBreakdown";
+import { rentalDays } from "@/lib/extras";
 import type { ExtraItem } from "@/lib/extras";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 
@@ -95,6 +97,11 @@ export function InquiryModal({ car, search, locations = [], extras = [], onClose
   }, [car, onClose]);
 
   if (!car) return null;
+
+  const days = rentalDays(
+    new Date(`${pickupDate}T${pickupTime}`),
+    new Date(`${returnDate}T${returnTime}`),
+  );
 
   const pickupISO = new Date(`${pickupDate}T${pickupTime}`).toISOString();
   const returnISO = new Date(`${returnDate}T${returnTime}`).toISOString();
@@ -382,6 +389,13 @@ export function InquiryModal({ car, search, locations = [], extras = [], onClose
                   extras={extras}
                   value={chosenExtras}
                   onChange={setChosenExtras}
+                />
+
+                <PriceBreakdown
+                  pricePerDay={car.pricePerDay}
+                  days={days}
+                  extras={extras}
+                  selection={chosenExtras}
                 />
 
                 <div>

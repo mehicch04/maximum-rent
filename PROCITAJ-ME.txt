@@ -1,66 +1,80 @@
-OPREMA — zašto puca i zašto u obrascu nema ničega
-=================================================
+MAXIMUM RENT A CAR — pregled cijene u obrascu i u mejlovima
+===========================================================
 
-KRATAK ODGOVOR
---------------
-Tabele za opremu još ne postoje u bazi. Nije pokrenut `prisma db push`.
-
-Build je prošao jer `prisma generate` sređuje samo TIPOVE u kodu.
-`prisma db push` je zaseban korak koji mijenja STVARNU bazu — kreira tabele.
-
-POKRENI OVO U FOLDERU PROJEKTA
-------------------------------
-    npx prisma generate
-    npx prisma db push
-
-Nakon toga /admin/oprema radi, unesi par stavki i pojavit će se u obrascu
-za upit.
-
-ZAŠTO SU SIMPTOMI RAZLIČITI
----------------------------
-  - Javna strana (obrazac za upit) IMA zaštitu: ako tabele nema, vrati praznu
-    listu i sekcija se tiho sakrije. Zato tamo "nema ničega", a sajt radi.
-  - Admin strana je NIJE imala: upit je pukao i dobio si "Application error".
-
-To je bio propust u mojoj isporuci — admin je trebao imati istu zaštitu.
-
-ŠTA JE U OVOM ZIPU
+ŠTA JE NAPRAVLJENO
 ------------------
-  - /admin/oprema više ne puca. Ako tabele nema, prikaže jasnu poruku
-    s tačnim komandama koje treba pokrenuti.
-  - Spremanje stavke je također zaštićeno: ako baza nije spremna, dobiješ
-    poruku umjesto pada stranice.
+Ispod izbora opreme sada stoji jednostavna računica koja se mijenja UŽIVO dok
+gost bira datume i opremu:
 
-ČEMU SLUŽI STRANICA /admin/oprema
----------------------------------
-To je katalog dodatne opreme koju nudiš uz najam. Ti tu definišeš ŠTA gost
-može zatražiti; gost to onda vidi u obrascu za upit i označi šta mu treba.
+    Najam vozila · 7 dana                            770 KM
+    Dječija sjedalica × 2                            140 KM
+    Dodatni vozač                                 Uključeno
+    Prelazak granice                                  50 KM
+    ─────────────────────────────────────────────────────
+    Procjena ukupno                                  960 KM
 
-Za svaku stavku postavljaš:
-  - naziv i napomenu na HR i EN
-  - kako se naplaćuje: po danu / jednokratno / uključeno u cijenu
-  - cijenu u markama
-  - najveću količinu (1 = kvačica, više = brojač, npr. 3 sjedalice)
-  - redoslijed i prikaži/sakrij
+    Okvirni iznos. Konačnu cijenu potvrđujemo uz rezervaciju.
 
-Bez unesenih stavki sekcija se u obrascu NE prikazuje — što je i ispravno,
-da gost ne gleda prazan okvir.
+Ista računica sada ide i u MEJLOVE — i vlasniku i gostu.
 
-PRIJEDLOG ZA POČETAK
+ZAŠTO PIŠE "PROCJENA", A NE "UKUPNO"
+------------------------------------
+Ovo je upit, ne kupovina. Da piše samo "Ukupno", gost bi došao na pult s
+očekivanjem tačne cifre, a vlasnik bi morao objašnjavati svaku razliku
+(sezona, depozit, osiguranje, prekoračenje kilometraže).
+
+Ovako je transparentno i profesionalno, a vlasnik zadržava zadnju riječ.
+Ista rečenica stoji i u obrascu i u mejlu, na oba jezika.
+
+KAKO SE RAČUNA
+--------------
+  - Broj dana = od preuzimanja do vraćanja, zaokruženo naviše, najmanje 1.
+    (12.08. u 10:00 -> 19.08. u 10:00 = 7 dana; isti dan = 1 dan)
+  - Najam = cijena po danu × broj dana
+  - Oprema "po danu" = cijena × količina × broj dana
+  - Oprema "po najmu" = cijena × količina (bez obzira na trajanje)
+  - Oprema "uključeno" = 0 KM, prikazuje se zeleno
+
+Sve je testirano na tim slučajevima prije isporuke.
+
+DIZAJN — ZAŠTO OVAKO JEDNOSTAVNO
+--------------------------------
+  - Obična lista: naziv lijevo, iznos desno. Bez ikona, bez okvira oko svakog
+    reda, bez boja osim jedne crvene za konačni iznos.
+  - Iznosi su poravnati i koriste jednake širine cifara, pa se kolona lijepo
+    slaže i lako čita.
+  - Ukupan iznos je odvojen tankom linijom i jedini je istaknut — oko odmah
+    ide na njega.
+  - Prati prekidač KM/€: ako gost gleda u eurima, i računica je u eurima.
+  - Sve staje u jedan uzak stupac, pa na telefonu nema stiskanja ni
+    horizontalnog skrolanja.
+
+KADA SE NE PRIKAZUJE
 --------------------
-  Dječija sjedalica (0–4)         po danu      3 kom
-  Booster sjedalica (4–12)        po danu      3 kom
-  Dodatni vozač                   uključeno    1
-  Prelazak granice                po najmu     1
-  GPS navigacija                  po danu      1
-  Preuzimanje van radnog vremena  po najmu     1
+  - Ako vozilo nema unesenu cijenu, a gost nije izabrao opremu -> ničega nema.
+  - Ako vozilo nema cijenu ali ima opreme -> prikazuje se samo oprema.
+  Nikad se ne prikazuje prazan okvir.
+
+FAJLOVI
+-------
+  components/reservation/PriceBreakdown.tsx   (NOVO — računica u obrascu)
+  components/reservation/InquiryModal.tsx     (računa dane, prikazuje blok)
+  lib/email-templates.ts                      (pregled cijene u mejlovima)
+  lib/email.ts                                (prosljeđuje cijenu vozila)
+  app/api/inquiries/route.ts                  (šalje cijenu vozila u mejl)
+  messages/hr.json, messages/en.json
+
+Schema NIJE mijenjana — nema prisma db push.
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npx prisma generate
-3. npx prisma db push
-4. npm run dev -> /admin/oprema -> unesi stavke -> provjeri obrazac za upit
-5. git add -A
-   git commit -m "fix(admin): oprema ne puca kad tabela ne postoji"
+2. npm run dev
+   - otvori upit za vozilo koje IMA cijenu
+   - promijeni datume i gledaj kako se iznos mijenja uživo
+   - dodaj sjedalice i vidi kako raste
+   - prebaci KM/€ u zaglavlju i provjeri da prati
+   - pošalji upit i pogledaj mejl
+3. git add -A
+   git commit -m "feat: pregled cijene u obrascu i u mejlovima"
    git push

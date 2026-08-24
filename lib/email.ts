@@ -23,6 +23,7 @@ type InquiryEmailData = Omit<InquiryInput, "extras"> & {
   reference: string;
   extras?: ExtraLine[];
   days?: number;
+  pricePerDay?: number | null;
   pickupLocationName?: string | null;
   returnLocationName?: string | null;
 };
@@ -94,6 +95,7 @@ export async function sendInquiryEmail(
     note: esc(data.message),
     extras: data.extras ?? [],
     days: data.days ?? 1,
+    pricePerDay: data.pricePerDay ?? null,
     guestLocale,
   });
 
@@ -160,6 +162,7 @@ export async function sendGuestConfirmationEmail(
       agencyAddress: esc(SITE.name),
       extras: data.extras ?? [],
       days: data.days ?? 1,
+      pricePerDay: data.pricePerDay ?? null,
     },
     locale,
   );

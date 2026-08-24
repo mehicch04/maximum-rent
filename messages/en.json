@@ -403,6 +403,11 @@
     "included": "Included",
     "increase": "Add: {name}",
     "decrease": "Remove: {name}",
-    "summaryTitle": "Optional extras"
+    "summaryTitle": "Optional extras",
+    "day": "day",
+    "days": "days",
+    "rentalLine": "Vehicle rental · {days} {dayWord}",
+    "estimate": "Estimated total",
+    "estimateNote": "Approximate amount. We confirm the final price with your booking."
   }
 }

@@ -103,6 +103,7 @@ export async function POST(req: Request) {
       returnLocationName: ret?.name ?? null,
       extras: extrasForEmail,
       days,
+      pricePerDay: car?.pricePerDay != null ? Number(car.pricePerDay) : null,
     };
 
     const email = await sendInquiryEmail(emailData);

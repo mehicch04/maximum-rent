@@ -403,6 +403,11 @@
     "included": "Uključeno",
     "increase": "Dodaj: {name}",
     "decrease": "Ukloni: {name}",
-    "summaryTitle": "Dodatna oprema"
+    "summaryTitle": "Dodatna oprema",
+    "day": "dan",
+    "days": "dana",
+    "rentalLine": "Najam vozila · {days} {dayWord}",
+    "estimate": "Procjena ukupno",
+    "estimateNote": "Okvirni iznos. Konačnu cijenu potvrđujemo uz rezervaciju."
   }
 }
