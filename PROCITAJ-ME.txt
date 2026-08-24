@@ -1,59 +1,69 @@
-MAXIMUM RENT A CAR — mejl sada prati valutu koju je gost gledao
-===============================================================
+MAXIMUM RENT A CAR — čitljivi brojevi upita
+===========================================
 
-ŠTA JE BILO KRIVO (moja greška)
--------------------------------
-U šablonu mejla sam iznose fiksno ispisivao u markama. Gost koji je na sajtu
-prebacio na eure, birao vozilo i vidio cijenu u eurima, u mejlu je dobio
-marke. To zbunjuje i djeluje neuredno.
+PRIJE
+-----
+    cms8xhkfv0003lyevsn8ka8kl
 
-POPRAVLJENO
------------
-Uz upit se sada šalje i valuta koju je gost imao uključenu, pa mejl prikazuje
-iznose ISTO kao što ih je vidio na sajtu.
+To je bio sirovi identifikator iz baze. Neupotrebljiv preko telefona i
+neprofesionalan u mejlu.
 
-  - Gost gledao u eurima -> potvrda mu stiže u eurima.
-  - Gost gledao u markama -> potvrda u markama.
-  - Ako valuta iz nekog razloga nije poslana, koriste se marke (kao i do sada).
+SADA
+----
+    MR-7K3P9W        (rezervacija)
+    MP-4TQ8XN        (poruka s kontakt stranice)
 
-DODATNO ZA VLASNIKA
+Kratko, čitljivo, i odmah se vidi o čemu se radi po prefiksu.
+
+USPUT SAM NAŠAO PRAVU GREŠKU
+----------------------------
+Ista referenca se prikazivala RAZLIČITO na različitim mjestima:
+
+  - gost je poslije slanja vidio PRVIH 8 znakova
+  - vlasnik u adminu ZADNJIH 8
+  - u naslovu mejla išao je cijeli niz
+  - Telegram opet zadnjih 8
+
+Znači gost kaže "moj broj je CMS8XHKF", a vlasnik u panelu traži "SN8KA8KL"
+— i nikad se ne nađu. Sada je referenca SVUGDJE ista.
+
+KAKO JE NAPRAVLJENO
 -------------------
-Vlasnik cijene vodi u markama. Zato, kada je gost gledao u eurima, njegov mejl
-pored glavnog iznosa dobija i protuvrijednost:
+Šest znakova iz namjerno očišćene abecede: bez 0/O, bez 1/I/L i bez U.
+To su znakovi koji se najčešće pogrešno čuju kad se broj čita preko telefona
+(a izbacivanjem U izbjegnute su i slučajne ružne riječi).
 
-    Procjena ukupno                    465 €
-                                   ≈ 910 KM
+Ostaje 30 znakova → 729.000.000 kombinacija.
 
-Tako odmah zna koliko je to u njegovim knjigama, bez računanja.
-Kad je gost gledao u markama, te dodatne linije nema — nema suvišnog teksta.
-Gostu se protuvrijednost NE prikazuje, da mu potvrda ostane čista.
+Ako se dvije reference kojim slučajem poklope, baza to odbija, a kod odmah
+pokušava s novom (do 4 puta). Rezervacija zbog toga ne može pasti.
+Provjereno: na 5.000 upita godišnje sudara praktično nema.
 
-Preračun ide po fiksnom kursu (1 EUR = 1.95583 KM), isti onaj koji koristi
-i sam sajt, pa se iznosi uvijek poklapaju.
-
-TESTIRANO
----------
-  - 110 KM/dan × 7 dana + oprema = 960 KM, u eurima 491 € (tačno)
-  - u mejlu za eure nema ostataka maraka i obrnuto
-  - protuvrijednost se pojavljuje SAMO vlasniku i SAMO kad je gost gledao eure
-  - bez poslane valute -> marke (staro ponašanje)
+STARE REZERVACIJE
+-----------------
+Postojeće rezervacije zadržavaju svoje stare, duge brojeve — to je istorija i
+ne diramo je. Novi format vrijedi od trenutka kad ovo pustiš u rad.
 
 FAJLOVI
 -------
-  lib/email-templates.ts       (iznosi prate valutu + protuvrijednost)
-  lib/email.ts                 (prosljeđuje valutu)
-  lib/validations.ts           (upit prima valutu)
-  components/reservation/InquiryModal.tsx  (šalje trenutnu valutu)
+  lib/reference.ts              (NOVO — generator)
+  app/api/inquiries/route.ts    (rezervacija dobija MR-...)
+  app/api/contact/route.ts      (poruka dobija MP-...)
+  app/admin/page.tsx            (puna referenca umjesto zadnjih 8)
+  components/forms/InquiryForm.tsx  (puna referenca umjesto prvih 8)
+  lib/email.ts, lib/email-templates.ts, lib/whatsapp.ts  (puna referenca)
 
 Schema NIJE mijenjana — nema prisma db push.
+(Polje u bazi je i dalje isto, samo mu sada kod dodjeljuje vrijednost.)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run dev
-   - prebaci sajt na eure (prekidač u zaglavlju)
-   - pošalji probni upit
-   - provjeri oba mejla: gostov u eurima, tvoj u eurima uz "≈ ... KM"
+   - pošalji probni upit -> broj treba izgledati kao MR-7K3P9W
+   - provjeri da je ISTI broj u: potvrdi na sajtu, mejlu gostu,
+     mejlu tebi, Telegramu i u /admin
+   - pošalji poruku s /kontakt -> treba biti MP-...
 3. git add -A
-   git commit -m "fix(email): iznosi u valuti koju je gost gledao"
+   git commit -m "feat: citljivi brojevi upita (MR-/MP-) i dosljedan prikaz"
    git push

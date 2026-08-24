@@ -73,7 +73,7 @@ export function InquiryForm({ type = "contact" }: { type?: FormType }) {
           <p className="mt-3 text-xs text-muted-foreground">
             {t("reference")}:{" "}
             <span className="font-mono font-medium text-foreground">
-              {reference.slice(0, 8).toUpperCase()}
+              {reference}
             </span>
           </p>
         )}

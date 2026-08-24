@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { contactRequestSchema } from "@/lib/validations";
 import { sendContactEmail } from "@/lib/email";
 import { sendOwnerNotification } from "@/lib/notify";
+import { withUniqueReference, REF_PREFIX } from "@/lib/reference";
 
 export const runtime = "nodejs";
 
@@ -24,8 +25,10 @@ export async function POST(req: Request) {
   const d = parsed.data;
 
   try {
-    const rec = await prisma.contactRequest.create({
+    const rec = await withUniqueReference(REF_PREFIX.message, (reference) =>
+      prisma.contactRequest.create({
       data: {
+        reference,
         type: d.type === "business" ? "BUSINESS" : "CONTACT",
         firstName: d.firstName,
         lastName: d.lastName,
@@ -35,7 +38,8 @@ export async function POST(req: Request) {
         message: d.message || null,
         locale: d.locale === "en" ? "EN" : "HR",
       },
-    });
+      }),
+    );
 
     // Tell the owner. Both channels are non-fatal: the message is already
     // stored, so a failing mailbox or bot never loses it.
@@ -54,7 +58,7 @@ export async function POST(req: Request) {
     });
 
     await sendOwnerNotification(
-      `${isBusiness ? "🏢 Poslovni upit" : "✉️ Nova poruka"} (${rec.reference.slice(-8)})\n` +
+      `${isBusiness ? "🏢 Poslovni upit" : "✉️ Nova poruka"} (${rec.reference})\n` +
         `Od: ${d.firstName} ${d.lastName} · ${d.phone}\n` +
         `Email: ${d.email}` +
         (d.company ? `\nFirma: ${d.company}` : "") +

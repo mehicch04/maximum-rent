@@ -245,7 +245,7 @@ export async function sendContactEmail(
 
   const subject =
     `${isEn ? "[EN] " : ""}${isBusiness ? "Poslovni upit" : "Nova poruka"}` +
-    ` · ${data.reference.slice(-8)} · ${data.firstName} ${data.lastName}`;
+    ` · ${data.reference} · ${data.firstName} ${data.lastName}`;
 
   try {
     const { error } = await resend.emails.send({

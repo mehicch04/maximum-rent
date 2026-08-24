@@ -95,7 +95,7 @@ function fmtSarajevo(d: Date): string {
 /** Short owner-facing summary of a new inquiry (plain text, HR). */
 export function buildOwnerSummaryText(q: OwnerSummary): string {
   return (
-    `🚗 Novi upit (${q.reference.slice(-8)})\n` +
+    `🚗 Novi upit (${q.reference})\n` +
     `Poslano: ${fmtSarajevo(q.createdAt)}\n` +
     `Klijent: ${q.firstName} ${q.lastName} · ${q.phone}\n` +
     `Vozilo: ${q.carTitle ?? "—"}\n` +

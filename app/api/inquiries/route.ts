@@ -4,6 +4,7 @@ import { inquirySchema } from "@/lib/validations";
 import { sendInquiryEmail, sendGuestConfirmationEmail } from "@/lib/email";
 import { buildOwnerSummaryText } from "@/lib/whatsapp";
 import { rentalDays, extraLineTotal } from "@/lib/extras";
+import { withUniqueReference, REF_PREFIX } from "@/lib/reference";
 import { sendOwnerNotification } from "@/lib/notify";
 
 export const runtime = "nodejs";
@@ -76,8 +77,10 @@ export async function POST(req: Request) {
   }));
 
   try {
-    const inquiry = await prisma.inquiry.create({
+    const inquiry = await withUniqueReference(REF_PREFIX.inquiry, (reference) =>
+      prisma.inquiry.create({
       data: {
+        reference,
         carId: car?.id ?? null,
         carTitleSnapshot: car?.title ?? d.carTitle,
         pickupLocationId: pickup?.id ?? null,
@@ -94,7 +97,8 @@ export async function POST(req: Request) {
         locale: d.locale === "en" ? "EN" : "HR",
         extras: extraRows.length ? { create: extraRows } : undefined,
       },
-    });
+      }),
+    );
 
     const emailData = {
       ...d,

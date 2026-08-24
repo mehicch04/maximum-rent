@@ -207,7 +207,7 @@ export function contactRequestHtml(v: ContactRequestVars): string {
       <td align="left" valign="top">
         <table role="presentation" cellpadding="0" cellspacing="0" border="0">
         <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:16px;letter-spacing:2px;color:#6b7280;text-transform:uppercase;">${v.kind}</td></tr>
-        <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:26px;line-height:32px;color:#E30613;font-weight:bold;padding-top:2px;">${v.ref.slice(-8)}</td></tr>
+        <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:26px;line-height:32px;color:#E30613;font-weight:bold;padding-top:2px;">${v.ref}</td></tr>
         </table>
       </td>
       <td align="right" valign="top" class="stack-right">

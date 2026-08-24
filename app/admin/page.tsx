@@ -240,7 +240,7 @@ export default async function AdminPage({
                       {badge.label}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {fmt(q.createdAt)} · ref {q.reference.slice(-8)}
+                      {fmt(q.createdAt)} · {q.reference}
                     </span>
                   </div>
                   <p className="mt-2 flex items-center gap-2 font-semibold">
