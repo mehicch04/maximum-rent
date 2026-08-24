@@ -11,6 +11,7 @@ import { DateField } from "@/components/ui/DateField";
 import { ExtrasPicker, type ExtraSelection } from "./ExtrasPicker";
 import { PriceBreakdown } from "./PriceBreakdown";
 import { rentalDays } from "@/lib/extras";
+import { useCurrency } from "@/components/currency/CurrencyProvider";
 import type { ExtraItem } from "@/lib/extras";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 
@@ -66,6 +67,7 @@ export function InquiryModal({ car, search, locations = [], extras = [], onClose
   const [flightNumber, setFlightNumber] = useState("");
   const [message, setMessage] = useState("");
   const [chosenExtras, setChosenExtras] = useState<ExtraSelection>({});
+  const { currency } = useCurrency();
 
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -146,6 +148,7 @@ export function InquiryModal({ car, search, locations = [], extras = [], onClose
           flightNumber,
           message,
           locale,
+          currency,
           extras: Object.entries(chosenExtras).map(([id, qty]) => ({ id, qty })),
         }),
       });

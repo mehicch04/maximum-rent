@@ -96,6 +96,7 @@ export async function sendInquiryEmail(
     extras: data.extras ?? [],
     days: data.days ?? 1,
     pricePerDay: data.pricePerDay ?? null,
+    currency: data.currency ?? "BAM",
     guestLocale,
   });
 
@@ -163,6 +164,7 @@ export async function sendGuestConfirmationEmail(
       extras: data.extras ?? [],
       days: data.days ?? 1,
       pricePerDay: data.pricePerDay ?? null,
+      currency: data.currency ?? "BAM",
     },
     locale,
   );

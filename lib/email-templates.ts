@@ -19,6 +19,8 @@ function telHref(phone: string): string {
   return digits;
 }
 
+import { formatPrice, type Currency } from "@/lib/currency";
+
 export type ExtraLine = {
   nameHr: string;
   nameEn: string;
@@ -40,6 +42,9 @@ function priceBlock(
   days: number,
   pricePerDay: number | null,
   locale: "HR" | "EN",
+  currency: Currency = "BAM",
+  /** Owner copy only: also show the BAM figure so he doesn't have to convert. */
+  showBamEquivalent = false,
 ): string {
   const hasRental = pricePerDay != null && pricePerDay > 0;
   if (!hasRental && !extras.length) return "";
@@ -56,7 +61,8 @@ function priceBlock(
     ? "Approximate amount. The final price is confirmed with the booking."
     : "Okvirni iznos. Konačnu cijenu potvrđujemo uz rezervaciju.";
 
-  const km = (n: number) => `${n.toFixed(0)} KM`;
+  // Amounts are stored in BAM; show them in whatever the guest was browsing in.
+  const money = (n: number) => formatPrice(n, currency);
 
   const line = (label: string, value: string, strong = false) => `<tr>
       <td style="padding:9px 0;border-bottom:1px solid #eceef1;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;color:${strong ? "#111111" : "#4b5563"};">${label}</td>
@@ -65,21 +71,29 @@ function priceBlock(
 
   const rentalTotal = hasRental ? pricePerDay! * days : 0;
   const rows =
-    (hasRental ? line(rentalLbl, km(rentalTotal)) : "") +
+    (hasRental ? line(rentalLbl, money(rentalTotal)) : "") +
     extras
       .map((e) => {
         const name = isEn ? e.nameEn : e.nameHr;
         const label = `${name}${e.qty > 1 ? ` &times; ${e.qty}` : ""}`;
         return e.pricing === "INCLUDED"
           ? line(label, `<span style="color:#127a3d;">${included}</span>`)
-          : line(label, km(e.lineTotal));
+          : line(label, money(e.lineTotal));
       })
       .join("");
 
   const grand = rentalTotal + extras.reduce((a, e) => a + e.lineTotal, 0);
+
+  // The owner prices everything in BAM, so when the guest browsed in euros we
+  // add the BAM figure next to the total — no mental conversion at the desk.
+  const equivalent =
+    showBamEquivalent && currency !== "BAM"
+      ? `<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#6b7280;font-weight:normal;padding-top:2px;">≈ ${formatPrice(grand, "BAM")}</div>`
+      : "";
+
   const totalRow = `<tr>
       <td style="padding:12px 0 0 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:bold;color:#111111;">${totalLbl}</td>
-      <td align="right" style="padding:12px 0 0 0;font-family:Arial,Helvetica,sans-serif;font-size:19px;font-weight:bold;color:#E30613;white-space:nowrap;">${km(grand)}</td>
+      <td align="right" style="padding:12px 0 0 0;font-family:Arial,Helvetica,sans-serif;font-size:19px;font-weight:bold;color:#E30613;white-space:nowrap;">${money(grand)}${equivalent}</td>
     </tr>`;
 
   return `<tr><td style="padding:20px 32px 0 32px;" class="px">
@@ -110,12 +124,16 @@ export type OwnerInquiryVars = {
   extras?: ExtraLine[];
   days?: number;
   pricePerDay?: number | null;
+  /** Currency the guest was browsing in — the email must match what they saw. */
+  currency?: Currency;
 };
 
 export type GuestConfirmationVars = {
   extras?: ExtraLine[];
   days?: number;
   pricePerDay?: number | null;
+  /** Currency the guest was browsing in — the email must match what they saw. */
+  currency?: Currency;
   ref: string;
   vehicle: string;
   guestFirstName: string;
@@ -247,7 +265,8 @@ export function ownerInquiryHtml(v: OwnerInquiryVars): string {
     : "Gost je poslao upit na hrvatskoj verziji stranice.";
 
   const note = v.note?.trim() ?? "";
-  const extrasHtml = priceBlock(v.extras ?? [], v.days ?? 1, v.pricePerDay ?? null, "HR");
+  const isOwner = true;
+  const extrasHtml = priceBlock(v.extras ?? [], v.days ?? 1, v.pricePerDay ?? null, "HR", v.currency ?? "BAM", isOwner);
   const noteBlock = note ? `    <!-- Note (optional block: remove entire <tr> if empty) -->
     <tr><td style="padding:20px 32px 0 32px;" class="px">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#fafafa;">
@@ -423,7 +442,7 @@ ${extrasHtml}${noteBlock}
 
 /** Guest confirmation ("inquiry received") — Croatian version. */
 export function guestConfirmationHtmlHr(v: GuestConfirmationVars): string {
-  const extrasHtml = priceBlock(v.extras ?? [], v.days ?? 1, v.pricePerDay ?? null, "HR");
+  const extrasHtml = priceBlock(v.extras ?? [], v.days ?? 1, v.pricePerDay ?? null, "HR", v.currency ?? "BAM");
   return `<!DOCTYPE html>
 <html lang="hr">
 <head>
@@ -539,7 +558,7 @@ td {mso-line-height-rule:exactly;}
 
 /** Guest confirmation ("inquiry received") — English version. */
 export function guestConfirmationHtmlEn(v: GuestConfirmationVars): string {
-  const extrasHtml = priceBlock(v.extras ?? [], v.days ?? 1, v.pricePerDay ?? null, "EN");
+  const extrasHtml = priceBlock(v.extras ?? [], v.days ?? 1, v.pricePerDay ?? null, "EN", v.currency ?? "BAM");
   return `<!DOCTYPE html>
 <html lang="en">
 <head>

@@ -1,68 +1,49 @@
-MAXIMUM RENT A CAR — pregled cijene u obrascu i u mejlovima
-===========================================================
+MAXIMUM RENT A CAR — mejl sada prati valutu koju je gost gledao
+===============================================================
 
-ŠTA JE NAPRAVLJENO
-------------------
-Ispod izbora opreme sada stoji jednostavna računica koja se mijenja UŽIVO dok
-gost bira datume i opremu:
+ŠTA JE BILO KRIVO (moja greška)
+-------------------------------
+U šablonu mejla sam iznose fiksno ispisivao u markama. Gost koji je na sajtu
+prebacio na eure, birao vozilo i vidio cijenu u eurima, u mejlu je dobio
+marke. To zbunjuje i djeluje neuredno.
 
-    Najam vozila · 7 dana                            770 KM
-    Dječija sjedalica × 2                            140 KM
-    Dodatni vozač                                 Uključeno
-    Prelazak granice                                  50 KM
-    ─────────────────────────────────────────────────────
-    Procjena ukupno                                  960 KM
+POPRAVLJENO
+-----------
+Uz upit se sada šalje i valuta koju je gost imao uključenu, pa mejl prikazuje
+iznose ISTO kao što ih je vidio na sajtu.
 
-    Okvirni iznos. Konačnu cijenu potvrđujemo uz rezervaciju.
+  - Gost gledao u eurima -> potvrda mu stiže u eurima.
+  - Gost gledao u markama -> potvrda u markama.
+  - Ako valuta iz nekog razloga nije poslana, koriste se marke (kao i do sada).
 
-Ista računica sada ide i u MEJLOVE — i vlasniku i gostu.
+DODATNO ZA VLASNIKA
+-------------------
+Vlasnik cijene vodi u markama. Zato, kada je gost gledao u eurima, njegov mejl
+pored glavnog iznosa dobija i protuvrijednost:
 
-ZAŠTO PIŠE "PROCJENA", A NE "UKUPNO"
-------------------------------------
-Ovo je upit, ne kupovina. Da piše samo "Ukupno", gost bi došao na pult s
-očekivanjem tačne cifre, a vlasnik bi morao objašnjavati svaku razliku
-(sezona, depozit, osiguranje, prekoračenje kilometraže).
+    Procjena ukupno                    465 €
+                                   ≈ 910 KM
 
-Ovako je transparentno i profesionalno, a vlasnik zadržava zadnju riječ.
-Ista rečenica stoji i u obrascu i u mejlu, na oba jezika.
+Tako odmah zna koliko je to u njegovim knjigama, bez računanja.
+Kad je gost gledao u markama, te dodatne linije nema — nema suvišnog teksta.
+Gostu se protuvrijednost NE prikazuje, da mu potvrda ostane čista.
 
-KAKO SE RAČUNA
---------------
-  - Broj dana = od preuzimanja do vraćanja, zaokruženo naviše, najmanje 1.
-    (12.08. u 10:00 -> 19.08. u 10:00 = 7 dana; isti dan = 1 dan)
-  - Najam = cijena po danu × broj dana
-  - Oprema "po danu" = cijena × količina × broj dana
-  - Oprema "po najmu" = cijena × količina (bez obzira na trajanje)
-  - Oprema "uključeno" = 0 KM, prikazuje se zeleno
+Preračun ide po fiksnom kursu (1 EUR = 1.95583 KM), isti onaj koji koristi
+i sam sajt, pa se iznosi uvijek poklapaju.
 
-Sve je testirano na tim slučajevima prije isporuke.
-
-DIZAJN — ZAŠTO OVAKO JEDNOSTAVNO
---------------------------------
-  - Obična lista: naziv lijevo, iznos desno. Bez ikona, bez okvira oko svakog
-    reda, bez boja osim jedne crvene za konačni iznos.
-  - Iznosi su poravnati i koriste jednake širine cifara, pa se kolona lijepo
-    slaže i lako čita.
-  - Ukupan iznos je odvojen tankom linijom i jedini je istaknut — oko odmah
-    ide na njega.
-  - Prati prekidač KM/€: ako gost gleda u eurima, i računica je u eurima.
-  - Sve staje u jedan uzak stupac, pa na telefonu nema stiskanja ni
-    horizontalnog skrolanja.
-
-KADA SE NE PRIKAZUJE
---------------------
-  - Ako vozilo nema unesenu cijenu, a gost nije izabrao opremu -> ničega nema.
-  - Ako vozilo nema cijenu ali ima opreme -> prikazuje se samo oprema.
-  Nikad se ne prikazuje prazan okvir.
+TESTIRANO
+---------
+  - 110 KM/dan × 7 dana + oprema = 960 KM, u eurima 491 € (tačno)
+  - u mejlu za eure nema ostataka maraka i obrnuto
+  - protuvrijednost se pojavljuje SAMO vlasniku i SAMO kad je gost gledao eure
+  - bez poslane valute -> marke (staro ponašanje)
 
 FAJLOVI
 -------
-  components/reservation/PriceBreakdown.tsx   (NOVO — računica u obrascu)
-  components/reservation/InquiryModal.tsx     (računa dane, prikazuje blok)
-  lib/email-templates.ts                      (pregled cijene u mejlovima)
-  lib/email.ts                                (prosljeđuje cijenu vozila)
-  app/api/inquiries/route.ts                  (šalje cijenu vozila u mejl)
-  messages/hr.json, messages/en.json
+  lib/email-templates.ts       (iznosi prate valutu + protuvrijednost)
+  lib/email.ts                 (prosljeđuje valutu)
+  lib/validations.ts           (upit prima valutu)
+  components/reservation/InquiryModal.tsx  (šalje trenutnu valutu)
 
 Schema NIJE mijenjana — nema prisma db push.
 
@@ -70,11 +51,9 @@ KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run dev
-   - otvori upit za vozilo koje IMA cijenu
-   - promijeni datume i gledaj kako se iznos mijenja uživo
-   - dodaj sjedalice i vidi kako raste
-   - prebaci KM/€ u zaglavlju i provjeri da prati
-   - pošalji upit i pogledaj mejl
+   - prebaci sajt na eure (prekidač u zaglavlju)
+   - pošalji probni upit
+   - provjeri oba mejla: gostov u eurima, tvoj u eurima uz "≈ ... KM"
 3. git add -A
-   git commit -m "feat: pregled cijene u obrascu i u mejlovima"
+   git commit -m "fix(email): iznosi u valuti koju je gost gledao"
    git push
