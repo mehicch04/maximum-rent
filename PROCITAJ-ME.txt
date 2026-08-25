@@ -1,69 +1,64 @@
-MAXIMUM RENT A CAR — čitljivi brojevi upita
-===========================================
+MAXIMUM RENT A CAR — kalendar vraćanja otvara pravi mjesec
+==========================================================
 
-PRIJE
------
-    cms8xhkfv0003lyevsn8ka8kl
+PROBLEM
+-------
+Gost izabere preuzimanje 31. u mjesecu. Zatim otvori kalendar za vraćanje —
+a on se otvori na TOM mjesecu, gdje je selektabilan samo taj jedan dan, sve
+ostalo je sivo. Gost mora sam kliknuti naprijed da bi uopće došao do dana
+koje može izabrati.
 
-To je bio sirovi identifikator iz baze. Neupotrebljiv preko telefona i
-neprofesionalan u mejlu.
+NAŠAO SAM DVA UZROKA
+--------------------
+1) Kalendar se sidrio na mjesec najranijeg mogućeg datuma, bez provjere ima li
+   taj mjesec uopće još slobodnih dana. Kad je preuzimanje zadnji dan mjeseca,
+   otvarao se mjesec u kojem nema šta izabrati.
 
-SADA
-----
-    MR-7K3P9W        (rezervacija)
-    MP-4TQ8XN        (poruka s kontakt stranice)
+2) U pretrazi na naslovnoj je pri odabiru preuzimanja stajala linija koja je
+   vraćanje postavljala na ISTI dan. Zbog toga je najam nakratko bio "nula
+   dana", a kalendar se sidrio na pogrešan mjesec prije nego što bi se sam
+   ispravio.
 
-Kratko, čitljivo, i odmah se vidi o čemu se radi po prefiksu.
+POPRAVLJENO
+-----------
+1) Ako je najraniji mogući dan ujedno i ZADNJI dan svog mjeseca, kalendar se
+   otvara na sljedećem mjesecu — jer je tamo sve što gost može izabrati.
+   Gost i dalje može listati nazad ako baš želi vratiti isti dan.
 
-USPUT SAM NAŠAO PRAVU GREŠKU
-----------------------------
-Ista referenca se prikazivala RAZLIČITO na različitim mjestima:
+2) Suvišna linija u pretrazi je uklonjena. Datum vraćanja i dalje prati
+   preuzimanje (to radi postojeći mehanizam koji uz to PAMTI koliko je dana
+   gost htio auto), samo bez pogrešnog međukoraka.
 
-  - gost je poslije slanja vidio PRVIH 8 znakova
-  - vlasnik u adminu ZADNJIH 8
-  - u naslovu mejla išao je cijeli niz
-  - Telegram opet zadnjih 8
+VAŽNO: kalendar NE preskače kad mjesec još ima slobodnih dana.
+Preuzimanje 30.08. i dalje otvara kolovoz, jer je 31. slobodan.
+Skače samo kad u tom mjesecu stvarno nema više šta izabrati.
 
-Znači gost kaže "moj broj je CMS8XHKF", a vlasnik u panelu traži "SN8KA8KL"
-— i nikad se ne nađu. Sada je referenca SVUGDJE ista.
+TESTIRANO
+---------
+  preuzimanje 31.08, vraćanje prazno        -> otvara rujan     OK
+  preuzimanje 31.08, vraćanje zaostalo      -> otvara rujan     OK
+  preuzimanje 31.12 (prelaz godine)         -> otvara siječanj  OK
+  preuzimanje 30.08 (ostaje još 31.)        -> otvara kolovoz   OK
+  preuzimanje 24.08                          -> otvara kolovoz   OK
+  kalendar preuzimanja                       -> nepromijenjen    OK
 
-KAKO JE NAPRAVLJENO
--------------------
-Šest znakova iz namjerno očišćene abecede: bez 0/O, bez 1/I/L i bez U.
-To su znakovi koji se najčešće pogrešno čuju kad se broj čita preko telefona
-(a izbacivanjem U izbjegnute su i slučajne ružne riječi).
-
-Ostaje 30 znakova → 729.000.000 kombinacija.
-
-Ako se dvije reference kojim slučajem poklope, baza to odbija, a kod odmah
-pokušava s novom (do 4 puta). Rezervacija zbog toga ne može pasti.
-Provjereno: na 5.000 upita godišnje sudara praktično nema.
-
-STARE REZERVACIJE
------------------
-Postojeće rezervacije zadržavaju svoje stare, duge brojeve — to je istorija i
-ne diramo je. Novi format vrijedi od trenutka kad ovo pustiš u rad.
+Vrijedi i za obrazac za upit i za pretragu na naslovnoj — obje koriste isti
+kalendar.
 
 FAJLOVI
 -------
-  lib/reference.ts              (NOVO — generator)
-  app/api/inquiries/route.ts    (rezervacija dobija MR-...)
-  app/api/contact/route.ts      (poruka dobija MP-...)
-  app/admin/page.tsx            (puna referenca umjesto zadnjih 8)
-  components/forms/InquiryForm.tsx  (puna referenca umjesto prvih 8)
-  lib/email.ts, lib/email-templates.ts, lib/whatsapp.ts  (puna referenca)
+  components/ui/DateField.tsx                     (biranje mjeseca)
+  components/reservation/ReservationSearchForm.tsx (uklonjen međukorak)
 
-Schema NIJE mijenjana — nema prisma db push.
-(Polje u bazi je i dalje isto, samo mu sada kod dodjeljuje vrijednost.)
+Schema NIJE mijenjana.
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run dev
-   - pošalji probni upit -> broj treba izgledati kao MR-7K3P9W
-   - provjeri da je ISTI broj u: potvrdi na sajtu, mejlu gostu,
-     mejlu tebi, Telegramu i u /admin
-   - pošalji poruku s /kontakt -> treba biti MP-...
+   - na naslovnoj postavi preuzimanje na zadnji dan mjeseca
+   - otvori kalendar vraćanja -> mora odmah pokazati sljedeći mjesec
+   - probaj i 30. u mjesecu -> mora ostati na tekućem
 3. git add -A
-   git commit -m "feat: citljivi brojevi upita (MR-/MP-) i dosljedan prikaz"
+   git commit -m "fix(kalendar): vracanje otvara sljedeci mjesec kad je preuzimanje zadnji dan"
    git push

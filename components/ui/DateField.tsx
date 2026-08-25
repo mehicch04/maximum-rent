@@ -30,6 +30,11 @@ const startOfDay = (d: Date) =>
  * is positioned with fixed coordinates, so it never gets clipped inside modals
  * or scroll containers.
  */
+/** True when `d` is the final day of its month. */
+function isLastDayOfMonth(d: Date): boolean {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate() === d.getDate();
+}
+
 export function DateField({
   value,
   onChange,
@@ -51,13 +56,42 @@ export function DateField({
 
   const selected = fromISO(value);
   const minDate = fromISO(min);
-  const [view, setView] = useState(() => selected ?? new Date());
+  /**
+   * Which month the grid opens on.
+   *
+   * It follows the selected date, but never opens on a month where every day
+   * is disabled: if the selection is earlier than `min` (typical for a return
+   * date after the pickup was moved), we jump to the month of `min` so the
+   * visitor doesn't have to click forward to reach a selectable day.
+   */
+  const startView = () => {
+    let base = selected ?? minDate ?? new Date();
+    if (minDate && startOfDay(base) < startOfDay(minDate)) base = minDate;
+
+    // If the earliest selectable day is the last day of its month, that month
+    // has nothing else to offer — opening it would show a grid of disabled
+    // days and force the visitor to page forward. Typical case: the car is
+    // picked up on the 31st, so the return almost always falls next month.
+    if (minDate && isLastDayOfMonth(base) && startOfDay(base) <= startOfDay(minDate)) {
+      return new Date(base.getFullYear(), base.getMonth() + 1, 1);
+    }
+    return base;
+  };
+
+  const [view, setView] = useState(startView);
 
   useEffect(() => setMounted(true), []);
   useEffect(() => {
-    if (selected) setView(selected);
+    setView(startView());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [value, min]);
+
+  // Re-anchor every time the popover opens, so it is right even when the
+  // visitor changed the pickup date after last looking at this calendar.
+  useEffect(() => {
+    if (open) setView(startView());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const place = () => {
     const el = btnRef.current;

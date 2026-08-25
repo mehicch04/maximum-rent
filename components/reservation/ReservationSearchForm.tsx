@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, CalendarDays, Clock, ArrowRight, AlertCircle, ChevronDown } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { DateField } from "@/components/ui/DateField";
+import { useReturnAfterPickup } from "@/hooks/useReturnAfterPickup";
 
 type SimpleLocation = { id: string; name: string; city: string };
 
@@ -57,6 +58,7 @@ function StyledSelect({
   );
 }
 
+
 export function ReservationSearchForm({ locations }: { locations: SimpleLocation[] }) {
   const t = useTranslations("Search");
   const locale = useLocale();
@@ -71,6 +73,8 @@ export function ReservationSearchForm({ locations }: { locations: SimpleLocation
   const [returnTime, setReturnTime] = useState("09:00");
   const [today, setToday] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  useReturnAfterPickup(pickupDate, returnDate, setReturnDate);
 
   // Default dates and the min date are relative to the visitor's LOCAL calendar
   // day, which only the browser knows. Compute them after mount so the
@@ -178,10 +182,12 @@ export function ReservationSearchForm({ locations }: { locations: SimpleLocation
                 value={pickupDate}
                 min={today}
                 locale={locale}
-                onChange={(v) => {
-                  setPickupDate(v);
-                  if (returnDate < v) setReturnDate(v);
-                }}
+                // The return date is kept valid by useReturnAfterPickup, which
+                // also preserves how many days the visitor wanted the car.
+                // Setting it to the pickup day here would briefly make the
+                // rental zero days long and anchor the return calendar on the
+                // wrong month.
+                onChange={setPickupDate}
                 className={DATE_CONTROL}
               />
               <div className="w-28 shrink-0">
