@@ -22,6 +22,30 @@ const inter = Inter({
   display: "swap",
 });
 
+/**
+ * Namespaces used by client components. Add one here when a new "use client"
+ * component calls useTranslations("Something") — otherwise its text goes
+ * missing in the browser.
+ */
+const CLIENT_NAMESPACES = [
+  "BusinessTeaser",
+  "Common",
+  "Extras",
+  "Faq",
+  "FinalCta",
+  "Fleet",
+  "Form",
+  "Hero",
+  "HowItWorks",
+  "Inquiry",
+  "Locations",
+  "Nav",
+  "Reviews",
+  "Search",
+  "WeddingCars",
+  "WhyChoose",
+] as const;
+
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ?? `https://${SITE.domain}`,
@@ -83,7 +107,15 @@ export default async function LocaleLayout({
   // Enable static rendering for this locale.
   setRequestLocale(locale);
 
-  const messages = await getMessages();
+  const all = await getMessages();
+
+  // Only the namespaces that client components actually read are sent to the
+  // browser. Server components (About, Business, Terms, Seo) resolve their own
+  // translations on the server, so shipping them here was dead payload on
+  // every single page view.
+  const messages = Object.fromEntries(
+    CLIENT_NAMESPACES.filter((ns) => ns in all).map((ns) => [ns, all[ns]]),
+  );
 
   return (
     <html lang={locale} suppressHydrationWarning className={inter.variable}>

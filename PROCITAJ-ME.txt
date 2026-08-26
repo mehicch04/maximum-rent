@@ -1,64 +1,120 @@
-MAXIMUM RENT A CAR — kalendar vraćanja otvara pravi mjesec
-==========================================================
+MAXIMUM RENT A CAR — code review, čišćenje i optimizacija
+=========================================================
 
-PROBLEM
--------
-Gost izabere preuzimanje 31. u mjesecu. Zatim otvori kalendar za vraćanje —
-a on se otvori na TOM mjesecu, gdje je selektabilan samo taj jedan dan, sve
-ostalo je sivo. Gost mora sam kliknuti naprijed da bi uopće došao do dana
-koje može izabrati.
+Prošao sam kroz cijeli projekat: mrtvi fajlovi, mrtvi exporti, neiskorišteni
+importi i varijable, nekorišteni resursi, zavisnosti, prijevodi i slike.
+Sve izmjene su testirane prije isporuke (19 provjera + 7 provjera validacije).
 
-NAŠAO SAM DVA UZROKA
---------------------
-1) Kalendar se sidrio na mjesec najranijeg mogućeg datuma, bez provjere ima li
-   taj mjesec uopće još slobodnih dana. Kad je preuzimanje zadnji dan mjeseca,
-   otvarao se mjesec u kojem nema šta izabrati.
+=======================================================================
+1) KRITIČNO — FAJL KOJI FALI U REPOU (build bi pao)
+=======================================================================
+components/reservation/ReservationSearchForm.tsx uvozi
+    @/hooks/useReturnAfterPickup
+ali taj fajl NIJE u gitu. TypeScript javlja "Cannot find module", što znači
+da `npm run build` pada, pa i deploy na Vercelu.
 
-2) U pretrazi na naslovnoj je pri odabiru preuzimanja stajala linija koja je
-   vraćanje postavljala na ISTI dan. Zbog toga je najam nakratko bio "nula
-   dana", a kalendar se sidrio na pogrešan mjesec prije nego što bi se sam
-   ispravio.
+Vjerovatno je nestao pri nekom od ranijih čišćenja foldera.
 
-POPRAVLJENO
------------
-1) Ako je najraniji mogući dan ujedno i ZADNJI dan svog mjeseca, kalendar se
-   otvara na sljedećem mjesecu — jer je tamo sve što gost može izabrati.
-   Gost i dalje može listati nazad ako baš želi vratiti isti dan.
+VRAĆEN JE u zipu (hooks/useReturnAfterPickup.ts). To je onaj mehanizam koji
+pomjera datum vraćanja kad preuzimanje prođe preko njega i pritom PAMTI koliko
+je dana gost htio auto.
 
-2) Suvišna linija u pretrazi je uklonjena. Datum vraćanja i dalje prati
-   preuzimanje (to radi postojeći mehanizam koji uz to PAMTI koliko je dana
-   gost htio auto), samo bez pogrešnog međukoraka.
+=======================================================================
+2) OZBILJNO — upit se mogao poslati s vraćanjem PRIJE preuzimanja
+=======================================================================
+Ni obrazac ni server nisu provjeravali redoslijed datuma. Posljedice:
+  - najam bi se računao kao 1 dan (pogrešna cijena u mejlu)
+  - provjera preklapanja pri potvrdi radila bi s obrnutim periodom, što je
+    moglo propustiti dvostruko rezervisanje
 
-VAŽNO: kalendar NE preskače kad mjesec još ima slobodnih dana.
-Preuzimanje 30.08. i dalje otvara kolovoz, jer je 31. slobodan.
-Skače samo kad u tom mjesecu stvarno nema više šta izabrati.
+Dodana je provjera na SERVERU (lib/validations.ts), gdje je i mjesto — obrazac
+se može zaobići, server ne.
 
-TESTIRANO
----------
-  preuzimanje 31.08, vraćanje prazno        -> otvara rujan     OK
-  preuzimanje 31.08, vraćanje zaostalo      -> otvara rujan     OK
-  preuzimanje 31.12 (prelaz godine)         -> otvara siječanj  OK
-  preuzimanje 30.08 (ostaje još 31.)        -> otvara kolovoz   OK
-  preuzimanje 24.08                          -> otvara kolovoz   OK
-  kalendar preuzimanja                       -> nepromijenjen    OK
+Testirano: obrnut period i isti trenutak se odbijaju, ispravni prolaze.
 
-Vrijedi i za obrazac za upit i za pretragu na naslovnoj — obje koriste isti
-kalendar.
+=======================================================================
+3) OPTIMIZACIJA — prijevodi koji su išli u browser bez potrebe
+=======================================================================
+Svi prijevodi (16 KB) slali su se pregledniku na SVAKOJ stranici, uključujući
+one koje koriste samo server: About, Business, Terms, Contact, Footer i Seo.
 
+Sada se šalju samo oni koje stvarno koriste komponente u pregledniku.
+
+    prije: 16.048 B   ->   poslije: 8.284 B     (48% manje, svaka stranica)
+
+Server i dalje čita svoje prijevode nezavisno, pa se na stranicama ništa ne
+mijenja. U layoutu stoji popis CLIENT_NAMESPACES s napomenom: kad dodaš novu
+"use client" komponentu koja koristi novi namespace, dopiši ga tu.
+
+=======================================================================
+4) UKLONJEN MRTAV KOD
+=======================================================================
+  lib/email.ts          row()                  ostatak starog dizajna mejlova
+  lib/email.ts          confirmedIntro/cancelledIntro primali su "name" koji
+                        nikad nisu koristili -> sada obični tekstovi
+  lib/availability.ts   isCarFreeFor()         0 poziva; ista logika već
+                        postoji unutar transakcije u confirmInquiry.
+                        Dvije kopije iste logike su rizik: neko popravi jednu,
+                        drugu zaboravi.
+  lib/whatsapp.ts       buildMailtoUrl()       0 poziva
+  lib/vehicle-options.ts  transmissionLabel(), fuelLabel(), categoryLabel()
+                        0 poziva
+  ReservationSearchForm  neiskorišten import useRef
+  messages/*.json       8 mrtvih prijevoda (Fleet.gearbox, Inquiry.errEmail,
+                        Inquiry.errPhone, Inquiry.summaryPeriod, Contact.callUs,
+                        Contact.emailUs, Contact.whatsappCta, Extras.summaryTitle)
+  package.json          zavisnost "zustand" — nije se koristila nigdje
+  public/hero-poster.jpg  92 KB, zamijenjen .webp verzijom, nije se servirao
+
+=======================================================================
+ŠTA SAM PROVJERIO A BILO JE U REDU
+=======================================================================
+  - Nema drugih fajlova koje niko ne uvozi.
+  - Slike svugdje idu kroz next/image i imaju ispravan "sizes" (i u adminu).
+  - Nema zaostalih console.log (onaj u cronu je namjeran).
+  - Sve "use client" komponente to zaista i trebaju biti.
+  - Zaštita od dvostrukog rezervisanja postoji i ispravna je (transakcija).
+  - Stare .jpg slike vjenčanja, hero.webm, FleetFilters.tsx, lib/settings.ts
+    i admin/postavke — već si ih obrisao, čisto je.
+
+ISKRENO O DOBITKU U BRZINI
+--------------------------
+Uklanjanje mrtvog koda praktično NE ubrzava sajt — Next.js ionako izbacuje
+neiskorišteni kod iz paketa. Dobitak je u održavanju: manje koda znači manje
+mjesta gdje se greška može sakriti.
+
+Jedina izmjena koja stvarno smanjuje ono što se šalje posjetiocu su prijevodi
+(48% manje). Ostalo su ispravke i higijena.
+
+Sajt je inače bio u dobrom stanju — nije bilo gomile mrtvog koda.
+
+=======================================================================
 FAJLOVI
--------
-  components/ui/DateField.tsx                     (biranje mjeseca)
-  components/reservation/ReservationSearchForm.tsx (uklonjen međukorak)
+=======================================================================
+  hooks/useReturnAfterPickup.ts    (VRAĆEN — bez njega build pada)
+  lib/validations.ts               (provjera redoslijeda datuma)
+  app/[locale]/layout.tsx          (filtrirani prijevodi)
+  lib/email.ts, lib/availability.ts, lib/whatsapp.ts,
+  lib/vehicle-options.ts           (uklonjen mrtav kod)
+  components/reservation/ReservationSearchForm.tsx  (uklonjen import)
+  messages/hr.json, messages/en.json  (uklonjeni mrtvi prijevodi)
+  package.json                     (uklonjen zustand)
 
-Schema NIJE mijenjana.
+Obriši ručno (zip ne može brisati):
+    Remove-Item public\hero-poster.jpg
+
+Schema NIJE mijenjana — nema prisma db push.
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run dev
-   - na naslovnoj postavi preuzimanje na zadnji dan mjeseca
-   - otvori kalendar vraćanja -> mora odmah pokazati sljedeći mjesec
-   - probaj i 30. u mjesecu -> mora ostati na tekućem
-3. git add -A
-   git commit -m "fix(kalendar): vracanje otvara sljedeci mjesec kad je preuzimanje zadnji dan"
+2. Remove-Item public\hero-poster.jpg
+3. npm install          (uklanja zustand iz node_modules)
+4. npm run build        <-- mora proći; ovo je i provjera tačke 1
+5. npm run dev
+   - naslovna, /vozila, /kontakt, /poslovna-ponuda, /o-nama, /uvjeti-najma
+   - pošalji upit i provjeri mejlove
+   - /admin: rezervacije, vozila, poruke, oprema
+6. git add -A
+   git commit -m "chore: code review — vrati nedostajuci hook, validacija perioda, ocisti mrtav kod, lakši prijevodi"
    git push

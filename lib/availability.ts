@@ -44,34 +44,3 @@ export async function getAvailableCars(
   return cars.map(toCarListItem);
 }
 
-/**
- * Is a specific car free for the period? Used when the agency confirms an
- * inquiry, to prevent double-booking. `excludeInquiryId` ignores the inquiry
- * being confirmed itself.
- */
-export async function isCarFreeFor(
-  carId: string,
-  pickupAt: Date,
-  returnAt: Date,
-  excludeInquiryId?: string,
-): Promise<boolean> {
-  const [conflictingInquiries, conflictingBlocks] = await Promise.all([
-    prisma.inquiry.count({
-      where: {
-        carId,
-        status: "CONFIRMED",
-        pickupAt: { lt: returnAt },
-        returnAt: { gt: pickupAt },
-        ...(excludeInquiryId ? { id: { not: excludeInquiryId } } : {}),
-      },
-    }),
-    prisma.carBlock.count({
-      where: {
-        carId,
-        startAt: { lt: returnAt },
-        endAt: { gt: pickupAt },
-      },
-    }),
-  ]);
-  return conflictingInquiries === 0 && conflictingBlocks === 0;
-}

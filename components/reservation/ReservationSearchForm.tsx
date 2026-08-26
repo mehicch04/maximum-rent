@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, CalendarDays, Clock, ArrowRight, AlertCircle, ChevronDown } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";

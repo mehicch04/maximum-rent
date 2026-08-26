@@ -29,7 +29,17 @@ export const inquirySchema = z.object({
     )
     .max(20)
     .optional(),
-});
+  })
+  .refine(
+    (d) => new Date(d.returnAt).getTime() > new Date(d.pickupAt).getTime(),
+    {
+      // Without this the browser could post a return date before the pickup:
+      // the rental would read as one day, and the overlap check that guards
+      // against double-booking would compare an inverted period.
+      message: "returnAt must be after pickupAt",
+      path: ["returnAt"],
+    },
+  );
 
 export type InquiryInput = z.infer<typeof inquirySchema>;
 

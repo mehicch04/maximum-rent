@@ -50,14 +50,6 @@ function esc(v?: string | null): string {
     .replace(/"/g, "&quot;");
 }
 
-function row(label: string, value?: string | null): string {
-  if (!value) return "";
-  return `<tr>
-    <td style="padding:8px 0;color:#888;font-size:13px;width:170px;vertical-align:top">${label}</td>
-    <td style="padding:8px 0;color:#111;font-size:14px;font-weight:600">${value}</td>
-  </tr>`;
-}
-
 /**
  * Sends the inquiry notification to the business inbox.
  * Returns { sent:false } (instead of throwing) when RESEND_API_KEY is absent,
@@ -299,10 +291,10 @@ const DECISION_COPY = {
     cancelledSubject: (ref: string) => `Rezervacija nije potvrđena (${ref})`,
     confirmedTitle: "Vaša rezervacija je potvrđena!",
     cancelledTitle: "Vaša rezervacija nažalost nije potvrđena",
-    confirmedIntro: (name: string) =>
-      `s zadovoljstvom potvrđujemo vašu rezervaciju. Detalji su ispod — vidimo se!`,
-    cancelledIntro: (name: string) =>
-      `nažalost nismo u mogućnosti potvrditi vašu rezervaciju za traženi period.`,
+    confirmedIntro:
+      "s zadovoljstvom potvrđujemo vašu rezervaciju. Detalji su ispod — vidimo se!",
+    cancelledIntro:
+      "nažalost nismo u mogućnosti potvrditi vašu rezervaciju za traženi period.",
     car: "Vozilo",
     period: "Period",
     reference: "Referenca",
@@ -321,10 +313,10 @@ const DECISION_COPY = {
     cancelledSubject: (ref: string) => `Reservation not confirmed (${ref})`,
     confirmedTitle: "Your reservation is confirmed!",
     cancelledTitle: "Unfortunately, your reservation was not confirmed",
-    confirmedIntro: (name: string) =>
-      `we're happy to confirm your reservation. Details below — see you soon!`,
-    cancelledIntro: (name: string) =>
-      `unfortunately we are unable to confirm your reservation for the requested period.`,
+    confirmedIntro:
+      "we're happy to confirm your reservation. Details below — see you soon!",
+    cancelledIntro:
+      "unfortunately we are unable to confirm your reservation for the requested period.",
     car: "Vehicle",
     period: "Period",
     reference: "Reference",
@@ -377,7 +369,7 @@ export async function sendReservationDecisionEmail({
       agencyAddress: esc(SITE.name),
       title: confirmed ? c.confirmedTitle : c.cancelledTitle,
       greeting: c.greeting(esc(name)),
-      intro: confirmed ? c.confirmedIntro(esc(name)) : c.cancelledIntro(esc(name)),
+      intro: confirmed ? c.confirmedIntro : c.cancelledIntro,
       notice: confirmed ? c.confirmedNotice : c.cancelledNotice,
       preheader: confirmed
         ? c.confirmedPre(esc(inquiry.reference))

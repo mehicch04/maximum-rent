@@ -49,11 +49,6 @@ const labelOf = <T extends string>(opts: Option<T>[], v: T) =>
   opts.find((o) => o.value === v)?.label ?? v;
 
 export const carClassLabel = (v: CarClass) => labelOf(CAR_CLASS_OPTIONS, v);
-export const transmissionLabel = (v: Transmission) =>
-  labelOf(TRANSMISSION_OPTIONS, v);
-export const fuelLabel = (v: FuelType) => labelOf(FUEL_OPTIONS, v);
-export const categoryLabel = (v: CarCategory) =>
-  labelOf(CAR_CATEGORY_OPTIONS, v);
 
 /** URL-safe slug from text (handles HR diacritics). */
 export function slugify(input: string): string {

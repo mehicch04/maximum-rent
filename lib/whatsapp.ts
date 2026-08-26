@@ -56,15 +56,6 @@ export function buildWhatsAppUrl(
   return `https://wa.me/${phone}?text=${encodeURIComponent(buildInquiryMessage(ctx))}`;
 }
 
-export function buildMailtoUrl(
-  ctx: InquiryContext,
-  to: string = INQUIRY_EMAIL,
-): string {
-  const base = ctx.locale === "en" ? "Reservation inquiry" : "Upit za rezervaciju";
-  const subject = encodeURIComponent(`${base}: ${ctx.car.title}`);
-  const body = encodeURIComponent(buildInquiryMessage(ctx));
-  return `mailto:${to}?subject=${subject}&body=${body}`;
-}
 
 // ---------------------------------------------------------------------------
 // Owner notification (admin → WhatsApp forward of a new inquiry)
