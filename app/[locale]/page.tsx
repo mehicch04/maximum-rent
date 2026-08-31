@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { getActiveExtras } from "@/lib/extras";
 import { toCarListItem } from "@/lib/types";
+import { getCompany } from "@/lib/company";
 import { Hero } from "@/components/home/Hero";
 import { WhyChoose } from "@/components/home/WhyChoose";
 import { HowItWorks } from "@/components/home/HowItWorks";
@@ -68,7 +69,8 @@ export default async function HomePage({
       getActiveExtras(),
   ]);
 
-  const cars = featured.map(toCarListItem);
+  const { seasonalPricing } = await getCompany();
+  const cars = featured.map((c) => toCarListItem(c, seasonalPricing));
 
   return (
     <>

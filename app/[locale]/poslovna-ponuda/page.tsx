@@ -14,7 +14,7 @@ import {
   Phone,
   MessageCircle,
 } from "lucide-react";
-import { SITE } from "@/lib/site-config";
+import { getCompany } from "@/lib/company";
 import { InquiryForm } from "@/components/forms/InquiryForm";
 
 const SERVICE_ICONS = [Wrench, ClipboardCheck, ShieldCheck, ArrowLeftRight, Disc3, Wand2];
@@ -38,12 +38,13 @@ export default async function BusinessPage({
 }: {
   params: { locale: string };
 }) {
+  const company = await getCompany();
   setRequestLocale(locale);
   const t = await getTranslations("Business");
 
   const services = t.raw("services") as string[];
   const compareRows = t.raw("compareRows") as string[];
-  const whatsappUrl = `https://wa.me/${SITE.whatsapp}`;
+  const whatsappUrl = `https://wa.me/${company.whatsapp}`;
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
@@ -158,13 +159,13 @@ export default async function BusinessPage({
 
           <div className="mt-6 space-y-3 text-sm">
             <a
-              href={`mailto:${SITE.email}`}
+              href={`mailto:${company.email}`}
               className="flex items-center gap-3 text-foreground/90 transition-colors hover:text-brand"
             >
               <Mail className="h-4 w-4 text-brand" />
-              {SITE.email}
+              {company.email}
             </a>
-            {SITE.phones.map((p) => (
+            {company.phones.map((p) => (
               <a
                 key={p.value}
                 href={p.href}

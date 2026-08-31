@@ -37,6 +37,10 @@ export const vehicleSchema = z.object({
     .number()
     .positive("Cijena mora biti veća od 0.")
     .optional(),
+  seasonalPrice: z.coerce
+    .number()
+    .positive("Sezonska cijena mora biti veća od 0.")
+    .optional(),
   currency: z.string().trim().default("BAM"),
   emissionClass: z.string().trim().optional(),
   descriptionHr: z.string().trim().optional(),

@@ -72,9 +72,10 @@ export function slugify(input: string): string {
  */
 export type AdminVehicle = Omit<
   Car,
-  "pricePerDay" | "deposit" | "createdAt" | "updatedAt"
+  "pricePerDay" | "seasonalPrice" | "deposit" | "createdAt" | "updatedAt"
 > & {
   pricePerDay: number | null;
+  seasonalPrice: number | null;
   deposit: number | null;
   createdAt: string;
   updatedAt: string;

@@ -9,6 +9,9 @@ import { routing, type AppLocale } from "@/i18n/routing";
 import { SITE } from "@/lib/site-config";
 import { ThemeProvider } from "@/components/theme-provider";
 import { CurrencyProvider } from "@/components/currency/CurrencyProvider";
+import { CompanyProvider } from "@/components/company/CompanyProvider";
+import { getCompany } from "@/lib/company";
+import { getActiveLocations } from "@/lib/fleet-data";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { PageBackground } from "@/components/layout/PageBackground";
@@ -113,6 +116,9 @@ export default async function LocaleLayout({
   // browser. Server components (About, Business, Terms, Seo) resolve their own
   // translations on the server, so shipping them here was dead payload on
   // every single page view.
+  const company = await getCompany();
+  const footerLocations = await getActiveLocations();
+
   const messages = Object.fromEntries(
     CLIENT_NAMESPACES.filter((ns) => ns in all).map((ns) => [ns, all[ns]]),
   );
@@ -123,15 +129,17 @@ export default async function LocaleLayout({
         <JsonLd locale={locale} />
         <ThemeProvider>
           <NextIntlClientProvider messages={messages}>
+            <CompanyProvider value={company}>
             <CurrencyProvider defaultCurrency="BAM">
               <PageBackground />
               <div className="flex min-h-dvh flex-col">
                 <Navbar />
                 <main className="flex-1">{children}</main>
-                <Footer />
+                <Footer company={company} locations={footerLocations} />
               </div>
               <BackToTop />
             </CurrencyProvider>
+            </CompanyProvider>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>

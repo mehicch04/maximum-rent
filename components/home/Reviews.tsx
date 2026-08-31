@@ -3,18 +3,18 @@
 import { motion } from "framer-motion";
 import { Star, ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { SITE } from "@/lib/site-config";
+import { useCompany } from "@/components/company/CompanyProvider";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-// Rating and the Maps link live in site-config so they are stated once and
-// stay in step with the hero — they used to be duplicated here.
-const RATING = SITE.rating.score;
-const COUNT = SITE.rating.count;
-const GOOGLE_URL = SITE.map.link;
 
 export function Reviews() {
   const t = useTranslations("Reviews");
+  // Rating and the Maps link are edited by the owner in the admin panel.
+  const company = useCompany();
+  const RATING = company.rating.score ?? 0;
+  const COUNT = company.rating.count ?? 0;
+  const GOOGLE_URL = company.map.link ?? "#";
   const fillPct = (RATING / 5) * 100;
 
   return (

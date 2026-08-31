@@ -58,6 +58,9 @@ export function VehicleFormModal({
   const [pricePerDay, setPricePerDay] = useState(
     vehicle?.pricePerDay != null ? String(vehicle.pricePerDay) : "",
   );
+  const [seasonalPrice, setSeasonalPrice] = useState(
+    vehicle?.seasonalPrice != null ? String(vehicle.seasonalPrice) : "",
+  );
   const [currency, setCurrency] = useState(vehicle?.currency ?? "BAM");
   const [emissionClass, setEmissionClass] = useState(vehicle?.emissionClass ?? "");
   const [descriptionHr, setDescriptionHr] = useState(vehicle?.descriptionHr ?? "");
@@ -108,6 +111,7 @@ export function VehicleFormModal({
     if (!fuelType) errs.fuelType = true;
     if (!passengers || Number(passengers) < 1) errs.passengers = true;
     if (pricePerDay && Number(pricePerDay) <= 0) errs.pricePerDay = true;
+    if (seasonalPrice && Number(seasonalPrice) <= 0) errs.seasonalPrice = true;
     setFieldErrors(errs);
     if (Object.keys(errs).length) {
       setError("Molimo popunite obavezna polja ispravno.");
@@ -137,6 +141,7 @@ export function VehicleFormModal({
     fd.set("passengers", passengers);
     fd.set("doors", doors);
     if (pricePerDay) fd.set("pricePerDay", pricePerDay);
+    if (seasonalPrice) fd.set("seasonalPrice", seasonalPrice);
     fd.set("currency", currency);
     fd.set("emissionClass", emissionClass);
     fd.set("descriptionHr", descriptionHr);
@@ -343,6 +348,16 @@ export function VehicleFormModal({
                 onChange={(e) => setPricePerDay(e.target.value)}
                 placeholder="120"
                 className={`${field} ${border("pricePerDay")}`}
+              />
+            </div>
+            <div>
+              <label className={lbl}>Sezonska cijena</label>
+              <input
+                inputMode="decimal"
+                value={seasonalPrice}
+                onChange={(e) => setSeasonalPrice(e.target.value)}
+                placeholder="neobavezno"
+                className={`${field} ${border("seasonalPrice")}`}
               />
             </div>
             <div>

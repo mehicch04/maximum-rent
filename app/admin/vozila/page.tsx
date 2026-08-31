@@ -14,6 +14,7 @@ export default async function VehiclesPage() {
   const vehicles: AdminVehicle[] = cars.map((c) => ({
     ...c,
     pricePerDay: c.pricePerDay != null ? Number(c.pricePerDay) : null,
+    seasonalPrice: c.seasonalPrice != null ? Number(c.seasonalPrice) : null,
     deposit: c.deposit != null ? Number(c.deposit) : null,
     createdAt: c.createdAt.toISOString(),
     updatedAt: c.updatedAt.toISOString(),

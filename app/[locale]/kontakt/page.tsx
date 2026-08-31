@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/seo";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Clock, Phone, Mail, MapPin, ExternalLink } from "lucide-react";
-import { SITE, LOCATIONS } from "@/lib/site-config";
+import { getCompany } from "@/lib/company";
+import { getActiveLocations } from "@/lib/fleet-data";
 import { InquiryForm } from "@/components/forms/InquiryForm";
 
 export async function generateMetadata({
@@ -24,11 +25,13 @@ export default async function ContactPage({
 }: {
   params: { locale: string };
 }) {
+  const company = await getCompany();
+  const locations = await getActiveLocations();
   setRequestLocale(locale);
   const t = await getTranslations("Contact");
 
-  const head = LOCATIONS[0]; // Glavni ured – Čitluk
-  const mapSrc = `https://maps.google.com/maps?q=${SITE.map.lat},${SITE.map.lng}&z=15&hl=${locale}&output=embed`;
+  const head = locations[0]; // Glavni ured – Čitluk
+  const mapSrc = `https://maps.google.com/maps?q=${company.map.lat},${company.map.lng}&z=15&hl=${locale}&output=embed`;
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
@@ -49,7 +52,7 @@ export default async function ContactPage({
           <p className="mt-4 text-xs font-semibold uppercase tracking-[0.12em] text-brand">
             {t("hoursLabel")}
           </p>
-          <p className="mt-2 text-sm font-medium text-foreground">{SITE.hours}</p>
+          <p className="mt-2 text-sm font-medium text-foreground">{company.hours}</p>
         </div>
 
         {/* Phones */}
@@ -61,7 +64,7 @@ export default async function ContactPage({
             {t("phonesLabel")}
           </p>
           <div className="mt-2 space-y-1">
-            {SITE.phones.map((p) => (
+            {company.phones.map((p) => (
               <a
                 key={p.value}
                 href={p.href}
@@ -82,10 +85,10 @@ export default async function ContactPage({
             {t("emailLabel")}
           </p>
           <a
-            href={`mailto:${SITE.email}`}
+            href={`mailto:${company.email}`}
             className="mt-2 block break-all text-sm text-muted-foreground transition-colors hover:text-brand"
           >
-            {SITE.email}
+            {company.email}
           </a>
         </div>
 
@@ -122,7 +125,7 @@ export default async function ContactPage({
             {t("mapHeading")}
           </h2>
           <a
-            href={SITE.map.link}
+            href={company.map.link ?? "#"}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-brand transition-colors hover:text-brand-700"
@@ -150,7 +153,7 @@ export default async function ContactPage({
           {t("ourOffices")}
         </h2>
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {LOCATIONS.map((loc) => (
+          {locations.map((loc) => (
             <div
               key={loc.name}
               className="rounded-2xl border border-border bg-surface p-5 shadow-card"

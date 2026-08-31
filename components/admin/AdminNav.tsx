@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarCheck, Car, Download, MessageSquare, Package } from "lucide-react";
+import { Building2, CalendarCheck, Car, Download, MessageSquare, Package } from "lucide-react";
 
 const TABS = [
   { href: "/admin", label: "Rezervacije", icon: CalendarCheck, exact: true },
@@ -10,6 +10,7 @@ const TABS = [
   { href: "/admin/poruke", label: "Poruke", icon: MessageSquare, exact: false },
   { href: "/admin/oprema", label: "Oprema", icon: Package, exact: false },
   { href: "/admin/izvoz", label: "Izvoz", icon: Download, exact: false },
+  { href: "/admin/firma", label: "Firma", icon: Building2, exact: false },
 ];
 
 export function AdminNav() {

@@ -115,6 +115,9 @@ model Car {
   luggage       Int?
   airCondition  Boolean      @default(true)
   pricePerDay   Decimal?     @db.Decimal(10, 2)
+  /// Optional in-season rate. Used only while seasonal pricing is switched on;
+  /// cars without one keep their regular rate, so nothing is ever left unpriced.
+  seasonalPrice Decimal?     @db.Decimal(10, 2)
   currency      String       @default("BAM")
   deposit       Decimal?     @db.Decimal(10, 2)
   images        String[]
@@ -270,4 +273,33 @@ model InquiryExtra {
   qty       Int          @default(1)
 
   @@index([inquiryId])
+}
+
+
+/// Company details the owner can edit himself: contacts, working hours,
+/// rating and social links. Exactly one row is kept (id = "main"); the code
+/// falls back to sensible defaults while it does not exist yet.
+model CompanyInfo {
+  id           String   @id @default("main")
+  name         String
+  email        String
+  phone1       String
+  phone1Label  String   @default("Tel")
+  phone2       String?
+  phone2Label  String   @default("Mob")
+  phone3       String?
+  phone3Label  String   @default("Fax")
+  /// Digits only, E.164 without the plus (used to build wa.me links).
+  whatsapp     String
+  hours        String
+  mapLat       Float?
+  mapLng       Float?
+  mapLink      String?
+  ratingScore  Float?
+  ratingCount  Int?
+  facebook     String?
+  instagram    String?
+  /// While true, cars that have a seasonal rate are offered at that rate.
+  seasonalPricing Boolean @default(false)
+  updatedAt    DateTime @updatedAt
 }

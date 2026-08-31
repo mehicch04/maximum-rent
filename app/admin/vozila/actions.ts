@@ -36,6 +36,7 @@ function parse(formData: FormData) {
     passengers: formData.get("passengers"),
     doors: formData.get("doors") || 4,
     pricePerDay: formData.get("pricePerDay") || undefined,
+    seasonalPrice: formData.get("seasonalPrice") || undefined,
     currency: String(formData.get("currency") || "BAM"),
     emissionClass: String(formData.get("emissionClass") || "").trim() || undefined,
     descriptionHr: String(formData.get("descriptionHr") || "").trim() || undefined,

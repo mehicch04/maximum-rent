@@ -1,69 +1,76 @@
-MAXIMUM RENT A CAR — izvoz podataka, sada pravi Excel fajl
-==========================================================
+MAXIMUM RENT A CAR — podaci firme u adminu + sezonske cijene
+============================================================
 
-*** NAKON RASPAKIVANJA: npm install  (dodaje se biblioteka exceljs) ***
+*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
 
-ZAŠTO JE PRVI POKUŠAJ IZGLEDAO LOŠE
------------------------------------
-Bio je CSV. Kod CSV-a Excel sam pogađa čime su kolone razdvojene, i to radi
-prema regionalnim postavkama računara. Na tvom je očekivao zarez, a datoteka
-je koristila tačku-zarez, pa je cijeli red upao u prvu kolonu. Odatle onaj
-nered na slici.
+=======================================================================
+1) PODACI FIRME — NOVI EKRAN /admin/firma (tab "Firma")
+=======================================================================
+Sve što je bilo hardkodirano klijent sada uređuje sam:
 
-To se moglo zakrpiti, ali bi ostalo krhko: na drugom računaru s drugim
-postavkama opet bi izgledalo drugačije.
+  - Naziv firme i email
+  - Tri telefona, sa svojim oznakama (Tel / Mob / Fax, mijenja ih po volji)
+  - WhatsApp broj
+  - Radno vrijeme
+  - Google ocjena, broj recenzija i link na profil
+  - Facebook i Instagram
+  - Koordinate za mapu
+  - LOKACIJE: dodavanje, uređivanje, skrivanje i uklanjanje
 
-ŠTA JE SADA
------------
-Prava .xlsx datoteka. Excel je ne mora tumačiti, pa nema pogađanja
-razdjelnika, nema problema s našim slovima i izgleda isto na svakom računaru.
+Izmjena je vidljiva odmah na sajtu, bez ponovnog objavljivanja.
 
-Uz to datoteka dolazi već složena:
-  - Zaglavlje u brend crvenoj, bijelim podebljanim slovima.
-  - Zaglavlje ostaje zamrznuto pri listanju, pa se uvijek zna koja je kolona.
-  - Na svakoj koloni strelica za filtriranje (npr. prikaži samo potvrđene).
-  - Širine kolona automatski prilagođene sadržaju.
-  - Duži tekst (napomena, oprema) se prelama unutar ćelije umjesto da bježi.
-  - Datumi su PRAVI datumi (dd.mm.gggg hh:mm), pa se ispravno sortiraju.
-  - Cijene su pravi brojevi s dvije decimale, pa se mogu odmah sabirati.
-  - Brojevi poravnati desno, tekst lijevo.
+DVIJE STVARI KOJE SU USPUT RIJEŠENE
+  - Lokacije su ranije bile upisane na DVA mjesta: u bazi (koju koristi
+    rezervacija) i u kodu (koje su koristili podnožje i kontakt stranica).
+    Mogle su se raziće. Sada sve čita iz baze, jedan izvor.
+  - Ako Facebook ili Instagram ostave prazni, ikona se uopće ne prikazuje
+    umjesto da vodi nikuda.
 
-SIGURNOST
----------
-Ćelija koja počinje sa = + - ili @ Excel izvršava kao formulu. Gosti pišu
-slobodan tekst u napomenu, pa se takve vrijednosti označavaju apostrofom i
-prikazuju kao običan tekst. Ruta i dalje traži admin prijavu.
+SIGURNOSNA MREŽA: ako red s podacima još ne postoji ili baza zakaže,
+koriste se postojeće vrijednosti iz koda. Sajt nikad ne ostane bez kontakata.
 
-TESTIRANO
----------
-Datoteka je generisana s pravim podacima pa otvorena i provjerena:
-  - zamrznuto zaglavlje: DA        - filteri na kolonama: DA
-  - zaglavlje podebljano i crveno: DA
-  - širine prilagođene (13–46 znakova, ograničeno da ne bježe)
-  - datum je stvarno datum, ne tekst: DA
-  - "=HYPERLINK(...)" neutralisan: DA
-  - veličina datoteke: 7 KB za tri reda, dakle vrlo lagano
+=======================================================================
+2) SEZONSKE CIJENE
+=======================================================================
+Napravljeno kako si predložio, uz dvije dopune.
 
-FAJLOVI
--------
-  lib/xlsx-export.ts                (NOVO — pravi Excel fajlovi)
-  app/api/admin/export/route.ts     (prepisano na .xlsx)
-  app/admin/izvoz/page.tsx          (osvježen tekst uputa)
-  components/admin/ExportForm.tsx   (nepromijenjeno, uključeno radi cjeline)
-  components/admin/AdminNav.tsx     (tab "Izvoz")
-  package.json                      (dodan exceljs)
+  - Svako vozilo ima DVA polja: "Cijena / dan" i "Sezonska cijena"
+    (sezonska je neobavezna).
+  - Na ekranu Firma je JEDAN prekidač koji uključuje sezonu za cijeli
+    vozni park.
 
-Stari lib/csv.ts više ne treba:
-    Remove-Item lib\csv.ts
+DOPUNA 1 — vozilo bez sezonske cijene zadržava redovnu.
+Da nije tako, uključivanje sezone bi ostavilo dio vozila bez cijene.
 
-Schema se NE mijenja — nema prisma db push.
+DOPUNA 2 — dok je sezona uključena, ekran je narandžast i nosi izričito
+upozorenje da je ne zaboravi isključiti. Zaboravljena sezona znači da gosti
+mjesecima plaćaju više, a to se lako previdi uz mali uredan prekidač.
 
+Prekidač pokazuje i koliko vozila uopće ima unesenu sezonsku cijenu, da se
+odmah vidi hoće li promjena imati efekta.
+
+KAKO JE IZVEDENO
+Cijena se razrješava na jednom mjestu, u sloju koji priprema podatke o
+vozilima. Sve niže (kartice, pretraga, sortiranje po cijeni, kalkulator u
+obrascu, mejlovi) čita jedan broj i ne može prikazati pogrešan.
+
+TESTIRANO na svim slučajevima:
+  sezona isklj. + obje cijene      -> redovna
+  sezona uklj. + obje cijene       -> sezonska
+  sezona uklj. + nema sezonske     -> redovna (ne ostaje bez cijene)
+  sezona uklj. + nema nijedne      -> bez cijene, kao i prije
+  sezona uklj. + samo sezonska     -> sezonska
+  sezona isklj. + samo sezonska    -> bez cijene
+
+=======================================================================
 KORACI
-------
+=======================================================================
 1. Raspakuj preko root-a projekta.
-2. Remove-Item lib\csv.ts
-3. npm install            <-- OBAVEZNO
-4. npm run dev -> /admin/izvoz -> preuzmi rezervacije i otvori u Excelu
-5. git add -A
-   git commit -m "feat(admin): izvoz kao pravi Excel fajl umjesto CSV-a"
-   git push
+2. npx prisma generate
+3. npx prisma db push        <-- OBAVEZNO
+4. npm run dev
+   - /admin/firma -> promijeni telefon ili radno vrijeme, provjeri podnožje
+   - dodaj lokaciju, provjeri da se nudi pri rezervaciji
+   - /admin/vozila -> upiši sezonsku cijenu za jedno vozilo
+   - uključi sezonu na /admin/firma i provjeri cijenu na /vozila
+   - isključi je i provjeri da se vratila redovna

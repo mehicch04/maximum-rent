@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Send, MessageCircle, CheckCircle2, Loader2 } from "lucide-react";
-import { SITE } from "@/lib/site-config";
+import { useCompany } from "@/components/company/CompanyProvider";
 
 type FormType = "contact" | "business";
 
@@ -18,6 +18,7 @@ const EMPTY = {
 
 export function InquiryForm({ type = "contact" }: { type?: FormType }) {
   const t = useTranslations("Form");
+  const company = useCompany();
   const locale = useLocale();
   const [form, setForm] = useState(EMPTY);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">(
@@ -36,7 +37,7 @@ export function InquiryForm({ type = "contact" }: { type?: FormType }) {
       (form.company ? `\n${t("company")}: ${form.company}` : "") +
       (form.message ? `\n\n${form.message}` : ""),
   );
-  const waUrl = `https://wa.me/${SITE.whatsapp}?text=${waText}`;
+  const waUrl = `https://wa.me/${company.whatsapp}?text=${waText}`;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

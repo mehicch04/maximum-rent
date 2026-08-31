@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { toCarListItem, type CarListItem } from "@/lib/types";
+import { getCompany } from "@/lib/company";
 
 /**
  * Availability rules (Model A — "client asks, agency confirms"):
@@ -41,6 +42,7 @@ export async function getAvailableCars(
     },
     orderBy: { sortOrder: "asc" },
   });
-  return cars.map(toCarListItem);
+  const { seasonalPricing } = await getCompany();
+  return cars.map((c) => toCarListItem(c, seasonalPricing));
 }
 

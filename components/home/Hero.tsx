@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, ChevronDown, Star } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { SITE } from "@/lib/site-config";
+import { useCompany } from "@/components/company/CompanyProvider";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -72,6 +72,7 @@ function OpenStatus({
 
 export function Hero() {
   const t = useTranslations("Hero");
+  const company = useCompany();
   const locale = useLocale();
 
   // The background video plays on every screen size, with a lighter file on
@@ -196,10 +197,10 @@ export function Hero() {
           className="mt-7 flex flex-wrap items-center gap-3 text-sm"
         >
           <a
-            href={SITE.map.link}
+            href={(company.map.link ?? "#")}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={`${SITE.rating.score} / 5 — ${SITE.rating.count} ${t("reviews")}`}
+            aria-label={`${(company.rating.score ?? 0)} / 5 — ${(company.rating.count ?? 0)} ${t("reviews")}`}
             className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/50 px-3.5 py-2 shadow-lg shadow-black/30 backdrop-blur-md transition-colors hover:bg-black/60"
           >
             <span className="flex items-center gap-0.5 text-amber-400">
@@ -208,10 +209,10 @@ export function Hero() {
               ))}
             </span>
             <span className="font-semibold text-white">
-              {SITE.rating.score.toLocaleString(locale)}
+              {(company.rating.score ?? 0).toLocaleString(locale)}
             </span>
             <span className="text-white/85">
-              · {SITE.rating.count} {t("reviews")}
+              · {(company.rating.count ?? 0)} {t("reviews")}
             </span>
           </a>
 

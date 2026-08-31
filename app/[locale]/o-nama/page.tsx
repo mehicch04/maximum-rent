@@ -10,7 +10,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { SITE, LOCATIONS } from "@/lib/site-config";
+import { getCompany } from "@/lib/company";
+import { getActiveLocations } from "@/lib/fleet-data";
 import { AboutStats } from "@/components/about/AboutStats";
 
 export async function generateMetadata({
@@ -32,11 +33,13 @@ export default async function AboutPage({
 }: {
   params: { locale: string };
 }) {
+  const company = await getCompany();
+  const locations = await getActiveLocations();
   setRequestLocale(locale);
   const t = await getTranslations("About");
 
   const years = new Date().getFullYear() - 2009;
-  const mapSrc = `https://maps.google.com/maps?q=${SITE.map.lat},${SITE.map.lng}&z=15&hl=${locale}&output=embed`;
+  const mapSrc = `https://maps.google.com/maps?q=${company.map.lat},${company.map.lng}&z=15&hl=${locale}&output=embed`;
 
   const stats = [
     { value: 4532, suffix: "+", label: t("stats.clientsLabel") },
@@ -111,7 +114,7 @@ export default async function AboutPage({
             {t("mapTitle")}
           </h2>
           <a
-            href={SITE.map.link}
+            href={company.map.link ?? "#"}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-brand transition-colors hover:text-brand-700"
@@ -134,7 +137,7 @@ export default async function AboutPage({
         </div>
 
         <div className="mt-5 flex flex-wrap gap-2">
-          {LOCATIONS.map((loc) => (
+          {locations.map((loc) => (
             <span
               key={loc.name}
               className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-sm text-foreground/80"
