@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const inquirySchema = z.object({
   carId: z.string().min(1).optional(),
-  carTitle: z.string().min(1),
+  carTitle: z.string().trim().min(1).max(120),
   pickupLocationId: z.string().min(1).optional(),
   returnLocationId: z.string().min(1).optional(),
   pickupAt: z.string().datetime(),

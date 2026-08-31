@@ -1,120 +1,83 @@
-MAXIMUM RENT A CAR — code review, čišćenje i optimizacija
-=========================================================
+MAXIMUM RENT A CAR — izvoz podataka
+===================================
 
-Prošao sam kroz cijeli projekat: mrtvi fajlovi, mrtvi exporti, neiskorišteni
-importi i varijable, nekorišteni resursi, zavisnosti, prijevodi i slike.
-Sve izmjene su testirane prije isporuke (19 provjera + 7 provjera validacije).
+ZAŠTO OVO
+---------
+U ponudi stoji da klijent dobija "potpun izvoz svih podataka". Ta funkcija
+nije postojala. Sada postoji, pa obećanje iz ponude stoji.
 
-=======================================================================
-1) KRITIČNO — FAJL KOJI FALI U REPOU (build bi pao)
-=======================================================================
-components/reservation/ReservationSearchForm.tsx uvozi
-    @/hooks/useReturnAfterPickup
-ali taj fajl NIJE u gitu. TypeScript javlja "Cannot find module", što znači
-da `npm run build` pada, pa i deploy na Vercelu.
+NOVI EKRAN: /admin/izvoz  (tab "Izvoz")
+---------------------------------------
+Na vrhu tri kartice s brojem zapisa (rezervacije, vozila, poruke), da vlasnik
+odmah vidi šta preuzima prije nego klikne.
 
-Vjerovatno je nestao pri nekom od ranijih čišćenja foldera.
+Ispod bira:
+  - vrstu podataka: rezervacije / vozila / poruke
+  - status (samo za rezervacije): novo, kontaktiran, potvrđeno, otkazano, završeno
+  - raspon datuma, uz brza dugmad: sve / 30 dana / 6 mjeseci / godinu
 
-VRAĆEN JE u zipu (hooks/useReturnAfterPickup.ts). To je onaj mehanizam koji
-pomjera datum vraćanja kad preuzimanje prođe preko njega i pritom PAMTI koliko
-je dana gost htio auto.
+Kod vozila se raspon datuma ne prikazuje, jer je vozni park trenutno stanje,
+a ne istorija — ponuditi tu datume bilo bi samo zbunjujuće.
 
-=======================================================================
-2) OZBILJNO — upit se mogao poslati s vraćanjem PRIJE preuzimanja
-=======================================================================
-Ni obrazac ni server nisu provjeravali redoslijed datuma. Posljedice:
-  - najam bi se računao kao 1 dan (pogrešna cijena u mejlu)
-  - provjera preklapanja pri potvrdi radila bi s obrnutim periodom, što je
-    moglo propustiti dvostruko rezervisanje
+ŠTA SADRŽI KOJI IZVOZ
+---------------------
+Rezervacije: broj upita, status, datum zaprimanja, vozilo, preuzimanje,
+  vraćanje, broj dana, obje lokacije, ime, prezime, email, telefon, broj leta,
+  jezik, dodatna oprema s količinama, napomena.
+Vozila: naziv, marka, model, godište, klasa, mjenjač, gorivo, putnici, vrata,
+  prtljag, klima, cijena, valuta, depozit, dostupno, izdvojeno, redoslijed,
+  broj fotografija.
+Poruke: broj, tip (kontakt/poslovna), status, datum, ime, prezime, firma,
+  email, telefon, jezik, poruka.
 
-Dodana je provjera na SERVERU (lib/validations.ts), gdje je i mjesto — obrazac
-se može zaobići, server ne.
+TRI STVARI KOJE ODLUČUJU HOĆE LI SE DATOTEKA ISPRAVNO OTVORITI
+--------------------------------------------------------------
+Ovo su mjesta gdje izvoz najčešće ispadne neupotrebljiv, pa su riješena:
 
-Testirano: obrnut period i isti trenutak se odbijaju, ispravni prolaze.
+1) NAŠA SLOVA. Bez posebne oznake na početku datoteke Excel prikazuje č, ć, š
+   i ž kao smeće. Oznaka je dodana, slova se prikazuju ispravno.
 
-=======================================================================
-3) OPTIMIZACIJA — prijevodi koji su išli u browser bez potrebe
-=======================================================================
-Svi prijevodi (16 KB) slali su se pregledniku na SVAKOJ stranici, uključujući
-one koje koriste samo server: About, Business, Terms, Contact, Footer i Seo.
+2) RAZDJELNIK. Excel na našim postavkama očekuje tačku-zarez, ne zarez. Da je
+   ostao zarez, cijeli red bi upao u jednu ćeliju i vlasnik bi zaključio da
+   izvoz ne radi.
 
-Sada se šalju samo oni koje stvarno koriste komponente u pregledniku.
+3) BROJEVI. Cijene se pišu s decimalnim zarezom (110,00), pa ih Excel čita kao
+   brojeve i mogu se odmah sabirati, a ne kao tekst.
 
-    prije: 16.048 B   ->   poslije: 8.284 B     (48% manje, svaka stranica)
+SIGURNOST
+---------
+Ćelija koja počinje znakovima = + - ili @ Excel tretira kao formulu i izvršava
+je. Gosti pišu slobodan tekst u napomenu, pa bi neko mogao ostaviti formulu
+koja se pokrene kad vlasnik otvori datoteku. Svaka takva vrijednost se
+označava apostrofom, pa se prikazuje kao običan tekst.
 
-Server i dalje čita svoje prijevode nezavisno, pa se na stranicama ništa ne
-mijenja. U layoutu stoji popis CLIENT_NAMESPACES s napomenom: kad dodaš novu
-"use client" komponentu koja koristi novi namespace, dopiši ga tu.
+Ruta je zaštićena admin kolačićem: bez prijave vraća 401.
 
-=======================================================================
-4) UKLONJEN MRTAV KOD
-=======================================================================
-  lib/email.ts          row()                  ostatak starog dizajna mejlova
-  lib/email.ts          confirmedIntro/cancelledIntro primali su "name" koji
-                        nikad nisu koristili -> sada obični tekstovi
-  lib/availability.ts   isCarFreeFor()         0 poziva; ista logika već
-                        postoji unutar transakcije u confirmInquiry.
-                        Dvije kopije iste logike su rizik: neko popravi jednu,
-                        drugu zaboravi.
-  lib/whatsapp.ts       buildMailtoUrl()       0 poziva
-  lib/vehicle-options.ts  transmissionLabel(), fuelLabel(), categoryLabel()
-                        0 poziva
-  ReservationSearchForm  neiskorišten import useRef
-  messages/*.json       8 mrtvih prijevoda (Fleet.gearbox, Inquiry.errEmail,
-                        Inquiry.errPhone, Inquiry.summaryPeriod, Contact.callUs,
-                        Contact.emailUs, Contact.whatsappCta, Extras.summaryTitle)
-  package.json          zavisnost "zustand" — nije se koristila nigdje
-  public/hero-poster.jpg  92 KB, zamijenjen .webp verzijom, nije se servirao
+TESTIRANO
+---------
+CSV je generisan s pravim podacima pa parsiran natrag:
+  - svi redovi imaju isti broj kolona (struktura se ne lomi)
+  - naša slova ispravna
+  - tačka-zarez, navodnici i novi red unutar napomene ne lome tabelu
+  - "=HYPERLINK(...)" je neutralisan
+  - cijene čitljive kao brojevi
 
-=======================================================================
-ŠTA SAM PROVJERIO A BILO JE U REDU
-=======================================================================
-  - Nema drugih fajlova koje niko ne uvozi.
-  - Slike svugdje idu kroz next/image i imaju ispravan "sizes" (i u adminu).
-  - Nema zaostalih console.log (onaj u cronu je namjeran).
-  - Sve "use client" komponente to zaista i trebaju biti.
-  - Zaštita od dvostrukog rezervisanja postoji i ispravna je (transakcija).
-  - Stare .jpg slike vjenčanja, hero.webm, FleetFilters.tsx, lib/settings.ts
-    i admin/postavke — već si ih obrisao, čisto je.
-
-ISKRENO O DOBITKU U BRZINI
---------------------------
-Uklanjanje mrtvog koda praktično NE ubrzava sajt — Next.js ionako izbacuje
-neiskorišteni kod iz paketa. Dobitak je u održavanju: manje koda znači manje
-mjesta gdje se greška može sakriti.
-
-Jedina izmjena koja stvarno smanjuje ono što se šalje posjetiocu su prijevodi
-(48% manje). Ostalo su ispravke i higijena.
-
-Sajt je inače bio u dobrom stanju — nije bilo gomile mrtvog koda.
-
-=======================================================================
 FAJLOVI
-=======================================================================
-  hooks/useReturnAfterPickup.ts    (VRAĆEN — bez njega build pada)
-  lib/validations.ts               (provjera redoslijeda datuma)
-  app/[locale]/layout.tsx          (filtrirani prijevodi)
-  lib/email.ts, lib/availability.ts, lib/whatsapp.ts,
-  lib/vehicle-options.ts           (uklonjen mrtav kod)
-  components/reservation/ReservationSearchForm.tsx  (uklonjen import)
-  messages/hr.json, messages/en.json  (uklonjeni mrtvi prijevodi)
-  package.json                     (uklonjen zustand)
+-------
+  lib/csv.ts                        (NOVO — generisanje CSV-a)
+  app/api/admin/export/route.ts     (NOVO — izvoz, zaštićen prijavom)
+  app/admin/izvoz/page.tsx          (NOVO — ekran)
+  components/admin/ExportForm.tsx   (NOVO — filteri i preuzimanje)
+  components/admin/AdminNav.tsx     (tab "Izvoz")
 
-Obriši ručno (zip ne može brisati):
-    Remove-Item public\hero-poster.jpg
-
-Schema NIJE mijenjana — nema prisma db push.
+Schema se NE mijenja — nema prisma db push.
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. Remove-Item public\hero-poster.jpg
-3. npm install          (uklanja zustand iz node_modules)
-4. npm run build        <-- mora proći; ovo je i provjera tačke 1
-5. npm run dev
-   - naslovna, /vozila, /kontakt, /poslovna-ponuda, /o-nama, /uvjeti-najma
-   - pošalji upit i provjeri mejlove
-   - /admin: rezervacije, vozila, poruke, oprema
-6. git add -A
-   git commit -m "chore: code review — vrati nedostajuci hook, validacija perioda, ocisti mrtav kod, lakši prijevodi"
+2. npm run dev -> /admin/izvoz
+   - preuzmi rezervacije, otvori u Excelu, provjeri slova i cijene
+   - probaj raspon datuma i filter statusa
+3. git add -A
+   git commit -m "feat(admin): izvoz podataka u CSV"
    git push

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { tooManyRequests } from "@/lib/rate-limit";
 import { contactRequestSchema } from "@/lib/validations";
 import { sendContactEmail } from "@/lib/email";
 import { sendOwnerNotification } from "@/lib/notify";
@@ -8,6 +9,15 @@ import { withUniqueReference, REF_PREFIX } from "@/lib/reference";
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
+  // At most 5 submissions per hour from one address. A real guest never
+  // needs more; a script does.
+  if (await tooManyRequests(req, "msg", 5, 60 * 60 * 1000)) {
+    return NextResponse.json(
+      { ok: false, error: "too_many_requests" },
+      { status: 429 },
+    );
+  }
+
   let json: unknown;
   try {
     json = await req.json();
