@@ -3,16 +3,15 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE, tokenValid } from "@/lib/admin-auth";
 import {
-  exportFilename,
-  fmtBool,
-  fmtDate,
-  fmtDateTime,
-  fmtNumber,
-  toCsv,
-} from "@/lib/csv";
+  buildWorkbook,
+  safeText,
+  workbookFilename,
+  type Column,
+} from "@/lib/xlsx-export";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
 const STATUS: Record<string, string> = {
   NEW: "Novo",
@@ -28,12 +27,17 @@ const PRICING: Record<string, string> = {
   INCLUDED: "uključeno",
 };
 
-/** Parses a yyyy-mm-dd query value; returns null when absent or malformed. */
 function parseDate(v: string | null, endOfDay = false): Date | null {
   if (!v) return null;
   const d = new Date(`${v}T${endOfDay ? "23:59:59" : "00:00:00"}`);
   return Number.isNaN(d.getTime()) ? null : d;
 }
+
+const num = (v: unknown): number | null => {
+  if (v === null || v === undefined || v === "") return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+};
 
 export async function GET(req: Request) {
   if (!(await tokenValid(cookies().get(ADMIN_COOKIE)?.value))) {
@@ -46,52 +50,80 @@ export async function GET(req: Request) {
   const to = parseDate(url.searchParams.get("to"), true);
   const status = url.searchParams.get("status") ?? "";
 
-  // The date range filters on when the record was created.
   const createdAt =
     from || to
       ? { createdAt: { ...(from ? { gte: from } : {}), ...(to ? { lte: to } : {}) } }
       : {};
 
-  let headers: string[] = [];
+  let columns: Column[] = [];
   let rows: unknown[][] = [];
   let kind = type;
+  let sheet = "Podaci";
 
   try {
     if (type === "vozila") {
+      sheet = "Vozila";
       const cars = await prisma.car.findMany({
         orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
       });
-      headers = [
-        "Naziv", "Marka", "Model", "Godište", "Klasa", "Mjenjač", "Gorivo",
-        "Putnika", "Vrata", "Prtljag", "Klima", "Cijena po danu", "Valuta",
-        "Depozit", "Dostupno", "Izdvojeno", "Redoslijed", "Broj fotografija",
+      columns = [
+        { header: "Naziv" },
+        { header: "Marka" },
+        { header: "Model" },
+        { header: "Godište", kind: "number" },
+        { header: "Klasa" },
+        { header: "Mjenjač" },
+        { header: "Gorivo" },
+        { header: "Putnika", kind: "number" },
+        { header: "Vrata", kind: "number" },
+        { header: "Prtljag", kind: "number" },
+        { header: "Klima" },
+        { header: "Cijena / dan", kind: "money" },
+        { header: "Valuta" },
+        { header: "Depozit", kind: "money" },
+        { header: "Dostupno" },
+        { header: "Izdvojeno" },
+        { header: "Redoslijed", kind: "number" },
+        { header: "Fotografija", kind: "number" },
       ];
       rows = cars.map((c) => [
-        c.title, c.brand, c.model, c.year, c.carClass, c.transmission,
-        c.fuelType, c.passengers, c.doors, c.luggage ?? "", fmtBool(c.airCondition),
-        fmtNumber(c.pricePerDay), c.currency, fmtNumber(c.deposit),
-        fmtBool(c.isAvailable), fmtBool(c.isFeatured), c.sortOrder,
-        c.images?.length ?? 0,
+        safeText(c.title), safeText(c.brand), safeText(c.model), c.year,
+        c.carClass, c.transmission, c.fuelType, c.passengers, c.doors,
+        c.luggage ?? null, c.airCondition ? "da" : "ne",
+        num(c.pricePerDay), c.currency, num(c.deposit),
+        c.isAvailable ? "da" : "ne", c.isFeatured ? "da" : "ne",
+        c.sortOrder, c.images?.length ?? 0,
       ]);
     } else if (type === "poruke") {
+      sheet = "Poruke";
       const msgs = await prisma.contactRequest.findMany({
         where: { ...createdAt },
         orderBy: { createdAt: "desc" },
       });
-      headers = [
-        "Broj", "Tip", "Status", "Zaprimljeno", "Ime", "Prezime", "Firma",
-        "Email", "Telefon", "Jezik", "Poruka",
+      columns = [
+        { header: "Broj" },
+        { header: "Tip" },
+        { header: "Status" },
+        { header: "Zaprimljeno", kind: "datetime" },
+        { header: "Ime" },
+        { header: "Prezime" },
+        { header: "Firma" },
+        { header: "Email" },
+        { header: "Telefon" },
+        { header: "Jezik" },
+        { header: "Poruka", width: 46 },
       ];
       rows = msgs.map((m) => [
         m.reference,
         m.type === "BUSINESS" ? "Poslovna ponuda" : "Kontakt",
         m.status === "DONE" ? "Riješeno" : "Novo",
-        fmtDateTime(m.createdAt),
-        m.firstName, m.lastName, m.company ?? "", m.email, m.phone,
-        m.locale, m.message ?? "",
+        m.createdAt,
+        safeText(m.firstName), safeText(m.lastName), safeText(m.company),
+        safeText(m.email), safeText(m.phone), m.locale, safeText(m.message),
       ]);
     } else {
       kind = "rezervacije";
+      sheet = "Rezervacije";
       const inquiries = await prisma.inquiry.findMany({
         where: { ...createdAt, ...(status ? { status: status as never } : {}) },
         orderBy: { createdAt: "desc" },
@@ -102,41 +134,50 @@ export async function GET(req: Request) {
           extras: true,
         },
       });
-      headers = [
-        "Broj upita", "Status", "Zaprimljeno", "Vozilo", "Preuzimanje",
-        "Vraćanje", "Broj dana", "Lokacija preuzimanja", "Lokacija vraćanja",
-        "Ime", "Prezime", "Email", "Telefon", "Broj leta", "Jezik",
-        "Dodatna oprema", "Napomena",
+      columns = [
+        { header: "Broj upita" },
+        { header: "Status" },
+        { header: "Zaprimljeno", kind: "datetime" },
+        { header: "Vozilo" },
+        { header: "Preuzimanje", kind: "datetime" },
+        { header: "Vraćanje", kind: "datetime" },
+        { header: "Dana", kind: "number" },
+        { header: "Lokacija preuzimanja" },
+        { header: "Lokacija vraćanja" },
+        { header: "Ime" },
+        { header: "Prezime" },
+        { header: "Email" },
+        { header: "Telefon" },
+        { header: "Broj leta" },
+        { header: "Jezik" },
+        { header: "Dodatna oprema", width: 38 },
+        { header: "Napomena", width: 46 },
       ];
       rows = inquiries.map((q) => {
         const days = Math.max(
           1,
-          Math.ceil(
-            (q.returnAt.getTime() - q.pickupAt.getTime()) / 86_400_000,
-          ),
+          Math.ceil((q.returnAt.getTime() - q.pickupAt.getTime()) / 86_400_000),
         );
         const extras = q.extras
           .map(
             (e) =>
-              `${e.nameHr}${e.qty > 1 ? ` x${e.qty}` : ""}` +
-              ` (${PRICING[e.pricing] ?? e.pricing})`,
+              `${e.nameHr}${e.qty > 1 ? ` x${e.qty}` : ""} (${PRICING[e.pricing] ?? e.pricing})`,
           )
           .join(", ");
         return [
           q.reference,
           STATUS[q.status] ?? q.status,
-          fmtDateTime(q.createdAt),
-          q.car?.title ?? q.carTitleSnapshot ?? "",
-          fmtDateTime(q.pickupAt),
-          fmtDateTime(q.returnAt),
+          q.createdAt,
+          safeText(q.car?.title ?? q.carTitleSnapshot ?? ""),
+          q.pickupAt,
+          q.returnAt,
           days,
-          q.pickupLocation?.name ?? "",
-          q.returnLocation?.name ?? "",
-          q.firstName, q.lastName, q.email, q.phone,
-          q.flightNumber ?? "",
-          q.locale,
-          extras,
-          q.message ?? "",
+          safeText(q.pickupLocation?.name ?? ""),
+          safeText(q.returnLocation?.name ?? ""),
+          safeText(q.firstName), safeText(q.lastName),
+          safeText(q.email), safeText(q.phone),
+          safeText(q.flightNumber), q.locale,
+          safeText(extras), safeText(q.message),
         ];
       });
     }
@@ -145,11 +186,12 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: "export_failed" }, { status: 500 });
   }
 
-  const csv = toCsv(headers, rows);
-  return new NextResponse(csv, {
+  const buf = await buildWorkbook(sheet, columns, rows);
+  return new NextResponse(new Uint8Array(buf), {
     headers: {
-      "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${exportFilename(kind)}"`,
+      "Content-Type":
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "Content-Disposition": `attachment; filename="${workbookFilename(kind)}"`,
       "Cache-Control": "no-store",
     },
   });

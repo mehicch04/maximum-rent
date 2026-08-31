@@ -1,83 +1,69 @@
-MAXIMUM RENT A CAR — izvoz podataka
-===================================
+MAXIMUM RENT A CAR — izvoz podataka, sada pravi Excel fajl
+==========================================================
 
-ZAŠTO OVO
----------
-U ponudi stoji da klijent dobija "potpun izvoz svih podataka". Ta funkcija
-nije postojala. Sada postoji, pa obećanje iz ponude stoji.
+*** NAKON RASPAKIVANJA: npm install  (dodaje se biblioteka exceljs) ***
 
-NOVI EKRAN: /admin/izvoz  (tab "Izvoz")
----------------------------------------
-Na vrhu tri kartice s brojem zapisa (rezervacije, vozila, poruke), da vlasnik
-odmah vidi šta preuzima prije nego klikne.
+ZAŠTO JE PRVI POKUŠAJ IZGLEDAO LOŠE
+-----------------------------------
+Bio je CSV. Kod CSV-a Excel sam pogađa čime su kolone razdvojene, i to radi
+prema regionalnim postavkama računara. Na tvom je očekivao zarez, a datoteka
+je koristila tačku-zarez, pa je cijeli red upao u prvu kolonu. Odatle onaj
+nered na slici.
 
-Ispod bira:
-  - vrstu podataka: rezervacije / vozila / poruke
-  - status (samo za rezervacije): novo, kontaktiran, potvrđeno, otkazano, završeno
-  - raspon datuma, uz brza dugmad: sve / 30 dana / 6 mjeseci / godinu
+To se moglo zakrpiti, ali bi ostalo krhko: na drugom računaru s drugim
+postavkama opet bi izgledalo drugačije.
 
-Kod vozila se raspon datuma ne prikazuje, jer je vozni park trenutno stanje,
-a ne istorija — ponuditi tu datume bilo bi samo zbunjujuće.
+ŠTA JE SADA
+-----------
+Prava .xlsx datoteka. Excel je ne mora tumačiti, pa nema pogađanja
+razdjelnika, nema problema s našim slovima i izgleda isto na svakom računaru.
 
-ŠTA SADRŽI KOJI IZVOZ
----------------------
-Rezervacije: broj upita, status, datum zaprimanja, vozilo, preuzimanje,
-  vraćanje, broj dana, obje lokacije, ime, prezime, email, telefon, broj leta,
-  jezik, dodatna oprema s količinama, napomena.
-Vozila: naziv, marka, model, godište, klasa, mjenjač, gorivo, putnici, vrata,
-  prtljag, klima, cijena, valuta, depozit, dostupno, izdvojeno, redoslijed,
-  broj fotografija.
-Poruke: broj, tip (kontakt/poslovna), status, datum, ime, prezime, firma,
-  email, telefon, jezik, poruka.
-
-TRI STVARI KOJE ODLUČUJU HOĆE LI SE DATOTEKA ISPRAVNO OTVORITI
---------------------------------------------------------------
-Ovo su mjesta gdje izvoz najčešće ispadne neupotrebljiv, pa su riješena:
-
-1) NAŠA SLOVA. Bez posebne oznake na početku datoteke Excel prikazuje č, ć, š
-   i ž kao smeće. Oznaka je dodana, slova se prikazuju ispravno.
-
-2) RAZDJELNIK. Excel na našim postavkama očekuje tačku-zarez, ne zarez. Da je
-   ostao zarez, cijeli red bi upao u jednu ćeliju i vlasnik bi zaključio da
-   izvoz ne radi.
-
-3) BROJEVI. Cijene se pišu s decimalnim zarezom (110,00), pa ih Excel čita kao
-   brojeve i mogu se odmah sabirati, a ne kao tekst.
+Uz to datoteka dolazi već složena:
+  - Zaglavlje u brend crvenoj, bijelim podebljanim slovima.
+  - Zaglavlje ostaje zamrznuto pri listanju, pa se uvijek zna koja je kolona.
+  - Na svakoj koloni strelica za filtriranje (npr. prikaži samo potvrđene).
+  - Širine kolona automatski prilagođene sadržaju.
+  - Duži tekst (napomena, oprema) se prelama unutar ćelije umjesto da bježi.
+  - Datumi su PRAVI datumi (dd.mm.gggg hh:mm), pa se ispravno sortiraju.
+  - Cijene su pravi brojevi s dvije decimale, pa se mogu odmah sabirati.
+  - Brojevi poravnati desno, tekst lijevo.
 
 SIGURNOST
 ---------
-Ćelija koja počinje znakovima = + - ili @ Excel tretira kao formulu i izvršava
-je. Gosti pišu slobodan tekst u napomenu, pa bi neko mogao ostaviti formulu
-koja se pokrene kad vlasnik otvori datoteku. Svaka takva vrijednost se
-označava apostrofom, pa se prikazuje kao običan tekst.
-
-Ruta je zaštićena admin kolačićem: bez prijave vraća 401.
+Ćelija koja počinje sa = + - ili @ Excel izvršava kao formulu. Gosti pišu
+slobodan tekst u napomenu, pa se takve vrijednosti označavaju apostrofom i
+prikazuju kao običan tekst. Ruta i dalje traži admin prijavu.
 
 TESTIRANO
 ---------
-CSV je generisan s pravim podacima pa parsiran natrag:
-  - svi redovi imaju isti broj kolona (struktura se ne lomi)
-  - naša slova ispravna
-  - tačka-zarez, navodnici i novi red unutar napomene ne lome tabelu
-  - "=HYPERLINK(...)" je neutralisan
-  - cijene čitljive kao brojevi
+Datoteka je generisana s pravim podacima pa otvorena i provjerena:
+  - zamrznuto zaglavlje: DA        - filteri na kolonama: DA
+  - zaglavlje podebljano i crveno: DA
+  - širine prilagođene (13–46 znakova, ograničeno da ne bježe)
+  - datum je stvarno datum, ne tekst: DA
+  - "=HYPERLINK(...)" neutralisan: DA
+  - veličina datoteke: 7 KB za tri reda, dakle vrlo lagano
 
 FAJLOVI
 -------
-  lib/csv.ts                        (NOVO — generisanje CSV-a)
-  app/api/admin/export/route.ts     (NOVO — izvoz, zaštićen prijavom)
-  app/admin/izvoz/page.tsx          (NOVO — ekran)
-  components/admin/ExportForm.tsx   (NOVO — filteri i preuzimanje)
+  lib/xlsx-export.ts                (NOVO — pravi Excel fajlovi)
+  app/api/admin/export/route.ts     (prepisano na .xlsx)
+  app/admin/izvoz/page.tsx          (osvježen tekst uputa)
+  components/admin/ExportForm.tsx   (nepromijenjeno, uključeno radi cjeline)
   components/admin/AdminNav.tsx     (tab "Izvoz")
+  package.json                      (dodan exceljs)
+
+Stari lib/csv.ts više ne treba:
+    Remove-Item lib\csv.ts
 
 Schema se NE mijenja — nema prisma db push.
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run dev -> /admin/izvoz
-   - preuzmi rezervacije, otvori u Excelu, provjeri slova i cijene
-   - probaj raspon datuma i filter statusa
-3. git add -A
-   git commit -m "feat(admin): izvoz podataka u CSV"
+2. Remove-Item lib\csv.ts
+3. npm install            <-- OBAVEZNO
+4. npm run dev -> /admin/izvoz -> preuzmi rezervacije i otvori u Excelu
+5. git add -A
+   git commit -m "feat(admin): izvoz kao pravi Excel fajl umjesto CSV-a"
    git push

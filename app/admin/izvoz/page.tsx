@@ -50,8 +50,8 @@ export default async function AdminExportPage() {
           Izvoz podataka
         </h1>
         <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
-          Preuzmite svoje podatke kao tabelu koja se otvara u Excelu. Podaci su
-          vaše vlasništvo i možete ih izvesti kad god želite.
+          Preuzmite svoje podatke kao Excel tabelu, spremnu za rad. Podaci su vaše
+          vlasništvo i možete ih izvesti kad god želite.
         </p>
       </div>
 
@@ -89,15 +89,17 @@ export default async function AdminExportPage() {
         </p>
         <ul className="mt-2.5 space-y-1.5 text-sm leading-relaxed text-muted-foreground">
           <li>
-            Dvoklik na preuzetu datoteku otvara je u Excelu ili LibreOfficeu.
+            Dvoklik otvara datoteku u Excelu ili LibreOfficeu, već složenu:
+            zaglavlje ostaje vidljivo pri listanju, a kolone su prilagođene
+            sadržaju.
           </li>
           <li>
-            Naša slova (č, ć, š, ž) i datumi prikazuju se ispravno, a cijene su
-            zapisane kao brojevi pa se mogu odmah sabirati.
+            Na svakoj koloni je strelica za filtriranje, pa listu možete suziti
+            po statusu, vozilu ili bilo čemu drugom.
           </li>
           <li>
-            Datoteku možete proslijediti računovođi ili je zadržati kao vlastitu
-            kopiju podataka.
+            Datumi i cijene su pravi datumi i brojevi, pa se mogu sortirati i
+            sabirati bez ikakvog podešavanja.
           </li>
         </ul>
       </div>
