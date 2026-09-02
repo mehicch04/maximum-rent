@@ -20,14 +20,17 @@ export function AdminNav() {
 
   return (
     <nav className="border-b border-border bg-background">
-      <div className="mx-auto flex w-full max-w-6xl gap-1 px-4 sm:px-6">
+      {/* Seven tabs are about 710px wide, well past a phone screen. Without a
+          scroller here the whole admin page stretches and the browser zooms
+          out, which is why every screen looked shrunken on mobile. */}
+      <div className="mx-auto flex w-full max-w-6xl gap-1 overflow-x-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] sm:px-6 [&::-webkit-scrollbar]:hidden">
         {TABS.map(({ href, label, icon: Icon, exact }) => {
           const active = exact ? pathname === href : pathname.startsWith(href);
           return (
             <Link
               key={href}
               href={href}
-              className={`-mb-px inline-flex items-center gap-2 border-b-2 px-3 py-3 text-sm font-medium transition-colors ${
+              className={`-mb-px inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 py-3 text-sm font-medium transition-colors ${
                 active
                   ? "border-brand text-brand"
                   : "border-transparent text-muted-foreground hover:text-foreground"

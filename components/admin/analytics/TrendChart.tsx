@@ -1,7 +1,7 @@
 "use client";
 
-import { useId, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useId, useRef, useState } from "react";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import type { TrendPoint } from "@/lib/analytics";
 
 /**
@@ -49,6 +49,14 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
   const gradientId = useId();
   const [hover, setHover] = useState<number | null>(null);
 
+  // The observer watches this plain <div>, not the SVG shapes inside it.
+  // Safari on iOS does not reliably report SVG children to IntersectionObserver,
+  // so "whileInView" never fired there and the bars and line stayed at their
+  // starting values — an empty chart with only the dots showing.
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(wrapRef, { once: true, margin: "-40px" });
+  const show = reduce || inView;
+
   if (data.length === 0) {
     return (
       <p className="py-12 text-center text-sm text-muted-foreground">
@@ -91,7 +99,7 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
         </span>
       </div>
 
-      <div className="relative">
+      <div ref={wrapRef} className="relative">
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="h-auto w-full"
@@ -151,12 +159,16 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
                 width={barW}
                 rx="4"
                 fill={`url(#${gradientId})`}
-                initial={reduce ? false : { y: PAD.top + PLOT_H, height: 0 }}
-                whileInView={reduce ? undefined : { y, height: h }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.03, ease: [0.22, 1, 0.36, 1] }}
-                y={reduce ? y : undefined}
-                height={reduce ? h : undefined}
+                initial={false}
+                animate={{
+                  y: show ? y : PAD.top + PLOT_H,
+                  height: show ? h : 0,
+                }}
+                transition={
+                  reduce
+                    ? { duration: 0 }
+                    : { duration: 0.5, delay: i * 0.03, ease: [0.22, 1, 0.36, 1] }
+                }
                 opacity={hover == null || hover === i ? 1 : 0.45}
               />
             );
@@ -170,10 +182,9 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-            initial={reduce ? false : { pathLength: 0 }}
-            whileInView={reduce ? undefined : { pathLength: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
+            initial={false}
+            animate={{ pathLength: show ? 1 : 0 }}
+            transition={reduce ? { duration: 0 } : { duration: 0.9, ease: "easeOut" }}
           />
 
           {data.map((d, i) => (

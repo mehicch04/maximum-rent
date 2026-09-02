@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import { X } from "lucide-react";
 import type { FleetSlice } from "@/lib/analytics";
 
@@ -25,6 +25,12 @@ const C = 2 * Math.PI * R;
 export function FleetDonut({ data }: { data: FleetSlice[] }) {
   const reduce = useReducedMotion();
   const [open, setOpen] = useState<FleetSlice | null>(null);
+
+  // Watched on the wrapper, not on the arcs: iOS Safari does not observe SVG
+  // children, so the slices stayed at opacity 0 and only the grey ring showed.
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(wrapRef, { once: true, margin: "-40px" });
+  const show = reduce || inView;
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -56,7 +62,10 @@ export function FleetDonut({ data }: { data: FleetSlice[] }) {
 
   return (
     <>
-      <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:gap-6">
+      <div
+        ref={wrapRef}
+        className="flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:gap-6"
+      >
         <div className="relative shrink-0">
           <svg
             viewBox={`0 0 ${SIZE} ${SIZE}`}
@@ -90,11 +99,10 @@ export function FleetDonut({ data }: { data: FleetSlice[] }) {
                     strokeDashoffset={start}
                     className="cursor-pointer outline-none"
                     onClick={() => setOpen(d)}
-                    initial={reduce ? false : { opacity: 0 }}
-                    whileInView={reduce ? undefined : { opacity: 1 }}
-                    viewport={{ once: true }}
+                    initial={false}
+                    animate={{ opacity: show ? 1 : 0 }}
                     whileHover={{ opacity: 0.82 }}
-                    transition={{ duration: 0.45, ease: "easeOut" }}
+                    transition={reduce ? { duration: 0 } : { duration: 0.45, ease: "easeOut" }}
                   />
                 );
               })}
