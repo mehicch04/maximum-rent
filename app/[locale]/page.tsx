@@ -120,7 +120,7 @@ export default async function HomePage({
         </section>
       )}
 
-      <Locations />
+      <Locations locations={locations} />
 
       <Reviews />
 

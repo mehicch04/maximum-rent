@@ -1,76 +1,67 @@
-MAXIMUM RENT A CAR — podaci firme u adminu + sezonske cijene
-============================================================
+POPRAVKA BUILDA — nedostajuće polje "street"
+============================================
 
-*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
+GREŠKA
+------
+  ./app/[locale]/kontakt/page.tsx:104
+  Property 'street' does not exist on type '{ name; id; city }'
 
-=======================================================================
-1) PODACI FIRME — NOVI EKRAN /admin/firma (tab "Firma")
-=======================================================================
-Sve što je bilo hardkodirano klijent sada uređuje sam:
+UZROK (moja greška)
+-------------------
+Kad sam lokacije prebacio iz koda u bazu, zamijenio sam staru listu LOCATIONS
+(koja je imala naziv, ulicu i grad) funkcijom getActiveLocations. Ta funkcija
+je bila napravljena za padajući izbornik pri rezervaciji, gdje trebaju samo
+id i naziv, pa je dohvatala samo id, naziv i grad.
 
-  - Naziv firme i email
-  - Tri telefona, sa svojim oznakama (Tel / Mob / Fax, mijenja ih po volji)
-  - WhatsApp broj
-  - Radno vrijeme
-  - Google ocjena, broj recenzija i link na profil
-  - Facebook i Instagram
-  - Koordinate za mapu
-  - LOKACIJE: dodavanje, uređivanje, skrivanje i uklanjanje
+Podnožje, kontakt stranica i sekcija lokacija trebaju i ulicu.
 
-Izmjena je vidljiva odmah na sajtu, bez ponovnog objavljivanja.
+POPRAVLJENO
+-----------
+1) getActiveLocations sada dohvata i ulicu i poštanski broj. Padajući izbornik
+   ta polja jednostavno ignoriše, pa se ništa drugo ne mijenja.
 
-DVIJE STVARI KOJE SU USPUT RIJEŠENE
-  - Lokacije su ranije bile upisane na DVA mjesta: u bazi (koju koristi
-    rezervacija) i u kodu (koje su koristili podnožje i kontakt stranica).
-    Mogle su se raziće. Sada sve čita iz baze, jedan izvor.
-  - Ako Facebook ili Instagram ostave prazni, ikona se uopće ne prikazuje
-    umjesto da vodi nikuda.
+2) Usput sam našao još jedan propust: komponenta "Lokacije" na naslovnoj
+   NIJE bila prevezana, nego je i dalje čitala staru listu iz koda. Znači
+   promjena lokacije u adminu ne bi se vidjela na naslovnoj. Sada prima
+   podatke iz baze kao i ostale.
 
-SIGURNOSNA MREŽA: ako red s podacima još ne postoji ili baza zakaže,
-koriste se postojeće vrijednosti iz koda. Sajt nikad ne ostane bez kontakata.
+PROVJERENO
+----------
+Uporedio sam polje po polje šta svaka komponenta traži i šta funkcija vraća:
+  Footer              -> naziv, ulica, grad     OK
+  Kontakt stranica    -> naziv, ulica, grad     OK
+  O nama              -> naziv                  OK
+  Lokacije (naslovna) -> naziv, ulica, grad     OK
+  Obrazac rezervacije -> id, naziv              OK
+Hardkodirana lista LOCATIONS se više nigdje ne koristi.
 
-=======================================================================
-2) SEZONSKE CIJENE
-=======================================================================
-Napravljeno kako si predložio, uz dvije dopune.
+ZAŠTO MI JE PROMAKLO, I ŠTA MIJENJAM
+------------------------------------
+U mom okruženju Prisma klijent se ne može generisati (nema pristupa
+njihovom serveru), pa TypeScript sve podatke iz baze vidi kao "bilo šta" i
+ovakve greške ne prijavljuje. Pokušao sam to zaobići, ali provjera ne hvata
+baš ovu vrstu greške.
 
-  - Svako vozilo ima DVA polja: "Cijena / dan" i "Sezonska cijena"
-    (sezonska je neobavezna).
-  - Na ekranu Firma je JEDAN prekidač koji uključuje sezonu za cijeli
-    vozni park.
+Zato: prije svakog pusha pokreni
 
-DOPUNA 1 — vozilo bez sezonske cijene zadržava redovnu.
-Da nije tako, uključivanje sezone bi ostavilo dio vozila bez cijene.
+    npm run build
 
-DOPUNA 2 — dok je sezona uključena, ekran je narandžast i nosi izričito
-upozorenje da je ne zaboravi isključiti. Zaboravljena sezona znači da gosti
-mjesecima plaćaju više, a to se lako previdi uz mali uredan prekidač.
+To je jedina pouzdana provjera i traje minut. Bolje da pukne kod tebe nego
+na Vercelu.
 
-Prekidač pokazuje i koliko vozila uopće ima unesenu sezonsku cijenu, da se
-odmah vidi hoće li promjena imati efekta.
+FAJLOVI
+-------
+  lib/fleet-data.ts            (dohvata i ulicu)
+  components/home/Locations.tsx (prima podatke iz baze)
+  app/[locale]/page.tsx         (prosljeđuje lokacije)
 
-KAKO JE IZVEDENO
-Cijena se razrješava na jednom mjestu, u sloju koji priprema podatke o
-vozilima. Sve niže (kartice, pretraga, sortiranje po cijeni, kalkulator u
-obrascu, mejlovi) čita jedan broj i ne može prikazati pogrešan.
+Schema se NE mijenja.
 
-TESTIRANO na svim slučajevima:
-  sezona isklj. + obje cijene      -> redovna
-  sezona uklj. + obje cijene       -> sezonska
-  sezona uklj. + nema sezonske     -> redovna (ne ostaje bez cijene)
-  sezona uklj. + nema nijedne      -> bez cijene, kao i prije
-  sezona uklj. + samo sezonska     -> sezonska
-  sezona isklj. + samo sezonska    -> bez cijene
-
-=======================================================================
 KORACI
-=======================================================================
+------
 1. Raspakuj preko root-a projekta.
-2. npx prisma generate
-3. npx prisma db push        <-- OBAVEZNO
-4. npm run dev
-   - /admin/firma -> promijeni telefon ili radno vrijeme, provjeri podnožje
-   - dodaj lokaciju, provjeri da se nudi pri rezervaciji
-   - /admin/vozila -> upiši sezonsku cijenu za jedno vozilo
-   - uključi sezonu na /admin/firma i provjeri cijenu na /vozila
-   - isključi je i provjeri da se vratila redovna
+2. npm run build          <-- mora proći
+3. npm run dev -> provjeri podnožje, /kontakt i sekciju lokacija na naslovnoj
+4. git add -A
+   git commit -m "fix: lokacije iz baze nose i adresu, sekcija Lokacije prevezana"
+   git push

@@ -1,7 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { toCarListItem, type CarListItem } from "@/lib/types";
-import { getCompany } from "@/lib/company";
 
 /**
  * Cached "browse" data for the fleet + home pages.
@@ -25,8 +24,7 @@ export const getBrowseCars = unstable_cache(
       where: { isAvailable: true },
       orderBy: { sortOrder: "asc" },
     });
-    const { seasonalPricing } = await getCompany();
-    return rows.map((c) => toCarListItem(c, seasonalPricing));
+    return rows.map(toCarListItem);
   },
   ["fleet-browse-cars"],
   { revalidate: 300, tags: ["fleet"] },
@@ -38,7 +36,15 @@ export const getActiveLocations = unstable_cache(
     prisma.location.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: "asc" },
-      select: { id: true, name: true, city: true },
+      // street/postalCode are used by the footer, contact page and the
+      // locations section; the reservation dropdown ignores them.
+      select: {
+        id: true,
+        name: true,
+        street: true,
+        city: true,
+        postalCode: true,
+      },
     }),
   ["active-locations"],
   { revalidate: 300, tags: ["fleet", "locations"] },

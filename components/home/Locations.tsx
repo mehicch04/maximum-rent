@@ -3,12 +3,14 @@
 import { motion } from "framer-motion";
 import { MapPin, Plane } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { LOCATIONS } from "@/lib/site-config";
+
 import { SectionHeading } from "./SectionHeading";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-export function Locations() {
+export type LocationItem = { name: string; street: string; city: string };
+
+export function Locations({ locations }: { locations: LocationItem[] }) {
   const t = useTranslations("Locations");
 
   return (
@@ -20,7 +22,7 @@ export function Locations() {
       />
 
       <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {LOCATIONS.map((loc, i) => {
+        {locations.map((loc, i) => {
           const isAirport = loc.name.includes("Zračna luka");
           const Icon = isAirport ? Plane : MapPin;
           return (
