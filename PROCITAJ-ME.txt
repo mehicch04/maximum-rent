@@ -1,74 +1,50 @@
-MAXIMUM RENT A CAR — KOMPLET (firma + lokacije + sezonske cijene)
-=================================================================
+MAXIMUM RENT A CAR — smanjen crveni sjaj
+========================================
 
-*** ZAMJENJUJE SVE PRETHODNE ZIPOVE IZ OVE ISPORUKE ***
-*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
+ŠTA JE BILO
+-----------
+Crvena sjena ispod dugmadi i kartica bila je definisana kao
+    0 8px 30px -8px  uz 45% neprovidnosti
 
-=======================================================================
-ZAŠTO JE BUILD DVAPUT PUKAO NA ISTOJ STVARI
-=======================================================================
-Prvi put sam popravio dohvat lokacija u lib/fleet-data.ts i mislio da je
-gotovo. Ali naslovna stranica UOPĆE NE KORISTI tu funkciju — ima svoj
-vlastiti upit prema bazi, s užim izborom polja. Popravljao sam pogrešno
-mjesto, pa je greška ostala ista.
+To je zamućenje od 30 piksela, pa se crvena širila oko 7 piksela izvan ivice
+elementa. Odatle onaj dojam da boja curi i da se prelijeva.
 
-Sada sam prošao kroz SVE izvore lokacija u projektu i uporedio ih s onim
-što svaka komponenta traži:
+ŠTA JE SADA
+-----------
+    0 6px 20px -6px  uz 30% neprovidnosti
 
-  naslovna (vlastiti upit)   -> id, naziv, ulica, grad
-  stranica vozila            -> getActiveLocations
-  podnožje (preko layouta)   -> getActiveLocations
-  kontakt i o nama           -> getActiveLocations
-  getActiveLocations         -> id, naziv, ulica, grad, poštanski broj
-  admin/firma                -> sva polja
+  doseg izvan ivice:  7px  ->  4px    (43% manje)
+  jačina:             45%  ->  30%    (33% manje)
+  ukupno oko 62% manje vidljiva sjena
 
-  Traže: Lokacije, Podnožje i Kontakt -> naziv, ulica, grad
-         O nama -> naziv
-         Obrazac rezervacije -> id, naziv
+Sjena i dalje postoji i element i dalje "stoji" iznad podloge, samo crvena
+više ne izlazi izvan dugmeta.
 
-Svaki izvor sada pokriva sve što se od njega traži.
+Namjerno je nisam uklonio potpuno. Prvo sam probao jače smanjenje (doseg na
+1px), ali je tada sjena praktično nestala i dugmad su izgledala plosnato.
 
-=======================================================================
-I DRUGA GREŠKA, KOJA NE BI PUKLA NEGO BI TIHO RADILA POGREŠNO
-=======================================================================
-Pri jednom kontrolnom testu sam greškom vratio lib/fleet-data.ts na staru
-verziju i time iz njega izbacio sezonske cijene. Da si taj zip primijenio,
-cijene na stranici vozila ne bi pratile sezonu, a build bi prošao bez
-ijedne greške.
+USPUT
+-----
+Isti tip efekta stajao je i iza aktivne ikone u sekciji "Kako funkcioniše"
+(crveni krug ispod ikone). Smanjen s 20% na 10%, da se uklopi.
 
-Vraćeno i provjereno: sezonske cijene prosljeđuju sva tri mjesta
-(fleet-data, availability i naslovna).
+ŠTA NISAM DIRAO
+---------------
+  - Crveni prsten oko odabrane sličice u svadbenoj galeriji: to nije ukras
+    nego oznaka koja je slika izabrana.
+  - Crveni okvir pri kliku u polja obrasca: to je oznaka fokusa i potrebna
+    je za pristupačnost i rad tastaturom.
 
-=======================================================================
-ŠTA ISPORUKA DONOSI
-=======================================================================
-1) PODACI FIRME — /admin/firma (tab "Firma")
-   Naziv, email, tri telefona s oznakama, WhatsApp, radno vrijeme, Google
-   ocjena i broj recenzija, link na profil, Facebook, Instagram, koordinate
-   mape, te LOKACIJE (dodaj, uredi, sakrij, ukloni). Vidljivo odmah.
+FAJLOVI
+-------
+  tailwind.config.ts            (definicija sjene)
+  components/home/HowItWorks.tsx (halo iza ikone)
 
-   Lokacije su prije bile na dva mjesta (baza + kod) i mogle su se raziće;
-   sada sve čita iz baze.
-
-   Ako Facebook ili Instagram ostanu prazni, ikona se ne prikazuje.
-
-   Ako red s podacima još ne postoji ili baza zakaže, koriste se postojeće
-   vrijednosti iz koda, pa sajt nikad ne ostane bez kontakata.
-
-2) SEZONSKE CIJENE
-   Dva polja po vozilu (redovna i sezonska) i jedan prekidač za cijeli park.
-   Vozilo bez sezonske cijene zadržava redovnu. Dok je sezona uključena,
-   ekran je narandžast s upozorenjem da je ne zaboraviš isključiti, i
-   pokazuje koliko vozila uopće ima sezonsku cijenu.
-
-=======================================================================
 KORACI
-=======================================================================
+------
 1. Raspakuj preko root-a projekta.
-2. npx prisma generate
-3. npx prisma db push
-4. npm run build          <-- mora proći prije pusha
-5. npm run dev i provjeri:
-   - /admin/firma: promijeni telefon -> podnožje
-   - dodaj lokaciju -> naslovna, kontakt i obrazac rezervacije
-   - /admin/vozila: sezonska cijena -> uključi sezonu -> /vozila
+2. npm run dev -> pogledaj dugmad na naslovnoj i kartice vozila
+3. npm run build
+4. git add -A
+   git commit -m "ui: smanji crveni sjaj na dugmadi i karticama"
+   git push

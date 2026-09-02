@@ -115,7 +115,7 @@ export function HowItWorks() {
                   {/* Halo behind the active icon — opacity/scale only, no layout cost. */}
                   <motion.span
                     aria-hidden
-                    className="absolute -inset-2 rounded-[1.35rem] bg-brand/20"
+                    className="absolute -inset-2 rounded-[1.35rem] bg-brand/10"
                     initial={false}
                     animate={{
                       opacity: on && !reduceMotion ? 1 : 0,

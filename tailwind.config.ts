@@ -56,7 +56,9 @@ const config: Config = {
         card: "0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -12px rgb(0 0 0 / 0.18)",
         "card-hover":
           "0 2px 4px rgb(0 0 0 / 0.06), 0 24px 48px -16px rgb(0 0 0 / 0.32)",
-        brand: "0 8px 30px -8px rgb(227 6 19 / 0.45)",
+        // Soft lift, not a glow. The previous value (30px blur at 45%) spread
+        // red well past the button edge and read as the colour bleeding out.
+        brand: "0 6px 20px -6px rgb(227 6 19 / 0.30)",
       },
       backgroundImage: {
         "brand-gradient": "linear-gradient(135deg, #ED1822 0%, #A40007 100%)",
