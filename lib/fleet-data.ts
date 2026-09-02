@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { toCarListItem, type CarListItem } from "@/lib/types";
+import { getCompany } from "@/lib/company";
 
 /**
  * Cached "browse" data for the fleet + home pages.
@@ -24,7 +25,8 @@ export const getBrowseCars = unstable_cache(
       where: { isAvailable: true },
       orderBy: { sortOrder: "asc" },
     });
-    return rows.map(toCarListItem);
+    const { seasonalPricing } = await getCompany();
+    return rows.map((c) => toCarListItem(c, seasonalPricing));
   },
   ["fleet-browse-cars"],
   { revalidate: 300, tags: ["fleet"] },

@@ -56,10 +56,11 @@ export default async function HomePage({
   const t = await getTranslations("Fleet");
 
   const [locations, featured, extras] = await Promise.all([
+    // street is needed by the Locations section further down the page.
     prisma.location.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: "asc" },
-      select: { id: true, name: true, city: true },
+      select: { id: true, name: true, street: true, city: true },
     }),
     prisma.car.findMany({
       where: { isAvailable: true, isFeatured: true },
