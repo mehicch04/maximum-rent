@@ -58,7 +58,9 @@ const config: Config = {
           "0 2px 4px rgb(0 0 0 / 0.06), 0 24px 48px -16px rgb(0 0 0 / 0.32)",
         // Soft lift, not a glow. The previous value (30px blur at 45%) spread
         // red well past the button edge and read as the colour bleeding out.
-        brand: "0 6px 20px -6px rgb(227 6 19 / 0.30)",
+        // Barely-there lift for primary buttons only. Anything stronger reads
+        // as the red bleeding out past the edge.
+        brand: "0 4px 12px -4px rgb(227 6 19 / 0.20)",
       },
       backgroundImage: {
         "brand-gradient": "linear-gradient(135deg, #ED1822 0%, #A40007 100%)",

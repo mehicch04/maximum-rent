@@ -129,7 +129,7 @@ export default async function TermsPage({
               className="scroll-mt-24 rounded-2xl border border-border bg-surface p-6 shadow-card sm:p-8"
             >
               <div className="flex items-start gap-4">
-                <span className="inline-flex h-10 w-10 flex-none items-center justify-center rounded-full bg-brand text-sm font-bold text-brand-foreground shadow-brand">
+                <span className="inline-flex h-10 w-10 flex-none items-center justify-center rounded-full bg-brand text-sm font-bold text-brand-foreground">
                   {a.n}
                 </span>
                 <div>

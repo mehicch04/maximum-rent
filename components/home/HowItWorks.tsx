@@ -126,7 +126,7 @@ export function HowItWorks() {
 
                   <motion.span
                     className={`relative flex h-14 w-14 items-center justify-center rounded-2xl bg-brand text-brand-foreground ${
-                      on ? "shadow-brand" : "shadow-card"
+                      on ? "shadow-card" : "shadow-card"
                     }`}
                     initial={false}
                     animate={{ scale: on && !reduceMotion ? 1.08 : 1 }}

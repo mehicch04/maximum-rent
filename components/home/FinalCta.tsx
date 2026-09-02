@@ -18,7 +18,7 @@ export function FinalCta() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.6, ease }}
-        className="relative overflow-hidden rounded-3xl bg-brand-gradient px-6 py-14 text-center shadow-brand sm:px-12 sm:py-20"
+        className="relative overflow-hidden rounded-3xl bg-brand-gradient px-6 py-14 text-center sm:px-12 sm:py-20"
       >
         {/* ambient glow */}
         <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-3xl" />

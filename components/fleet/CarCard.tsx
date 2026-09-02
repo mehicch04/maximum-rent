@@ -74,7 +74,7 @@ export function CarCard({ car, search, onSelect, index = 0, priority = false, im
       whileHover={{ y: -4 }}
       className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-shadow duration-300 hover:shadow-card-hover"
     >
-      <span className="absolute left-4 top-4 z-10 rounded-full bg-brand px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-foreground shadow-brand">
+      <span className="absolute left-4 top-4 z-10 rounded-full bg-brand px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-foreground">
         {label(CLASS_LABELS[car.carClass], locale)}
       </span>
 

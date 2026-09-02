@@ -1,50 +1,55 @@
-MAXIMUM RENT A CAR — smanjen crveni sjaj
-========================================
+MAXIMUM RENT A CAR — crveni sjaj samo na dugmadi, i to jedva vidljiv
+====================================================================
 
-ŠTA JE BILO
------------
-Crvena sjena ispod dugmadi i kartica bila je definisana kao
-    0 8px 30px -8px  uz 45% neprovidnosti
+ŠTA JE URAĐENO
+--------------
+1) Sjena je smanjena na jedva primjetnu:
 
-To je zamućenje od 30 piksela, pa se crvena širila oko 7 piksela izvan ivice
-elementa. Odatle onaj dojam da boja curi i da se prelijeva.
+     doseg izvan ivice:  7px  ->  2px    (71% manje)
+     jačina:             45%  ->  20%    (56% manje)
+     ukupno oko 87% manje vidljiva nego na početku
 
-ŠTA JE SADA
------------
-    0 6px 20px -6px  uz 30% neprovidnosti
+2) Uklonjena je sa svega što nije primarno dugme. Bila je na 16 mjesta,
+   sada je na 11 i sva su dugmad ili glavni pozivi na akciju.
 
-  doseg izvan ivice:  7px  ->  4px    (43% manje)
-  jačina:             45%  ->  30%    (33% manje)
-  ukupno oko 62% manje vidljiva sjena
+SKINUTA JE SA (5 mjesta)
+------------------------
+  - numerisani krugovi na stranici uslova najma
+  - oznaka klase vozila na kartici (SUV, LIMUZINA...)
+  - ikone koraka u sekciji "Kako funkcioniše"
+  - velika crvena CTA sekcija na dnu naslovne
+  - okruglo dugme "nazad na vrh"
 
-Sjena i dalje postoji i element i dalje "stoji" iznad podloge, samo crvena
-više ne izlazi izvan dugmeta.
+Te elemente sada nose obična neutralna sjena ili nikakva, pa crvena nigdje
+ne izlazi izvan svog oblika.
 
-Namjerno je nisam uklonio potpuno. Prvo sam probao jače smanjenje (doseg na
-1px), ali je tada sjena praktično nestala i dugmad su izgledala plosnato.
+OSTALA JE SAMO NA (11 mjesta, sve dugmad)
+-----------------------------------------
+  pretraga vozila, slanje upita u obrascu i u prozoru rezervacije,
+  "Zatražite ponudu", CTA na naslovnoj, o nama, poslovnoj ponudi,
+  svadbenoj sekciji, stranici 404 i preuzimanje u adminu.
 
-USPUT
------
-Isti tip efekta stajao je i iza aktivne ikone u sekciji "Kako funkcioniše"
-(crveni krug ispod ikone). Smanjen s 20% na 10%, da se uklopi.
+Na njima je zadržana namjerno, jer daje blagi osjećaj da je dugme
+"pritisnuto" i odvaja glavnu radnju od ostalog. Toliko je slaba da se
+primijeti tek kad se gleda izbliza.
 
-ŠTA NISAM DIRAO
----------------
-  - Crveni prsten oko odabrane sličice u svadbenoj galeriji: to nije ukras
-    nego oznaka koja je slika izabrana.
-  - Crveni okvir pri kliku u polja obrasca: to je oznaka fokusa i potrebna
-    je za pristupačnost i rad tastaturom.
+Ako želiš i to potpuno ukloniti, u tailwind.config.ts zamijeni vrijednost
+"brand" sa "none" i sjene više nema nigdje.
 
 FAJLOVI
 -------
-  tailwind.config.ts            (definicija sjene)
-  components/home/HowItWorks.tsx (halo iza ikone)
+  tailwind.config.ts
+  components/home/HowItWorks.tsx
+  components/home/FinalCta.tsx
+  components/fleet/CarCard.tsx
+  components/layout/BackToTop.tsx
+  app/[locale]/uvjeti-najma/page.tsx
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run dev -> pogledaj dugmad na naslovnoj i kartice vozila
+2. npm run dev -> pogledaj naslovnu, kartice vozila i sekciju "Kako funkcioniše"
 3. npm run build
 4. git add -A
-   git commit -m "ui: smanji crveni sjaj na dugmadi i karticama"
+   git commit -m "ui: crveni sjaj samo na primarnoj dugmadi i znatno slabiji"
    git push
