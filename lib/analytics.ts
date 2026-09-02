@@ -101,10 +101,25 @@ export type TrendPoint = {
   revenue: number;
 };
 
-export type FleetSlice = { key: string; label: string; count: number; color: string };
+export type FleetVehicle = {
+  title: string;
+  plate: string;
+  /** Short context: who has it, or when it is back. */
+  note: string;
+};
+
+export type FleetSlice = {
+  key: string;
+  label: string;
+  count: number;
+  color: string;
+  vehicles: FleetVehicle[];
+};
 
 export type TopCar = {
   title: string;
+  /** Registration plate: the fleet has several cars of the same model. */
+  plate: string;
   rentals: number;
   revenue: number;
 };
@@ -158,39 +173,73 @@ const TREND: Record<Range, TrendPoint[]> = {
 
 /** Fleet status is a snapshot, so it does not depend on the selected period. */
 export const FLEET_STATUS: FleetSlice[] = [
-  { key: "rented", label: "U najmu", count: 22, color: "var(--chart-rented)" },
-  { key: "available", label: "Dostupno", count: 9, color: "var(--chart-available)" },
-  { key: "service", label: "Na servisu", count: 4, color: "var(--chart-service)" },
+  {
+    key: "rented",
+    label: "U najmu",
+    count: 22,
+    color: "var(--chart-rented)",
+    vehicles: [
+      { title: "Škoda Octavia (2025)", plate: "J45-M-987", note: "vraća se 03.09." },
+      { title: "Audi Q5 40 TDI", plate: "A21-K-455", note: "vraća se 05.09." },
+      { title: "VW T-Roc R-Line", plate: "E77-T-201", note: "vraća se 02.09." },
+      { title: "Audi A6 (2025)", plate: "M03-J-618", note: "vraća se 08.09." },
+      { title: "VW Transporter (8+1)", plate: "T64-O-330", note: "vraća se 04.09." },
+    ],
+  },
+  {
+    key: "available",
+    label: "Dostupno",
+    count: 9,
+    color: "var(--chart-available)",
+    vehicles: [
+      { title: "Audi A8 Long", plate: "K12-A-874", note: "Glavni ured – Čitluk" },
+      { title: "Škoda Octavia (2025)", plate: "J45-M-142", note: "Mostar – Zračna luka" },
+      { title: "VW T-Roc R-Line", plate: "E77-T-509", note: "Međugorje" },
+      { title: "Audi Q5 40 TDI", plate: "A21-K-703", note: "Ljubuški" },
+    ],
+  },
+  {
+    key: "service",
+    label: "Na servisu",
+    count: 4,
+    color: "var(--chart-service)",
+    vehicles: [
+      { title: "Audi A6 (2025)", plate: "M03-J-221", note: "redovni servis, do 02.09." },
+      { title: "VW Transporter (8+1)", plate: "T64-O-118", note: "zamjena guma, do 01.09." },
+      { title: "Škoda Octavia (2025)", plate: "J45-M-604", note: "limarija, do 06.09." },
+      { title: "Audi Q5 40 TDI", plate: "A21-K-390", note: "registracija, do 03.09." },
+    ],
+  },
 ];
 
 const TOP_CARS: Record<Range, TopCar[]> = {
   today: [
-    { title: "Audi Q5 40 TDI", rentals: 2, revenue: 620 },
-    { title: "VW T-Roc R-Line", rentals: 2, revenue: 480 },
-    { title: "Škoda Octavia (2025)", rentals: 3, revenue: 450 },
-    { title: "Audi A6 (2025)", rentals: 1, revenue: 190 },
-    { title: "VW Transporter (8+1)", rentals: 1, revenue: 100 },
+    { title: "Audi Q5 40 TDI", plate: "A21-K-455", rentals: 2, revenue: 620 },
+    { title: "VW T-Roc R-Line", plate: "E77-T-201", rentals: 2, revenue: 480 },
+    { title: "Škoda Octavia (2025)", plate: "J45-M-987", rentals: 3, revenue: 450 },
+    { title: "Audi A6 (2025)", plate: "M03-J-618", rentals: 1, revenue: 190 },
+    { title: "VW Transporter (8+1)", plate: "T64-O-330", rentals: 1, revenue: 100 },
   ],
   "7d": [
-    { title: "Škoda Octavia (2025)", rentals: 14, revenue: 4620 },
-    { title: "Audi Q5 40 TDI", rentals: 9, revenue: 4180 },
-    { title: "VW T-Roc R-Line", rentals: 11, revenue: 3450 },
-    { title: "Audi A6 (2025)", rentals: 6, revenue: 2340 },
-    { title: "VW Transporter (8+1)", rentals: 5, revenue: 1870 },
+    { title: "Škoda Octavia (2025)", plate: "J45-M-987", rentals: 14, revenue: 4620 },
+    { title: "Audi Q5 40 TDI", plate: "A21-K-455", rentals: 9, revenue: 4180 },
+    { title: "VW T-Roc R-Line", plate: "E77-T-201", rentals: 11, revenue: 3450 },
+    { title: "Audi A6 (2025)", plate: "M03-J-618", rentals: 6, revenue: 2340 },
+    { title: "VW Transporter (8+1)", plate: "T64-O-330", rentals: 5, revenue: 1870 },
   ],
   month: [
-    { title: "Škoda Octavia (2025)", rentals: 58, revenue: 19400 },
-    { title: "Audi Q5 40 TDI", rentals: 41, revenue: 17650 },
-    { title: "VW T-Roc R-Line", rentals: 47, revenue: 14900 },
-    { title: "Audi A8 Long", rentals: 18, revenue: 12300 },
-    { title: "VW Transporter (8+1)", rentals: 24, revenue: 8760 },
+    { title: "Škoda Octavia (2025)", plate: "J45-M-987", rentals: 58, revenue: 19400 },
+    { title: "Audi Q5 40 TDI", plate: "A21-K-455", rentals: 41, revenue: 17650 },
+    { title: "VW T-Roc R-Line", plate: "E77-T-201", rentals: 47, revenue: 14900 },
+    { title: "Audi A8 Long", plate: "K12-A-874", rentals: 18, revenue: 12300 },
+    { title: "VW Transporter (8+1)", plate: "T64-O-330", rentals: 24, revenue: 8760 },
   ],
   year: [
-    { title: "Škoda Octavia (2025)", rentals: 412, revenue: 138500 },
-    { title: "Audi Q5 40 TDI", rentals: 296, revenue: 121300 },
-    { title: "VW T-Roc R-Line", rentals: 338, revenue: 104900 },
-    { title: "Audi A8 Long", rentals: 121, revenue: 86400 },
-    { title: "VW Transporter (8+1)", rentals: 175, revenue: 62800 },
+    { title: "Škoda Octavia (2025)", plate: "J45-M-987", rentals: 412, revenue: 138500 },
+    { title: "Audi Q5 40 TDI", plate: "A21-K-455", rentals: 296, revenue: 121300 },
+    { title: "VW T-Roc R-Line", plate: "E77-T-201", rentals: 338, revenue: 104900 },
+    { title: "Audi A8 Long", plate: "K12-A-874", rentals: 121, revenue: 86400 },
+    { title: "VW Transporter (8+1)", plate: "T64-O-330", rentals: 175, revenue: 62800 },
   ],
 };
 

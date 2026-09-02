@@ -47,8 +47,13 @@ export function TopCarsTable({ data }: { data: TopCar[] }) {
                   <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-surface-muted text-[11px] font-semibold text-muted-foreground">
                     {i + 1}
                   </span>
-                  <span className="min-w-0 truncate font-medium text-foreground">
-                    {c.title}
+                  <span className="min-w-0">
+                    <span className="block truncate font-medium text-foreground">
+                      {c.title}
+                    </span>
+                    <span className="block font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
+                      {c.plate}
+                    </span>
                   </span>
                 </div>
                 <div className="mt-1.5 ml-7 h-1 overflow-hidden rounded-full bg-surface-muted">

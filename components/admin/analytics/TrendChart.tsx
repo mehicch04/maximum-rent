@@ -20,6 +20,27 @@ const PAD = { top: 16, right: 46, bottom: 28, left: 40 };
 const PLOT_W = W - PAD.left - PAD.right;
 const PLOT_H = H - PAD.top - PAD.bottom;
 
+/**
+ * Rounds an axis up to a readable maximum and returns its tick values.
+ *
+ * Scaling straight off the data gave ticks like 4, 7, 11, 15 and 980, 2.9k —
+ * technically correct but hard to read at a glance. Rounding to familiar steps
+ * makes both axes legible while still filling most of the chart height.
+ */
+const NICE_STEPS = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+
+function niceScale(max: number, ticks = 5): { max: number; values: number[] } {
+  if (!(max > 0)) return { max: 1, values: [1, 0] };
+  const raw = max / (ticks - 1);
+  const magnitude = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = (NICE_STEPS.find((s) => raw / magnitude <= s) ?? 10) * magnitude;
+  const top = step * (ticks - 1);
+  return {
+    max: top,
+    values: Array.from({ length: ticks }, (_, i) => top - step * i),
+  };
+}
+
 const money = (n: number) =>
   n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : String(n);
 
@@ -36,9 +57,12 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
     );
   }
 
-  // Headroom above the tallest value keeps the peak off the top edge.
-  const maxBookings = Math.max(...data.map((d) => d.bookings), 1) * 1.15;
-  const maxRevenue = Math.max(...data.map((d) => d.revenue), 1) * 1.15;
+  // Each axis is scaled on its own: bookings are counts, revenue is money, and
+  // forcing them onto a shared scale would distort both.
+  const left = niceScale(Math.max(...data.map((d) => d.bookings), 1));
+  const right = niceScale(Math.max(...data.map((d) => d.revenue), 1));
+  const maxBookings = left.max;
+  const maxRevenue = right.max;
 
   const step = PLOT_W / data.length;
   const barW = Math.min(step * 0.52, 34);
@@ -82,10 +106,11 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
           </defs>
 
           {/* Horizontal guides with the bookings scale on the left. */}
-          {[0, 0.25, 0.5, 0.75, 1].map((t) => {
+          {left.values.map((leftVal, idx) => {
+            const t = idx / (left.values.length - 1);
             const y = PAD.top + PLOT_H * t;
             return (
-              <g key={t}>
+              <g key={leftVal}>
                 <line
                   x1={PAD.left}
                   x2={W - PAD.right}
@@ -101,7 +126,7 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
                   className="fill-muted-foreground"
                   fontSize="9"
                 >
-                  {Math.round(maxBookings * (1 - t))}
+                  {leftVal}
                 </text>
                 <text
                   x={W - PAD.right + 8}
@@ -109,7 +134,7 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
                   className="fill-muted-foreground"
                   fontSize="9"
                 >
-                  {money(Math.round(maxRevenue * (1 - t)))}
+                  {money(right.values[idx])}
                 </text>
               </g>
             );
