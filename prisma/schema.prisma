@@ -170,6 +170,13 @@ model Inquiry {
   @@index([carId])
   // Fast overlap lookups for availability (CONFIRMED reservations only).
   @@index([carId, status, pickupAt, returnAt])
+  /// Price agreed at booking time: rental plus extras. Stored rather than
+  /// recomputed, so changing a car's rate later never rewrites past bookings
+  /// or the reports built from them.
+  totalPrice Decimal?      @db.Decimal(10, 2)
+  /// Rental length in whole days, kept alongside the price for reporting.
+  rentalDays Int?
+
   extras     InquiryExtra[]
 
 }

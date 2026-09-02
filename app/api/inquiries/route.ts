@@ -86,6 +86,13 @@ export async function POST(req: Request) {
     ),
   }));
 
+  // Rental plus extras, locked in now. Reports read this figure, so it must
+  // not shift when the owner edits prices later.
+  const rentalTotal =
+    car?.pricePerDay != null ? Number(car.pricePerDay) * days : 0;
+  const extrasTotal = extrasForEmail.reduce((a, e) => a + e.lineTotal, 0);
+  const totalPrice = rentalTotal + extrasTotal;
+
   try {
     const inquiry = await withUniqueReference(REF_PREFIX.inquiry, (reference) =>
       prisma.inquiry.create({
@@ -105,6 +112,8 @@ export async function POST(req: Request) {
         message: d.message || null,
         channel: "EMAIL",
         locale: d.locale === "en" ? "EN" : "HR",
+        totalPrice,
+        rentalDays: days,
         extras: extraRows.length ? { create: extraRows } : undefined,
       },
       }),

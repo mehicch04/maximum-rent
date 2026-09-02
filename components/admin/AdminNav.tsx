@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, CalendarCheck, Car, Download, MessageSquare, Package } from "lucide-react";
+import { BarChart3, Building2, CalendarCheck, Car, Download, MessageSquare, Package } from "lucide-react";
 
 const TABS = [
   { href: "/admin", label: "Rezervacije", icon: CalendarCheck, exact: true },
   { href: "/admin/vozila", label: "Vozila", icon: Car, exact: false },
+  { href: "/admin/analitika", label: "Analitika", icon: BarChart3, exact: false },
   { href: "/admin/poruke", label: "Poruke", icon: MessageSquare, exact: false },
   { href: "/admin/oprema", label: "Oprema", icon: Package, exact: false },
   { href: "/admin/izvoz", label: "Izvoz", icon: Download, exact: false },

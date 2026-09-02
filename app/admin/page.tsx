@@ -8,6 +8,7 @@ import {
   Phone,
   Plane,
   Package,
+  Receipt,
   StickyNote,
   Trash2,
   X,
@@ -250,7 +251,21 @@ export default async function AdminPage({
                   <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
                     <CalendarDays className="h-4 w-4 shrink-0 text-brand" />
                     {fmt(q.pickupAt)} → {fmt(q.returnAt)}
+                    {q.rentalDays ? (
+                      <span className="text-xs">· {q.rentalDays} dana</span>
+                    ) : null}
                   </p>
+                  {q.totalPrice != null && (
+                    <p className="mt-1 flex items-center gap-2 text-sm">
+                      <Receipt className="h-4 w-4 shrink-0 text-brand" />
+                      <span className="font-semibold text-foreground">
+                        {Number(q.totalPrice).toFixed(0)} KM
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        najam i oprema
+                      </span>
+                    </p>
+                  )}
                 </div>
 
                 {canAct && (

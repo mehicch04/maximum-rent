@@ -1,55 +1,88 @@
-MAXIMUM RENT A CAR — crveni sjaj samo na dugmadi, i to jedva vidljiv
-====================================================================
+ANALITIKA — FAZA 1 (cijena u rezervacijama + KPI kartice)
+=========================================================
 
-ŠTA JE URAĐENO
---------------
-1) Sjena je smanjena na jedva primjetnu:
+*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
 
-     doseg izvan ivice:  7px  ->  2px    (71% manje)
-     jačina:             45%  ->  20%    (56% manje)
-     ukupno oko 87% manje vidljiva nego na početku
+=======================================================================
+TASK 1 — UKUPNA CIJENA U REZERVACIJAMA
+=======================================================================
+ODLUKA KOJU SAM DONIO
+Cijena se SPREMA u trenutku rezervacije, a ne računa naknadno.
 
-2) Uklonjena je sa svega što nije primarno dugme. Bila je na 16 mjesta,
-   sada je na 11 i sva su dugmad ili glavni pozivi na akciju.
+Da se računala naknadno, promjena cijene vozila u adminu prepisala bi
+vrijednost svih starih rezervacija i analitika bi pokazivala pogrešne
+prihode za prošle mjesece. Isti princip već koristi dodatna oprema, gdje
+se naziv i cijena prepisuju u rezervaciju.
 
-SKINUTA JE SA (5 mjesta)
-------------------------
-  - numerisani krugovi na stranici uslova najma
-  - oznaka klase vozila na kartici (SUV, LIMUZINA...)
-  - ikone koraka u sekciji "Kako funkcioniše"
-  - velika crvena CTA sekcija na dnu naslovne
-  - okruglo dugme "nazad na vrh"
+DODANO U BAZU (model Inquiry)
+  totalPrice   ukupno: najam + oprema, u markama
+  rentalDays   broj dana najma, korisno za izvještaje
 
-Te elemente sada nose obična neutralna sjena ili nikakva, pa crvena nigdje
-ne izlazi izvan svog oblika.
+RAČUNA SE OVAKO
+  najam   = cijena vozila po danu × broj dana
+  oprema  = zbir stavki (po danu × dani, ili jednokratno)
+  ukupno  = najam + oprema
+Ista računica koju gost vidi u obrascu i u potvrdi, pa se iznosi poklapaju.
 
-OSTALA JE SAMO NA (11 mjesta, sve dugmad)
------------------------------------------
-  pretraga vozila, slanje upita u obrascu i u prozoru rezervacije,
-  "Zatražite ponudu", CTA na naslovnoj, o nama, poslovnoj ponudi,
-  svadbenoj sekciji, stranici 404 i preuzimanje u adminu.
+GDJE SE VIDI
+  - kartica rezervacije u adminu: iznos i broj dana
+  - izvoz u Excel: nova kolona "Ukupna cijena", kao pravi broj
 
-Na njima je zadržana namjerno, jer daje blagi osjećaj da je dugme
-"pritisnuto" i odvaja glavnu radnju od ostalog. Toliko je slaba da se
-primijeti tek kad se gleda izbliza.
+NAPOMENA O STARIM REZERVACIJAMA
+Rezervacije nastale prije ove izmjene nemaju spremljenu cijenu, pa se kod
+njih iznos jednostavno ne prikazuje. Nove ga imaju sve.
 
-Ako želiš i to potpuno ukloniti, u tailwind.config.ts zamijeni vrijednost
-"brand" sa "none" i sjene više nema nigdje.
+=======================================================================
+TASK 2 — OSNOVA ANALITIKE
+=======================================================================
+NOVI EKRAN: /admin/analitika (tab "Analitika")
+
+  - Filter perioda: Danas / Zadnjih 7 dana / Ovaj mjesec / Ova godina
+  - Šest KPI kartica: iskoristivost flote, ukupan prihod, aktivni najmovi,
+    nadolazeće rezervacije, prosječno trajanje najma, stopa otkazivanja
+
+DVIJE ODLUKE U DIZAJNU
+
+1) Filter se pamti u adresi stranice, ne u komponenti. Tako se pogled može
+   sačuvati u zabilješke ili poslati nekome, a osvježavanje ne gubi izbor.
+
+2) Strelica rasta se boji prema tome je li promjena DOBRA, ne prema znaku.
+   Pad stope otkazivanja je dobra vijest i dobija zelenu, jednako kao rast
+   prihoda. Da se bojilo samo po smjeru, kartica bi tiho obmanjivala.
+
+Svaka kartica ima i kratko objašnjenje šta broj znači ("22 od 35 vozila
+izdato"), da klijent ne mora nagađati.
+
+ARHITEKTURA (spremna za fazu 2)
+  lib/analytics.ts   sve brojke iza jedne funkcije getAnalytics(period).
+                     Kad se poveže na stvarne rezervacije, mijenja se samo
+                     tijelo te funkcije; stranica i kartice ostaju netaknute.
+  KpiCard            prima podatak, ne zna odakle dolazi
+  RangeFilter        samo mijenja adresu
+
+Brojke su privremene i to jasno piše na dnu stranice.
+
+O GRAFIKONIMA U FAZI 2
+Projekat nema biblioteku za grafikone. Nacrtat ću ih običnim SVG-om, bez
+uvođenja nove zavisnosti, kako smo se dogovorili za tech stack.
 
 FAJLOVI
 -------
-  tailwind.config.ts
-  components/home/HowItWorks.tsx
-  components/home/FinalCta.tsx
-  components/fleet/CarCard.tsx
-  components/layout/BackToTop.tsx
-  app/[locale]/uvjeti-najma/page.tsx
+  prisma/schema.prisma              (totalPrice, rentalDays)
+  app/api/inquiries/route.ts        (računa i sprema cijenu)
+  app/admin/page.tsx                (prikaz cijene)
+  app/api/admin/export/route.ts     (kolona u Excelu)
+  lib/analytics.ts                  (NOVO)
+  app/admin/analitika/page.tsx      (NOVO)
+  components/admin/analytics/RangeFilter.tsx  (NOVO)
+  components/admin/analytics/KpiCard.tsx      (NOVO)
+  components/admin/AdminNav.tsx     (tab)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run dev -> pogledaj naslovnu, kartice vozila i sekciju "Kako funkcioniše"
-3. npm run build
-4. git add -A
-   git commit -m "ui: crveni sjaj samo na primarnoj dugmadi i znatno slabiji"
-   git push
+2. npx prisma generate
+3. npx prisma db push
+4. npm run build
+5. npm run dev -> /admin/analitika, probaj filter; pošalji probni upit i
+   provjeri prikazuje li se cijena na kartici rezervacije
