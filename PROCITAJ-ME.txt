@@ -1,91 +1,87 @@
-ANALITIKA — TRI KOREKCIJE
-=========================
+DODATNA OPREMA — provjera dostupnosti po datumima
+=================================================
 
-Schema se NE mijenja. Samo: npm run build
-
-=======================================================================
-1) DVIJE ODVOJENE Y-OSE
-=======================================================================
-Male ispravke radi: ose SU već bile odvojene (rezervacije lijevo, prihod
-desno), ali su vrijednosti računate kao postotak najveće izmjerene, pa su
-ispadale ružne i teško čitljive:
-
-    lijevo   0, 4, 7, 11, 15
-    desno    0, 980, 2.0k, 2.9k, 3.9k
-
-Sada svaka osa ima vlastitu, zaokruženu skalu:
-
-    rezervacije, sedmica:  0, 4, 8, 12, 16
-    rezervacije, godina:   0, 60, 120, 180, 240
-    prihod, sedmica:       0, 1k, 2k, 3k, 4k
-    prihod, godina:        0, 20k, 40k, 60k, 80k
-
-Godišnji prihod ide 0–80k, tačno kako si tražio.
-
-Skala bira korak iz uobičajenog niza (1, 1.5, 2, 2.5, 3, 4, 5, 6, 8) i
-zaokružuje naviše. Provjereno na svim periodima: grafikon je popunjen
-između 81 i 98 posto visine, pa nema ni stiskanja ni praznog prostora.
+*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
 
 =======================================================================
-2) REGISTARSKE OZNAKE
+NALAZ: FALILO JE POLJE ZA STANJE
 =======================================================================
-Tabela najprofitabilnijih vozila sada ispod naziva modela prikazuje i
-registraciju, sitnijim monospace slovima:
+Model opreme imao je "maxQty" (najviše komada po jednoj rezervaciji), ali
+NIJE imao podatak koliko komada uopće posjedujete. Bez toga se dostupnost
+nije mogla računati, pa je dodano polje "totalStock".
 
-    Škoda Octavia (2025)
-    J45-M-987
-
-Monospace je namjerno: oznake su iste širine pa se kolona lijepo slaže i
-lakše se uspoređuju.
-
-Ovo je bilo potrebno jer flota ima više vozila istog modela, pa "Škoda
-Octavia" sama po sebi ne kaže o kojem se autu radi.
+U adminu (/admin/oprema) sada postoji polje "Ukupno na stanju", uz kratko
+objašnjenje razlike u odnosu na "najveću količinu po najmu".
 
 =======================================================================
-3) KLIKABILNI PRSTEN I MODAL
+KAKO RADI
 =======================================================================
-Sva tri isječka prstena su klikabilna, kao i redovi u legendi pored njega.
-Klik otvara modal sa spiskom tih vozila: naziv, registracija i kratka
-napomena.
+Kad gost odabere datum preuzimanja i vraćanja, sistem prođe kroz već
+zauzetu opremu i oduzme komade koji su u tom periodu vani.
 
-    U najmu     -> kada se vozilo vraća
-    Dostupno    -> na kojoj je lokaciji
-    Na servisu  -> razlog i do kada
+Pravilo preklapanja je isto ono koje se koristi za vozila: dva perioda se
+sudaraju kad jedan počne prije nego drugi završi I završi nakon što je
+drugi počeo. Termini koji se samo dodiruju (jedan vraća u 10:00, drugi
+preuzima u 10:00) NE smatraju se sudarom, jer oprema tada stvarno jeste
+slobodna.
 
-Razlog: podatak "4 vozila na servisu" sam po sebi ne znači ništa; vlasniku
-treba znati KOJA su to vozila. Zato klik vodi do liste.
-
-Detalji:
-  - Zatvara se klikom vani, tipkom Escape ili dugmetom X.
-  - Dok je otvoren, stranica ispod se ne pomjera.
-  - Klikabilni su i redovi legende, ne samo isječci: lakše se pogodi
-    mišem, i radi tastaturom.
-  - Ispod prstena stoji tiha napomena da se može kliknuti, da se ta
-    mogućnost uopće primijeti.
-
-VAŽNO O BROJEVIMA U MODALU
-Mock liste su kraće od stvarnog broja (npr. 22 u najmu, a u listi 5).
-Umjesto da to izgleda kao greška, modal na dnu napiše "Prikazano 5 od 22".
-Status "Na servisu" ima punu listu, sva 4 vozila.
+Računica ide u jednom prolazu kroz rezervacije, pa ostaje brza i kad
+opreme i rezervacija bude mnogo.
 
 =======================================================================
-PODSJETNIK
+ŠTA GOST VIDI
 =======================================================================
-Svi podaci su i dalje izmišljeni i stoje u lib/analytics.ts. Stranica
-analitike ne dodiruje bazu.
+  - Uz svaku stavku piše koliko je slobodno: "Slobodno još: 3"
+  - Kad nema nijednog komada, red posivi (50% prozirnosti), umjesto
+    kvačice stoji ikona brave, a crvenim piše "Nedostupno u ovom periodu"
+  - Kod stavki s brojačem, plus se zaključava na broju slobodnih komada,
+    ne na najvećoj dozvoljenoj količini
+
+SITUACIJA KOJU SAM MORAO POKRITI
+Gost prvo izabere slobodan termin i uzme 1 GPS i 3 sjedalice, pa onda
+pomjeri datume u gužvu gdje GPS-a nema. Bez zaštite bi poslao narudžbu
+koja se ne može ispuniti.
+
+Sada se izbor automatski smanjuje na ono što je stvarno slobodno: GPS
+ispada iz izbora, a količine se režu na dostupan broj. Provjereno.
+
+=======================================================================
+TESTIRANO (11 provjera, sve prolaze)
+=======================================================================
+  preklapanje: potpuno, djelimično, bez dodira, dodir krajevima
+  slobodno u najgušćem terminu: sjedalice 10-3-4 = 3, GPS 6-3-3 = 0
+  prazan termin: sve slobodno
+  bez odabranih datuma: prikazuje puno stanje, ne nulu
+  gornja granica izbora: manja od (limit po najmu, slobodno)
+  automatsko rezanje izbora pri promjeni datuma
+
+=======================================================================
+ŠTO JE MOCK, A ŠTO STVARNO
+=======================================================================
+STVARNO: ukupno stanje po opremi (polje u bazi, uređuje se u adminu)
+MOCK:    lista već zauzete opreme (lib/extras-availability.ts)
+
+Prava verzija je jedan upit: potvrđene rezervacije spojene sa svojom
+opremom, filtrirane na periode koji se preklapaju. Mijenja se samo tijelo
+funkcije getBookedExtras; sva računica i sav prikaz ostaju isti.
 
 FAJLOVI
 -------
-  lib/analytics.ts                              (registracije, vozila po statusu)
-  components/admin/analytics/TrendChart.tsx     (zaokružene ose)
-  components/admin/analytics/TopCarsTable.tsx   (registracije)
-  components/admin/analytics/FleetDonut.tsx     (klik i modal)
+  prisma/schema.prisma                      (totalStock)
+  lib/extras-availability.ts                (NOVO — računica i mock)
+  lib/extras.ts                             (tip dopunjen)
+  components/reservation/ExtrasPicker.tsx   (prikaz i zaključavanje)
+  components/reservation/InquiryModal.tsx   (prosljeđuje datume)
+  app/admin/oprema/page.tsx, actions.ts     (polje stanja)
+  messages/hr.json, en.json                 (dva nova teksta)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build
-3. npm run dev -> /admin/analitika
-   - promijeni period i pogledaj vrijednosti na objema osama
-   - klikni na "Na servisu" u prstenu i u legendi
-   - probaj Escape i klik izvan modala
+2. npx prisma generate
+3. npx prisma db push
+4. npm run build
+5. npm run dev
+   - /admin/oprema -> upiši ukupno stanje za par stavki
+   - /vozila -> otvori upit, promijeni datume i gledaj kako se
+     "Slobodno još" mijenja i kako se stavke zaključavaju

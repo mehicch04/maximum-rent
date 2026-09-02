@@ -12,6 +12,8 @@ export type ExtraItem = {
   pricing: ExtraPricing;
   price: number;
   maxQty: number;
+  /** Total pieces owned; availability is worked out against this. */
+  totalStock: number;
 };
 
 /**
@@ -34,6 +36,7 @@ export const getActiveExtras = unstable_cache(
         pricing: e.pricing as ExtraPricing,
         price: Number(e.price),
         maxQty: e.maxQty,
+        totalStock: e.totalStock,
       }));
     } catch {
       // Never let a missing table break the booking flow.

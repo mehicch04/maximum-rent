@@ -37,6 +37,7 @@ export async function saveExtra(formData: FormData) {
       : "PER_DAY",
     price: Math.max(0, Number(formData.get("price") ?? 0) || 0),
     maxQty: Math.min(20, Math.max(1, Number(formData.get("maxQty") ?? 1) || 1)),
+    totalStock: Math.min(999, Math.max(0, Number(formData.get("totalStock") ?? 1) || 0)),
     sortOrder: Number(formData.get("sortOrder") ?? 0) || 0,
     isActive: formData.get("isActive") === "on",
   };

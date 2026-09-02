@@ -1,32 +1,70 @@
 "use client";
 
-import { Check, Minus, Plus } from "lucide-react";
+import { useEffect, useMemo } from "react";
+import { Check, Lock, Minus, Plus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { ExtraItem } from "@/lib/extras";
 import { formatPrice } from "@/lib/currency";
 import { useCurrency } from "@/components/currency/CurrencyProvider";
+import {
+  availabilityFor,
+  getBookedExtras,
+  maxSelectable,
+} from "@/lib/extras-availability";
 
 export type ExtraSelection = Record<string, number>;
 
 /**
- * Optional equipment picked with a booking. Deliberately plain: one row per
- * item, a tick for yes/no items and a small stepper where several make sense
- * (child seats). No totals are shown — this is an inquiry, and the agency
- * confirms the final price.
+ * Optional equipment picked with a booking.
+ *
+ * Availability is worked out against the chosen dates: an item already out
+ * with other guests for that period cannot be picked again. Without this the
+ * same child seat gets promised to several people and someone is turned away
+ * at the desk.
  */
 export function ExtrasPicker({
   extras,
   value,
   onChange,
+  pickupAt,
+  returnAt,
 }: {
   extras: ExtraItem[];
   value: ExtraSelection;
   onChange: (next: ExtraSelection) => void;
+  /** Selected rental period; availability is recalculated whenever it changes. */
+  pickupAt: Date | null;
+  returnAt: Date | null;
 }) {
   const locale = useLocale();
   const t = useTranslations("Extras");
   const { currency } = useCurrency();
   const isEn = locale === "en";
+
+  const free = useMemo(
+    () => availabilityFor(extras, getBookedExtras(), pickupAt, returnAt),
+    [extras, pickupAt, returnAt],
+  );
+
+  /**
+   * Dates can change after a choice was made. If the new period has fewer
+   * pieces free, the selection is trimmed to fit rather than silently sending
+   * an order that cannot be honoured.
+   */
+  useEffect(() => {
+    let changed = false;
+    const next: ExtraSelection = {};
+    for (const [id, qty] of Object.entries(value)) {
+      const item = extras.find((e) => e.id === id);
+      if (!item) continue;
+      const cap = maxSelectable(item.maxQty, free[id] ?? 0);
+      const capped = Math.min(qty, cap);
+      if (capped !== qty) changed = true;
+      if (capped > 0) next[id] = capped;
+    }
+    if (changed) onChange(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [free]);
 
   if (extras.length === 0) return null;
 
@@ -56,17 +94,31 @@ export function ExtrasPicker({
           const on = qty > 0;
           const name = isEn ? e.nameEn : e.nameHr;
           const note = isEn ? e.noteEn : e.noteHr;
+
+          const freePieces = free[e.id] ?? 0;
+          const cap = maxSelectable(e.maxQty, freePieces);
+          const soldOut = cap === 0;
           const stepper = e.maxQty > 1;
 
           return (
             <li
               key={e.id}
               className={`flex items-center gap-3 px-3 py-2.5 transition-colors ${
-                on ? "bg-brand/[0.04]" : "bg-surface"
+                soldOut
+                  ? "bg-surface-muted/40 opacity-50"
+                  : on
+                    ? "bg-brand/[0.04]"
+                    : "bg-surface"
               }`}
             >
-              {/* Tick / stepper */}
-              {stepper ? (
+              {soldOut ? (
+                <span
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground"
+                  aria-hidden
+                >
+                  <Lock className="h-3.5 w-3.5" />
+                </span>
+              ) : stepper ? (
                 <div className="flex shrink-0 items-center gap-1">
                   <button
                     type="button"
@@ -85,8 +137,8 @@ export function ExtrasPicker({
                   </span>
                   <button
                     type="button"
-                    onClick={() => set(e.id, Math.min(e.maxQty, qty + 1))}
-                    disabled={qty >= e.maxQty}
+                    onClick={() => set(e.id, Math.min(cap, qty + 1))}
+                    disabled={qty >= cap}
                     aria-label={t("increase", { name })}
                     className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-foreground transition-colors hover:border-brand disabled:opacity-40"
                   >
@@ -110,17 +162,28 @@ export function ExtrasPicker({
                 </button>
               )}
 
-              {/* Name + note */}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-foreground">
                   {name}
                 </p>
-                {note && (
-                  <p className="truncate text-xs text-muted-foreground">{note}</p>
-                )}
+                <p className="truncate text-xs">
+                  {soldOut ? (
+                    <span className="font-medium text-brand-strong">
+                      {t("unavailable")}
+                    </span>
+                  ) : (
+                    <>
+                      {note && (
+                        <span className="text-muted-foreground">{note} · </span>
+                      )}
+                      <span className="text-muted-foreground">
+                        {t("freeLeft", { count: freePieces })}
+                      </span>
+                    </>
+                  )}
+                </p>
               </div>
 
-              {/* Price */}
               <span
                 className={`shrink-0 text-xs font-semibold ${
                   e.pricing === "INCLUDED"

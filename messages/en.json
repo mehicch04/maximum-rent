@@ -400,6 +400,8 @@
     "days": "days",
     "rentalLine": "Vehicle rental · {days} {dayWord}",
     "estimate": "Estimated total",
-    "estimateNote": "Approximate amount. We confirm the final price with your booking."
+    "estimateNote": "Approximate amount. We confirm the final price with your booking.",
+    "freeLeft": "{count} left",
+    "unavailable": "Not available for these dates"
   }
 }

@@ -185,6 +185,21 @@ npx prisma generate{"\n"}npx prisma db push
             </p>
           </div>
           <div>
+            <label className={lbl}>Ukupno na stanju</label>
+            <input
+              name="totalStock"
+              type="number"
+              min={0}
+              max={999}
+              defaultValue={editing?.totalStock ?? 1}
+              className={field}
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              Koliko komada ukupno posjedujete. Sistem sam računa koliko je
+              slobodno za odabrane datume.
+            </p>
+          </div>
+          <div>
             <label className={lbl}>Redoslijed</label>
             <input
               name="sortOrder"
@@ -258,7 +273,8 @@ npx prisma generate{"\n"}npx prisma db push
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {price}
-                    {e.maxQty > 1 && ` · do ${e.maxQty} kom`}
+                    {e.maxQty > 1 && ` · do ${e.maxQty} po najmu`}
+                    {` · ${e.totalStock} na stanju`}
                     {!e.isActive && " · skriveno"}
                   </p>
                 </div>

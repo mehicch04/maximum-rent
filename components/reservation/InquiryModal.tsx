@@ -392,6 +392,8 @@ export function InquiryModal({ car, search, locations = [], extras = [], onClose
                   extras={extras}
                   value={chosenExtras}
                   onChange={setChosenExtras}
+                  pickupAt={new Date(`${pickupDate}T${pickupTime}`)}
+                  returnAt={new Date(`${returnDate}T${returnTime}`)}
                 />
 
                 <PriceBreakdown

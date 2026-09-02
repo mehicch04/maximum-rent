@@ -255,6 +255,9 @@ model Extra {
   price      Decimal      @default(0) @db.Decimal(10, 2)
   /// 1 = simple yes/no. Above 1 the guest picks a quantity (e.g. 3 child seats).
   maxQty     Int          @default(1)
+  /// How many pieces exist in total. Used to work out how many are still free
+  /// for a given period, so the same seat is never promised twice.
+  totalStock Int          @default(1)
   isActive   Boolean      @default(true)
   sortOrder  Int          @default(0)
   createdAt  DateTime     @default(now())

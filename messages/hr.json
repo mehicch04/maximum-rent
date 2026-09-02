@@ -400,6 +400,8 @@
     "days": "dana",
     "rentalLine": "Najam vozila · {days} {dayWord}",
     "estimate": "Procjena ukupno",
-    "estimateNote": "Okvirni iznos. Konačnu cijenu potvrđujemo uz rezervaciju."
+    "estimateNote": "Okvirni iznos. Konačnu cijenu potvrđujemo uz rezervaciju.",
+    "freeLeft": "Slobodno još: {count}",
+    "unavailable": "Nedostupno u ovom periodu"
   }
 }
