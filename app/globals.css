@@ -15,6 +15,11 @@
     --ring: 356 95% 46%;
     /* Brand red used as small TEXT. Light theme keeps the logo red (passes AA on white). */
     --brand-strong: #e30613;
+    /* Chart colours. Status hues stay meaningful in both themes. */
+    --chart-rented: #e30613;
+    --chart-available: #12793f;
+    --chart-service: #b45309;
+    --chart-grid: #e5e7eb;
   }
 
   .dark {
@@ -29,6 +34,10 @@
     --ring: 356 95% 52%;
     /* Lighter red so brand-colored TEXT clears WCAG AA (4.5:1) on dark surfaces. */
     --brand-strong: #ff4b54;
+    --chart-rented: #ff4b54;
+    --chart-available: #4ade80;
+    --chart-service: #fbbf24;
+    --chart-grid: #2e2e2e;
   }
 
   * {

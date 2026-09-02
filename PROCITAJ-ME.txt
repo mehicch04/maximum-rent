@@ -1,88 +1,103 @@
-ANALITIKA — FAZA 1 (cijena u rezervacijama + KPI kartice)
-=========================================================
+ANALITIKA — FAZA 2 (grafikoni i tabele)
+=======================================
 
-*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
-
-=======================================================================
-TASK 1 — UKUPNA CIJENA U REZERVACIJAMA
-=======================================================================
-ODLUKA KOJU SAM DONIO
-Cijena se SPREMA u trenutku rezervacije, a ne računa naknadno.
-
-Da se računala naknadno, promjena cijene vozila u adminu prepisala bi
-vrijednost svih starih rezervacija i analitika bi pokazivala pogrešne
-prihode za prošle mjesece. Isti princip već koristi dodatna oprema, gdje
-se naziv i cijena prepisuju u rezervaciju.
-
-DODANO U BAZU (model Inquiry)
-  totalPrice   ukupno: najam + oprema, u markama
-  rentalDays   broj dana najma, korisno za izvještaje
-
-RAČUNA SE OVAKO
-  najam   = cijena vozila po danu × broj dana
-  oprema  = zbir stavki (po danu × dani, ili jednokratno)
-  ukupno  = najam + oprema
-Ista računica koju gost vidi u obrascu i u potvrdi, pa se iznosi poklapaju.
-
-GDJE SE VIDI
-  - kartica rezervacije u adminu: iznos i broj dana
-  - izvoz u Excel: nova kolona "Ukupna cijena", kao pravi broj
-
-NAPOMENA O STARIM REZERVACIJAMA
-Rezervacije nastale prije ove izmjene nemaju spremljenu cijenu, pa se kod
-njih iznos jednostavno ne prikazuje. Nove ga imaju sve.
+Schema se NE mijenja. Samo: npm run build
 
 =======================================================================
-TASK 2 — OSNOVA ANALITIKE
+TASK 1 — GRAFIKONI
 =======================================================================
-NOVI EKRAN: /admin/analitika (tab "Analitika")
 
-  - Filter perioda: Danas / Zadnjih 7 dana / Ovaj mjesec / Ova godina
-  - Šest KPI kartica: iskoristivost flote, ukupan prihod, aktivni najmovi,
-    nadolazeće rezervacije, prosječno trajanje najma, stopa otkazivanja
+LIJEVO: Trend rezervacija i prihoda
+  Stupci nose broj rezervacija, linija nosi prihod.
+  Namjerno dvije različite vrste: rezervacije su komadi, prihod je novac i
+  nemaju zajedničku skalu. Dvije linije na istoj osi sugerisale bi odnos
+  koji ne postoji. Zato dvije ose: rezervacije lijevo, prihod desno.
 
-DVIJE ODLUKE U DIZAJNU
+  Prelaskom miša ostale kolone blago blijede, a ispod grafikona se ispisuje
+  tačan podatak za taj period. Namjerno ispis, a ne plutajući oblačić:
+  ne pomjera raspored i radi na dodir.
 
-1) Filter se pamti u adresi stranice, ne u komponenti. Tako se pogled može
-   sačuvati u zabilješke ili poslati nekome, a osvježavanje ne gubi izbor.
+  Podjela po periodu je različita da osa ne postane zid oznaka:
+  danas -> po satima, 7 dana -> po danima, mjesec -> po sedmicama,
+  godina -> po mjesecima.
 
-2) Strelica rasta se boji prema tome je li promjena DOBRA, ne prema znaku.
-   Pad stope otkazivanja je dobra vijest i dobija zelenu, jednako kao rast
-   prihoda. Da se bojilo samo po smjeru, kartica bi tiho obmanjivala.
+DESNO: Status flote
+  Prsten s ukupnim brojem vozila u sredini, jer je to broj koji vlasnik
+  prvo traži. Tačni brojevi su u legendi, pošto se iz isječaka ne može
+  precizno očitati.
+  Status je trenutno stanje pa NE ovisi o odabranom periodu; to piše ispod
+  naslova da ne bude zabune.
 
-Svaka kartica ima i kratko objašnjenje šta broj znači ("22 od 35 vozila
-izdato"), da klijent ne mora nagađati.
+=======================================================================
+TASK 2 — TABELE
+=======================================================================
 
-ARHITEKTURA (spremna za fazu 2)
-  lib/analytics.ts   sve brojke iza jedne funkcije getAnalytics(period).
-                     Kad se poveže na stvarne rezervacije, mijenja se samo
-                     tijelo te funkcije; stranica i kartice ostaju netaknute.
-  KpiCard            prima podatak, ne zna odakle dolazi
-  RangeFilter        samo mijenja adresu
+NAJPROFITABILNIJA VOZILA
+  Uz brojeve ide i traka srazmjerna najboljem vozilu. Sami brojevi tjeraju
+  čitaoca da poredi u glavi; traka odmah pokazuje razliku, a razlika je
+  poenta tabele.
 
-Brojke su privremene i to jasno piše na dnu stranice.
+DODATNA OPREMA
+  Kolone: rentano / na stanju i koliko je SLOBODNO.
+  Korisna informacija nije koliko je izdato nego koliko je ostalo: oprema
+  koja je skoro sva vani uskoro će biti obećana nekome ko je ne može dobiti.
+  Zato se redovi preko 80 posto iskorištenosti boje narandžasto i nose
+  znak upozorenja, a kad ne ostane ništa, broj je crven.
 
-O GRAFIKONIMA U FAZI 2
-Projekat nema biblioteku za grafikone. Nacrtat ću ih običnim SVG-om, bez
-uvođenja nove zavisnosti, kako smo se dogovorili za tech stack.
+=======================================================================
+ANIMACIJE — I ZAŠTO NE ŠKODE
+=======================================================================
+Tražio si suptilno i bez štete po performanse. Zato:
+
+  - Animiraju se samo prozirnost i transformacija, te dužina SVG linije.
+    Nema pomjeranja rasporeda, pa browser ne mora ponovo računati stranicu.
+  - Svaka animacija ide SAMO JEDNOM, pri prvom dolasku u vidno polje
+    (viewport once). Nema ničega što se stalno vrti u pozadini.
+  - Trake u tabelama koriste transformaciju, ne promjenu širine, što je
+    znatno jeftinije.
+  - Poštuje se sistemska postavka za smanjenu animaciju: kome je isključena,
+    sve se prikaže odmah, bez ijednog pomjeranja.
+  - Nema nove biblioteke; grafikoni su običan SVG, a koristi se
+    framer-motion koji projekat već ima.
+
+=======================================================================
+MODULARNOST
+=======================================================================
+Svaki blok je omotan u Section, koji nosi karticu, naslov i ulaznu
+animaciju. Premještanje sekcije znači premještanje jednog bloka u
+page.tsx; sadržaj se ne dira.
+
+Svi podaci i dalje dolaze iz lib/analytics.ts. Kad se poveže na stvarne
+rezervacije, mijenjaju se samo funkcije getTrend, getTopCars i konstante
+FLEET_STATUS i EXTRAS_STATS. Komponente ostaju iste.
+
+BOJE
+Dodani tokeni za grafikone u app/globals.css, posebno za svijetlu i tamnu
+temu, da zelena i narandžasta ostanu čitljive u obje.
+
+PROVJERENO
+  - geometrija: ništa ne izlazi iz okvira, stupci se ne preklapaju
+  - prsten: isječci se zbrajaju u pun krug, postoci daju 100
+  - prikaz renderovan i pogledan
 
 FAJLOVI
 -------
-  prisma/schema.prisma              (totalPrice, rentalDays)
-  app/api/inquiries/route.ts        (računa i sprema cijenu)
-  app/admin/page.tsx                (prikaz cijene)
-  app/api/admin/export/route.ts     (kolona u Excelu)
-  lib/analytics.ts                  (NOVO)
-  app/admin/analitika/page.tsx      (NOVO)
-  components/admin/analytics/RangeFilter.tsx  (NOVO)
-  components/admin/analytics/KpiCard.tsx      (NOVO)
-  components/admin/AdminNav.tsx     (tab)
+  lib/analytics.ts                              (trend, flota, vozila, oprema)
+  app/globals.css                               (boje grafikona)
+  app/admin/analitika/page.tsx                  (uklopljene sekcije)
+  components/admin/analytics/Section.tsx        (NOVO)
+  components/admin/analytics/TrendChart.tsx     (NOVO)
+  components/admin/analytics/FleetDonut.tsx     (NOVO)
+  components/admin/analytics/TopCarsTable.tsx   (NOVO)
+  components/admin/analytics/ExtrasTable.tsx    (NOVO)
+  components/admin/analytics/RangeFilter.tsx    (iz faze 1)
+  components/admin/analytics/KpiCard.tsx        (iz faze 1)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npx prisma generate
-3. npx prisma db push
-4. npm run build
-5. npm run dev -> /admin/analitika, probaj filter; pošalji probni upit i
-   provjeri prikazuje li se cijena na kartici rezervacije
+2. npm run build
+3. npm run dev -> /admin/analitika
+   - promijeni period i gledaj kako se grafikon mijenja
+   - pređi mišem preko grafikona
+   - provjeri tamnu temu

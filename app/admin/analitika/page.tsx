@@ -1,8 +1,22 @@
 import { Suspense } from "react";
 import { BarChart3, Info } from "lucide-react";
-import { COMPARED_TO, getAnalytics, isRange, RANGE_LABEL } from "@/lib/analytics";
+import {
+  COMPARED_TO,
+  EXTRAS_STATS,
+  FLEET_STATUS,
+  getAnalytics,
+  getTopCars,
+  getTrend,
+  isRange,
+  RANGE_LABEL,
+} from "@/lib/analytics";
 import { RangeFilter } from "@/components/admin/analytics/RangeFilter";
 import { KpiCard } from "@/components/admin/analytics/KpiCard";
+import { Section } from "@/components/admin/analytics/Section";
+import { TrendChart } from "@/components/admin/analytics/TrendChart";
+import { FleetDonut } from "@/components/admin/analytics/FleetDonut";
+import { TopCarsTable } from "@/components/admin/analytics/TopCarsTable";
+import { ExtrasTable } from "@/components/admin/analytics/ExtrasTable";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +31,8 @@ export default function AdminAnalyticsPage({
   const raw = one(searchParams.period);
   const range = isRange(raw) ? raw : "month";
   const { kpis } = getAnalytics(range);
+  const trend = getTrend(range);
+  const topCars = getTopCars(range);
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
@@ -45,11 +61,43 @@ export default function AdminAnalyticsPage({
         ))}
       </div>
 
-      {/* ── Mjesto za grafikone i tabele (faza 2) ── */}
-      <div className="mt-6 rounded-2xl border border-dashed border-border p-10 text-center">
-        <p className="text-sm text-muted-foreground">
-          Ovdje dolaze grafikoni i tabele.
-        </p>
+      {/* ── Grafikoni ── */}
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-5">
+        <Section
+          title="Trend rezervacija i prihoda"
+          subtitle={`Kretanje kroz ${RANGE_LABEL[range]}`}
+          className="lg:col-span-3"
+        >
+          <TrendChart data={trend} />
+        </Section>
+
+        <Section
+          title="Status flote"
+          subtitle="Trenutno stanje, neovisno o periodu"
+          delay={0.06}
+          className="lg:col-span-2"
+        >
+          <FleetDonut data={FLEET_STATUS} />
+        </Section>
+      </div>
+
+      {/* ── Tabele ── */}
+      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Section
+          title="Najprofitabilnija vozila"
+          subtitle={`Pet najboljih za ${RANGE_LABEL[range]}`}
+          delay={0.04}
+        >
+          <TopCarsTable data={topCars} />
+        </Section>
+
+        <Section
+          title="Dodatna oprema"
+          subtitle="Koliko je izdato, a koliko ostaje slobodno"
+          delay={0.08}
+        >
+          <ExtrasTable data={EXTRAS_STATS} />
+        </Section>
       </div>
 
       <p className="mt-6 flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
