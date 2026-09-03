@@ -6,8 +6,10 @@ import { DateField } from "@/components/ui/DateField";
 import type { ExtraItem } from "@/lib/extras";
 import {
   availabilityFor,
+  busyCarsFor,
   maxSelectable,
   type Booked,
+  type CarBusy,
 } from "@/lib/extras-availability";
 
 const input =
@@ -56,6 +58,7 @@ export function BlockForm({
   today,
   extras = [],
   booked = [],
+  occupancy = [],
 }: {
   action: (formData: FormData) => void;
   cars: { id: string; title: string }[];
@@ -67,6 +70,8 @@ export function BlockForm({
    * not be able to hand out a seat the website already gave away.
    */
   booked?: Booked[];
+  /** Periods each vehicle is already taken, for the same reason. */
+  occupancy?: CarBusy[];
 }) {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -78,6 +83,26 @@ export function BlockForm({
   const fromDate = from ? new Date(`${from}T00:00:00`) : null;
   const toDate = to ? new Date(`${to}T23:59:59`) : null;
 
+  // Dates lead: until both are set, nothing can be checked against anything,
+  // so the vehicle list stays closed rather than offering cars that may well
+  // be taken.
+  const datesReady = Boolean(from && to);
+
+  const busy = useMemo(
+    () => busyCarsFor(occupancy, fromDate, toDate),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [occupancy, from, to],
+  );
+
+  // Free vehicles first, so the usable choices are not buried among greyed-out
+  // ones. Order within each group stays as it came from the server.
+  const sortedCars = useMemo(() => {
+    if (!datesReady) return cars;
+    return [...cars].sort(
+      (a, b) => Number(busy.has(a.id)) - Number(busy.has(b.id)),
+    );
+  }, [cars, busy, datesReady]);
+
   const free = useMemo(
     () => availabilityFor(extras, booked, fromDate, toDate),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -86,6 +111,15 @@ export function BlockForm({
 
   // Changing the dates can shrink what is available, so an earlier choice is
   // trimmed rather than silently sending a quantity that cannot be honoured.
+  const [carId, setCarId] = useState("");
+
+  // A car chosen before the dates moved may now clash; clearing it is safer
+  // than letting a greyed-out option stay selected.
+  useEffect(() => {
+    if (carId && busy.has(carId)) setCarId("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [busy]);
+
   useEffect(() => {
     let changed = false;
     const next: Record<string, number> = {};
@@ -114,21 +148,7 @@ export function BlockForm({
       action={action}
       className="mt-4 rounded-2xl border border-border bg-surface p-5 shadow-card"
     >
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_2fr_auto]">
-        <div className="min-w-0">
-          <label className={lbl}>Vozilo</label>
-          <select name="carId" required className={input} defaultValue="">
-            <option value="" disabled>
-              Odaberite vozilo…
-            </option>
-            {cars.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.title}
-              </option>
-            ))}
-          </select>
-        </div>
-
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_2fr_2fr_auto]">
         <div className="min-w-0">
           <label className={lbl}>Od datuma</label>
           <DateField
@@ -156,6 +176,37 @@ export function BlockForm({
             onChange={setTo}
             className={input}
           />
+        </div>
+
+        <div className="min-w-0">
+          <label className={lbl}>Vozilo</label>
+          <select
+            name="carId"
+            required
+            disabled={!datesReady}
+            value={carId}
+            onChange={(e) => setCarId(e.target.value)}
+            className={`${input} disabled:cursor-not-allowed disabled:opacity-60`}
+          >
+            <option value="" disabled>
+              {datesReady ? "Odaberite vozilo…" : "Prvo odaberite datume"}
+            </option>
+            {sortedCars.map((c) => {
+              const why = busy.get(c.id);
+              return (
+                <option key={c.id} value={c.id} disabled={!!why}>
+                  {c.title}
+                  {why ? `  (Zauzeto \u2013 ${why})` : ""}
+                </option>
+              );
+            })}
+          </select>
+          {datesReady && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              Slobodno {cars.length - busy.size} od {cars.length} vozila za taj
+              period.
+            </p>
+          )}
         </div>
 
         <div className="min-w-0">

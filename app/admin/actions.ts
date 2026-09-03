@@ -6,7 +6,9 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import {
   availabilityFor,
+  busyCarsFor,
   getBookedExtras,
+  getCarOccupancy,
   maxSelectable,
 } from "@/lib/extras-availability";
 import { ADMIN_COOKIE, tokenValid } from "@/lib/admin-auth";
@@ -206,6 +208,15 @@ export async function addBlock(formData: FormData) {
     bookingOk;
 
   if (!valid) backTo({ msg: "error" });
+
+  // The greyed-out options in the browser are a convenience, not a guarantee:
+  // the posted car id can be anything, so the clash is checked again here.
+  const busy = busyCarsFor(
+    await getCarOccupancy().catch(() => []),
+    startAt,
+    endAt,
+  );
+  if (busy.has(carId)) backTo({ msg: "error" });
 
   // Equipment, re-checked here. The browser sends only ids and quantities, and
   // that list can be tampered with, so availability is worked out again from

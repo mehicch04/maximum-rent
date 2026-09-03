@@ -1,29 +1,69 @@
-BlockForm.tsx — samo komponenta forme
-=====================================
+BLOKADE VOZILA — datumi kao primarni filter
+===========================================
 
-Ovo je ista komponenta koja je već bila u zipu "maximum-manuelna-oprema",
-izdvojena zasebno jer si tražio samo nju.
+Schema se NE mijenja. Samo: npm run build
 
-ŠTA POKRIVA
-  1. Sekcija opreme ispod imena klijenta i cijene, unutar istog okvira forme.
-  2. Brojač količine (+/-) po stavci, ograničen na ono što je slobodno.
-  3. Ista logika zaključavanja kao online forma: obje komponente uvoze
-     availabilityFor i maxSelectable iz lib/extras-availability.ts, pa se
-     dostupnost računa na jednom mjestu za oba puta rezervacije.
-  4. Nedostupna stavka posivi, dobija ikonu brave i crveni tekst
-     "Nedostupno u odabranom periodu".
+ŠTA JE PROMIJENJENO
+-------------------
+1) REDOSLIJED POLJA
+   Datumi su premješteni ispred vozila, jer su sada primarni filter i
+   redoslijed u formi treba pratiti redoslijed razmišljanja.
 
-AKO SI VEĆ PRIMIJENIO PROŠLI ZIP
-  Ovaj fajl je identičan, ne treba ništa raditi.
+2) VOZILO ZAKLJUČANO DOK NEMA DATUMA
+   Padajući meni je neaktivan i piše "Prvo odaberite datume". Bez perioda
+   nema se s čim uporediti, pa bi svaka ponuđena lista bila nagađanje.
 
-AKO NISI
-  Sama komponenta neće raditi bez ostatka, jer traži:
-    - model BlockExtra u bazi (prisma/schema.prisma)
-    - stvarni upit u lib/extras-availability.ts
-    - propse extras i booked iz app/admin/page.tsx
-    - upis i ponovnu provjeru u app/admin/actions.ts
-  Sve to je u zipu "maximum-manuelna-oprema". Primijeni prvo njega.
+3) FILTRIRANJE ČIM SU OBA DATUMA UNESENA
+   Meni se otključava i odmah pokazuje stanje za taj period:
+     - slobodna vozila su na vrhu liste
+     - zauzeta su siva, neaktivna i nose oznaku zašto:
+       (Zauzeto – rezervisano), (Zauzeto – servis),
+       (Zauzeto – manuelna rezervacija), (Zauzeto – oštećenje),
+       (Zauzeto – privatna upotreba)
+   Ispod menija piše "Slobodno 12 od 35 vozila za taj period".
 
-KORACI (ako primjenjuješ samo ovaj fajl preko već primijenjenog prošlog zipa)
-  1. Raspakuj preko root-a projekta.
-  2. npm run build
+   Razlog zašto se ne prikazuje samo "zauzeto": vlasniku je razlika bitna.
+   Auto na servisu se možda može osloboditi, onaj koji je rezervisan ne.
+
+4) OPREMA REAGUJE NA ISTE DATUME
+   Sekcija opreme već koristi isti mehanizam i pokazuje "Slobodno još: 2 od
+   6" za odabrani period. Ništa se nije mijenjalo, samo je sada u istom
+   toku s vozilima.
+
+5) IZBOR SE ČISTI KAD PRESTANE VAŽITI
+   Ako se odabere vozilo pa se datumi pomjere tako da to vozilo postane
+   zauzeto, izbor se poništava. Bez toga bi u formi ostalo označeno vozilo
+   koje je u međuvremenu postalo neaktivno.
+
+SVE SE RAČUNA ODMAH, BEZ OSVJEŽAVANJA
+   Zauzetost se dohvati jednom pri otvaranju stranice, a preklapanja se
+   računaju u pregledniku. Nema čekanja na server pri svakoj promjeni
+   datuma.
+
+PROVJERA I NA SERVERU
+   Siva opcija u pregledniku je pogodnost, ne garancija: poslana oznaka
+   vozila može biti bilo šta. Zato server prije upisa ponovo provjeri
+   preklapanje i odbija blokadu za vozilo koje je zauzeto.
+
+TESTIRANO (8 provjera, sve prolaze)
+   zauzeta vozila prepoznata s ispravnim razlogom
+   servis koji je prošao ne blokira novi period
+   brojanje slobodnih (2 od 4)
+   bez datuma nijedno vozilo nije označeno zauzetim
+   termini koji se dodiruju krajevima nisu sudar
+
+FAJLOVI
+-------
+  components/admin/BlockForm.tsx   (zaključavanje, filtriranje, redoslijed)
+  lib/extras-availability.ts       (getCarOccupancy, busyCarsFor)
+  app/admin/page.tsx               (dohvat zauzetosti)
+  app/admin/actions.ts             (ponovna provjera na serveru)
+
+KORACI
+------
+1. Raspakuj preko root-a projekta.
+2. npm run build
+3. npm run dev -> /admin
+   - meni vozila mora biti zaključan dok nema datuma
+   - unesi datume kad je neko vozilo zauzeto i provjeri oznaku
+   - odaberi slobodno vozilo pa pomjeri datume na zauzet period

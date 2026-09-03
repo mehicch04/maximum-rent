@@ -142,3 +142,77 @@ export async function getBookedExtras(): Promise<Booked[]> {
     throw err;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Vehicle occupancy
+// ---------------------------------------------------------------------------
+
+/** One period a car is spoken for, whatever the reason. */
+export type CarBusy = { carId: string; from: Date; to: Date; label: string };
+
+/**
+ * Every period a car is already taken, from confirmed bookings and from
+ * blocks alike. Used to grey out vehicles that cannot be given for the dates
+ * being entered, so the block form doubles as an availability check.
+ *
+ * Past periods are skipped: they free the car and would only bloat the list.
+ */
+export async function getCarOccupancy(): Promise<CarBusy[]> {
+  const { prisma } = await import("@/lib/prisma");
+  const now = new Date();
+
+  const [rentals, blocks] = await Promise.all([
+    prisma.inquiry.findMany({
+      where: {
+        status: { in: ["CONFIRMED", "COMPLETED"] },
+        carId: { not: null },
+        returnAt: { gte: now },
+      },
+      select: { carId: true, pickupAt: true, returnAt: true },
+    }),
+    prisma.carBlock.findMany({
+      where: { endAt: { gte: now } },
+      select: { carId: true, startAt: true, endAt: true, kind: true },
+    }),
+  ]);
+
+  const BLOCK_LABEL: Record<string, string> = {
+    MANUAL_BOOKING: "manuelna rezervacija",
+    MAINTENANCE: "servis",
+    DAMAGE: "oštećenje",
+    PRIVATE: "privatna upotreba",
+  };
+
+  return [
+    ...rentals.map((r) => ({
+      carId: r.carId as string,
+      from: r.pickupAt,
+      to: r.returnAt,
+      label: "rezervisano",
+    })),
+    ...blocks.map((b) => ({
+      carId: b.carId,
+      from: b.startAt,
+      to: b.endAt,
+      label: BLOCK_LABEL[b.kind] ?? "blokirano",
+    })),
+  ];
+}
+
+/** Cars that clash with [from, to], mapped to why they are unavailable. */
+export function busyCarsFor(
+  occupancy: CarBusy[],
+  from: Date | null,
+  to: Date | null,
+): Map<string, string> {
+  const out = new Map<string, string>();
+  if (!from || !to || Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
+    return out;
+  }
+  for (const o of occupancy) {
+    if (overlaps(from, to, o.from, o.to) && !out.has(o.carId)) {
+      out.set(o.carId, o.label);
+    }
+  }
+  return out;
+}
