@@ -29,6 +29,7 @@ function parse(formData: FormData) {
     model,
     title: titleRaw || `${brand} ${model}`.trim(),
     year: formData.get("year"),
+    plate: formData.get("plate") || undefined,
     carClass: formData.get("carClass"),
     categories: formData.getAll("categories").map(String),
     transmission: formData.get("transmission"),

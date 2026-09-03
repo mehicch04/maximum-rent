@@ -55,6 +55,7 @@ export function VehicleFormModal({
   const [fuelType, setFuelType] = useState(vehicle?.fuelType ?? "");
   const [passengers, setPassengers] = useState(String(vehicle?.passengers ?? 5));
   const [doors, setDoors] = useState(String(vehicle?.doors ?? 4));
+  const [plate, setPlate] = useState(vehicle?.plate ?? "");
   const [pricePerDay, setPricePerDay] = useState(
     vehicle?.pricePerDay != null ? String(vehicle.pricePerDay) : "",
   );
@@ -140,6 +141,7 @@ export function VehicleFormModal({
     fd.set("fuelType", fuelType);
     fd.set("passengers", passengers);
     fd.set("doors", doors);
+    if (plate.trim()) fd.set("plate", plate.trim());
     if (pricePerDay) fd.set("pricePerDay", pricePerDay);
     if (seasonalPrice) fd.set("seasonalPrice", seasonalPrice);
     fd.set("currency", currency);
@@ -348,6 +350,15 @@ export function VehicleFormModal({
                 onChange={(e) => setPricePerDay(e.target.value)}
                 placeholder="120"
                 className={`${field} ${border("pricePerDay")}`}
+              />
+            </div>
+            <div>
+              <label className={lbl}>Registarska oznaka</label>
+              <input
+                value={plate}
+                onChange={(e) => setPlate(e.target.value)}
+                placeholder="J45-M-987"
+                className={field}
               />
             </div>
             <div>

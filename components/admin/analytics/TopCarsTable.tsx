@@ -44,7 +44,7 @@ export function TopCarsTable({ data }: { data: TopCar[] }) {
           {data.map((c, i) => {
             const share = Math.max(2, (c.revenue / max) * 100);
             return (
-              <tr key={c.plate} className="border-b border-border/60 last:border-0">
+              <tr key={c.id} className="border-b border-border/60 last:border-0">
                 <td className="py-2.5 pr-3">
                   <div className="flex items-center gap-2.5">
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-surface-muted text-[11px] font-semibold text-muted-foreground">
@@ -54,9 +54,11 @@ export function TopCarsTable({ data }: { data: TopCar[] }) {
                       <span className="block truncate font-medium text-foreground">
                         {c.title}
                       </span>
-                      <span className="block font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
-                        {c.plate}
-                      </span>
+                      {c.plate && (
+                        <span className="block font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
+                          {c.plate}
+                        </span>
+                      )}
                     </span>
                   </div>
 

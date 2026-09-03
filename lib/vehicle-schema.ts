@@ -12,6 +12,7 @@ export const vehicleSchema = z.object({
   brand: z.string().trim().min(1, "Marka je obavezna."),
   model: z.string().trim().min(1, "Model je obavezan."),
   title: z.string().trim().min(1, "Naziv je obavezan."),
+  plate: z.string().trim().max(20).optional(),
   year: z.coerce
     .number()
     .int()

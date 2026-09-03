@@ -1,58 +1,108 @@
-TRAKE POPUNJENOSTI U TABELAMA — popravka
-========================================
+ANALITIKA POVEZANA NA STVARNE REZERVACIJE
+=========================================
 
-ŠTA SAM PROVJERIO, A NIJE BILO UZROK
-------------------------------------
-1) Računica procenata je bila ISPRAVNA:
-     Škoda 138.500 KM -> 100%, Audi Q5 -> 87,6%, T-Roc -> 75,7%,
-     A8 -> 62,4%, Transporter -> 45,3%
-2) Responzivne klase NISU dirale širinu. Na trakama nema nijedne
-   sm:/md:/lg: klase koja bi je resetovala.
+*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
 
-PRAVI UZROK
------------
-Traka je počinjala stisnuta na nulu i širila se tek kad grafikon uđe u
-vidno polje. Ta provjera se oslanja na preglednikov mehanizam praćenja.
-Kad se ne okine, traka zauvijek ostane na nuli i vidi se samo siva
-podloga ispod nje.
+=======================================================================
+ODAKLE SADA DOLAZI KOJI BROJ
+=======================================================================
+ISKORISTIVOST FLOTE
+  Mjeri se u "auto-danima": svaka rezervacija donosi onoliko dana koliko
+  se preklapa s odabranim periodom, podijeljeno s onim što bi cijela flota
+  mogla dati. Najam koji je počeo prije perioda računa se samo dijelom koji
+  upada unutra.
 
-Isto je prije oborilo i grafikone na mobitelu. Pošto je to sada pao drugi
-put, promijenio sam pristup umjesto da opet krpim isti obrazac.
+UKUPAN PRIHOD
+  Zbir polja "ukupna cijena" (najam + oprema) svih potvrđenih i završenih
+  rezervacija nastalih u periodu.
 
-POPRAVKA
---------
-Traka se sada crta odmah, u punoj širini, a širina dolazi iz obične
-inline vrijednosti koja se uvijek izračuna. Ostala je blaga CSS tranzicija
-kao jedini ukras, i ona ne utiče na to hoće li se traka vidjeti.
+AKTIVNI NAJMOVI      potvrđene gdje je sada između preuzimanja i vraćanja
+NADOLAZEĆE           potvrđene čije preuzimanje tek dolazi
+PROSJEČNO TRAJANJE   prosjek broja dana po potvrđenoj rezervaciji
+STOPA OTKAZIVANJA    otkazane podijeljene sa svim upitima u periodu
 
-Načelo: prikaz podatka ne smije ovisiti o tome hoće li se animacija
-pokrenuti. Kod grafikona animacija ima smisla, kod trake od 4 piksela ne
-donosi ništa, a mogla je sakriti cijelu kolonu.
+TREND
+  Jedan upit po periodu, pa se razvrstava u kutije: danas po tri sata,
+  sedmica po danima, mjesec po sedmicama, godina po mjesecima.
 
-Usput: obje komponente više ne trebaju biti klijentske ni učitavati
-animacijsku biblioteku, pa je i stranica nešto lakša.
+STATUS FLOTE (uživo)
+  Na servisu  -> vozila koja imaju aktivnu ručnu blokadu (servis,
+                 registracija), s razlogom i datumom do kada
+  U najmu     -> vozila s potvrđenom rezervacijom koja traje sada,
+                 s datumom povratka
+  Dostupno    -> ostala
+  Ručna blokada ima prednost: ako je auto blokiran, vodi se kao na servisu
+  čak i ako se rezervacija preklapa.
 
-DVIJE SITNICE KOJE SAM POPRAVIO USPUT
--------------------------------------
-- Najmanja širina trake je 2 posto. Bez toga stavka s vrlo malim udjelom
-  (npr. 0 od 12 rentano) izgleda kao prazan red, kao da je greška.
-- Širina je ograničena na 100 posto, pa ako se ikad unese više rentanih
-  nego što ih ima na stanju, traka ne izlazi iz okvira.
+NAJPROFITABILNIJA VOZILA
+  Grupisano po vozilu, zbir ukupne cijene, pet najboljih.
 
-PROVJERENO
-----------
-  vozila:  100 / 87,6 / 75,7 / 62,4 / 45,3 posto
-  oprema:  GPS 5/6 = 83,3 posto -> narandžasto, upozorenje, slobodno 1
-  rubni:   0 od 12 -> 2 posto, 12 od 12 -> 100 posto, stanje 0 -> bez
-           dijeljenja s nulom
+DODATNA OPREMA
+  Rentano  -> zbir komada u potvrđenim rezervacijama koje traju sada
+  Na stanju -> polje koje uređuješ u /admin/oprema
+
+=======================================================================
+ŠTO SE POREDI S ČIM
+=======================================================================
+Postotak pored svakog broja poredi se s prethodnim periodom ISTE dužine,
+koji stoji tačno prije odabranog. Ako prethodni period nema podataka,
+postotak se ne prikazuje umjesto da pokaže besmislenih +100%.
+
+Kod "aktivnih najmova" i "nadolazećih" poređenja nema, jer su to trenutna
+stanja, ne zbirovi za period.
+
+=======================================================================
+REGISTARSKE OZNAKE — DODANE U BAZU
+=======================================================================
+Registracije su ranije bile izmišljene. Da bi bile stvarne, dodano je
+polje "plate" na vozilo i unosi se u /admin/vozila.
+
+Dok ne unesete oznake, red se jednostavno prikazuje bez nje, bez praznog
+prostora.
+
+=======================================================================
+DVIJE STVARI KOJE TREBA ZNATI
+=======================================================================
+1) STARE REZERVACIJE NEMAJU CIJENU
+   Polje "ukupna cijena" dodano je nedavno. Rezervacije nastale prije toga
+   nemaju iznos, pa u prihod ulaze kao nula. Prvih mjesec dana prihod će
+   izgledati manji nego što jeste. Nove rezervacije imaju sve.
+
+2) ŠTO SE RAČUNA KAO PRIHOD
+   Samo potvrđene i završene rezervacije. Novi i neodgovoreni upiti ne
+   ulaze, jer još nisu posao. Otkazane također ne.
+   To piše i na dnu stranice, da klijent ne pita.
+
+=======================================================================
+ZAŠTITA
+=======================================================================
+Ako neki upit padne, stranica ne ruši admin nego prikaže poruku da se
+podaci trenutno ne mogu učitati. Izvještaj nikad ne smije oboriti panel.
+
+TESTIRANO
+  iskoristivost: 1 auto/7 dana od 10 = 10%, 5 auta = 50%, ograničeno na 100
+  najam koji tek djelimično ulazi u period broji se samo tim dijelom
+  postotna promjena: +25%, -20%, bez poređenja kad je prošli period prazan
+  stopa otkazivanja: 3 od 40 = 8%, nula upita ne dijeli s nulom
 
 FAJLOVI
 -------
-  components/admin/analytics/TopCarsTable.tsx
-  components/admin/analytics/ExtrasTable.tsx
+  prisma/schema.prisma                          (Car.plate)
+  lib/analytics.ts                              (stvarni upiti)
+  app/admin/analitika/page.tsx                  (asinhrono + zaštita)
+  lib/vehicle-schema.ts, vehicle-options.ts     (plate)
+  app/admin/vozila/page.tsx, actions.ts         (plate)
+  components/admin/VehicleFormModal.tsx         (polje registracije)
+  components/admin/analytics/TopCarsTable.tsx   (stabilan ključ)
+  components/admin/analytics/FleetDonut.tsx     (stabilan ključ)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build
-3. npm run dev -> /admin/analitika, provjeri obje tabele
+2. npx prisma generate
+3. npx prisma db push
+4. npm run build
+5. npm run dev -> /admin/analitika
+   - promijeni period, brojevi se moraju mijenjati
+   - /admin/vozila -> unesi registracije
+   - /admin/oprema -> provjeri "ukupno na stanju"

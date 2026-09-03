@@ -188,14 +188,16 @@ export function FleetDonut({ data }: { data: FleetSlice[] }) {
 
               <ul className="max-h-[60vh] divide-y divide-border overflow-y-auto">
                 {open.vehicles.map((v) => (
-                  <li key={v.plate} className="flex items-baseline gap-3 px-5 py-3">
+                  <li key={v.id} className="flex items-baseline gap-3 px-5 py-3">
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-foreground">
                         {v.title}
                       </p>
-                      <p className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
-                        {v.plate}
-                      </p>
+                      {v.plate && (
+                        <p className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
+                          {v.plate}
+                        </p>
+                      )}
                     </div>
                     <span className="shrink-0 text-xs text-muted-foreground">
                       {v.note}

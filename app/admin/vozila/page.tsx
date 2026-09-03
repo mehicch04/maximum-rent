@@ -15,6 +15,7 @@ export default async function VehiclesPage() {
     ...c,
     pricePerDay: c.pricePerDay != null ? Number(c.pricePerDay) : null,
     seasonalPrice: c.seasonalPrice != null ? Number(c.seasonalPrice) : null,
+    plate: c.plate,
     deposit: c.deposit != null ? Number(c.deposit) : null,
     createdAt: c.createdAt.toISOString(),
     updatedAt: c.updatedAt.toISOString(),

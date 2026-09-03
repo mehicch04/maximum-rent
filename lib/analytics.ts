@@ -1,9 +1,11 @@
+import { prisma } from "@/lib/prisma";
+
 /**
- * Figures for the analytics screen.
+ * Analytics computed from real bookings.
  *
- * Everything here is placeholder data, deliberately kept behind one function
- * with a stable shape. When the real queries land, only the body of
- * `getAnalytics` changes — the page and the cards stay untouched.
+ * Everything is derived from confirmed inquiries, manual car blocks and the
+ * extras inventory. What leaves this file has the same shape as the earlier
+ * placeholder version, so the page and its components did not need changing.
  */
 
 export type Range = "today" | "7d" | "month" | "year";
@@ -22,7 +24,6 @@ export const RANGE_LABEL: Record<Range, string> = {
   year: "ova godina",
 };
 
-/** What each period is compared against, so the trend arrow means something. */
 export const COMPARED_TO: Record<Range, string> = {
   today: "u odnosu na jučer",
   "7d": "u odnosu na prethodnih 7 dana",
@@ -34,80 +35,14 @@ export type Kpi = {
   key: string;
   label: string;
   value: string;
-  /** Percentage change against the previous period; null hides the indicator. */
   change: number | null;
-  /** Set when a falling number is the good outcome (cancellations). */
   lowerIsBetter?: boolean;
   hint?: string;
 };
 
-export type Analytics = {
-  range: Range;
-  kpis: Kpi[];
-};
-
-const MOCK: Record<Range, Kpi[]> = {
-  today: [
-    { key: "utilisation", label: "Iskoristivost flote", value: "63 %", change: 4, hint: "22 od 35 vozila izdato" },
-    { key: "revenue", label: "Ukupan prihod", value: "1.840 KM", change: 12, hint: "najam i dodatna oprema" },
-    { key: "active", label: "Aktivni najmovi", value: "22", change: 2, hint: "vozila trenutno kod gostiju" },
-    { key: "upcoming", label: "Nadolazeće rezervacije", value: "5", change: -1, hint: "potvrđene, još nisu preuzete" },
-    { key: "duration", label: "Prosječno trajanje najma", value: "4,2 dana", change: 0, hint: "po potvrđenoj rezervaciji" },
-    { key: "cancelled", label: "Stopa otkazivanja", value: "6 %", change: -2, lowerIsBetter: true, hint: "otkazane od svih upita" },
-  ],
-  "7d": [
-    { key: "utilisation", label: "Iskoristivost flote", value: "71 %", change: 8, hint: "prosjek za period" },
-    { key: "revenue", label: "Ukupan prihod", value: "14.260 KM", change: 18, hint: "najam i dodatna oprema" },
-    { key: "active", label: "Aktivni najmovi", value: "25", change: 5, hint: "vozila trenutno kod gostiju" },
-    { key: "upcoming", label: "Nadolazeće rezervacije", value: "18", change: 9, hint: "potvrđene, još nisu preuzete" },
-    { key: "duration", label: "Prosječno trajanje najma", value: "4,8 dana", change: 3, hint: "po potvrđenoj rezervaciji" },
-    { key: "cancelled", label: "Stopa otkazivanja", value: "8 %", change: 1, lowerIsBetter: true, hint: "otkazane od svih upita" },
-  ],
-  month: [
-    { key: "utilisation", label: "Iskoristivost flote", value: "78 %", change: 11, hint: "prosjek za period" },
-    { key: "revenue", label: "Ukupan prihod", value: "61.450 KM", change: 23, hint: "najam i dodatna oprema" },
-    { key: "active", label: "Aktivni najmovi", value: "27", change: 6, hint: "vozila trenutno kod gostiju" },
-    { key: "upcoming", label: "Nadolazeće rezervacije", value: "41", change: 14, hint: "potvrđene, još nisu preuzete" },
-    { key: "duration", label: "Prosječno trajanje najma", value: "5,1 dana", change: 6, hint: "po potvrđenoj rezervaciji" },
-    { key: "cancelled", label: "Stopa otkazivanja", value: "7 %", change: -3, lowerIsBetter: true, hint: "otkazane od svih upita" },
-  ],
-  year: [
-    { key: "utilisation", label: "Iskoristivost flote", value: "69 %", change: 5, hint: "prosjek za period" },
-    { key: "revenue", label: "Ukupan prihod", value: "487.900 KM", change: 16, hint: "najam i dodatna oprema" },
-    { key: "active", label: "Aktivni najmovi", value: "22", change: null, hint: "vozila trenutno kod gostiju" },
-    { key: "upcoming", label: "Nadolazeće rezervacije", value: "63", change: 21, hint: "potvrđene, još nisu preuzete" },
-    { key: "duration", label: "Prosječno trajanje najma", value: "4,6 dana", change: -2, hint: "po potvrđenoj rezervaciji" },
-    { key: "cancelled", label: "Stopa otkazivanja", value: "9 %", change: -1, lowerIsBetter: true, hint: "otkazane od svih upita" },
-  ],
-};
-
-export function getAnalytics(range: Range): Analytics {
-  return { range, kpis: MOCK[range] ?? MOCK.month };
-}
-
-export function isRange(v: unknown): v is Range {
-  return typeof v === "string" && ["today", "7d", "month", "year"].includes(v);
-}
-
-// ---------------------------------------------------------------------------
-// Trend, fleet status, top vehicles and extras
-// ---------------------------------------------------------------------------
-
-export type TrendPoint = {
-  /** Short axis label: an hour, a weekday, a date or a month. */
-  label: string;
-  bookings: number;
-  /** Revenue in BAM for that point. */
-  revenue: number;
-};
-
-export type FleetVehicle = {
-  title: string;
-  plate: string;
-  /** Short context: who has it, or when it is back. */
-  note: string;
-};
-
+export type Analytics = { range: Range; kpis: Kpi[] };
+export type TrendPoint = { label: string; bookings: number; revenue: number };
+export type FleetVehicle = { id: string; title: string; plate: string; note: string };
 export type FleetSlice = {
   key: string;
   label: string;
@@ -115,146 +50,411 @@ export type FleetSlice = {
   color: string;
   vehicles: FleetVehicle[];
 };
+export type TopCar = { id: string; title: string; plate: string; rentals: number; revenue: number };
+export type ExtraStat = { name: string; rented: number; stock: number };
 
-export type TopCar = {
-  title: string;
-  /** Registration plate: the fleet has several cars of the same model. */
-  plate: string;
-  rentals: number;
-  revenue: number;
-};
-
-export type ExtraStat = {
-  name: string;
-  rented: number;
-  stock: number;
-};
-
-/** Buckets differ per period so the axis never turns into a wall of labels. */
-const TREND: Record<Range, TrendPoint[]> = {
-  today: [
-    { label: "08h", bookings: 1, revenue: 240 },
-    { label: "10h", bookings: 2, revenue: 430 },
-    { label: "12h", bookings: 1, revenue: 180 },
-    { label: "14h", bookings: 3, revenue: 520 },
-    { label: "16h", bookings: 2, revenue: 310 },
-    { label: "18h", bookings: 1, revenue: 160 },
-  ],
-  "7d": [
-    { label: "Pon", bookings: 6, revenue: 1620 },
-    { label: "Uto", bookings: 4, revenue: 1180 },
-    { label: "Sri", bookings: 7, revenue: 2040 },
-    { label: "Čet", bookings: 5, revenue: 1490 },
-    { label: "Pet", bookings: 11, revenue: 3260 },
-    { label: "Sub", bookings: 13, revenue: 3410 },
-    { label: "Ned", bookings: 5, revenue: 1260 },
-  ],
-  month: [
-    { label: "1–7", bookings: 38, revenue: 12900 },
-    { label: "8–14", bookings: 44, revenue: 15300 },
-    { label: "15–21", bookings: 51, revenue: 17800 },
-    { label: "22–28", bookings: 46, revenue: 15450 },
-  ],
-  year: [
-    { label: "Jan", bookings: 62, revenue: 18400 },
-    { label: "Feb", bookings: 58, revenue: 17100 },
-    { label: "Mar", bookings: 74, revenue: 22600 },
-    { label: "Apr", bookings: 96, revenue: 31200 },
-    { label: "Maj", bookings: 128, revenue: 43800 },
-    { label: "Jun", bookings: 164, revenue: 58900 },
-    { label: "Jul", bookings: 198, revenue: 74200 },
-    { label: "Avg", bookings: 205, revenue: 78600 },
-    { label: "Sep", bookings: 151, revenue: 54300 },
-    { label: "Okt", bookings: 104, revenue: 34700 },
-    { label: "Nov", bookings: 71, revenue: 21900 },
-    { label: "Dec", bookings: 66, revenue: 20300 },
-  ],
-};
-
-/** Fleet status is a snapshot, so it does not depend on the selected period. */
-export const FLEET_STATUS: FleetSlice[] = [
-  {
-    key: "rented",
-    label: "U najmu",
-    count: 22,
-    color: "var(--chart-rented)",
-    vehicles: [
-      { title: "Škoda Octavia (2025)", plate: "J45-M-987", note: "vraća se 03.09." },
-      { title: "Audi Q5 40 TDI", plate: "A21-K-455", note: "vraća se 05.09." },
-      { title: "VW T-Roc R-Line", plate: "E77-T-201", note: "vraća se 02.09." },
-      { title: "Audi A6 (2025)", plate: "M03-J-618", note: "vraća se 08.09." },
-      { title: "VW Transporter (8+1)", plate: "T64-O-330", note: "vraća se 04.09." },
-    ],
-  },
-  {
-    key: "available",
-    label: "Dostupno",
-    count: 9,
-    color: "var(--chart-available)",
-    vehicles: [
-      { title: "Audi A8 Long", plate: "K12-A-874", note: "Glavni ured – Čitluk" },
-      { title: "Škoda Octavia (2025)", plate: "J45-M-142", note: "Mostar – Zračna luka" },
-      { title: "VW T-Roc R-Line", plate: "E77-T-509", note: "Međugorje" },
-      { title: "Audi Q5 40 TDI", plate: "A21-K-703", note: "Ljubuški" },
-    ],
-  },
-  {
-    key: "service",
-    label: "Na servisu",
-    count: 4,
-    color: "var(--chart-service)",
-    vehicles: [
-      { title: "Audi A6 (2025)", plate: "M03-J-221", note: "redovni servis, do 02.09." },
-      { title: "VW Transporter (8+1)", plate: "T64-O-118", note: "zamjena guma, do 01.09." },
-      { title: "Škoda Octavia (2025)", plate: "J45-M-604", note: "limarija, do 06.09." },
-      { title: "Audi Q5 40 TDI", plate: "A21-K-390", note: "registracija, do 03.09." },
-    ],
-  },
-];
-
-const TOP_CARS: Record<Range, TopCar[]> = {
-  today: [
-    { title: "Audi Q5 40 TDI", plate: "A21-K-455", rentals: 2, revenue: 620 },
-    { title: "VW T-Roc R-Line", plate: "E77-T-201", rentals: 2, revenue: 480 },
-    { title: "Škoda Octavia (2025)", plate: "J45-M-987", rentals: 3, revenue: 450 },
-    { title: "Audi A6 (2025)", plate: "M03-J-618", rentals: 1, revenue: 190 },
-    { title: "VW Transporter (8+1)", plate: "T64-O-330", rentals: 1, revenue: 100 },
-  ],
-  "7d": [
-    { title: "Škoda Octavia (2025)", plate: "J45-M-987", rentals: 14, revenue: 4620 },
-    { title: "Audi Q5 40 TDI", plate: "A21-K-455", rentals: 9, revenue: 4180 },
-    { title: "VW T-Roc R-Line", plate: "E77-T-201", rentals: 11, revenue: 3450 },
-    { title: "Audi A6 (2025)", plate: "M03-J-618", rentals: 6, revenue: 2340 },
-    { title: "VW Transporter (8+1)", plate: "T64-O-330", rentals: 5, revenue: 1870 },
-  ],
-  month: [
-    { title: "Škoda Octavia (2025)", plate: "J45-M-987", rentals: 58, revenue: 19400 },
-    { title: "Audi Q5 40 TDI", plate: "A21-K-455", rentals: 41, revenue: 17650 },
-    { title: "VW T-Roc R-Line", plate: "E77-T-201", rentals: 47, revenue: 14900 },
-    { title: "Audi A8 Long", plate: "K12-A-874", rentals: 18, revenue: 12300 },
-    { title: "VW Transporter (8+1)", plate: "T64-O-330", rentals: 24, revenue: 8760 },
-  ],
-  year: [
-    { title: "Škoda Octavia (2025)", plate: "J45-M-987", rentals: 412, revenue: 138500 },
-    { title: "Audi Q5 40 TDI", plate: "A21-K-455", rentals: 296, revenue: 121300 },
-    { title: "VW T-Roc R-Line", plate: "E77-T-201", rentals: 338, revenue: 104900 },
-    { title: "Audi A8 Long", plate: "K12-A-874", rentals: 121, revenue: 86400 },
-    { title: "VW Transporter (8+1)", plate: "T64-O-330", rentals: 175, revenue: 62800 },
-  ],
-};
-
-export const EXTRAS_STATS: ExtraStat[] = [
-  { name: "Dječija sjedalica", rented: 7, stock: 10 },
-  { name: "Booster sjedalica", rented: 4, stock: 8 },
-  { name: "GPS navigacija", rented: 5, stock: 6 },
-  { name: "Krovni nosač", rented: 2, stock: 4 },
-  { name: "Zimska oprema", rented: 3, stock: 12 },
-];
-
-export function getTrend(range: Range): TrendPoint[] {
-  return TREND[range] ?? TREND.month;
+export function isRange(v: unknown): v is Range {
+  return typeof v === "string" && ["today", "7d", "month", "year"].includes(v);
 }
 
-export function getTopCars(range: Range): TopCar[] {
-  return TOP_CARS[range] ?? TOP_CARS.month;
+// ---------------------------------------------------------------------------
+// Periods
+// ---------------------------------------------------------------------------
+
+const DAY = 86_400_000;
+
+/**
+ * Start and end of the selected period, plus the one directly before it of the
+ * same length, so the percentage beside each figure compares like with like.
+ */
+function bounds(range: Range) {
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  let from: Date;
+  const to = now;
+
+  switch (range) {
+    case "today":
+      from = startOfDay;
+      break;
+    case "7d":
+      from = new Date(startOfDay.getTime() - 6 * DAY);
+      break;
+    case "year":
+      from = new Date(now.getFullYear(), 0, 1);
+      break;
+    default:
+      from = new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+
+  const span = to.getTime() - from.getTime();
+  return {
+    from,
+    to,
+    prevFrom: new Date(from.getTime() - span),
+    prevTo: new Date(from.getTime()),
+    now,
+  };
+}
+
+/** Percentage change, or null when there is nothing to compare against. */
+function pctChange(current: number, previous: number): number | null {
+  if (previous === 0) return current === 0 ? 0 : null;
+  return Math.round(((current - previous) / previous) * 100);
+}
+
+const num = (v: unknown) => (v == null ? 0 : Number(v));
+const fmtMoney = (n: number) => `${Math.round(n).toLocaleString("hr-HR")} KM`;
+
+/** Earns revenue. Cancelled and unanswered inquiries do not. */
+const EARNING = ["CONFIRMED", "COMPLETED"] as const;
+
+// ---------------------------------------------------------------------------
+// KPIs
+// ---------------------------------------------------------------------------
+
+async function windowTotals(from: Date, to: Date) {
+  const [agg, cancelled, total] = await Promise.all([
+    prisma.inquiry.aggregate({
+      where: { status: { in: [...EARNING] }, createdAt: { gte: from, lte: to } },
+      _sum: { totalPrice: true },
+      _avg: { rentalDays: true },
+      _count: true,
+    }),
+    prisma.inquiry.count({
+      where: { status: "CANCELLED", createdAt: { gte: from, lte: to } },
+    }),
+    prisma.inquiry.count({ where: { createdAt: { gte: from, lte: to } } }),
+  ]);
+
+  return {
+    revenue: num(agg._sum.totalPrice),
+    avgDays: num(agg._avg.rentalDays),
+    bookings: agg._count,
+    cancelled,
+    total,
+  };
+}
+
+/**
+ * Share of the fleet actually out on rent across the period, measured in
+ * car-days: each booking contributes the days it overlaps the window, against
+ * what the whole fleet could have delivered.
+ */
+async function utilisation(from: Date, to: Date): Promise<number> {
+  const [fleet, rentals] = await Promise.all([
+    prisma.car.count({ where: { isAvailable: true } }),
+    prisma.inquiry.findMany({
+      where: {
+        status: { in: [...EARNING] },
+        pickupAt: { lt: to },
+        returnAt: { gt: from },
+      },
+      select: { pickupAt: true, returnAt: true },
+    }),
+  ]);
+
+  const periodDays = Math.max(1, (to.getTime() - from.getTime()) / DAY);
+  const capacity = fleet * periodDays;
+  if (capacity === 0) return 0;
+
+  const used = rentals.reduce((sum, r) => {
+    const start = Math.max(r.pickupAt.getTime(), from.getTime());
+    const end = Math.min(r.returnAt.getTime(), to.getTime());
+    return sum + Math.max(0, end - start) / DAY;
+  }, 0);
+
+  return Math.min(100, Math.round((used / capacity) * 100));
+}
+
+export async function getAnalytics(range: Range): Promise<Analytics> {
+  const { from, to, prevFrom, prevTo, now } = bounds(range);
+
+  const [cur, prev, utilNow, utilPrev, active, upcoming, fleetSize] =
+    await Promise.all([
+      windowTotals(from, to),
+      windowTotals(prevFrom, prevTo),
+      utilisation(from, to),
+      utilisation(prevFrom, prevTo),
+      prisma.inquiry.count({
+        where: {
+          status: { in: [...EARNING] },
+          pickupAt: { lte: now },
+          returnAt: { gte: now },
+        },
+      }),
+      prisma.inquiry.count({
+        where: { status: { in: [...EARNING] }, pickupAt: { gt: now } },
+      }),
+      prisma.car.count({ where: { isAvailable: true } }),
+    ]);
+
+  const rate = (c: { cancelled: number; total: number }) =>
+    c.total === 0 ? 0 : Math.round((c.cancelled / c.total) * 100);
+
+  const kpis: Kpi[] = [
+    {
+      key: "utilisation",
+      label: "Iskoristivost flote",
+      value: `${utilNow} %`,
+      change: pctChange(utilNow, utilPrev),
+      hint: `${active} od ${fleetSize} vozila trenutno izdato`,
+    },
+    {
+      key: "revenue",
+      label: "Ukupan prihod",
+      value: fmtMoney(cur.revenue),
+      change: pctChange(cur.revenue, prev.revenue),
+      hint: "najam i dodatna oprema",
+    },
+    {
+      key: "active",
+      label: "Aktivni najmovi",
+      value: String(active),
+      change: null,
+      hint: "vozila trenutno kod gostiju",
+    },
+    {
+      key: "upcoming",
+      label: "Nadolazeće rezervacije",
+      value: String(upcoming),
+      change: null,
+      hint: "potvrđene, još nisu preuzete",
+    },
+    {
+      key: "duration",
+      label: "Prosječno trajanje najma",
+      value:
+        cur.avgDays > 0
+          ? `${cur.avgDays.toFixed(1).replace(".", ",")} dana`
+          : "—",
+      change: pctChange(cur.avgDays, prev.avgDays),
+      hint: "po potvrđenoj rezervaciji",
+    },
+    {
+      key: "cancelled",
+      label: "Stopa otkazivanja",
+      value: `${rate(cur)} %`,
+      change: pctChange(rate(cur), rate(prev)),
+      lowerIsBetter: true,
+      hint: "otkazane od svih upita",
+    },
+  ];
+
+  return { range, kpis };
+}
+
+// ---------------------------------------------------------------------------
+// Trend
+// ---------------------------------------------------------------------------
+
+/** Buckets differ per period so the axis never turns into a wall of labels. */
+function buckets(range: Range, from: Date, to: Date) {
+  const out: { label: string; start: Date; end: Date }[] = [];
+
+  if (range === "today") {
+    for (let h = 6; h < 22; h += 3) {
+      const s = new Date(from);
+      s.setHours(h, 0, 0, 0);
+      out.push({
+        label: `${String(h).padStart(2, "0")}h`,
+        start: s,
+        end: new Date(s.getTime() + 3 * 3_600_000),
+      });
+    }
+  } else if (range === "7d") {
+    const names = ["Ned", "Pon", "Uto", "Sri", "Čet", "Pet", "Sub"];
+    for (let i = 0; i < 7; i++) {
+      const s = new Date(from.getTime() + i * DAY);
+      out.push({ label: names[s.getDay()], start: s, end: new Date(s.getTime() + DAY) });
+    }
+  } else if (range === "year") {
+    const names = ["Jan","Feb","Mar","Apr","Maj","Jun","Jul","Avg","Sep","Okt","Nov","Dec"];
+    for (let m = 0; m <= to.getMonth(); m++) {
+      out.push({
+        label: names[m],
+        start: new Date(to.getFullYear(), m, 1),
+        end: new Date(to.getFullYear(), m + 1, 1),
+      });
+    }
+  } else {
+    const last = new Date(to.getFullYear(), to.getMonth() + 1, 0).getDate();
+    for (let d = 1; d <= last; d += 7) {
+      const end = Math.min(d + 6, last);
+      out.push({
+        label: `${d}–${end}`,
+        start: new Date(to.getFullYear(), to.getMonth(), d),
+        end: new Date(to.getFullYear(), to.getMonth(), end + 1),
+      });
+    }
+  }
+  return out;
+}
+
+export async function getTrend(range: Range): Promise<TrendPoint[]> {
+  const { from, to } = bounds(range);
+  const slots = buckets(range, from, to);
+
+  // One query, bucketed in memory: far cheaper than a query per bucket.
+  const rows = await prisma.inquiry.findMany({
+    where: { status: { in: [...EARNING] }, createdAt: { gte: from, lte: to } },
+    select: { createdAt: true, totalPrice: true },
+  });
+
+  return slots.map((s) => {
+    const inSlot = rows.filter((r) => r.createdAt >= s.start && r.createdAt < s.end);
+    return {
+      label: s.label,
+      bookings: inSlot.length,
+      revenue: inSlot.reduce((a, r) => a + num(r.totalPrice), 0),
+    };
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Fleet status
+// ---------------------------------------------------------------------------
+
+const fmtDay = (d: Date) =>
+  new Intl.DateTimeFormat("hr-HR", {
+    timeZone: "Europe/Sarajevo",
+    day: "2-digit",
+    month: "2-digit",
+  }).format(d);
+
+export async function getFleetStatus(): Promise<FleetSlice[]> {
+  const now = new Date();
+
+  const [cars, rentals, blocks] = await Promise.all([
+    prisma.car.findMany({
+      where: { isAvailable: true },
+      select: { id: true, title: true, plate: true },
+      orderBy: { sortOrder: "asc" },
+    }),
+    prisma.inquiry.findMany({
+      where: {
+        status: { in: [...EARNING] },
+        pickupAt: { lte: now },
+        returnAt: { gte: now },
+        carId: { not: null },
+      },
+      select: { carId: true, returnAt: true },
+    }),
+    prisma.carBlock.findMany({
+      where: { startAt: { lte: now }, endAt: { gte: now } },
+      select: { carId: true, endAt: true, reason: true },
+    }),
+  ]);
+
+  const rentedBy = new Map(rentals.map((r) => [r.carId as string, r]));
+  const blockedBy = new Map(blocks.map((b) => [b.carId, b]));
+
+  const rented: FleetVehicle[] = [];
+  const service: FleetVehicle[] = [];
+  const free: FleetVehicle[] = [];
+
+  for (const c of cars) {
+    // A manual block wins: the car is off the road even if a booking overlaps.
+    const block = blockedBy.get(c.id);
+    if (block) {
+      service.push({
+        id: c.id,
+        title: c.title,
+        plate: c.plate ?? "",
+        note: `${block.reason ?? "blokirano"}, do ${fmtDay(block.endAt)}`,
+      });
+      continue;
+    }
+    const rent = rentedBy.get(c.id);
+    if (rent) {
+      rented.push({
+        id: c.id,
+        title: c.title,
+        plate: c.plate ?? "",
+        note: `vraća se ${fmtDay(rent.returnAt)}`,
+      });
+      continue;
+    }
+    free.push({ id: c.id, title: c.title, plate: c.plate ?? "", note: "slobodno" });
+  }
+
+  return [
+    { key: "rented", label: "U najmu", count: rented.length, color: "var(--chart-rented)", vehicles: rented },
+    { key: "available", label: "Dostupno", count: free.length, color: "var(--chart-available)", vehicles: free },
+    { key: "service", label: "Na servisu", count: service.length, color: "var(--chart-service)", vehicles: service },
+  ];
+}
+
+// ---------------------------------------------------------------------------
+// Top vehicles and extras
+// ---------------------------------------------------------------------------
+
+export async function getTopCars(range: Range): Promise<TopCar[]> {
+  const { from, to } = bounds(range);
+
+  const grouped = await prisma.inquiry.groupBy({
+    by: ["carId"],
+    where: {
+      status: { in: [...EARNING] },
+      createdAt: { gte: from, lte: to },
+      carId: { not: null },
+    },
+    _sum: { totalPrice: true },
+    _count: true,
+    orderBy: { _sum: { totalPrice: "desc" } },
+    take: 5,
+  });
+
+  const ids = grouped.map((g) => g.carId as string);
+  const cars = await prisma.car.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, title: true, plate: true },
+  });
+  const carById = new Map(cars.map((c) => [c.id, c]));
+
+  return grouped.map((g) => {
+    const car = carById.get(g.carId as string);
+    return {
+      id: g.carId as string,
+      title: car?.title ?? "Nepoznato vozilo",
+      plate: car?.plate ?? "",
+      rentals: g._count,
+      revenue: num(g._sum.totalPrice),
+    };
+  });
+}
+
+export async function getExtrasStats(): Promise<ExtraStat[]> {
+  const now = new Date();
+
+  const [extras, out] = await Promise.all([
+    prisma.extra.findMany({
+      where: { isActive: true },
+      select: { id: true, nameHr: true, totalStock: true },
+      orderBy: { sortOrder: "asc" },
+    }),
+    prisma.inquiryExtra.findMany({
+      where: {
+        inquiry: {
+          status: { in: [...EARNING] },
+          pickupAt: { lte: now },
+          returnAt: { gte: now },
+        },
+      },
+      select: { extraId: true, qty: true },
+    }),
+  ]);
+
+  const rentedBy = new Map<string, number>();
+  for (const r of out) {
+    if (!r.extraId) continue;
+    rentedBy.set(r.extraId, (rentedBy.get(r.extraId) ?? 0) + r.qty);
+  }
+
+  return extras.map((e) => ({
+    name: e.nameHr,
+    rented: rentedBy.get(e.id) ?? 0,
+    stock: e.totalStock,
+  }));
 }

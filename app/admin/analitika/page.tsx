@@ -1,10 +1,11 @@
 import { Suspense } from "react";
 import { BarChart3, Info } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import {
   COMPARED_TO,
-  EXTRAS_STATS,
-  FLEET_STATUS,
   getAnalytics,
+  getExtrasStats,
+  getFleetStatus,
   getTopCars,
   getTrend,
   isRange,
@@ -23,16 +24,34 @@ export const dynamic = "force-dynamic";
 type RawSearchParams = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
-export default function AdminAnalyticsPage({
+export default async function AdminAnalyticsPage({
   searchParams,
 }: {
   searchParams: RawSearchParams;
 }) {
   const raw = one(searchParams.period);
   const range = isRange(raw) ? raw : "month";
-  const { kpis } = getAnalytics(range);
-  const trend = getTrend(range);
-  const topCars = getTopCars(range);
+  // A reporting screen must never take the panel down with it, so a failed
+  // query falls back to empty sections that say so.
+  let kpis: Awaited<ReturnType<typeof getAnalytics>>["kpis"] = [];
+  let trend: Awaited<ReturnType<typeof getTrend>> = [];
+  let topCars: Awaited<ReturnType<typeof getTopCars>> = [];
+  let fleet: Awaited<ReturnType<typeof getFleetStatus>> = [];
+  let extras: Awaited<ReturnType<typeof getExtrasStats>> = [];
+  let failed = false;
+
+  try {
+    [{ kpis }, trend, topCars, fleet, extras] = await Promise.all([
+      getAnalytics(range),
+      getTrend(range),
+      getTopCars(range),
+      getFleetStatus(),
+      getExtrasStats(),
+    ]);
+  } catch (err) {
+    console.error("[analytics] failed:", err);
+    failed = true;
+  }
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
@@ -53,6 +72,13 @@ export default function AdminAnalyticsPage({
           <RangeFilter value={range} />
         </Suspense>
       </div>
+
+      {failed && (
+        <div className="mt-6 flex items-center gap-2 rounded-xl border border-brand/40 bg-brand/[0.06] p-3 text-sm text-foreground">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-brand-strong" />
+          Podaci se trenutno ne mogu učitati. Pokušajte osvježiti stranicu.
+        </div>
+      )}
 
       {/* ── KPI ── */}
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -77,7 +103,7 @@ export default function AdminAnalyticsPage({
           delay={0.06}
           className="lg:col-span-2"
         >
-          <FleetDonut data={FLEET_STATUS} />
+          <FleetDonut data={fleet} />
         </Section>
       </div>
 
@@ -96,14 +122,14 @@ export default function AdminAnalyticsPage({
           subtitle="Koliko je izdato, a koliko ostaje slobodno"
           delay={0.08}
         >
-          <ExtrasTable data={EXTRAS_STATS} />
+          <ExtrasTable data={extras} />
         </Section>
       </div>
 
       <p className="mt-6 flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-        Prikazani brojevi su privremeni, dok se ne poveže na stvarne
-        rezervacije.
+        Brojevi se računaju iz potvrđenih i završenih rezervacija. Otkazani i
+        neodgovoreni upiti ne ulaze u prihod.
       </p>
     </div>
   );

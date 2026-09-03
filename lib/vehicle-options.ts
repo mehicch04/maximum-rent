@@ -76,6 +76,7 @@ export type AdminVehicle = Omit<
 > & {
   pricePerDay: number | null;
   seasonalPrice: number | null;
+  plate: string | null;
   deposit: number | null;
   createdAt: string;
   updatedAt: string;
