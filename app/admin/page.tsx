@@ -17,6 +17,8 @@ import { prisma } from "@/lib/prisma";
 import { confirmInquiry, cancelInquiry, addBlock, removeBlock } from "./actions";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { BlockForm } from "@/components/admin/BlockForm";
+import { getActiveExtras } from "@/lib/extras";
+import { getBookedExtras } from "@/lib/extras-availability";
 
 export const dynamic = "force-dynamic";
 
@@ -110,7 +112,8 @@ export default async function AdminPage({
 
   const where = { ...statusWhere, ...createdAtWhere };
 
-  const [inquiries, blocks, cars, counts] = await Promise.all([
+  const [inquiries, blocks, cars, counts, blockExtras, blockBooked] =
+    await Promise.all([
     prisma.inquiry.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -127,6 +130,10 @@ export default async function AdminPage({
       select: { id: true, title: true },
     }),
     prisma.inquiry.groupBy({ by: ["status"], _count: true, where: createdAtWhere }),
+    getActiveExtras().catch(() => []),
+    // Availability must never take the panel down; an empty list just means
+    // the form shows full stock and the server still re-checks on submit.
+    getBookedExtras().catch(() => []),
   ]);
 
   const countByStatus = new Map(counts.map((c) => [c.status, c._count]));
@@ -379,7 +386,13 @@ export default async function AdminPage({
         (uključivo oba datuma).
       </p>
 
-      <BlockForm action={addBlock} cars={cars} today={today} />
+      <BlockForm
+        action={addBlock}
+        cars={cars}
+        today={today}
+        extras={blockExtras}
+        booked={blockBooked}
+      />
 
       {blocks.length > 0 && (
         <div className="mt-4 space-y-2">

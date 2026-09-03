@@ -4,6 +4,11 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import {
+  availabilityFor,
+  getBookedExtras,
+  maxSelectable,
+} from "@/lib/extras-availability";
 import { ADMIN_COOKIE, tokenValid } from "@/lib/admin-auth";
 import { sendReservationDecisionEmail } from "@/lib/email";
 
@@ -202,6 +207,51 @@ export async function addBlock(formData: FormData) {
 
   if (!valid) backTo({ msg: "error" });
 
+  // Equipment, re-checked here. The browser sends only ids and quantities, and
+  // that list can be tampered with, so availability is worked out again from
+  // the database before anything is written.
+  let extraRows: { extraId: string; qty: number; nameHr: string }[] = [];
+
+  if (kind === "MANUAL_BOOKING") {
+    let requested: { id: string; qty: number }[] = [];
+    try {
+      const parsed: unknown = JSON.parse(String(formData.get("extras") ?? "[]"));
+      if (Array.isArray(parsed)) {
+        requested = parsed
+          .filter(
+            (r): r is { id: string; qty: number } =>
+              !!r && typeof r.id === "string" && Number.isFinite(Number(r.qty)),
+          )
+          .map((r) => ({ id: r.id, qty: Math.max(0, Math.floor(Number(r.qty))) }))
+          .filter((r) => r.qty > 0);
+      }
+    } catch {
+      requested = [];
+    }
+
+    if (requested.length > 0) {
+      const [catalogue, booked] = await Promise.all([
+        prisma.extra.findMany({
+          where: { id: { in: requested.map((r) => r.id) }, isActive: true },
+          select: { id: true, nameHr: true, maxQty: true, totalStock: true },
+        }),
+        getBookedExtras(),
+      ]);
+
+      const free = availabilityFor(catalogue, booked, startAt, endAt);
+
+      for (const r of requested) {
+        const item = catalogue.find((c) => c.id === r.id);
+        if (!item) continue;
+        const cap = maxSelectable(item.maxQty, free[item.id] ?? 0);
+        // Anything beyond what is genuinely free is refused outright rather
+        // than quietly trimmed, so nobody leaves thinking it was booked.
+        if (r.qty > cap) backTo({ msg: "error" });
+        extraRows.push({ extraId: item.id, qty: r.qty, nameHr: item.nameHr });
+      }
+    }
+  }
+
   await prisma.carBlock.create({
     data: {
       carId,
@@ -212,6 +262,7 @@ export async function addBlock(formData: FormData) {
       // Only kept where they mean something; a service block has no client.
       clientName: kind === "MANUAL_BOOKING" ? clientName : null,
       totalPrice: kind === "MANUAL_BOOKING" ? price : null,
+      extras: extraRows.length ? { create: extraRows } : undefined,
     },
   });
 

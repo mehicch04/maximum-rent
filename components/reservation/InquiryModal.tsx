@@ -13,6 +13,7 @@ import { PriceBreakdown } from "./PriceBreakdown";
 import { rentalDays } from "@/lib/extras";
 import { useCurrency } from "@/components/currency/CurrencyProvider";
 import type { ExtraItem } from "@/lib/extras";
+import type { Booked } from "@/lib/extras-availability";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 
 type Props = {
@@ -21,6 +22,7 @@ type Props = {
   locations?: { id: string; name: string }[];
   /** Optional equipment the owner offers (empty list hides the section). */
   extras?: ExtraItem[];
+  bookedExtras?: Booked[];
   onClose: () => void;
 };
 
@@ -47,7 +49,14 @@ function snapTime(t: string) {
   return `${pad(Math.floor(total / 60))}:${pad(total % 60)}`;
 }
 
-export function InquiryModal({ car, search, locations = [], extras = [], onClose }: Props) {
+export function InquiryModal({
+  car,
+  search,
+  locations = [],
+  extras = [],
+  bookedExtras = [],
+  onClose,
+}: Props) {
   const locale = useLocale() as AppLocale;
   const t = useTranslations("Inquiry");
 
@@ -394,6 +403,7 @@ export function InquiryModal({ car, search, locations = [], extras = [], onClose
                   onChange={setChosenExtras}
                   pickupAt={new Date(`${pickupDate}T${pickupTime}`)}
                   returnAt={new Date(`${returnDate}T${returnTime}`)}
+                  booked={bookedExtras}
                 />
 
                 <PriceBreakdown

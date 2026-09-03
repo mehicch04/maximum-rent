@@ -1,68 +1,66 @@
-BLOKADE VOZILA — dinamička forma povezana s analitikom
-======================================================
+MANUELNE REZERVACIJE — oprema i dvosmjerna provjera dostupnosti
+===============================================================
 
 *** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
 
-=======================================================================
-FORMA
-=======================================================================
-Polje "Razlog" je sada padajući izbornik s četiri opcije. Ispod izbornika
-uvijek piše šta ta opcija znači za izvještaje, jer to iz samog naziva
-nije očito.
+ŠTA JE URAĐENO
+--------------
+Kad se u blokadama odabere "Manuelna rezervacija", ispod imena klijenta i
+cijene pojavljuje se izbor dodatne opreme s količinama.
 
-  Servis / Održavanje        bez dodatnih polja
-  Manuelna rezervacija       traži IME KLIJENTA i UKUPNU CIJENU
-  Oštećenje / Sudar          traži OPIS ŠTETE
-  Privatna upotreba          bez dodatnih polja
+Dok datumi nisu odabrani, umjesto liste stoji poruka da ih treba izabrati,
+jer bez perioda dostupnost nema smisla.
 
-Osnovni red (vozilo, datumi, razlog, dugme) ostaje u jednoj liniji kao i
-prije. Dodatna polja se pojavljuju ispod, odvojena tankom linijom, i to
-samo kod dvije opcije kojima trebaju. Forma se ne rasteže bez potrebe.
+Uz svaku stavku piše "Slobodno još: 2 od 6". Ono čega nema zaključa se:
+red posivi, umjesto brojača stoji ikona brave, a crvenim piše
+"Nedostupno u odabranom periodu".
 
-=======================================================================
-VEZA S ANALITIKOM — ZBOG ČEGA JE SVE OVO
-=======================================================================
-Analitika prihod čita iz upita sa sajta. Manuelna rezervacija nije upit
-nego blokada, pa bi bez ovoga posao dogovoren telefonom bio nevidljiv u
-izvještajima. To bi značilo da prihod izgleda manji nego što jeste, i to
-baš za onaj dio posla koji se u ovoj branši najviše radi preko telefona.
+DVOSMJERNA PROVJERA
+-------------------
+Dosad se dostupnost računala iz izmišljene liste. Sada se čita iz baze, i
+to iz OBA izvora odjednom:
 
-Sada:
-  PRIHOD          zbraja upite sa sajta I manuelne rezervacije
-  ISKORISTIVOST   manuelna rezervacija broji se kao najam, kao i svaka druga
-  STATUS FLOTE    manuelna rezervacija ide u "U NAJMU", ne u nedostupna
-                  servis, oštećenje i privatna upotreba idu u nedostupna
+  - oprema rezervisana kroz online formu na sajtu
+  - oprema izdata kroz ovu manuelnu formu
 
-Isječak koji je prije pisao "Na servisu" sada piše "Nedostupno", jer sada
-obuhvata i oštećenja i privatnu upotrebu. Uz svako vozilo u spisku i
-dalje piše pravi razlog i datum do kada.
+Zbog toga:
+  Online rezervacija zaključava manuelnu formu.
+  Manuelna rezervacija zaključava online formu.
 
-Kod manuelne rezervacije u spisku stoji ime klijenta i kada se vozilo
-vraća, isto kao kod rezervacija sa sajta.
+Da se čitao samo jedan izvor, radnik koji popunjava manuelnu formu ne bi
+vidio šta je sajt već izdao, i sjedalica bi otišla dvaput.
 
-=======================================================================
-VALIDACIJA I NA SERVERU
-=======================================================================
-Obavezna polja u obrascu se mogu zaobići, pa server ponovo provjerava:
-manuelna rezervacija bez imena ili bez cijene se odbija. Bez toga bi u
-izvještajima sjedio bezimeni iznos od nula maraka.
+Oprema se odbija tek kad se PERIODI PREKLAPAJU. Termini koji se samo
+dodiruju (jedan vraća, drugi preuzima istog dana) nisu sudar.
 
-Cijena i ime se čuvaju samo kod manuelne rezervacije; servis nema klijenta
-pa ta polja ostaju prazna.
+VAŽNO: PROVJERA I NA SERVERU
+----------------------------
+Preglednik šalje samo oznake i količine, a to se može krivotvoriti. Zato
+server prije upisa ponovo izračuna dostupnost iz baze. Ako je traženo više
+nego što je slobodno, cijela blokada se odbija.
 
-TESTIRANO
-  prihod: 2000 (sajt) + 1050 (telefon) = 3050 KM
-  servis, šteta i privatna upotreba ne donose prihod
-  raspored po isječcima za sva četiri tipa
-  validacija: bez imena i bez cijene odbijeno, cijena 0 prihvaćena,
-              servis prolazi bez dodatnih polja
+Namjerno se odbija umjesto da se količina tiho smanji: radnik mora znati
+da oprema nije rezervisana, a ne saznati to tek kad gost dođe po nju.
+
+TESTIRANO (7 provjera, sve prolaze)
+  online rezervacija 3 sjedalice od 4 -> u manuelnoj formi ostaje 1
+  online rezervacija 2 GPS od 2 -> GPS zaključan u manuelnoj formi
+  manuelna rezervacija 4 od 4 -> zaključano i u online formi
+  oba izvora zajedno: 4 - 3 - 1 = 0
+  rezervacija izvan perioda ne utiče
+  termini koji se dodiruju krajevima nisu sudar
 
 FAJLOVI
 -------
-  prisma/schema.prisma            (BlockKind, totalPrice, clientName)
-  components/admin/BlockForm.tsx  (dinamička forma)
-  app/admin/actions.ts            (validacija i spremanje)
-  lib/analytics.ts                (prihod, iskoristivost, status flote)
+  prisma/schema.prisma                        (model BlockExtra)
+  lib/extras-availability.ts                  (stvarni upit iz oba izvora)
+  components/admin/BlockForm.tsx              (izbor opreme i zaključavanje)
+  app/admin/actions.ts                        (ponovna provjera i upis)
+  app/admin/page.tsx                          (dohvat opreme i zauzetosti)
+  components/reservation/ExtrasPicker.tsx     (prima podatke propsom)
+  components/reservation/InquiryModal.tsx     (prosljeđuje)
+  components/fleet/FleetGrid.tsx              (prosljeđuje)
+  app/[locale]/page.tsx, vozila/page.tsx      (dohvat na serveru)
 
 KORACI
 ------
@@ -70,7 +68,7 @@ KORACI
 2. npx prisma generate
 3. npx prisma db push
 4. npm run build
-5. npm run dev -> /admin
-   - dodaj manuelnu rezervaciju s cijenom
-   - /admin/analitika: iznos mora biti u prihodu, vozilo u "U najmu"
-   - dodaj servis: vozilo mora biti u "Nedostupno"
+5. npm run dev
+   - /admin: manuelna rezervacija s opremom za neki period
+   - /vozila: isti period -> ta oprema mora biti zaključana
+   - i obrnuto: rezerviši opremu online pa provjeri manuelnu formu

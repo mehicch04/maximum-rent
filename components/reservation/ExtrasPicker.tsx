@@ -8,8 +8,8 @@ import { formatPrice } from "@/lib/currency";
 import { useCurrency } from "@/components/currency/CurrencyProvider";
 import {
   availabilityFor,
-  getBookedExtras,
   maxSelectable,
+  type Booked,
 } from "@/lib/extras-availability";
 
 export type ExtraSelection = Record<string, number>;
@@ -28,6 +28,7 @@ export function ExtrasPicker({
   onChange,
   pickupAt,
   returnAt,
+  booked,
 }: {
   extras: ExtraItem[];
   value: ExtraSelection;
@@ -35,6 +36,12 @@ export function ExtrasPicker({
   /** Selected rental period; availability is recalculated whenever it changes. */
   pickupAt: Date | null;
   returnAt: Date | null;
+  /**
+   * Everything already promised, from the website and from manual bookings
+   * alike. Fetched on the server and passed down, since a client component
+   * cannot read the database itself.
+   */
+  booked: Booked[];
 }) {
   const locale = useLocale();
   const t = useTranslations("Extras");
@@ -42,8 +49,8 @@ export function ExtrasPicker({
   const isEn = locale === "en";
 
   const free = useMemo(
-    () => availabilityFor(extras, getBookedExtras(), pickupAt, returnAt),
-    [extras, pickupAt, returnAt],
+    () => availabilityFor(extras, booked, pickupAt, returnAt),
+    [extras, booked, pickupAt, returnAt],
   );
 
   /**

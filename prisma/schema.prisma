@@ -202,6 +202,7 @@ model CarBlock {
   /// over the phone counts towards revenue just like one made on the site.
   totalPrice Decimal? @db.Decimal(10, 2)
   clientName String?
+  extras     BlockExtra[]
   createdAt DateTime @default(now())
 
   @@index([carId, startAt, endAt])
@@ -274,6 +275,7 @@ model Extra {
   updatedAt  DateTime     @updatedAt
 
   inquiries  InquiryExtra[]
+  blocks     BlockExtra[]
 
   @@index([isActive, sortOrder])
 }
@@ -334,4 +336,22 @@ enum BlockKind {
   DAMAGE
   /// Privatna upotreba vlasnika.
   PRIVATE
+}
+
+
+/// Equipment handed out with a manual booking. Kept separate from
+/// InquiryExtra, but counted alongside it, so a seat promised over the phone
+/// is unavailable on the website for the same dates and the other way round.
+model BlockExtra {
+  id      String   @id @default(cuid())
+  blockId String
+  extraId String?
+  qty     Int      @default(1)
+  /// Name copied at booking time, so past records survive renaming.
+  nameHr  String
+
+  block   CarBlock @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  extra   Extra?   @relation(fields: [extraId], references: [id], onDelete: SetNull)
+
+  @@index([extraId])
 }

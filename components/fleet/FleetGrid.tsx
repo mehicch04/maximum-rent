@@ -12,6 +12,7 @@ import {
 } from "@/lib/car-categories";
 import type { CarListItem, SearchContext } from "@/lib/types";
 import type { ExtraItem } from "@/lib/extras";
+import type { Booked } from "@/lib/extras-availability";
 
 type Props = {
   cars: CarListItem[];
@@ -26,6 +27,7 @@ type Props = {
   imageSizes?: string;
   /** Optional equipment offered in the inquiry modal. */
   extras?: ExtraItem[];
+  bookedExtras?: Booked[];
 };
 
 /** Compact labelled dropdown used by the fleet toolbar. */
@@ -76,7 +78,7 @@ export type SortKey =
  * because the fleet is small — instant, no extra requests. Cars can match
  * several categories at once.
  */
-export function FleetGrid({ cars, search, locations, showFilters = true, eagerFirstImages = false, imageSizes, extras }: Props) {
+export function FleetGrid({ cars, search, locations, showFilters = true, eagerFirstImages = false, imageSizes, extras, bookedExtras }: Props) {
   const t = useTranslations("Fleet");
   const [selected, setSelected] = useState<CarListItem | null>(null);
   const [active, setActive] = useState<CarCategory | "ALL">("ALL");
@@ -263,6 +265,7 @@ export function FleetGrid({ cars, search, locations, showFilters = true, eagerFi
         search={search}
         locations={locations}
         extras={extras}
+        bookedExtras={bookedExtras}
         onClose={() => setSelected(null)}
       />
     </>

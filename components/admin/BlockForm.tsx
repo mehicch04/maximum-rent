@@ -1,8 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Wrench, Phone, AlertTriangle, User } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Plus, Wrench, Phone, AlertTriangle, User, Lock, Minus } from "lucide-react";
 import { DateField } from "@/components/ui/DateField";
+import type { ExtraItem } from "@/lib/extras";
+import {
+  availabilityFor,
+  maxSelectable,
+  type Booked,
+} from "@/lib/extras-availability";
 
 const input =
   "h-10 w-full min-w-0 rounded-xl border border-border bg-background px-3 text-base outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-ring/30 sm:text-sm";
@@ -48,14 +54,51 @@ export function BlockForm({
   action,
   cars,
   today,
+  extras = [],
+  booked = [],
 }: {
   action: (formData: FormData) => void;
   cars: { id: string; title: string }[];
   today: string;
+  extras?: ExtraItem[];
+  /**
+   * Everything already promised, from the website and from earlier manual
+   * bookings. Checking both is the whole point: a clerk filling this form must
+   * not be able to hand out a seat the website already gave away.
+   */
+  booked?: Booked[];
 }) {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [kind, setKind] = useState<Kind>("MAINTENANCE");
+  const [chosen, setChosen] = useState<Record<string, number>>({});
+
+  // Blocks run from the start of the first day to the end of the last, which is
+  // how the server stores them, so availability lines up exactly.
+  const fromDate = from ? new Date(`${from}T00:00:00`) : null;
+  const toDate = to ? new Date(`${to}T23:59:59`) : null;
+
+  const free = useMemo(
+    () => availabilityFor(extras, booked, fromDate, toDate),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [extras, booked, from, to],
+  );
+
+  // Changing the dates can shrink what is available, so an earlier choice is
+  // trimmed rather than silently sending a quantity that cannot be honoured.
+  useEffect(() => {
+    let changed = false;
+    const next: Record<string, number> = {};
+    for (const [id, qty] of Object.entries(chosen)) {
+      const item = extras.find((e) => e.id === id);
+      if (!item) continue;
+      const capped = Math.min(qty, maxSelectable(item.maxQty, free[id] ?? 0));
+      if (capped !== qty) changed = true;
+      if (capped > 0) next[id] = capped;
+    }
+    if (changed) setChosen(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [free]);
 
   const selected = KINDS.find((k) => k.value === kind)!;
   const Icon = selected.icon;
@@ -178,6 +221,103 @@ export function BlockForm({
                   Ulazi u prihod na stranici Analitika.
                 </p>
               </div>
+
+              {extras.length > 0 && (
+                <div className="sm:col-span-2">
+                  <label className={lbl}>Dodatna oprema</label>
+                  {!from || !to ? (
+                    <p className="rounded-xl border border-dashed border-border px-3 py-2.5 text-xs text-muted-foreground">
+                      Odaberite datume da vidite šta je slobodno.
+                    </p>
+                  ) : (
+                    <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">
+                      {extras.map((e) => {
+                        const qty = chosen[e.id] ?? 0;
+                        const freePieces = free[e.id] ?? 0;
+                        const cap = maxSelectable(e.maxQty, freePieces);
+                        const soldOut = cap === 0;
+
+                        return (
+                          <li
+                            key={e.id}
+                            className={`flex items-center gap-3 px-3 py-2 ${
+                              soldOut ? "bg-surface-muted/40 opacity-50" : "bg-surface"
+                            }`}
+                          >
+                            {soldOut ? (
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground">
+                                <Lock className="h-3.5 w-3.5" />
+                              </span>
+                            ) : (
+                              <div className="flex shrink-0 items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setChosen((c) => {
+                                      const n = { ...c };
+                                      if (qty <= 1) delete n[e.id];
+                                      else n[e.id] = qty - 1;
+                                      return n;
+                                    })
+                                  }
+                                  disabled={qty === 0}
+                                  aria-label={`Smanji ${e.nameHr}`}
+                                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-border transition-colors hover:border-brand disabled:opacity-40"
+                                >
+                                  <Minus className="h-3.5 w-3.5" />
+                                </button>
+                                <span className="w-5 text-center text-sm font-semibold tabular-nums">
+                                  {qty}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setChosen((c) => ({
+                                      ...c,
+                                      [e.id]: Math.min(cap, qty + 1),
+                                    }))
+                                  }
+                                  disabled={qty >= cap}
+                                  aria-label={`Povećaj ${e.nameHr}`}
+                                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-border transition-colors hover:border-brand disabled:opacity-40"
+                                >
+                                  <Plus className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            )}
+
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-sm font-medium text-foreground">
+                                {e.nameHr}
+                              </span>
+                              <span className="block text-xs">
+                                {soldOut ? (
+                                  <span className="font-medium text-brand-strong">
+                                    Nedostupno u odabranom periodu
+                                  </span>
+                                ) : (
+                                  <span className="text-muted-foreground">
+                                    Slobodno još: {freePieces} od {e.totalStock}
+                                  </span>
+                                )}
+                              </span>
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+
+                  {/* Selection travels as one field; the server re-checks it. */}
+                  <input
+                    type="hidden"
+                    name="extras"
+                    value={JSON.stringify(
+                      Object.entries(chosen).map(([id, qty]) => ({ id, qty })),
+                    )}
+                  />
+                </div>
+              )}
             </>
           )}
 

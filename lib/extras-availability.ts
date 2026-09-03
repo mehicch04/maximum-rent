@@ -74,33 +74,71 @@ export function maxSelectable(
 }
 
 // ---------------------------------------------------------------------------
-// Mock bookings
+// What is already committed
 // ---------------------------------------------------------------------------
 
 /**
- * Stand-in for what is already committed.
+ * Every piece of equipment currently promised to someone, from both places it
+ * can be promised: the website and a booking taken by phone.
  *
- * The real version is one query: confirmed inquiries joined to their extras,
- * filtered to periods that overlap the requested one. Only the body of
- * `getBookedExtras` changes then — the calculation above stays as it is.
+ * Reading only one source is what would let the same child seat go out twice —
+ * a clerk filling the manual form would never see what the website already
+ * gave away, and vice versa.
+ *
+ * Only current and future periods are returned; finished rentals free their
+ * equipment and would only bloat the payload.
  */
-export const MOCK_BOOKINGS: Booked[] = [
-  // Child seats: heavily booked over the first September week.
-  { extraId: "seat-child", qty: 3, from: new Date("2026-09-01"), to: new Date("2026-09-07") },
-  { extraId: "seat-child", qty: 4, from: new Date("2026-09-03"), to: new Date("2026-09-10") },
-  { extraId: "seat-child", qty: 2, from: new Date("2026-09-12"), to: new Date("2026-09-15") },
+export async function getBookedExtras(): Promise<Booked[]> {
+  const { prisma } = await import("@/lib/prisma");
+  const now = new Date();
 
-  { extraId: "seat-booster", qty: 2, from: new Date("2026-09-02"), to: new Date("2026-09-08") },
-  { extraId: "seat-booster", qty: 3, from: new Date("2026-09-05"), to: new Date("2026-09-09") },
+  try {
+    const [online, manual] = await Promise.all([
+      prisma.inquiryExtra.findMany({
+        where: {
+          extraId: { not: null },
+          inquiry: {
+            status: { in: ["CONFIRMED", "COMPLETED"] },
+            returnAt: { gte: now },
+          },
+        },
+        select: {
+          extraId: true,
+          qty: true,
+          inquiry: { select: { pickupAt: true, returnAt: true } },
+        },
+      }),
+      prisma.blockExtra.findMany({
+        where: {
+          extraId: { not: null },
+          block: { kind: "MANUAL_BOOKING", endAt: { gte: now } },
+        },
+        select: {
+          extraId: true,
+          qty: true,
+          block: { select: { startAt: true, endAt: true } },
+        },
+      }),
+    ]);
 
-  // GPS units: only six exist, and five are out in the first week.
-  { extraId: "gps", qty: 3, from: new Date("2026-09-01"), to: new Date("2026-09-06") },
-  { extraId: "gps", qty: 3, from: new Date("2026-09-04"), to: new Date("2026-09-11") },
-
-  { extraId: "roof-rack", qty: 1, from: new Date("2026-09-03"), to: new Date("2026-09-09") },
-  { extraId: "winter", qty: 2, from: new Date("2026-09-01"), to: new Date("2026-09-20") },
-];
-
-export function getBookedExtras(): Booked[] {
-  return MOCK_BOOKINGS;
+    return [
+      ...online.map((r) => ({
+        extraId: r.extraId as string,
+        qty: r.qty,
+        from: r.inquiry.pickupAt,
+        to: r.inquiry.returnAt,
+      })),
+      ...manual.map((r) => ({
+        extraId: r.extraId as string,
+        qty: r.qty,
+        from: r.block.startAt,
+        to: r.block.endAt,
+      })),
+    ];
+  } catch (err) {
+    // Failing open would let double bookings through, so an empty list is the
+    // wrong fallback here; the caller decides how to handle it.
+    console.error("[extras] availability lookup failed:", err);
+    throw err;
+  }
 }

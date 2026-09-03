@@ -7,6 +7,7 @@ import { type SearchContext } from "@/lib/types";
 import { getAvailableCars, isValidPeriod } from "@/lib/availability";
 import { getBrowseCars, getActiveLocations } from "@/lib/fleet-data";
 import { getActiveExtras } from "@/lib/extras";
+import { getBookedExtras } from "@/lib/extras-availability";
 import { ReservationSearchForm } from "@/components/reservation/ReservationSearchForm";
 import { ReservationSummary } from "@/components/reservation/ReservationSummary";
 import { FleetGrid } from "@/components/fleet/FleetGrid";
@@ -58,10 +59,11 @@ export default async function VehiclesPage({
     !!pickupDate && !!returnDate && isValidPeriod(pickupDate, returnDate);
   const periodInvalid = hasDates && !periodValid;
 
-  const [cars, locations, extras] = await Promise.all([
+  const [cars, locations, extras, bookedExtras] = await Promise.all([
     periodValid ? getAvailableCars(pickupDate!, returnDate!) : getBrowseCars(),
     getActiveLocations(),
     getActiveExtras(),
+    getBookedExtras().catch(() => []),
   ]);
 
   const byId = new Map(locations.map((l) => [l.id, l]));
@@ -116,6 +118,7 @@ export default async function VehiclesPage({
           locations={locations.map((l) => ({ id: l.id, name: l.name }))}
           eagerFirstImages
           extras={extras}
+          bookedExtras={bookedExtras}
         />
       ) : (
         <p className="rounded-2xl border border-border bg-surface p-8 text-center text-muted-foreground">
