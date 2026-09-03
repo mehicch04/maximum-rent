@@ -115,7 +115,7 @@ const EARNING = ["CONFIRMED", "COMPLETED"] as const;
 // ---------------------------------------------------------------------------
 
 async function windowTotals(from: Date, to: Date) {
-  const [agg, cancelled, total] = await Promise.all([
+  const [agg, cancelled, total, manual] = await Promise.all([
     prisma.inquiry.aggregate({
       where: { status: { in: [...EARNING] }, createdAt: { gte: from, lte: to } },
       _sum: { totalPrice: true },
@@ -126,12 +126,19 @@ async function windowTotals(from: Date, to: Date) {
       where: { status: "CANCELLED", createdAt: { gte: from, lte: to } },
     }),
     prisma.inquiry.count({ where: { createdAt: { gte: from, lte: to } } }),
+    // Bookings taken by phone are recorded as blocks, not inquiries, but they
+    // are real income and belong in the same total.
+    prisma.carBlock.aggregate({
+      where: { kind: "MANUAL_BOOKING", createdAt: { gte: from, lte: to } },
+      _sum: { totalPrice: true },
+      _count: true,
+    }),
   ]);
 
   return {
-    revenue: num(agg._sum.totalPrice),
+    revenue: num(agg._sum.totalPrice) + num(manual._sum.totalPrice),
     avgDays: num(agg._avg.rentalDays),
-    bookings: agg._count,
+    bookings: agg._count + manual._count,
     cancelled,
     total,
   };
@@ -143,7 +150,7 @@ async function windowTotals(from: Date, to: Date) {
  * what the whole fleet could have delivered.
  */
 async function utilisation(from: Date, to: Date): Promise<number> {
-  const [fleet, rentals] = await Promise.all([
+  const [fleet, rentals, manual] = await Promise.all([
     prisma.car.count({ where: { isAvailable: true } }),
     prisma.inquiry.findMany({
       where: {
@@ -153,15 +160,24 @@ async function utilisation(from: Date, to: Date): Promise<number> {
       },
       select: { pickupAt: true, returnAt: true },
     }),
+    prisma.carBlock.findMany({
+      where: { kind: "MANUAL_BOOKING", startAt: { lt: to }, endAt: { gt: from } },
+      select: { startAt: true, endAt: true },
+    }),
   ]);
+
+  const periods = [
+    ...rentals.map((r) => ({ p: r.pickupAt, r: r.returnAt })),
+    ...manual.map((m) => ({ p: m.startAt, r: m.endAt })),
+  ];
 
   const periodDays = Math.max(1, (to.getTime() - from.getTime()) / DAY);
   const capacity = fleet * periodDays;
   if (capacity === 0) return 0;
 
-  const used = rentals.reduce((sum, r) => {
-    const start = Math.max(r.pickupAt.getTime(), from.getTime());
-    const end = Math.min(r.returnAt.getTime(), to.getTime());
+  const used = periods.reduce((sum, r) => {
+    const start = Math.max(r.p.getTime(), from.getTime());
+    const end = Math.min(r.r.getTime(), to.getTime());
     return sum + Math.max(0, end - start) / DAY;
   }, 0);
 
@@ -343,7 +359,7 @@ export async function getFleetStatus(): Promise<FleetSlice[]> {
     }),
     prisma.carBlock.findMany({
       where: { startAt: { lte: now }, endAt: { gte: now } },
-      select: { carId: true, endAt: true, reason: true },
+      select: { carId: true, endAt: true, reason: true, kind: true, clientName: true },
     }),
   ]);
 
@@ -354,15 +370,33 @@ export async function getFleetStatus(): Promise<FleetSlice[]> {
   const service: FleetVehicle[] = [];
   const free: FleetVehicle[] = [];
 
+  const REASON: Record<string, string> = {
+    MAINTENANCE: "servis",
+    DAMAGE: "oštećenje",
+    PRIVATE: "privatna upotreba",
+  };
+
   for (const c of cars) {
-    // A manual block wins: the car is off the road even if a booking overlaps.
     const block = blockedBy.get(c.id);
+
+    // A booking taken by phone is a rental, not downtime: it belongs with the
+    // cars that are out earning, otherwise the chart understates the fleet.
+    if (block?.kind === "MANUAL_BOOKING") {
+      rented.push({
+        id: c.id,
+        title: c.title,
+        plate: c.plate ?? "",
+        note: `${block.clientName ?? "manuelna rezervacija"}, vraća se ${fmtDay(block.endAt)}`,
+      });
+      continue;
+    }
+
     if (block) {
       service.push({
         id: c.id,
         title: c.title,
         plate: c.plate ?? "",
-        note: `${block.reason ?? "blokirano"}, do ${fmtDay(block.endAt)}`,
+        note: `${block.reason || REASON[block.kind] || "blokirano"}, do ${fmtDay(block.endAt)}`,
       });
       continue;
     }
@@ -382,7 +416,7 @@ export async function getFleetStatus(): Promise<FleetSlice[]> {
   return [
     { key: "rented", label: "U najmu", count: rented.length, color: "var(--chart-rented)", vehicles: rented },
     { key: "available", label: "Dostupno", count: free.length, color: "var(--chart-available)", vehicles: free },
-    { key: "service", label: "Na servisu", count: service.length, color: "var(--chart-service)", vehicles: service },
+    { key: "service", label: "Nedostupno", count: service.length, color: "var(--chart-service)", vehicles: service },
   ];
 }
 

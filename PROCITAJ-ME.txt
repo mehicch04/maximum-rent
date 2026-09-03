@@ -1,100 +1,68 @@
-ANALITIKA POVEZANA NA STVARNE REZERVACIJE
-=========================================
+BLOKADE VOZILA — dinamička forma povezana s analitikom
+======================================================
 
 *** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
 
 =======================================================================
-ODAKLE SADA DOLAZI KOJI BROJ
+FORMA
 =======================================================================
-ISKORISTIVOST FLOTE
-  Mjeri se u "auto-danima": svaka rezervacija donosi onoliko dana koliko
-  se preklapa s odabranim periodom, podijeljeno s onim što bi cijela flota
-  mogla dati. Najam koji je počeo prije perioda računa se samo dijelom koji
-  upada unutra.
+Polje "Razlog" je sada padajući izbornik s četiri opcije. Ispod izbornika
+uvijek piše šta ta opcija znači za izvještaje, jer to iz samog naziva
+nije očito.
 
-UKUPAN PRIHOD
-  Zbir polja "ukupna cijena" (najam + oprema) svih potvrđenih i završenih
-  rezervacija nastalih u periodu.
+  Servis / Održavanje        bez dodatnih polja
+  Manuelna rezervacija       traži IME KLIJENTA i UKUPNU CIJENU
+  Oštećenje / Sudar          traži OPIS ŠTETE
+  Privatna upotreba          bez dodatnih polja
 
-AKTIVNI NAJMOVI      potvrđene gdje je sada između preuzimanja i vraćanja
-NADOLAZEĆE           potvrđene čije preuzimanje tek dolazi
-PROSJEČNO TRAJANJE   prosjek broja dana po potvrđenoj rezervaciji
-STOPA OTKAZIVANJA    otkazane podijeljene sa svim upitima u periodu
-
-TREND
-  Jedan upit po periodu, pa se razvrstava u kutije: danas po tri sata,
-  sedmica po danima, mjesec po sedmicama, godina po mjesecima.
-
-STATUS FLOTE (uživo)
-  Na servisu  -> vozila koja imaju aktivnu ručnu blokadu (servis,
-                 registracija), s razlogom i datumom do kada
-  U najmu     -> vozila s potvrđenom rezervacijom koja traje sada,
-                 s datumom povratka
-  Dostupno    -> ostala
-  Ručna blokada ima prednost: ako je auto blokiran, vodi se kao na servisu
-  čak i ako se rezervacija preklapa.
-
-NAJPROFITABILNIJA VOZILA
-  Grupisano po vozilu, zbir ukupne cijene, pet najboljih.
-
-DODATNA OPREMA
-  Rentano  -> zbir komada u potvrđenim rezervacijama koje traju sada
-  Na stanju -> polje koje uređuješ u /admin/oprema
+Osnovni red (vozilo, datumi, razlog, dugme) ostaje u jednoj liniji kao i
+prije. Dodatna polja se pojavljuju ispod, odvojena tankom linijom, i to
+samo kod dvije opcije kojima trebaju. Forma se ne rasteže bez potrebe.
 
 =======================================================================
-ŠTO SE POREDI S ČIM
+VEZA S ANALITIKOM — ZBOG ČEGA JE SVE OVO
 =======================================================================
-Postotak pored svakog broja poredi se s prethodnim periodom ISTE dužine,
-koji stoji tačno prije odabranog. Ako prethodni period nema podataka,
-postotak se ne prikazuje umjesto da pokaže besmislenih +100%.
+Analitika prihod čita iz upita sa sajta. Manuelna rezervacija nije upit
+nego blokada, pa bi bez ovoga posao dogovoren telefonom bio nevidljiv u
+izvještajima. To bi značilo da prihod izgleda manji nego što jeste, i to
+baš za onaj dio posla koji se u ovoj branši najviše radi preko telefona.
 
-Kod "aktivnih najmova" i "nadolazećih" poređenja nema, jer su to trenutna
-stanja, ne zbirovi za period.
+Sada:
+  PRIHOD          zbraja upite sa sajta I manuelne rezervacije
+  ISKORISTIVOST   manuelna rezervacija broji se kao najam, kao i svaka druga
+  STATUS FLOTE    manuelna rezervacija ide u "U NAJMU", ne u nedostupna
+                  servis, oštećenje i privatna upotreba idu u nedostupna
 
-=======================================================================
-REGISTARSKE OZNAKE — DODANE U BAZU
-=======================================================================
-Registracije su ranije bile izmišljene. Da bi bile stvarne, dodano je
-polje "plate" na vozilo i unosi se u /admin/vozila.
+Isječak koji je prije pisao "Na servisu" sada piše "Nedostupno", jer sada
+obuhvata i oštećenja i privatnu upotrebu. Uz svako vozilo u spisku i
+dalje piše pravi razlog i datum do kada.
 
-Dok ne unesete oznake, red se jednostavno prikazuje bez nje, bez praznog
-prostora.
-
-=======================================================================
-DVIJE STVARI KOJE TREBA ZNATI
-=======================================================================
-1) STARE REZERVACIJE NEMAJU CIJENU
-   Polje "ukupna cijena" dodano je nedavno. Rezervacije nastale prije toga
-   nemaju iznos, pa u prihod ulaze kao nula. Prvih mjesec dana prihod će
-   izgledati manji nego što jeste. Nove rezervacije imaju sve.
-
-2) ŠTO SE RAČUNA KAO PRIHOD
-   Samo potvrđene i završene rezervacije. Novi i neodgovoreni upiti ne
-   ulaze, jer još nisu posao. Otkazane također ne.
-   To piše i na dnu stranice, da klijent ne pita.
+Kod manuelne rezervacije u spisku stoji ime klijenta i kada se vozilo
+vraća, isto kao kod rezervacija sa sajta.
 
 =======================================================================
-ZAŠTITA
+VALIDACIJA I NA SERVERU
 =======================================================================
-Ako neki upit padne, stranica ne ruši admin nego prikaže poruku da se
-podaci trenutno ne mogu učitati. Izvještaj nikad ne smije oboriti panel.
+Obavezna polja u obrascu se mogu zaobići, pa server ponovo provjerava:
+manuelna rezervacija bez imena ili bez cijene se odbija. Bez toga bi u
+izvještajima sjedio bezimeni iznos od nula maraka.
+
+Cijena i ime se čuvaju samo kod manuelne rezervacije; servis nema klijenta
+pa ta polja ostaju prazna.
 
 TESTIRANO
-  iskoristivost: 1 auto/7 dana od 10 = 10%, 5 auta = 50%, ograničeno na 100
-  najam koji tek djelimično ulazi u period broji se samo tim dijelom
-  postotna promjena: +25%, -20%, bez poređenja kad je prošli period prazan
-  stopa otkazivanja: 3 od 40 = 8%, nula upita ne dijeli s nulom
+  prihod: 2000 (sajt) + 1050 (telefon) = 3050 KM
+  servis, šteta i privatna upotreba ne donose prihod
+  raspored po isječcima za sva četiri tipa
+  validacija: bez imena i bez cijene odbijeno, cijena 0 prihvaćena,
+              servis prolazi bez dodatnih polja
 
 FAJLOVI
 -------
-  prisma/schema.prisma                          (Car.plate)
-  lib/analytics.ts                              (stvarni upiti)
-  app/admin/analitika/page.tsx                  (asinhrono + zaštita)
-  lib/vehicle-schema.ts, vehicle-options.ts     (plate)
-  app/admin/vozila/page.tsx, actions.ts         (plate)
-  components/admin/VehicleFormModal.tsx         (polje registracije)
-  components/admin/analytics/TopCarsTable.tsx   (stabilan ključ)
-  components/admin/analytics/FleetDonut.tsx     (stabilan ključ)
+  prisma/schema.prisma            (BlockKind, totalPrice, clientName)
+  components/admin/BlockForm.tsx  (dinamička forma)
+  app/admin/actions.ts            (validacija i spremanje)
+  lib/analytics.ts                (prihod, iskoristivost, status flote)
 
 KORACI
 ------
@@ -102,7 +70,7 @@ KORACI
 2. npx prisma generate
 3. npx prisma db push
 4. npm run build
-5. npm run dev -> /admin/analitika
-   - promijeni period, brojevi se moraju mijenjati
-   - /admin/vozila -> unesi registracije
-   - /admin/oprema -> provjeri "ukupno na stanju"
+5. npm run dev -> /admin
+   - dodaj manuelnu rezervaciju s cijenom
+   - /admin/analitika: iznos mora biti u prihodu, vozilo u "U najmu"
+   - dodaj servis: vozilo mora biti u "Nedostupno"

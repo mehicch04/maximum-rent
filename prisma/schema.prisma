@@ -194,7 +194,14 @@ model CarBlock {
   carId     String
   startAt   DateTime
   endAt     DateTime
+  /// Why the car is off the road. Drives both the fleet chart and, for manual
+  /// bookings, the revenue figures.
+  kind      BlockKind @default(MAINTENANCE)
   reason    String?
+  /// Manual bookings only: agreed price and who booked it, so a deal taken
+  /// over the phone counts towards revenue just like one made on the site.
+  totalPrice Decimal? @db.Decimal(10, 2)
+  clientName String?
   createdAt DateTime @default(now())
 
   @@index([carId, startAt, endAt])
@@ -315,4 +322,16 @@ model CompanyInfo {
   /// While true, cars that have a seasonal rate are offered at that rate.
   seasonalPricing Boolean @default(false)
   updatedAt    DateTime @updatedAt
+}
+
+
+enum BlockKind {
+  /// Servis ili redovno održavanje.
+  MAINTENANCE
+  /// Rezervacija dogovorena telefonom ili uživo.
+  MANUAL_BOOKING
+  /// Oštećenje ili sudar; opis stoji u `reason`.
+  DAMAGE
+  /// Privatna upotreba vlasnika.
+  PRIVATE
 }

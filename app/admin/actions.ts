@@ -172,20 +172,47 @@ export async function addBlock(formData: FormData) {
   const to = String(formData.get("to") ?? "");
   const reason = String(formData.get("reason") ?? "").trim().slice(0, 200);
 
+  const KINDS = ["MAINTENANCE", "MANUAL_BOOKING", "DAMAGE", "PRIVATE"] as const;
+  const rawKind = String(formData.get("kind") ?? "MAINTENANCE");
+  const kind = (KINDS as readonly string[]).includes(rawKind)
+    ? (rawKind as (typeof KINDS)[number])
+    : "MAINTENANCE";
+
+  const clientName = String(formData.get("clientName") ?? "").trim().slice(0, 80);
+  const rawPrice = String(formData.get("totalPrice") ?? "").replace(",", ".");
+  const price = rawPrice === "" ? null : Number(rawPrice);
+
   const startAt = new Date(`${from}T00:00:00.000Z`);
   const endAt = new Date(`${to}T00:00:00.000Z`);
   endAt.setUTCDate(endAt.getUTCDate() + 1);
+
+  // A manual booking without a name or a price would sit in the reports as an
+  // anonymous zero, so it is rejected here as well as in the form: required
+  // attributes in the browser can simply be bypassed.
+  const bookingOk =
+    kind !== "MANUAL_BOOKING" ||
+    (clientName.length > 0 && price != null && Number.isFinite(price) && price >= 0);
 
   const valid =
     carId &&
     !Number.isNaN(startAt.getTime()) &&
     !Number.isNaN(endAt.getTime()) &&
-    endAt.getTime() > startAt.getTime();
+    endAt.getTime() > startAt.getTime() &&
+    bookingOk;
 
   if (!valid) backTo({ msg: "error" });
 
   await prisma.carBlock.create({
-    data: { carId, startAt, endAt, reason: reason || null },
+    data: {
+      carId,
+      startAt,
+      endAt,
+      kind,
+      reason: reason || null,
+      // Only kept where they mean something; a service block has no client.
+      clientName: kind === "MANUAL_BOOKING" ? clientName : null,
+      totalPrice: kind === "MANUAL_BOOKING" ? price : null,
+    },
   });
 
   revalidatePath("/admin");
