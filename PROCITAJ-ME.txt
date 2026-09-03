@@ -1,62 +1,58 @@
-ADMIN NA MOBITELU — dva popravka
-================================
+TRAKE POPUNJENOSTI U TABELAMA — popravka
+========================================
 
-Schema se NE mijenja. Samo: npm run build
+ŠTA SAM PROVJERIO, A NIJE BILO UZROK
+------------------------------------
+1) Računica procenata je bila ISPRAVNA:
+     Škoda 138.500 KM -> 100%, Audi Q5 -> 87,6%, T-Roc -> 75,7%,
+     A8 -> 62,4%, Transporter -> 45,3%
+2) Responzivne klase NISU dirale širinu. Na trakama nema nijedne
+   sm:/md:/lg: klase koja bi je resetovala.
 
-=======================================================================
-1) CIJELI ADMIN JE BIO ZUMIRAN VAN
-=======================================================================
-UZROK
-Traka s tabovima ima sedam stavki. Bile su u redu koji se ne prelama i ne
-skrola, pa je zauzimala oko 710 piksela. Telefon ima oko 390.
+PRAVI UZROK
+-----------
+Traka je počinjala stisnuta na nulu i širila se tek kad grafikon uđe u
+vidno polje. Ta provjera se oslanja na preglednikov mehanizam praćenja.
+Kad se ne okine, traka zauvijek ostane na nuli i vidi se samo siva
+podloga ispod nje.
 
-Zbog toga se CIJELA stranica rastezala na 710 piksela, a preglednik je
-onda zumirao van da to stane na ekran. Otud sitan tekst i prazan prostor
-sa strane na svim admin ekranima, ne samo na analitici.
-
-POPRAVKA
-Traka s tabovima sada skrola vodoravno, a stranica ostaje široka koliko i
-ekran. Tabovi se ne stiskaju i ne lome u dva reda; prevuče se prstom do
-onog koji treba. Traka skrolanja je sakrivena da ne kvari izgled.
-
-Provjerio sam i ostatak admina: tabele u analitici već skrolaju unutar
-svoje kartice, pa one nisu bile uzrok.
-
-=======================================================================
-2) GRAFIKONI SE NISU PRIKAZIVALI NA MOBITELU
-=======================================================================
-UZROK
-Nije bilo slučajno što su se vidjele tačke i mreža, a stupci, linija i
-isječci prstena nisu.
-
-Sve što je nedostajalo bilo je animirano tako da se pojavi kad uđe u vidno
-polje. Ta provjera se oslanja na preglednikov mehanizam praćenja, a Safari
-na iPhoneu ne prati pouzdano elemente UNUTAR SVG grafike. Provjera se
-nikad nije okinula, pa su elementi ostali na početnom stanju: stupci
-visine nula i isječci potpuno prozirni. Tačke i linije mreže nisu bile
-animirane, pa su se vidjele.
+Isto je prije oborilo i grafikone na mobitelu. Pošto je to sada pao drugi
+put, promijenio sam pristup umjesto da opet krpim isti obrazac.
 
 POPRAVKA
-Praćenje je premješteno s SVG oblika na obični okvir oko grafikona, gdje
-radi u svim preglednicima. Animacija je ostala ista, samo se sada pokreće
-pouzdano.
+--------
+Traka se sada crta odmah, u punoj širini, a širina dolazi iz obične
+inline vrijednosti koja se uvijek izračuna. Ostala je blaga CSS tranzicija
+kao jedini ukras, i ona ne utiče na to hoće li se traka vidjeti.
 
-Isti obrazac postoji i na trakama u tabelama i na okvirima sekcija, ali
-tamo je riječ o običnim HTML elementima pa tu problema nije bilo;
-provjerio sam sve.
+Načelo: prikaz podatka ne smije ovisiti o tome hoće li se animacija
+pokrenuti. Kod grafikona animacija ima smisla, kod trake od 4 piksela ne
+donosi ništa, a mogla je sakriti cijelu kolonu.
 
-=======================================================================
+Usput: obje komponente više ne trebaju biti klijentske ni učitavati
+animacijsku biblioteku, pa je i stranica nešto lakša.
+
+DVIJE SITNICE KOJE SAM POPRAVIO USPUT
+-------------------------------------
+- Najmanja širina trake je 2 posto. Bez toga stavka s vrlo malim udjelom
+  (npr. 0 od 12 rentano) izgleda kao prazan red, kao da je greška.
+- Širina je ograničena na 100 posto, pa ako se ikad unese više rentanih
+  nego što ih ima na stanju, traka ne izlazi iz okvira.
+
+PROVJERENO
+----------
+  vozila:  100 / 87,6 / 75,7 / 62,4 / 45,3 posto
+  oprema:  GPS 5/6 = 83,3 posto -> narandžasto, upozorenje, slobodno 1
+  rubni:   0 od 12 -> 2 posto, 12 od 12 -> 100 posto, stanje 0 -> bez
+           dijeljenja s nulom
+
 FAJLOVI
-=======================================================================
-  components/admin/AdminNav.tsx                 (skrolanje tabova)
-  components/admin/analytics/TrendChart.tsx     (pouzdano pokretanje)
-  components/admin/analytics/FleetDonut.tsx     (pouzdano pokretanje)
+-------
+  components/admin/analytics/TopCarsTable.tsx
+  components/admin/analytics/ExtrasTable.tsx
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run build
-3. Otvori /admin na telefonu:
-   - tekst mora biti normalne veličine, bez zumiranja
-   - traka tabova se prevlači prstom
-   - na /admin/analitika grafikoni moraju biti vidljivi
+3. npm run dev -> /admin/analitika, provjeri obje tabele

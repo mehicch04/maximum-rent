@@ -1,6 +1,3 @@
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
 import type { TopCar } from "@/lib/analytics";
 
 /**
@@ -9,10 +6,14 @@ import type { TopCar } from "@/lib/analytics";
  * Each row carries a bar scaled against the best performer. Numbers alone make
  * the reader compare figures in their head; the bar shows the gap instantly,
  * and the gap is the point of the table.
+ *
+ * The bar is drawn at its final width straight away, with a CSS transition as
+ * the only flourish. It used to grow from zero once it scrolled into view, but
+ * that made a plain data readout depend on an in-view check firing — and when
+ * it did not, every bar sat there empty and grey. A figure this simple should
+ * never be able to disappear.
  */
 export function TopCarsTable({ data }: { data: TopCar[] }) {
-  const reduce = useReducedMotion();
-
   if (data.length === 0) {
     return (
       <p className="py-8 text-center text-sm text-muted-foreground">
@@ -31,7 +32,7 @@ export function TopCarsTable({ data }: { data: TopCar[] }) {
             <th className="pb-2 pr-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Vozilo
             </th>
-            <th className="pb-2 px-3 text-right text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <th className="px-3 pb-2 text-right text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Najmova
             </th>
             <th className="pb-2 pl-3 text-right text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -40,44 +41,42 @@ export function TopCarsTable({ data }: { data: TopCar[] }) {
           </tr>
         </thead>
         <tbody>
-          {data.map((c, i) => (
-            <tr key={c.title} className="border-b border-border/60 last:border-0">
-              <td className="py-2.5 pr-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-surface-muted text-[11px] font-semibold text-muted-foreground">
-                    {i + 1}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block truncate font-medium text-foreground">
-                      {c.title}
+          {data.map((c, i) => {
+            const share = Math.max(2, (c.revenue / max) * 100);
+            return (
+              <tr key={c.plate} className="border-b border-border/60 last:border-0">
+                <td className="py-2.5 pr-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-surface-muted text-[11px] font-semibold text-muted-foreground">
+                      {i + 1}
                     </span>
-                    <span className="block font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
-                      {c.plate}
+                    <span className="min-w-0">
+                      <span className="block truncate font-medium text-foreground">
+                        {c.title}
+                      </span>
+                      <span className="block font-mono text-[11px] uppercase tracking-wide text-muted-foreground">
+                        {c.plate}
+                      </span>
                     </span>
-                  </span>
-                </div>
-                <div className="mt-1.5 ml-7 h-1 overflow-hidden rounded-full bg-surface-muted">
-                  <motion.div
-                    className="h-full rounded-full bg-brand"
-                    initial={reduce ? false : { scaleX: 0 }}
-                    whileInView={reduce ? undefined : { scaleX: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                    style={{
-                      width: `${(c.revenue / max) * 100}%`,
-                      transformOrigin: "left",
-                    }}
-                  />
-                </div>
-              </td>
-              <td className="px-3 text-right align-top tabular-nums text-muted-foreground">
-                {c.rentals}
-              </td>
-              <td className="pl-3 text-right align-top font-semibold tabular-nums text-foreground">
-                {c.revenue.toLocaleString("hr-HR")} KM
-              </td>
-            </tr>
-          ))}
+                  </div>
+
+                  <div className="ml-7 mt-1.5 h-1 overflow-hidden rounded-full bg-surface-muted">
+                    <div
+                      className="h-full rounded-full bg-brand transition-[width] duration-500 ease-out"
+                      style={{ width: `${share}%` }}
+                    />
+                  </div>
+                </td>
+
+                <td className="px-3 text-right align-top tabular-nums text-muted-foreground">
+                  {c.rentals}
+                </td>
+                <td className="pl-3 text-right align-top font-semibold tabular-nums text-foreground">
+                  {c.revenue.toLocaleString("hr-HR")} KM
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
