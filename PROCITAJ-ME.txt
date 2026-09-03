@@ -1,74 +1,29 @@
-MANUELNE REZERVACIJE — oprema i dvosmjerna provjera dostupnosti
-===============================================================
+BlockForm.tsx — samo komponenta forme
+=====================================
 
-*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
+Ovo je ista komponenta koja je već bila u zipu "maximum-manuelna-oprema",
+izdvojena zasebno jer si tražio samo nju.
 
-ŠTA JE URAĐENO
---------------
-Kad se u blokadama odabere "Manuelna rezervacija", ispod imena klijenta i
-cijene pojavljuje se izbor dodatne opreme s količinama.
+ŠTA POKRIVA
+  1. Sekcija opreme ispod imena klijenta i cijene, unutar istog okvira forme.
+  2. Brojač količine (+/-) po stavci, ograničen na ono što je slobodno.
+  3. Ista logika zaključavanja kao online forma: obje komponente uvoze
+     availabilityFor i maxSelectable iz lib/extras-availability.ts, pa se
+     dostupnost računa na jednom mjestu za oba puta rezervacije.
+  4. Nedostupna stavka posivi, dobija ikonu brave i crveni tekst
+     "Nedostupno u odabranom periodu".
 
-Dok datumi nisu odabrani, umjesto liste stoji poruka da ih treba izabrati,
-jer bez perioda dostupnost nema smisla.
+AKO SI VEĆ PRIMIJENIO PROŠLI ZIP
+  Ovaj fajl je identičan, ne treba ništa raditi.
 
-Uz svaku stavku piše "Slobodno još: 2 od 6". Ono čega nema zaključa se:
-red posivi, umjesto brojača stoji ikona brave, a crvenim piše
-"Nedostupno u odabranom periodu".
+AKO NISI
+  Sama komponenta neće raditi bez ostatka, jer traži:
+    - model BlockExtra u bazi (prisma/schema.prisma)
+    - stvarni upit u lib/extras-availability.ts
+    - propse extras i booked iz app/admin/page.tsx
+    - upis i ponovnu provjeru u app/admin/actions.ts
+  Sve to je u zipu "maximum-manuelna-oprema". Primijeni prvo njega.
 
-DVOSMJERNA PROVJERA
--------------------
-Dosad se dostupnost računala iz izmišljene liste. Sada se čita iz baze, i
-to iz OBA izvora odjednom:
-
-  - oprema rezervisana kroz online formu na sajtu
-  - oprema izdata kroz ovu manuelnu formu
-
-Zbog toga:
-  Online rezervacija zaključava manuelnu formu.
-  Manuelna rezervacija zaključava online formu.
-
-Da se čitao samo jedan izvor, radnik koji popunjava manuelnu formu ne bi
-vidio šta je sajt već izdao, i sjedalica bi otišla dvaput.
-
-Oprema se odbija tek kad se PERIODI PREKLAPAJU. Termini koji se samo
-dodiruju (jedan vraća, drugi preuzima istog dana) nisu sudar.
-
-VAŽNO: PROVJERA I NA SERVERU
-----------------------------
-Preglednik šalje samo oznake i količine, a to se može krivotvoriti. Zato
-server prije upisa ponovo izračuna dostupnost iz baze. Ako je traženo više
-nego što je slobodno, cijela blokada se odbija.
-
-Namjerno se odbija umjesto da se količina tiho smanji: radnik mora znati
-da oprema nije rezervisana, a ne saznati to tek kad gost dođe po nju.
-
-TESTIRANO (7 provjera, sve prolaze)
-  online rezervacija 3 sjedalice od 4 -> u manuelnoj formi ostaje 1
-  online rezervacija 2 GPS od 2 -> GPS zaključan u manuelnoj formi
-  manuelna rezervacija 4 od 4 -> zaključano i u online formi
-  oba izvora zajedno: 4 - 3 - 1 = 0
-  rezervacija izvan perioda ne utiče
-  termini koji se dodiruju krajevima nisu sudar
-
-FAJLOVI
--------
-  prisma/schema.prisma                        (model BlockExtra)
-  lib/extras-availability.ts                  (stvarni upit iz oba izvora)
-  components/admin/BlockForm.tsx              (izbor opreme i zaključavanje)
-  app/admin/actions.ts                        (ponovna provjera i upis)
-  app/admin/page.tsx                          (dohvat opreme i zauzetosti)
-  components/reservation/ExtrasPicker.tsx     (prima podatke propsom)
-  components/reservation/InquiryModal.tsx     (prosljeđuje)
-  components/fleet/FleetGrid.tsx              (prosljeđuje)
-  app/[locale]/page.tsx, vozila/page.tsx      (dohvat na serveru)
-
-KORACI
-------
-1. Raspakuj preko root-a projekta.
-2. npx prisma generate
-3. npx prisma db push
-4. npm run build
-5. npm run dev
-   - /admin: manuelna rezervacija s opremom za neki period
-   - /vozila: isti period -> ta oprema mora biti zaključana
-   - i obrnuto: rezerviši opremu online pa provjeri manuelnu formu
+KORACI (ako primjenjuješ samo ovaj fajl preko već primijenjenog prošlog zipa)
+  1. Raspakuj preko root-a projekta.
+  2. npm run build
