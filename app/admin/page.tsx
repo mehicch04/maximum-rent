@@ -17,6 +17,9 @@ import { prisma } from "@/lib/prisma";
 import { confirmInquiry, cancelInquiry, addBlock, removeBlock } from "./actions";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { BlockForm } from "@/components/admin/BlockForm";
+import { EditInquiryButton } from "@/components/admin/EditInquiryButton";
+import { EditInquiryForm } from "@/components/admin/EditInquiryForm";
+import { updateInquiry } from "./edit-actions";
 import { getActiveExtras } from "@/lib/extras";
 import { getBookedExtras, getCarOccupancy } from "@/lib/extras-availability";
 
@@ -79,6 +82,15 @@ const MESSAGES: Record<string, { text: string; tone: "ok" | "warn" | "err" }> = 
   blocked: { text: "Blokada je dodana — vozilo je nedostupno u tom periodu.", tone: "ok" },
   unblocked: { text: "Blokada je uklonjena.", tone: "ok" },
   error: { text: "Nešto nije u redu s unosom. Pokušajte ponovo.", tone: "err" },
+  updated: { text: "Rezervacija je izmijenjena.", tone: "ok" },
+  busy: {
+    text: "Izmjena nije sačuvana: vozilo je u novom periodu već zauzeto.",
+    tone: "err",
+  },
+  extras: {
+    text: "Izmjena nije sačuvana: tražena oprema nije dostupna u novom periodu.",
+    tone: "err",
+  },
 };
 
 export default async function AdminPage({
@@ -112,7 +124,7 @@ export default async function AdminPage({
 
   const where = { ...statusWhere, ...createdAtWhere };
 
-  const [inquiries, blocks, cars, counts, blockExtras, blockBooked, carOccupancy] =
+  const [inquiries, blocks, cars, counts, blockExtras, blockBooked, carOccupancy, editLocations] =
     await Promise.all([
     prisma.inquiry.findMany({
       where,
@@ -135,6 +147,11 @@ export default async function AdminPage({
     // the form shows full stock and the server still re-checks on submit.
     getBookedExtras().catch(() => []),
     getCarOccupancy().catch(() => []),
+    prisma.location.findMany({
+      where: { isActive: true },
+      orderBy: { sortOrder: "asc" },
+      select: { id: true, name: true },
+    }),
   ]);
 
   const countByStatus = new Map(counts.map((c) => [c.status, c._count]));
@@ -274,6 +291,43 @@ export default async function AdminPage({
                       </span>
                     </p>
                   )}
+                </div>
+
+                <div className="flex flex-wrap items-start gap-2">
+                  {/* Editing stays available whatever the status: plans change
+                      after a booking is confirmed just as often as before. */}
+                  <EditInquiryButton reference={q.reference} status={q.status}>
+                    {() => (
+                      <EditInquiryForm
+                        action={updateInquiry}
+                        inquiry={{
+                          id: q.id,
+                          reference: q.reference,
+                          carId: q.carId,
+                          pickupAt: q.pickupAt.toISOString(),
+                          returnAt: q.returnAt.toISOString(),
+                          pickupLocationId: q.pickupLocationId,
+                          returnLocationId: q.returnLocationId,
+                          firstName: q.firstName,
+                          lastName: q.lastName,
+                          email: q.email,
+                          phone: q.phone,
+                          flightNumber: q.flightNumber,
+                          message: q.message,
+                          totalPrice:
+                            q.totalPrice != null ? Number(q.totalPrice) : null,
+                          extras: q.extras.map((e) => ({
+                            extraId: e.extraId,
+                            qty: e.qty,
+                          })),
+                        }}
+                        cars={cars}
+                        locations={editLocations}
+                        extras={blockExtras}
+                        booked={blockBooked}
+                      />
+                    )}
+                  </EditInquiryButton>
                 </div>
 
                 {canAct && (
