@@ -1,70 +1,90 @@
-OZNAKE ZA NOVE STAVKE U ADMIN NAVIGACIJI
-========================================
+NOVA STRANICA: UGOVORI I PRIMOPREDAJA
+=====================================
 
 Schema se NE mijenja. Samo: npm run build
 
-*** RUČNO OBRISATI: Remove-Item app\admin\manual-actions.ts ***
-(objašnjeno na dnu)
+NOVI TAB "Ugovori" (/admin/ugovori)
 
-ŠTA JE DODANO
--------------
-Na tabovima "Rezervacije" i "Poruke" pojavljuje se mala crvena oznaka s
-brojem stavki koje čekaju:
+RASPORED
+--------
+Lijevo (30%): lista nadolazećih preuzimanja, sa svojim skrolom
+Desno  (70%): editor ugovora
 
-  Rezervacije  ->  upiti sa statusom "Novo"
-  Poruke       ->  poruke koje još nisu označene kao riješene
+Lista ima ograničenu visinu i vlastito skrolanje, pa duga kolona ljudi
+nikad ne gura ugovor van ekrana.
 
-Vidi se na svakoj stranici admina, jer stoji u navigaciji, pa se novi upit
-primijeti i dok se radi na vozilima ili analitici.
+Na uskim ekranima se slaže jedno ispod drugog.
 
-ODLUKE
+LISTA
+-----
+Prikazuju se ISKLJUČIVO potvrđene rezervacije čije preuzimanje je danas ili
+kasnije, poredane po vremenu preuzimanja.
+
+"Danas" se računa od ponoći, ne od trenutnog vremena. Preuzimanje zakazano
+za 9 ujutro ne smije nestati sa šaltera u 9:05 ako gost kasni.
+
+Na kartici je vrijeme najkrupnije. Na šalteru je pitanje uvijek "ko je
+sljedeći", a ne "ko je šta rezervisao". Ispod idu ime, vozilo, trajanje i
+broj rezervacije.
+
+EDITOR
 ------
-1) OZNAKA SE NE PRIKAZUJE KAD JE NULA.
-   Oznaka koja stalno stoji, makar i na nuli, prestane nešto značiti i
-   prestane se primjećivati. Pojavljuje se samo kad ima šta raditi.
+Dok se ništa ne odabere stoji poruka "Odaberite rezervaciju".
 
-2) PREKO 99 PIŠE "99+", da oznaka ostane iste veličine i ne razvuče tab.
+Klikom se popunjava sve što sistem već zna: klijent, kontakt, vozilo,
+registracija, datumi, lokacije, oprema i ukupna cijena. SVE JE EDITABILNO,
+jer gost ume zakasniti sat vremena ili zamijeniti auto na licu mjesta, a
+ugovor koji se ne može ispraviti na šalteru ionako se prepisuje rukom.
 
-3) BROJI SE SAMO ZA PRIJAVLJENOG KORISNIKA.
-   Stranica za prijavu ne dodiruje bazu.
+Nova polja koja se unose uživo:
+  Broj vozačke dozvole
+  Broj pasoša / lične karte
+  Adresa klijenta
+  Trenutna kilometraža
+  Nivo goriva (1/4, 1/2, 3/4, Puno)
+  Zapisnik o stanju vozila (veće tekstualno polje)
 
-4) AKO BROJANJE ZAKAŽE, PRIKAZUJE SE NULA.
-   Oznaka je pomoć, ne smije oboriti panel.
+Uz zapisnik stoji napomena da je to jedini zapis koji štiti agenciju ako
+gost pri vraćanju ospori oštećenje.
 
-DETALJ KOJI JE MORAO BITI POPRAVLJEN
-------------------------------------
-Oznake stoje u navigaciji, a navigacija je dio okvira stranice, ne same
-stranice. Akcije su do sada osvježavale samo stranicu, pa bi broj ostajao
-zastario: potvrdiš rezervaciju, ona nestane iz liste, a oznaka i dalje
-pokazuje staro stanje.
+Na dnu su dugmad "Generiši PDF ugovor" i "Generiši Word ugovor". Za sada
+samo ispisuju sve prikupljene podatke u konzolu, kako je i traženo.
 
-Sve akcije sada osvježavaju i okvir, pa broj pada čim se stavka riješi.
-Izmijenjeno na osam mjesta: potvrda i otkazivanje rezervacije, blokade,
-uređivanje, nova rezervacija, te označavanje i brisanje poruka.
+DETALJ KOJI JE LAKO PROMAŠITI
+-----------------------------
+Kad se pređe na drugu rezervaciju, sva ručno unesena polja se prazne.
+Bez toga bi broj vozačke dozvole jednog gosta ostao u ugovoru sljedećeg,
+a to je greška koju niko ne bi primijetio dok ne bude kasno.
 
-MRTAV FAJL
-----------
-app/admin/manual-actions.ts nije u repou i niko ga ne koristi. To je moj
-zaostatak iz ranijeg pokušaja, prije nego je napravljen pravi obrazac za
-manuelne rezervacije. Obriši ga:
+ODSTUPANJE OD ZADATKA
+---------------------
+Tražio si mock podatke, ali rezervacije su ti stvarne u bazi i filter je
+isti, pa stranica povlači prave. Odmah je upotrebljiva, bez naknadnog
+prevezivanja.
 
-    Remove-Item app\admin\manual-actions.ts
+DATUMI I VRIJEME
+----------------
+Koriste se isti kalendar i izbornik vremena kao na ostatku panela, ne
+native polja.
 
 FAJLOVI
 -------
-  app/admin/layout.tsx                  (brojanje i prosljeđivanje)
-  components/admin/AdminNav.tsx         (prikaz oznake)
-  app/admin/actions.ts                  (osvježavanje okvira)
-  app/admin/edit-actions.ts             (isto)
-  app/admin/new-reservation-actions.ts  (isto)
-  app/admin/poruke/actions.ts           (isto)
+  app/admin/ugovori/page.tsx                     (NOVO — dohvat i okvir)
+  components/admin/handover/HandoverBoard.tsx    (NOVO — podijeljeni prikaz)
+  components/admin/handover/ReservationList.tsx  (NOVO — lijeva kolona)
+  components/admin/handover/ContractEditor.tsx   (NOVO — desna kolona)
+  components/admin/handover/types.ts             (NOVO — zajednički tipovi)
+  components/admin/AdminNav.tsx                  (tab "Ugovori")
+
+Podjela na četiri fajla je namjerna: lista i editor se ne poznaju međusobno,
+pa se svaki može mijenjati ili zamijeniti zasebno.
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. Remove-Item app\admin\manual-actions.ts
-3. npm run build
-4. npm run dev -> /admin
-   - pošalji probni upit sa sajta: oznaka na "Rezervacije" mora porasti
-   - potvrdi ga: oznaka mora pasti odmah, bez osvježavanja stranice
-   - isto probaj s porukom s kontakt stranice
+2. npm run build
+3. npm run dev -> /admin/ugovori
+   - odaberi rezervaciju, podaci se moraju popuniti
+   - popuni dozvolu i kilometražu, pa klikni drugu rezervaciju:
+     ta polja se moraju isprazniti
+   - klikni "Generiši PDF" i pogledaj konzolu preglednika
