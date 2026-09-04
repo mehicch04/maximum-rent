@@ -148,7 +148,14 @@ export async function getBookedExtras(): Promise<Booked[]> {
 // ---------------------------------------------------------------------------
 
 /** One period a car is spoken for, whatever the reason. */
-export type CarBusy = { carId: string; from: Date; to: Date; label: string };
+export type CarBusy = {
+  carId: string;
+  from: Date;
+  to: Date;
+  label: string;
+  /** Set for reservations, so a form can skip the one it is editing. */
+  inquiryId?: string;
+};
 
 /**
  * Every period a car is already taken, from confirmed bookings and from
@@ -168,7 +175,7 @@ export async function getCarOccupancy(): Promise<CarBusy[]> {
         carId: { not: null },
         returnAt: { gte: now },
       },
-      select: { carId: true, pickupAt: true, returnAt: true },
+      select: { id: true, carId: true, pickupAt: true, returnAt: true },
     }),
     prisma.carBlock.findMany({
       where: { endAt: { gte: now } },
@@ -189,6 +196,7 @@ export async function getCarOccupancy(): Promise<CarBusy[]> {
       from: r.pickupAt,
       to: r.returnAt,
       label: "rezervisano",
+      inquiryId: r.id,
     })),
     ...blocks.map((b) => ({
       carId: b.carId,

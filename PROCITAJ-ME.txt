@@ -1,59 +1,85 @@
-KALENDAR NE REAGUJE U ADMIN MODALIMA — popravka
-===============================================
+VRAĆANJE OTKAZANIH REZERVACIJA U POTVRĐENE
+==========================================
 
-Schema se NE mijenja. Samo: npm run build
+*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
+(dodaje se jedno polje, objašnjeno niže)
 
-UZROK: JEDAN BROJ
+ŠTA JE DODANO
+-------------
+U modalu za uređivanje sada postoji padajući meni za STATUS. Sve promjene
+rade, ali prelazak iz "Otkazano" u "Potvrđeno" nosi posebnu obradu, jer je
+to jedini smjer koji može izazvati dvostruko rezervisanje: vozilo je pri
+otkazivanju oslobođeno i neko drugi ga je u međuvremenu mogao uzeti.
+
+1) OBRAZLOŽENJE OBNOVE
+   Čim se odabere taj prelazak, pojavljuje se obavezno polje "Razlog obnove
+   rezervacije". Bez njega se ne može sačuvati, ni iz obrasca ni ručno
+   poslanim zahtjevom.
+
+   Razlog se sprema u bazu, u novo polje. Rezervacija koja se vrati bez
+   ijednog objašnjenja kasnije se ne može opravdati ni pred kim.
+
+2) PROVJERA VOZILA UŽIVO
+   Ako je vozilo slobodno, ništa se ne prikazuje i postupak teče normalno.
+
+   Ako je zauzeto, iskače crveni okvir s razlogom zauzeća, a odmah ispod
+   padajući meni SAMO sa slobodnim vozilima za taj termin, uz cijenu po
+   danu da se zamjena bira s punom informacijom. Dugme se zaključava dok se
+   ne izabere slobodno vozilo.
+
+   Ako nijedno vozilo nije slobodno, to i piše, uz uputu da se promijene
+   datumi.
+
+3) PROVJERA OPREME UŽIVO
+   Ako tražena količina više nije dostupna, količina se automatski smanjuje
+   na maksimalnu slobodnu, a iznad se ispisuje šta je smanjeno i za koliko
+   ("Dječija sjedalica: traženo 2, slobodno 1").
+
+   Namjerno se i smanjuje i prijavljuje. Samo smanjiti bi značilo da gost
+   ostane bez sjedalice a da to niko ne primijeti; samo prijaviti bi
+   ostavilo obrazac u stanju koje se ne može sačuvati.
+
+4) CIJENA SE SAMA PRERAČUNAVA
+   Kad se promijeni vozilo ili smanji oprema, iznos se odmah osvježava.
+   Čim se u polje upiše ručno, prestaje se osvježavati, a ispod se prikazuje
+   koliko bi iznosio automatski izračun. Dogovoreni popust se tako ne može
+   slučajno prepisati.
+
+NAJVAŽNIJI DETALJ
 -----------------
-Kalendar se crtao na sloju 90, a svi modali su na sloju 95. Unutar modala
-kalendar je tako završavao ISPOD zatamnjene pozadine: bio je otvoren, ali
-se nije vidio, a klikovi su padali na pozadinu.
+Provjera zauzetosti preskače SAMU rezervaciju koja se uređuje. Bez toga bi
+potvrđena rezervacija našla samu sebe i svaka izmjena bi javljala sudar.
+Zbog toga podatak o zauzetosti sada nosi i oznaku rezervacije.
 
-Zato je izgledalo kao da polje ne reaguje, i zato je problem bio najizraženiji
-baš u modalima, kako si i primijetio.
+Provjereno:
+  otkazana se vraća, vozilo slobodno            -> prolazi
+  otkazana se vraća, vozilo drži druga          -> nudi zamjenu
+  uređivanje potvrđene u istom terminu          -> ne nalazi samu sebe
+  oprema: traženo 2, slobodno 1                 -> reže na 1
+  zamjena vozila 110 KM -> 80 KM po danu        -> cijena 700 -> 550 KM
 
-  prije:  kalendar z-90   |  modali z-95   -> kalendar ispod
-  sada:   kalendar z-110  |  modali z-95   -> kalendar iznad
-
-Provjerio sam sve slojeve u projektu; 110 je iznad svega što postoji.
-
-ŠTA SI PRETPOSTAVIO, A NIJE BILO U KVARU
-----------------------------------------
-Provjerio sam i te tri stavke prije nego sam dirao išta:
-
-1) PORTAL — već je bio ispravan. Kalendar se od ranije crta preko portala
-   na <body> i koristi fiksno pozicioniranje, pa ga "overflow: hidden" na
-   modalu ne može odsjeći. To nije bio problem.
-
-2) EVENT HANDLERI I STATE — ispravni. Klik na dugme uredno mijenja stanje,
-   a zatvaranje na klik izvan provjerava stvarni DOM čvor pa radi i kroz
-   portal.
-
-3) POINTER EVENTS — ikona kalendara je bila UNUTAR dugmeta, pa klik na nju
-   ionako pogađa dugme. Nije bila uzrok, ali sam svejedno dodao
-   pointer-events-none: ne košta ništa i sprječava ovu vrstu problema ako
-   se ikona ikad izvuče izvan dugmeta.
-
-ŠTO SAM JOŠ PROVJERIO
----------------------
-  Zatvara li klik na dan i sam modal?
-    Ne. Sadržaj modala zaustavlja propagaciju, pa klik u kalendaru ne
-    dopire do zatamnjene pozadine.
-
-  Ostaje li kalendar na mjestu dok se modal skrola?
-    Da. Kalendar sluša skrolanje i sa unutrašnjih kontejnera, pa se
-    pomjera zajedno s poljem.
+IZMJENA BAZE
+------------
+Dodaje se polje "statusNote" na rezervaciju, za razlog obnove. Provjerio sam
+u istoriji projekta da ga ranije nije bilo, da se ne ponovi propust s
+kanalom MANUAL.
 
 FAJLOVI
 -------
-  components/ui/DateField.tsx
+  prisma/schema.prisma                     (statusNote)
+  components/admin/EditInquiryForm.tsx     (status, upozorenja, cijena)
+  app/admin/edit-actions.ts                (provjere na serveru)
+  app/admin/page.tsx                       (propsi i poruka)
+  lib/extras-availability.ts               (zauzetost nosi oznaku rezervacije)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build
-3. npm run dev -> /admin
-   - "Nova rezervacija": klik na polje datuma mora otvoriti kalendar
-   - "Uredi" na rezervaciji: isto
-   - filteri u izvozu i forma za blokade: isto
-   - probaj i skrolati modal dok je kalendar otvoren
+2. npx prisma generate
+3. npx prisma db push
+4. npm run build
+5. npm run dev -> /admin
+   - otkaži rezervaciju, pa je kroz "Uredi" vrati u potvrđene
+   - probaj bez razloga: dugme mora biti zaključano
+   - napravi drugu rezervaciju na isto vozilo i termin, pa ponovi:
+     mora ponuditi zamjensko vozilo

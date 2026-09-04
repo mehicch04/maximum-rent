@@ -37,6 +37,19 @@ export async function updateInquiry(formData: FormData) {
   });
   if (!existing) redirect("/admin?msg=error");
 
+  const STATUSES = ["NEW", "CONTACTED", "CONFIRMED", "CANCELLED", "COMPLETED"] as const;
+  const rawStatus = str(formData, "status");
+  const status = (STATUSES as readonly string[]).includes(rawStatus)
+    ? (rawStatus as (typeof STATUSES)[number])
+    : existing.status;
+
+  // Bringing a cancelled booking back must be explained. The field is required
+  // in the form too, but that can be bypassed, and a reservation that returns
+  // without a reason cannot be accounted for afterwards.
+  const restoring = existing.status === "CANCELLED" && status === "CONFIRMED";
+  const statusNote = str(formData, "statusNote").slice(0, 300);
+  if (restoring && !statusNote) redirect(`/admin?msg=reason&edit=${id}`);
+
   const carId = str(formData, "carId") || null;
   const pickupAt = new Date(`${str(formData, "pickupDate")}T${str(formData, "pickupTime") || "10:00"}`);
   const returnAt = new Date(`${str(formData, "returnDate")}T${str(formData, "returnTime") || "10:00"}`);
@@ -52,7 +65,9 @@ export async function updateInquiry(formData: FormData) {
   // The vehicle is only held once a reservation is confirmed, so the clash
   // check applies to confirmed ones. It must skip this very reservation —
   // otherwise a booking would always report a clash with itself.
-  if (carId && existing.status === "CONFIRMED") {
+  // The clash check runs whenever the reservation will hold a vehicle: either
+  // it already does, or it is about to because it is being confirmed now.
+  if (carId && status === "CONFIRMED") {
     const [clashes, blocks] = await Promise.all([
       prisma.inquiry.count({
         where: {
@@ -177,6 +192,10 @@ export async function updateInquiry(formData: FormData) {
         phone: str(formData, "phone").slice(0, 30),
         flightNumber: str(formData, "flightNumber").slice(0, 20) || null,
         message: str(formData, "message").slice(0, 1000) || null,
+        status,
+        // Only written when something was actually restored, so an ordinary
+        // edit does not overwrite an earlier explanation.
+        ...(restoring ? { statusNote } : {}),
         rentalDays: days,
         totalPrice,
         extras: extraRows.length ? { create: extraRows } : undefined,

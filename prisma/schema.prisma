@@ -181,6 +181,10 @@ model Inquiry {
   /// recomputed, so changing a car's rate later never rewrites past bookings
   /// or the reports built from them.
   totalPrice Decimal?      @db.Decimal(10, 2)
+  /// Why a cancelled reservation was brought back. Kept so the decision can be
+  /// explained later; a booking that reappears without a reason is impossible
+  /// to account for.
+  statusNote         String?
   /// Rental length in whole days, kept alongside the price for reporting.
   rentalDays Int?
 

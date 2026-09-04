@@ -117,6 +117,10 @@ const MESSAGES: Record<string, { text: string; tone: "ok" | "warn" | "err" }> =
     },
     updated: { text: "Rezervacija je izmijenjena.", tone: "ok" },
   created: { text: "Rezervacija je kreirana i potvrđena.", tone: "ok" },
+  reason: {
+    text: "Obnova nije sačuvana: upišite razlog vraćanja rezervacije.",
+    tone: "err",
+  },
     busy: {
       text: "Izmjena nije sačuvana: vozilo je u novom periodu već zauzeto.",
       tone: "err",
@@ -391,6 +395,7 @@ export default async function AdminPage({
                         phone: q.phone,
                         flightNumber: q.flightNumber,
                         message: q.message,
+                        status: q.status,
                         totalPrice:
                           q.totalPrice != null ? Number(q.totalPrice) : null,
                         extras: q.extras.map((e) => ({
@@ -398,7 +403,8 @@ export default async function AdminPage({
                           qty: e.qty,
                         })),
                       }}
-                      cars={cars}
+                      cars={carsForForm}
+                      occupancy={carOccupancy}
                       locations={editLocations}
                       extras={blockExtras}
                       booked={blockBooked}
