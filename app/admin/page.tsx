@@ -14,7 +14,12 @@ import {
   X,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { confirmInquiry, cancelInquiry, addBlock, removeBlock } from "./actions";
+import {
+  confirmInquiry,
+  cancelInquiry,
+  addBlock,
+  removeBlock,
+} from "./actions";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { BlockForm } from "@/components/admin/BlockForm";
 import { EditInquiryButton } from "@/components/admin/EditInquiryButton";
@@ -65,33 +70,58 @@ const RANGES = [
 type Range = (typeof RANGES)[number]["id"];
 
 const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
-  NEW: { label: "Novo", cls: "bg-amber-500/15 text-amber-600 dark:text-amber-400" },
-  CONTACTED: { label: "Kontaktirano", cls: "bg-sky-500/15 text-sky-600 dark:text-sky-400" },
-  CONFIRMED: { label: "Potvrđeno", cls: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" },
-  CANCELLED: { label: "Otkazano", cls: "bg-zinc-500/15 text-zinc-500 dark:text-zinc-400" },
-  COMPLETED: { label: "Završeno", cls: "bg-zinc-500/15 text-zinc-500 dark:text-zinc-400" },
+  NEW: {
+    label: "Novo",
+    cls: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+  },
+  CONTACTED: {
+    label: "Kontaktirano",
+    cls: "bg-sky-500/15 text-sky-600 dark:text-sky-400",
+  },
+  CONFIRMED: {
+    label: "Potvrđeno",
+    cls: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+  },
+  CANCELLED: {
+    label: "Otkazano",
+    cls: "bg-zinc-500/15 text-zinc-500 dark:text-zinc-400",
+  },
+  COMPLETED: {
+    label: "Završeno",
+    cls: "bg-zinc-500/15 text-zinc-500 dark:text-zinc-400",
+  },
 };
 
-const MESSAGES: Record<string, { text: string; tone: "ok" | "warn" | "err" }> = {
-  confirmed: { text: "Rezervacija je potvrđena — vozilo je zauzeto za taj period.", tone: "ok" },
-  cancelled: { text: "Upit je otkazan.", tone: "ok" },
-  conflict: {
-    text: "Nije moguće potvrditi: vozilo je već zauzeto u tom periodu (potvrđena rezervacija ili blokada).",
-    tone: "err",
-  },
-  blocked: { text: "Blokada je dodana — vozilo je nedostupno u tom periodu.", tone: "ok" },
-  unblocked: { text: "Blokada je uklonjena.", tone: "ok" },
-  error: { text: "Nešto nije u redu s unosom. Pokušajte ponovo.", tone: "err" },
-  updated: { text: "Rezervacija je izmijenjena.", tone: "ok" },
-  busy: {
-    text: "Izmjena nije sačuvana: vozilo je u novom periodu već zauzeto.",
-    tone: "err",
-  },
-  extras: {
-    text: "Izmjena nije sačuvana: tražena oprema nije dostupna u novom periodu.",
-    tone: "err",
-  },
-};
+const MESSAGES: Record<string, { text: string; tone: "ok" | "warn" | "err" }> =
+  {
+    confirmed: {
+      text: "Rezervacija je potvrđena — vozilo je zauzeto za taj period.",
+      tone: "ok",
+    },
+    cancelled: { text: "Upit je otkazan.", tone: "ok" },
+    conflict: {
+      text: "Nije moguće potvrditi: vozilo je već zauzeto u tom periodu (potvrđena rezervacija ili blokada).",
+      tone: "err",
+    },
+    blocked: {
+      text: "Blokada je dodana — vozilo je nedostupno u tom periodu.",
+      tone: "ok",
+    },
+    unblocked: { text: "Blokada je uklonjena.", tone: "ok" },
+    error: {
+      text: "Nešto nije u redu s unosom. Pokušajte ponovo.",
+      tone: "err",
+    },
+    updated: { text: "Rezervacija je izmijenjena.", tone: "ok" },
+    busy: {
+      text: "Izmjena nije sačuvana: vozilo je u novom periodu već zauzeto.",
+      tone: "err",
+    },
+    extras: {
+      text: "Izmjena nije sačuvana: tražena oprema nije dostupna u novom periodu.",
+      tone: "err",
+    },
+  };
 
 export default async function AdminPage({
   searchParams,
@@ -99,13 +129,13 @@ export default async function AdminPage({
   searchParams: RawSearchParams;
 }) {
   const filterRaw = one(searchParams.status) ?? "pending";
-  const filter: Filter = (FILTERS.some((f) => f.id === filterRaw)
-    ? filterRaw
-    : "pending") as Filter;
+  const filter: Filter = (
+    FILTERS.some((f) => f.id === filterRaw) ? filterRaw : "pending"
+  ) as Filter;
   const rangeRaw = one(searchParams.range) ?? "all";
-  const range: Range = (RANGES.some((r) => r.id === rangeRaw)
-    ? rangeRaw
-    : "all") as Range;
+  const range: Range = (
+    RANGES.some((r) => r.id === rangeRaw) ? rangeRaw : "all"
+  ) as Range;
   const msg = MESSAGES[one(searchParams.msg) ?? ""];
 
   const rangeMs = RANGES.find((r) => r.id === range)?.ms ?? null;
@@ -115,17 +145,33 @@ export default async function AdminPage({
 
   const statusWhere =
     filter === "pending"
-      ? { status: { in: ["NEW", "CONTACTED"] } as { in: ("NEW" | "CONTACTED")[] } }
+      ? {
+          status: { in: ["NEW", "CONTACTED"] } as {
+            in: ("NEW" | "CONTACTED")[];
+          },
+        }
       : filter === "confirmed"
         ? { status: "CONFIRMED" as const }
         : filter === "cancelled"
-          ? { status: { in: ["CANCELLED", "COMPLETED"] } as { in: ("CANCELLED" | "COMPLETED")[] } }
+          ? {
+              status: { in: ["CANCELLED", "COMPLETED"] } as {
+                in: ("CANCELLED" | "COMPLETED")[];
+              },
+            }
           : {};
 
   const where = { ...statusWhere, ...createdAtWhere };
 
-  const [inquiries, blocks, cars, counts, blockExtras, blockBooked, carOccupancy, editLocations] =
-    await Promise.all([
+  const [
+    inquiries,
+    blocks,
+    cars,
+    counts,
+    blockExtras,
+    blockBooked,
+    carOccupancy,
+    editLocations,
+  ] = await Promise.all([
     prisma.inquiry.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -141,7 +187,11 @@ export default async function AdminPage({
       orderBy: { sortOrder: "asc" },
       select: { id: true, title: true },
     }),
-    prisma.inquiry.groupBy({ by: ["status"], _count: true, where: createdAtWhere }),
+    prisma.inquiry.groupBy({
+      by: ["status"],
+      _count: true,
+      where: createdAtWhere,
+    }),
     getActiveExtras().catch(() => []),
     // Availability must never take the panel down; an empty list just means
     // the form shows full stock and the server still re-checks on submit.
@@ -297,36 +347,34 @@ export default async function AdminPage({
                   {/* Editing stays available whatever the status: plans change
                       after a booking is confirmed just as often as before. */}
                   <EditInquiryButton reference={q.reference} status={q.status}>
-                    {() => (
-                      <EditInquiryForm
-                        action={updateInquiry}
-                        inquiry={{
-                          id: q.id,
-                          reference: q.reference,
-                          carId: q.carId,
-                          pickupAt: q.pickupAt.toISOString(),
-                          returnAt: q.returnAt.toISOString(),
-                          pickupLocationId: q.pickupLocationId,
-                          returnLocationId: q.returnLocationId,
-                          firstName: q.firstName,
-                          lastName: q.lastName,
-                          email: q.email,
-                          phone: q.phone,
-                          flightNumber: q.flightNumber,
-                          message: q.message,
-                          totalPrice:
-                            q.totalPrice != null ? Number(q.totalPrice) : null,
-                          extras: q.extras.map((e) => ({
-                            extraId: e.extraId,
-                            qty: e.qty,
-                          })),
-                        }}
-                        cars={cars}
-                        locations={editLocations}
-                        extras={blockExtras}
-                        booked={blockBooked}
-                      />
-                    )}
+                    <EditInquiryForm
+                      action={updateInquiry}
+                      inquiry={{
+                        id: q.id,
+                        reference: q.reference,
+                        carId: q.carId,
+                        pickupAt: q.pickupAt.toISOString(),
+                        returnAt: q.returnAt.toISOString(),
+                        pickupLocationId: q.pickupLocationId,
+                        returnLocationId: q.returnLocationId,
+                        firstName: q.firstName,
+                        lastName: q.lastName,
+                        email: q.email,
+                        phone: q.phone,
+                        flightNumber: q.flightNumber,
+                        message: q.message,
+                        totalPrice:
+                          q.totalPrice != null ? Number(q.totalPrice) : null,
+                        extras: q.extras.map((e) => ({
+                          extraId: e.extraId,
+                          qty: e.qty,
+                        })),
+                      }}
+                      cars={cars}
+                      locations={editLocations}
+                      extras={blockExtras}
+                      booked={blockBooked}
+                    />
                   </EditInquiryButton>
                 </div>
 
@@ -413,8 +461,7 @@ export default async function AdminPage({
                     <span>
                       {q.extras
                         .map(
-                          (x) =>
-                            `${x.nameHr}${x.qty > 1 ? ` ×${x.qty}` : ""}`,
+                          (x) => `${x.nameHr}${x.qty > 1 ? ` ×${x.qty}` : ""}`,
                         )
                         .join(" · ")}
                     </span>

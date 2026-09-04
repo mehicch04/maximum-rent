@@ -18,8 +18,14 @@ export function EditInquiryButton({
 }: {
   reference: string;
   status: string;
-  /** The form itself; rendered only once the warning is accepted. */
-  children: (close: () => void) => React.ReactNode;
+  /**
+   * The form itself.
+   *
+   * Passed as a plain element rather than a render function: a function
+   * cannot cross from a server component into a client one, and doing so
+   * throws before the page ever renders.
+   */
+  children: React.ReactNode;
 }) {
   const [asking, setAsking] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -75,7 +81,8 @@ export function EditInquiryButton({
               </p>
 
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Mijenjate rezervaciju <strong className="text-foreground">{reference}</strong>.
+                Mijenjate rezervaciju{" "}
+                <strong className="text-foreground">{reference}</strong>.
                 {confirmed
                   ? " Rezervacija je već potvrđena, pa promjena datuma ili vozila utiče na ono što je gostu obećano."
                   : " Promjene se odmah upisuju."}
@@ -136,7 +143,7 @@ export function EditInquiryButton({
                   <X className="h-4 w-4" />
                 </button>
               </div>
-              <div className="p-5">{children(() => setEditing(false))}</div>
+              <div className="p-5">{children}</div>
             </div>
           </div>,
           document.body,

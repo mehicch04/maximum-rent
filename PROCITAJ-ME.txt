@@ -1,84 +1,52 @@
-UREĐIVANJE REZERVACIJA
-======================
+POPRAVKA — "Application error: a server-side exception has occurred"
+===================================================================
 
 Schema se NE mijenja. Samo: npm run build
 
-ŠTA JE DODANO
--------------
-Svaka rezervacija ima dugme "Uredi", bez obzira na status: nova,
-kontaktiran, potvrđena, otkazana ili završena. Planovi se mijenjaju i
-poslije potvrde jednako često kao prije.
+UZROK (moja greška)
+-------------------
+Dugme "Uredi" sam napravio tako da obrazac prima kao FUNKCIJU:
 
-Do sada je jedini način bio otkazati pa napraviti novu, čime se gubi broj
-upita, a gost dobija obavijest o otkazivanju nečega što zapravo nije
-otkazano.
+    <EditInquiryButton>
+      {() => <EditInquiryForm ... />}
+    </EditInquiryButton>
 
-POTVRDA PRIJE UREĐIVANJA
-------------------------
-Klik na "Uredi" prvo otvara mali prozor s upozorenjem. Kod potvrđenih
-rezervacija stoji izričito da promjena datuma ili vozila utiče na ono što
-je gostu već obećano.
+Stranica /admin je serverska komponenta, a dugme je klijentska. Između te
+dvije strane Next.js šalje podatke kao tekst, a funkcija se ne može tako
+poslati. Zbog toga je stranica pucala prije nego što se uopće prikaže.
 
-Razlog: dugme stoji uz "Potvrdi" i "Otkaži", pa je lako promašiti. Dva
-koraka to sprječavaju.
+To je i razlog zašto poruka nije rekla ništa konkretno: greška se desila
+na serveru, prije renderovanja.
 
-U prozoru piše i da gost NEĆE automatski dobiti obavijest o izmjeni.
-Namjerno nema automatskog mejla: izmjena termina je razgovor, ne
-obavijest, i bolje je da vlasnik sam nazove nego da gost dobije suvu
-poruku da mu je termin pomjeren.
+POPRAVKA
+--------
+Obrazac se sada prosljeđuje kao običan element, ne kao funkcija:
 
-ŠTA SE MOŽE MIJENJATI
----------------------
-  vozilo, datumi i vremena preuzimanja i vraćanja
-  lokacije preuzimanja i vraćanja
-  ime, prezime, email, telefon, broj leta, napomena
-  dodatna oprema s količinama
-  ukupna cijena
+    <EditInquiryButton>
+      <EditInquiryForm ... />
+    </EditInquiryButton>
 
-Cijena ostavljena prazna računa se automatski (najam × dani + oprema).
-Upisana ručno ima prednost, jer je popust dogovoren telefonom stvaran
-iznos i treba da uđe u izvještaje takav kakav jest.
+Ponašanje je isto: obrazac se i dalje vidi tek nakon potvrde, samo se sada
+priprema unaprijed umjesto da se stvara u trenutku otvaranja. Za obrazac
+ove veličine razlika u brzini se ne primjećuje.
 
-NAJVAŽNIJI DETALJ: PROVJERA MORA PRESKOČITI SAMU SEBE
------------------------------------------------------
-Kad se uređuje potvrđena rezervacija, provjera zauzetosti mora ignorisati
-tu istu rezervaciju. Bez toga bi svaka izmjena javila da je vozilo
-zauzeto, jer bi rezervacija našla samu sebe.
+PROVJERIO SAM I OSTALO
+----------------------
+Prošao sam kroz sve serverske stranice i tražio prosljeđuje li se igdje
+drugo funkcija u klijentsku komponentu. Nema drugih slučajeva.
 
-Isto vrijedi za opremu: dvije sjedalice koje ta rezervacija već drži
-vraćaju se u račun slobodnih prije provjere, pa se rezervacija može
-sačuvati i bez ijedne promjene opreme.
-
-Provjereno:
-  izmjena A u istom terminu     -> bez iskljucivanja bi lažno odbio,
-                                   sa isključivanjem prolazi
-  pomjeranje A na termin od B   -> ispravno odbija
-  pomjeranje A na slobodan      -> prolazi
-
-VALIDACIJA I NA SERVERU
------------------------
-Sve se ponovo provjerava pri spremanju: ispravnost perioda, sudar s
-drugim potvrđenim rezervacijama i blokadama, te dostupnost opreme. Ako
-nešto ne prolazi, izmjena se NE sprema i javlja se konkretan razlog:
-
-  "Izmjena nije sačuvana: vozilo je u novom periodu već zauzeto."
-  "Izmjena nije sačuvana: tražena oprema nije dostupna u novom periodu."
-
-Oprema se upisuje u transakciji: stara se briše i nova upisuje zajedno,
-pa rezervacija ne može ostati bez opreme ako nešto pukne u međukoraku.
+Provjerio sam i broj stavki u Promise.all na /admin stranici, jer bi
+nesklad tamo dao istu vrstu greške. Slaže se: 8 dohvata, 8 imena.
 
 FAJLOVI
 -------
-  components/admin/EditInquiryButton.tsx  (NOVO — dugme i potvrda)
-  components/admin/EditInquiryForm.tsx    (NOVO — obrazac)
-  app/admin/edit-actions.ts               (NOVO — spremanje i provjere)
-  app/admin/page.tsx                      (dugme u kartici, nove poruke)
+  components/admin/EditInquiryButton.tsx
+  app/admin/page.tsx
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build
-3. npm run dev -> /admin
-   - uredi potvrđenu rezervaciju bez ijedne promjene: mora se sačuvati
-   - pomjeri je na termin kad je vozilo zauzeto: mora odbiti uz poruku
-   - promijeni opremu i datume pa provjeri "Slobodno" brojeve
+2. npm run build          <-- mora proći
+3. npm run dev -> /admin  -> stranica se mora otvoriti
+   - klikni "Uredi" na nekoj rezervaciji
+   - potvrdi, obrazac se mora otvoriti
