@@ -1,53 +1,25 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Wrench, Phone, AlertTriangle, User, Lock, Minus } from "lucide-react";
+import { AlertTriangle, Plus, User, Wrench } from "lucide-react";
 import { DateField } from "@/components/ui/DateField";
-import type { ExtraItem } from "@/lib/extras";
-import {
-  availabilityFor,
-  busyCarsFor,
-  maxSelectable,
-  type Booked,
-  type CarBusy,
-} from "@/lib/extras-availability";
+import { busyCarsFor, type CarBusy } from "@/lib/extras-availability";
 
 const input =
   "h-10 w-full min-w-0 rounded-xl border border-border bg-background px-3 text-base outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-ring/30 sm:text-sm";
 const lbl = "mb-1 block text-xs font-medium text-muted-foreground";
 
 /**
- * Reasons a car leaves the fleet for a while.
+ * Why a car is off the road.
  *
- * The choice is not cosmetic: it decides where the car shows up in the fleet
- * chart, and a manual booking additionally carries a price so a deal agreed
- * over the phone counts towards revenue like any other.
+ * Bookings taken by phone used to live here too, which meant this form also
+ * had to collect a client, a price and equipment. They now have their own
+ * screen, so this one is back to what it is for: taking a car out of service.
  */
 const KINDS = [
-  {
-    value: "MAINTENANCE",
-    label: "Servis / Održavanje",
-    icon: Wrench,
-    note: "Vozilo se vodi kao na servisu.",
-  },
-  {
-    value: "MANUAL_BOOKING",
-    label: "Manuelna rezervacija (telefon / uživo)",
-    icon: Phone,
-    note: "Vozilo se vodi kao u najmu, a iznos ulazi u prihod.",
-  },
-  {
-    value: "DAMAGE",
-    label: "Oštećenje / Sudar",
-    icon: AlertTriangle,
-    note: "Vozilo se vodi kao na servisu.",
-  },
-  {
-    value: "PRIVATE",
-    label: "Privatna upotreba",
-    icon: User,
-    note: "Vozilo se samo skida sa stanja, bez prihoda.",
-  },
+  { value: "MAINTENANCE", label: "Servis / Održavanje", icon: Wrench },
+  { value: "DAMAGE", label: "Oštećenje / Sudar", icon: AlertTriangle },
+  { value: "PRIVATE", label: "Privatna upotreba", icon: User },
 ] as const;
 
 type Kind = (typeof KINDS)[number]["value"];
@@ -56,36 +28,21 @@ export function BlockForm({
   action,
   cars,
   today,
-  extras = [],
-  booked = [],
   occupancy = [],
 }: {
   action: (formData: FormData) => void;
   cars: { id: string; title: string }[];
   today: string;
-  extras?: ExtraItem[];
-  /**
-   * Everything already promised, from the website and from earlier manual
-   * bookings. Checking both is the whole point: a clerk filling this form must
-   * not be able to hand out a seat the website already gave away.
-   */
-  booked?: Booked[];
-  /** Periods each vehicle is already taken, for the same reason. */
+  /** Periods each vehicle is already taken, so busy ones can be greyed out. */
   occupancy?: CarBusy[];
 }) {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [kind, setKind] = useState<Kind>("MAINTENANCE");
-  const [chosen, setChosen] = useState<Record<string, number>>({});
+  const [carId, setCarId] = useState("");
 
-  // Blocks run from the start of the first day to the end of the last, which is
-  // how the server stores them, so availability lines up exactly.
   const fromDate = from ? new Date(`${from}T00:00:00`) : null;
   const toDate = to ? new Date(`${to}T23:59:59`) : null;
-
-  // Dates lead: until both are set, nothing can be checked against anything,
-  // so the vehicle list stays closed rather than offering cars that may well
-  // be taken.
   const datesReady = Boolean(from && to);
 
   const busy = useMemo(
@@ -94,54 +51,23 @@ export function BlockForm({
     [occupancy, from, to],
   );
 
-  // Free vehicles first, so the usable choices are not buried among greyed-out
-  // ones. Order within each group stays as it came from the server.
+  // Free vehicles first, so what can actually be blocked is not buried among
+  // greyed-out entries.
   const sortedCars = useMemo(() => {
     if (!datesReady) return cars;
-    return [...cars].sort(
-      (a, b) => Number(busy.has(a.id)) - Number(busy.has(b.id)),
-    );
+    return [...cars].sort((a, b) => Number(busy.has(a.id)) - Number(busy.has(b.id)));
   }, [cars, busy, datesReady]);
 
-  const free = useMemo(
-    () => availabilityFor(extras, booked, fromDate, toDate),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [extras, booked, from, to],
-  );
-
-  // Changing the dates can shrink what is available, so an earlier choice is
-  // trimmed rather than silently sending a quantity that cannot be honoured.
-  const [carId, setCarId] = useState("");
-
-  // A car chosen before the dates moved may now clash; clearing it is safer
-  // than letting a greyed-out option stay selected.
+  // A car picked before the dates moved may now clash; clearing it beats
+  // leaving a greyed-out option selected.
   useEffect(() => {
     if (carId && busy.has(carId)) setCarId("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [busy]);
 
-  useEffect(() => {
-    let changed = false;
-    const next: Record<string, number> = {};
-    for (const [id, qty] of Object.entries(chosen)) {
-      const item = extras.find((e) => e.id === id);
-      if (!item) continue;
-      const capped = Math.min(qty, maxSelectable(item.maxQty, free[id] ?? 0));
-      if (capped !== qty) changed = true;
-      if (capped > 0) next[id] = capped;
-    }
-    if (changed) setChosen(next);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [free]);
-
   const selected = KINDS.find((k) => k.value === kind)!;
   const Icon = selected.icon;
-
-  const isBooking = kind === "MANUAL_BOOKING";
   const isDamage = kind === "DAMAGE";
-  // Only these two need anything beyond the basics; the row stays a single
-  // line until it actually has to grow.
-  const hasExtraFields = isBooking || isDamage;
 
   return (
     <form
@@ -234,156 +160,23 @@ export function BlockForm({
         </button>
       </div>
 
-      {/* What the choice actually does, said plainly, because it changes the
-          reports and that is not obvious from the label alone. */}
       <p className="mt-2.5 flex items-center gap-1.5 text-xs text-muted-foreground">
         <Icon className="h-3.5 w-3.5 shrink-0 text-brand-strong" />
-        {selected.note}
+        Vozilo se vodi kao nedostupno i ne nudi se gostima u tom periodu.
       </p>
 
-      {hasExtraFields && (
-        <div className="mt-4 grid gap-3 border-t border-border pt-4 sm:grid-cols-2">
-          {isBooking && (
-            <>
-              <div className="min-w-0">
-                <label className={lbl}>Ime klijenta *</label>
-                <input
-                  type="text"
-                  name="clientName"
-                  required
-                  maxLength={80}
-                  placeholder="Ime i prezime"
-                  className={input}
-                />
-              </div>
-              <div className="min-w-0">
-                <label className={lbl}>Ukupna cijena (KM) *</label>
-                <input
-                  type="number"
-                  name="totalPrice"
-                  required
-                  min={0}
-                  step="0.01"
-                  inputMode="decimal"
-                  placeholder="450"
-                  className={input}
-                />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Ulazi u prihod na stranici Analitika.
-                </p>
-              </div>
-
-              {extras.length > 0 && (
-                <div className="sm:col-span-2">
-                  <label className={lbl}>Dodatna oprema</label>
-                  {!from || !to ? (
-                    <p className="rounded-xl border border-dashed border-border px-3 py-2.5 text-xs text-muted-foreground">
-                      Odaberite datume da vidite šta je slobodno.
-                    </p>
-                  ) : (
-                    <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">
-                      {extras.map((e) => {
-                        const qty = chosen[e.id] ?? 0;
-                        const freePieces = free[e.id] ?? 0;
-                        const cap = maxSelectable(e.maxQty, freePieces);
-                        const soldOut = cap === 0;
-
-                        return (
-                          <li
-                            key={e.id}
-                            className={`flex items-center gap-3 px-3 py-2 ${
-                              soldOut ? "bg-surface-muted/40 opacity-50" : "bg-surface"
-                            }`}
-                          >
-                            {soldOut ? (
-                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground">
-                                <Lock className="h-3.5 w-3.5" />
-                              </span>
-                            ) : (
-                              <div className="flex shrink-0 items-center gap-1">
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    setChosen((c) => {
-                                      const n = { ...c };
-                                      if (qty <= 1) delete n[e.id];
-                                      else n[e.id] = qty - 1;
-                                      return n;
-                                    })
-                                  }
-                                  disabled={qty === 0}
-                                  aria-label={`Smanji ${e.nameHr}`}
-                                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-border transition-colors hover:border-brand disabled:opacity-40"
-                                >
-                                  <Minus className="h-3.5 w-3.5" />
-                                </button>
-                                <span className="w-5 text-center text-sm font-semibold tabular-nums">
-                                  {qty}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    setChosen((c) => ({
-                                      ...c,
-                                      [e.id]: Math.min(cap, qty + 1),
-                                    }))
-                                  }
-                                  disabled={qty >= cap}
-                                  aria-label={`Povećaj ${e.nameHr}`}
-                                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-border transition-colors hover:border-brand disabled:opacity-40"
-                                >
-                                  <Plus className="h-3.5 w-3.5" />
-                                </button>
-                              </div>
-                            )}
-
-                            <span className="min-w-0 flex-1">
-                              <span className="block truncate text-sm font-medium text-foreground">
-                                {e.nameHr}
-                              </span>
-                              <span className="block text-xs">
-                                {soldOut ? (
-                                  <span className="font-medium text-brand-strong">
-                                    Nedostupno u odabranom periodu
-                                  </span>
-                                ) : (
-                                  <span className="text-muted-foreground">
-                                    Slobodno još: {freePieces} od {e.totalStock}
-                                  </span>
-                                )}
-                              </span>
-                            </span>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
-
-                  {/* Selection travels as one field; the server re-checks it. */}
-                  <input
-                    type="hidden"
-                    name="extras"
-                    value={JSON.stringify(
-                      Object.entries(chosen).map(([id, qty]) => ({ id, qty })),
-                    )}
-                  />
-                </div>
-              )}
-            </>
-          )}
-
-          {isDamage && (
-            <div className="min-w-0 sm:col-span-2">
-              <label className={lbl}>Opis štete</label>
-              <input
-                type="text"
-                name="reason"
-                maxLength={200}
-                placeholder="npr. oštećen prednji branik, čeka lakiranje"
-                className={input}
-              />
-            </div>
-          )}
+      {/* Kept because it is part of the reason, not operational data: it shows
+          up as the note beside the vehicle in the fleet status list. */}
+      {isDamage && (
+        <div className="mt-4 border-t border-border pt-4">
+          <label className={lbl}>Opis štete</label>
+          <input
+            type="text"
+            name="reason"
+            maxLength={200}
+            placeholder="npr. oštećen prednji branik, čeka lakiranje"
+            className={input}
+          />
         </div>
       )}
     </form>

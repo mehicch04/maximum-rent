@@ -520,8 +520,6 @@ export default async function AdminPage({
         action={addBlock}
         cars={cars}
         today={today}
-        extras={blockExtras}
-        booked={blockBooked}
         occupancy={carOccupancy}
       />
 

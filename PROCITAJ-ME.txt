@@ -1,57 +1,64 @@
-POPRAVKA BUILDA — kanal MANUAL nedostaje u bazi
-===============================================
+BLOKADE VOZILA — očišćena forma
+===============================
 
-*** OBAVEZNO: npx prisma generate && npx prisma db push ***
+Schema se NE mijenja. Samo: npm run build
 
-GREŠKA
-------
-  Type '"MANUAL"' is not assignable to type 'InquiryChannel | undefined'
+ŠTA JE UKLONJENO
+----------------
+  opcija "Manuelna rezervacija (telefon / uživo)"
+  polje "Ime klijenta"
+  polje "Ukupna cijena (KM)"
+  cijela sekcija za odabir dodatne opreme
 
-UZROK (moja greška)
--------------------
-Rezervacije imaju polje "kanal" s vrijednostima EMAIL i WHATSAPP. Za
-manuelne rezervacije treba i treća, MANUAL.
+Forma sada ima samo: Od datuma, Do datuma, Vozilo, Razlog i dugme.
+Razlog nudi tri opcije: Servis / Održavanje, Oštećenje / Sudar,
+Privatna upotreba.
 
-Ja sam tu vrijednost dodao u svojoj kopiji scheme dok sam radio, pa je
-kasnije pročitao i zaključio da već postoji u projektu. Na osnovu toga sam
-napisao da se schema ne mijenja i nisam je uključio u zip.
+ŠTA JE ZADRŽANO, I ZAŠTO
+------------------------
+1) POLJE "OPIS ŠTETE" kod oštećenja
+   Nije operativni podatak nego dopuna razloga. Taj tekst se prikazuje kao
+   napomena uz vozilo u pregledu statusa flote ("oštećen prednji branik,
+   do 06.09."), pa bez njega ostaje samo suvo "oštećenje".
+   Ako ipak želiš i njega van, reci pa uklonim.
 
-Kod je tako otišao tražeći vrijednost koje u bazi nema.
+2) FILTRIRANJE ZAUZETIH VOZILA
+   Ostaje: dok nema datuma vozilo je zaključano, a kad se unesu, zauzeta
+   vozila su siva uz razlog. Nisi tražio uklanjanje, a i dalje sprječava
+   blokiranje vozila koje je već negdje zauzeto.
 
-POPRAVKA
---------
-U schemi je sada:
+ČIŠĆENJE I SA SERVERSKE STRANE
+------------------------------
+Akcija koja sprema blokadu više ne prima ni ne upisuje ime klijenta,
+cijenu ni opremu. Popis dozvoljenih razloga sveden je na tri, pa se
+"MANUAL_BOOKING" ne može podvaliti ni ručno poslanim zahtjevom.
 
-    enum InquiryChannel {
-      EMAIL
-      WHATSAPP
-      MANUAL
-    }
+Uklonjeni su i neiskorišteni uvozi te dva propsa koja stranica više ne
+mora prosljeđivati formi.
 
-DVIJE MOGUĆNOSTI KAKO PRIMIJENITI
----------------------------------
-A) Raspakuj ovaj zip (zamjenjuje prisma/schema.prisma) pa pokreni migraciju.
-   Ovo je u redu ako schemu nisi mijenjao sam.
+STARI ZAPISI I DALJE RADE
+-------------------------
+Vrijednost MANUAL_BOOKING ostaje u bazi zbog blokada napravljenih prije
+ove promjene. Zato je i dalje spominju:
 
-B) Ako si schemu i sam dopunjavao, NEMOJ prepisivati fajl. Umjesto toga
-   otvori prisma/schema.prisma, nađi:
+  analitika        stare manuelne rezervacije i dalje ulaze u prihod i
+                   prikazuju se kao "U najmu", ne kao nedostupne
+  dostupnost       oprema izdata kroz stare blokade i dalje se oduzima
+                   sa stanja
 
-       enum InquiryChannel {
-         EMAIL
-         WHATSAPP
-       }
+Da sam to uklonio, stari zapisi bi nestali iz izvještaja i njihova oprema
+bi se pojavila kao slobodna iako nije.
 
-   i dodaj MANUAL kao treću vrijednost. Pa pokreni migraciju.
-
-Postojeći zapisi se ne diraju: dodavanje nove vrijednosti u popis ne mijenja
-one koji već postoje.
+FAJLOVI
+-------
+  components/admin/BlockForm.tsx   (očišćena forma)
+  app/admin/actions.ts             (očišćena akcija)
+  app/admin/page.tsx               (uklonjeni suvišni propsi)
 
 KORACI
 ------
-1. Primijeni A ili B odozgo.
-2. npx prisma generate
-3. npx prisma db push
-4. npm run build          <-- mora proći
-5. git add -A
-   git commit -m "fix(schema): dodaj MANUAL kanal za manuelne rezervacije"
-   git push
+1. Raspakuj preko root-a projekta.
+2. npm run build
+3. npm run dev -> /admin
+   - forma na dnu mora imati samo datume, vozilo i razlog
+   - dodaj blokadu za servis i provjeri je u statusu flote
