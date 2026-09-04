@@ -62,6 +62,10 @@ enum LocationType {
 enum InquiryChannel {
   EMAIL
   WHATSAPP
+  /// Agreed by phone or at the desk and entered by staff. Stored as a normal
+  /// reservation so it gets a reference, appears in the same list, counts in
+  /// the reports and can be edited like any other.
+  MANUAL
 }
 
 enum InquiryStatus {
