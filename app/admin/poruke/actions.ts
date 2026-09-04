@@ -23,7 +23,7 @@ export async function setMessageStatus(formData: FormData) {
   } catch {
     // already gone — nothing to do
   }
-  revalidatePath("/admin/poruke");
+  revalidatePath("/admin/poruke", "layout");
 }
 
 export async function deleteMessage(formData: FormData) {
@@ -36,5 +36,5 @@ export async function deleteMessage(formData: FormData) {
       // already gone
     }
   }
-  revalidatePath("/admin/poruke");
+  revalidatePath("/admin/poruke", "layout");
 }

@@ -126,7 +126,7 @@ export async function confirmInquiry(formData: FormData) {
     }
   }
 
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
   backTo({ status, range, msg: outcome.msg });
 }
 
@@ -160,7 +160,7 @@ export async function cancelInquiry(formData: FormData) {
     }
   }
 
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
   backTo({ status, range, msg: "cancelled" });
 }
 
@@ -213,7 +213,7 @@ export async function addBlock(formData: FormData) {
     },
   });
 
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
   backTo({ msg: "blocked" });
 }
 
@@ -223,6 +223,6 @@ export async function removeBlock(formData: FormData) {
   if (id) {
     await prisma.carBlock.deleteMany({ where: { id } });
   }
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
   backTo({ msg: "unblocked" });
 }

@@ -204,6 +204,6 @@ export async function updateInquiry(formData: FormData) {
   ]);
 
   revalidateTag("fleet");
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
   redirect("/admin?msg=updated");
 }

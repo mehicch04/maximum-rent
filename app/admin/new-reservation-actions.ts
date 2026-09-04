@@ -178,6 +178,6 @@ export async function createManualInquiry(formData: FormData) {
   );
 
   revalidateTag("fleet");
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
   redirect("/admin?msg=created");
 }

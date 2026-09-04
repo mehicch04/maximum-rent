@@ -1,85 +1,70 @@
-VRAĆANJE OTKAZANIH REZERVACIJA U POTVRĐENE
-==========================================
+OZNAKE ZA NOVE STAVKE U ADMIN NAVIGACIJI
+========================================
 
-*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
-(dodaje se jedno polje, objašnjeno niže)
+Schema se NE mijenja. Samo: npm run build
+
+*** RUČNO OBRISATI: Remove-Item app\admin\manual-actions.ts ***
+(objašnjeno na dnu)
 
 ŠTA JE DODANO
 -------------
-U modalu za uređivanje sada postoji padajući meni za STATUS. Sve promjene
-rade, ali prelazak iz "Otkazano" u "Potvrđeno" nosi posebnu obradu, jer je
-to jedini smjer koji može izazvati dvostruko rezervisanje: vozilo je pri
-otkazivanju oslobođeno i neko drugi ga je u međuvremenu mogao uzeti.
+Na tabovima "Rezervacije" i "Poruke" pojavljuje se mala crvena oznaka s
+brojem stavki koje čekaju:
 
-1) OBRAZLOŽENJE OBNOVE
-   Čim se odabere taj prelazak, pojavljuje se obavezno polje "Razlog obnove
-   rezervacije". Bez njega se ne može sačuvati, ni iz obrasca ni ručno
-   poslanim zahtjevom.
+  Rezervacije  ->  upiti sa statusom "Novo"
+  Poruke       ->  poruke koje još nisu označene kao riješene
 
-   Razlog se sprema u bazu, u novo polje. Rezervacija koja se vrati bez
-   ijednog objašnjenja kasnije se ne može opravdati ni pred kim.
+Vidi se na svakoj stranici admina, jer stoji u navigaciji, pa se novi upit
+primijeti i dok se radi na vozilima ili analitici.
 
-2) PROVJERA VOZILA UŽIVO
-   Ako je vozilo slobodno, ništa se ne prikazuje i postupak teče normalno.
+ODLUKE
+------
+1) OZNAKA SE NE PRIKAZUJE KAD JE NULA.
+   Oznaka koja stalno stoji, makar i na nuli, prestane nešto značiti i
+   prestane se primjećivati. Pojavljuje se samo kad ima šta raditi.
 
-   Ako je zauzeto, iskače crveni okvir s razlogom zauzeća, a odmah ispod
-   padajući meni SAMO sa slobodnim vozilima za taj termin, uz cijenu po
-   danu da se zamjena bira s punom informacijom. Dugme se zaključava dok se
-   ne izabere slobodno vozilo.
+2) PREKO 99 PIŠE "99+", da oznaka ostane iste veličine i ne razvuče tab.
 
-   Ako nijedno vozilo nije slobodno, to i piše, uz uputu da se promijene
-   datumi.
+3) BROJI SE SAMO ZA PRIJAVLJENOG KORISNIKA.
+   Stranica za prijavu ne dodiruje bazu.
 
-3) PROVJERA OPREME UŽIVO
-   Ako tražena količina više nije dostupna, količina se automatski smanjuje
-   na maksimalnu slobodnu, a iznad se ispisuje šta je smanjeno i za koliko
-   ("Dječija sjedalica: traženo 2, slobodno 1").
+4) AKO BROJANJE ZAKAŽE, PRIKAZUJE SE NULA.
+   Oznaka je pomoć, ne smije oboriti panel.
 
-   Namjerno se i smanjuje i prijavljuje. Samo smanjiti bi značilo da gost
-   ostane bez sjedalice a da to niko ne primijeti; samo prijaviti bi
-   ostavilo obrazac u stanju koje se ne može sačuvati.
+DETALJ KOJI JE MORAO BITI POPRAVLJEN
+------------------------------------
+Oznake stoje u navigaciji, a navigacija je dio okvira stranice, ne same
+stranice. Akcije su do sada osvježavale samo stranicu, pa bi broj ostajao
+zastario: potvrdiš rezervaciju, ona nestane iz liste, a oznaka i dalje
+pokazuje staro stanje.
 
-4) CIJENA SE SAMA PRERAČUNAVA
-   Kad se promijeni vozilo ili smanji oprema, iznos se odmah osvježava.
-   Čim se u polje upiše ručno, prestaje se osvježavati, a ispod se prikazuje
-   koliko bi iznosio automatski izračun. Dogovoreni popust se tako ne može
-   slučajno prepisati.
+Sve akcije sada osvježavaju i okvir, pa broj pada čim se stavka riješi.
+Izmijenjeno na osam mjesta: potvrda i otkazivanje rezervacije, blokade,
+uređivanje, nova rezervacija, te označavanje i brisanje poruka.
 
-NAJVAŽNIJI DETALJ
------------------
-Provjera zauzetosti preskače SAMU rezervaciju koja se uređuje. Bez toga bi
-potvrđena rezervacija našla samu sebe i svaka izmjena bi javljala sudar.
-Zbog toga podatak o zauzetosti sada nosi i oznaku rezervacije.
+MRTAV FAJL
+----------
+app/admin/manual-actions.ts nije u repou i niko ga ne koristi. To je moj
+zaostatak iz ranijeg pokušaja, prije nego je napravljen pravi obrazac za
+manuelne rezervacije. Obriši ga:
 
-Provjereno:
-  otkazana se vraća, vozilo slobodno            -> prolazi
-  otkazana se vraća, vozilo drži druga          -> nudi zamjenu
-  uređivanje potvrđene u istom terminu          -> ne nalazi samu sebe
-  oprema: traženo 2, slobodno 1                 -> reže na 1
-  zamjena vozila 110 KM -> 80 KM po danu        -> cijena 700 -> 550 KM
-
-IZMJENA BAZE
-------------
-Dodaje se polje "statusNote" na rezervaciju, za razlog obnove. Provjerio sam
-u istoriji projekta da ga ranije nije bilo, da se ne ponovi propust s
-kanalom MANUAL.
+    Remove-Item app\admin\manual-actions.ts
 
 FAJLOVI
 -------
-  prisma/schema.prisma                     (statusNote)
-  components/admin/EditInquiryForm.tsx     (status, upozorenja, cijena)
-  app/admin/edit-actions.ts                (provjere na serveru)
-  app/admin/page.tsx                       (propsi i poruka)
-  lib/extras-availability.ts               (zauzetost nosi oznaku rezervacije)
+  app/admin/layout.tsx                  (brojanje i prosljeđivanje)
+  components/admin/AdminNav.tsx         (prikaz oznake)
+  app/admin/actions.ts                  (osvježavanje okvira)
+  app/admin/edit-actions.ts             (isto)
+  app/admin/new-reservation-actions.ts  (isto)
+  app/admin/poruke/actions.ts           (isto)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npx prisma generate
-3. npx prisma db push
-4. npm run build
-5. npm run dev -> /admin
-   - otkaži rezervaciju, pa je kroz "Uredi" vrati u potvrđene
-   - probaj bez razloga: dugme mora biti zaključano
-   - napravi drugu rezervaciju na isto vozilo i termin, pa ponovi:
-     mora ponuditi zamjensko vozilo
+2. Remove-Item app\admin\manual-actions.ts
+3. npm run build
+4. npm run dev -> /admin
+   - pošalji probni upit sa sajta: oznaka na "Rezervacije" mora porasti
+   - potvrdi ga: oznaka mora pasti odmah, bez osvježavanja stranice
+   - isto probaj s porukom s kontakt stranice
