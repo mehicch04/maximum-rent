@@ -1,90 +1,83 @@
-NOVA STRANICA: UGOVORI I PRIMOPREDAJA
-=====================================
+UGOVORI — PDF i Word generisanje
+================================
 
-Schema se NE mijenja. Samo: npm run build
+*** OBAVEZNO: npm install  (dodaju se jspdf i docx) ***
+Schema se NE mijenja.
 
-NOVI TAB "Ugovori" (/admin/ugovori)
-
-RASPORED
---------
-Lijevo (30%): lista nadolazećih preuzimanja, sa svojim skrolom
-Desno  (70%): editor ugovora
-
-Lista ima ograničenu visinu i vlastito skrolanje, pa duga kolona ljudi
-nikad ne gura ugovor van ekrana.
-
-Na uskim ekranima se slaže jedno ispod drugog.
-
-LISTA
------
-Prikazuju se ISKLJUČIVO potvrđene rezervacije čije preuzimanje je danas ili
-kasnije, poredane po vremenu preuzimanja.
-
-"Danas" se računa od ponoći, ne od trenutnog vremena. Preuzimanje zakazano
-za 9 ujutro ne smije nestati sa šaltera u 9:05 ako gost kasni.
-
-Na kartici je vrijeme najkrupnije. Na šalteru je pitanje uvijek "ko je
-sljedeći", a ne "ko je šta rezervisao". Ispod idu ime, vozilo, trajanje i
-broj rezervacije.
-
-EDITOR
+STANJE
 ------
-Dok se ništa ne odabere stoji poruka "Odaberite rezervaciju".
+Generatori su već postojali u projektu (generate-pdf.ts, generate-docx.ts i
+contract-data.ts u folderu handover), zajedno s fontovima u public/fonts.
+Provjerio sam ih i rade ispravno, pa nisam pisao nove.
 
-Klikom se popunjava sve što sistem već zna: klijent, kontakt, vozilo,
-registracija, datumi, lokacije, oprema i ukupna cijena. SVE JE EDITABILNO,
-jer gost ume zakasniti sat vremena ili zamijeniti auto na licu mjesta, a
-ugovor koji se ne može ispraviti na šalteru ionako se prepisuje rukom.
+Ono što je nedostajalo: dugmad ih nisu pozivala. Sada su vezana.
 
-Nova polja koja se unose uživo:
-  Broj vozačke dozvole
-  Broj pasoša / lične karte
-  Adresa klijenta
-  Trenutna kilometraža
-  Nivo goriva (1/4, 1/2, 3/4, Puno)
-  Zapisnik o stanju vozila (veće tekstualno polje)
-
-Uz zapisnik stoji napomena da je to jedini zapis koji štiti agenciju ako
-gost pri vraćanju ospori oštećenje.
-
-Na dnu su dugmad "Generiši PDF ugovor" i "Generiši Word ugovor". Za sada
-samo ispisuju sve prikupljene podatke u konzolu, kako je i traženo.
-
-DETALJ KOJI JE LAKO PROMAŠITI
------------------------------
-Kad se pređe na drugu rezervaciju, sva ručno unesena polja se prazne.
-Bez toga bi broj vozačke dozvole jednog gosta ostao u ugovoru sljedećeg,
-a to je greška koju niko ne bi primijetio dok ne bude kasno.
-
-ODSTUPANJE OD ZADATKA
----------------------
-Tražio si mock podatke, ali rezervacije su ti stvarne u bazi i filter je
-isti, pa stranica povlači prave. Odmah je upotrebljiva, bez naknadnog
-prevezivanja.
-
-DATUMI I VRIJEME
+ŠTA SAM POPRAVIO
 ----------------
-Koriste se isti kalendar i izbornik vremena kao na ostatku panela, ne
-native polja.
+1) DATUMI U UGOVORU
+   Ispisivali su se sirovo, onako kako ih drži obrazac:
+
+       Preuzimanje: 2026-09-12T10:00 · Mostar – Zračna luka
+
+   Na štampanom ugovoru to izgleda kao greška sistema. Sada:
+
+       Preuzimanje: 12.09.2026. u 10:00 · Mostar – Zračna luka
+
+2) DUGMAD POKAZUJU DA RADE
+   Biblioteke se učitavaju tek pri prvom kliku, pa zna potrajati sekundu.
+   Dugme u međuvremenu piše "Pravim PDF…" i zaključa se, umjesto da izgleda
+   kao da se ništa ne dešava.
+
+3) GREŠKA SE PRIJAVLJUJE
+   Ako generisanje pukne, ispod dugmadi se ispiše poruka umjesto da tiho
+   ne napravi ništa.
+
+ŠTA SAM PROVJERIO PRIJE NEGO SAM DIRAO
+--------------------------------------
+NAŠA SLOVA U PDF-U. Ovo je najčešći razlog zašto ovakvi ugovori ispadnu
+neupotrebljivi: ugrađeni fontovi u PDF-u pokrivaju samo zapadnu latinicu, pa
+Č, ć i đ jednostavno nestanu. Bez posebnog fonta "oštećenje" se ispiše kao
+"ošteenje", a "Čitluk" kao "itluk".
+
+Testirao sam s fontom iz public/fonts i sve se ispisuje ispravno:
+
+    Čitluk, oštećenje, đak, Žepče, Ljubuški
+
+SADRŽAJ UGOVORA
+---------------
+PDF i Word dijele isti opis sadržaja, pa ne mogu razići. Četiri sekcije:
+
+  1. Podaci o klijentu     ime, adresa, telefon, e-mail, vozačka, pasoš
+  2. Predmet najma         vozilo, registracija, datumi, lokacije, trajanje,
+                           dodatna oprema
+  3. Finansije             ugovoreni iznos, broj ugovora
+  4. Zapisnik o stanju     kilometraža, nivo goriva, postojeća oštećenja
+
+Na dnu su linije za "Potpis klijenta" i "Za agenciju".
+
+Prazna polja se ispisuju kao crtica, ne kao prazno mjesto, da se na
+štampanom papiru vidi da tu ništa nije uneseno.
+
+Naziv datoteke nosi broj ugovora: ugovor-MR-7K3P9W.pdf
+
+USPUT UKLONJENO
+---------------
+Napravio sam bio drugu verziju istih generatora u lib/contract prije nego
+sam primijetio da već postoje. Obrisao sam je; ostaje jedna implementacija.
 
 FAJLOVI
 -------
-  app/admin/ugovori/page.tsx                     (NOVO — dohvat i okvir)
-  components/admin/handover/HandoverBoard.tsx    (NOVO — podijeljeni prikaz)
-  components/admin/handover/ReservationList.tsx  (NOVO — lijeva kolona)
-  components/admin/handover/ContractEditor.tsx   (NOVO — desna kolona)
-  components/admin/handover/types.ts             (NOVO — zajednički tipovi)
-  components/admin/AdminNav.tsx                  (tab "Ugovori")
-
-Podjela na četiri fajla je namjerna: lista i editor se ne poznaju međusobno,
-pa se svaki može mijenjati ili zamijeniti zasebno.
+  components/admin/handover/ContractEditor.tsx  (dugmad vezana, stanje, greške)
+  components/admin/handover/contract-data.ts    (format datuma)
+  package.json                                  (jspdf, docx)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build
-3. npm run dev -> /admin/ugovori
-   - odaberi rezervaciju, podaci se moraju popuniti
-   - popuni dozvolu i kilometražu, pa klikni drugu rezervaciju:
-     ta polja se moraju isprazniti
-   - klikni "Generiši PDF" i pogledaj konzolu preglednika
+2. npm install        <-- OBAVEZNO
+3. npm run build
+4. npm run dev -> /admin/ugovori
+   - odaberi rezervaciju, popuni dozvolu, kilometražu i zapisnik
+   - klikni "Generiši PDF ugovor" i otvori preuzeti fajl
+   - provjeri prikazuju li se č, ć, š, ž, đ ispravno
+   - isto probaj s Word verzijom i pokušaj je izmijeniti u Wordu

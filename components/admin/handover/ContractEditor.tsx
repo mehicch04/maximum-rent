@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FileDown, FileText, Fuel, Gauge, IdCard } from "lucide-react";
+import { FileDown, FileText, Fuel, Gauge, IdCard, Loader2 } from "lucide-react";
 import { DateField } from "@/components/ui/DateField";
 import { TimeField } from "@/components/ui/TimeField";
 import { FUEL_LEVELS, type FuelLevel, type HandoverItem } from "./types";
+import type { ContractData } from "./contract-data";
+import { generateContractPdf } from "./generate-pdf";
+import { generateContractDocx } from "./generate-docx";
 
 const input =
   "h-10 w-full min-w-0 rounded-xl border border-border bg-background px-3 text-base outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-ring/30 sm:text-sm";
@@ -39,6 +42,12 @@ function split(iso: string) {
     time: `${p(d.getHours())}:${p(d.getMinutes())}`,
   };
 }
+
+/** 2026-09-12 -> 12.09.2026. */
+const fmtDate = (d: string) => {
+  const [y, m, day] = d.split("-");
+  return y && m && day ? `${day}.${m}.${y}.` : d;
+};
 
 const dt = (iso: string) =>
   new Intl.DateTimeFormat("hr-HR", {
@@ -93,15 +102,19 @@ export function ContractEditor({ item }: { item: HandoverItem }) {
   const set = (k: keyof Handover, v: string) =>
     setH((prev) => ({ ...prev, [k]: v }) as Handover);
 
-  const payload = () => ({
+  const [busy, setBusy] = useState<"pdf" | "docx" | null>(null);
+  const [error, setError] = useState("");
+
+  const payload = (): ContractData => ({
     reference: item.reference,
     guest,
     phone,
     email,
     carTitle,
     plate,
-    pickupAt: `${pickupDate} ${pickupTime}`,
-    returnAt: `${returnDate} ${returnTime}`,
+    // Printed the way people read dates here, not in the form's raw format.
+    pickupAt: `${fmtDate(pickupDate)} u ${pickupTime}`,
+    returnAt: `${fmtDate(returnDate)} u ${returnTime}`,
     pickupLocation: item.pickupLocation,
     returnLocation: item.returnLocation,
     rentalDays: item.rentalDays,
@@ -109,6 +122,21 @@ export function ContractEditor({ item }: { item: HandoverItem }) {
     totalPrice: price,
     ...h,
   });
+
+  /** Runs a generator and reports rather than failing silently. */
+  const run = async (kind: "pdf" | "docx") => {
+    setBusy(kind);
+    setError("");
+    try {
+      if (kind === "pdf") await generateContractPdf(payload());
+      else await generateContractDocx(payload());
+    } catch (err) {
+      console.error("[ugovor] generisanje nije uspjelo:", err);
+      setError("Dokument nije generisan. Pokušajte ponovo.");
+    } finally {
+      setBusy(null);
+    }
+  };
 
   return (
     <div className="space-y-5">
@@ -274,20 +302,26 @@ export function ContractEditor({ item }: { item: HandoverItem }) {
       <div className="flex flex-wrap gap-2 border-t border-border pt-4">
         <button
           type="button"
-          onClick={() => console.log("PDF ugovor:", payload())}
-          className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-brand px-5 text-sm font-semibold text-brand-foreground transition-colors hover:bg-brand-700"
+          disabled={busy !== null}
+          onClick={() => run("pdf")}
+          className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-brand px-5 text-sm font-semibold text-brand-foreground transition-colors hover:bg-brand-700 disabled:opacity-60"
         >
           <FileDown className="h-4 w-4" />
-          Generiši PDF ugovor
+          {busy === "pdf" ? "Pripremam…" : "Generiši PDF ugovor"}
         </button>
         <button
           type="button"
-          onClick={() => console.log("Word ugovor:", payload())}
-          className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-border px-5 text-sm font-semibold text-foreground transition-colors hover:border-brand hover:text-brand-strong"
+          disabled={busy !== null}
+          onClick={() => run("docx")}
+          className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-border px-5 text-sm font-semibold text-foreground transition-colors hover:border-brand hover:text-brand-strong disabled:opacity-60"
         >
           <FileText className="h-4 w-4" />
-          Generiši Word ugovor
+          {busy === "docx" ? "Pripremam…" : "Generiši Word ugovor"}
         </button>
+
+        {error && (
+          <p className="w-full text-xs font-medium text-brand-strong">{error}</p>
+        )}
       </div>
     </div>
   );
