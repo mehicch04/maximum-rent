@@ -25,6 +25,9 @@ import { BlockForm } from "@/components/admin/BlockForm";
 import { EditInquiryButton } from "@/components/admin/EditInquiryButton";
 import { EditInquiryForm } from "@/components/admin/EditInquiryForm";
 import { updateInquiry } from "./edit-actions";
+import { NewReservationButton } from "@/components/admin/NewReservationButton";
+import { NewReservationForm } from "@/components/admin/NewReservationForm";
+import { createManualInquiry } from "./new-reservation-actions";
 import { getActiveExtras } from "@/lib/extras";
 import { getBookedExtras, getCarOccupancy } from "@/lib/extras-availability";
 
@@ -113,6 +116,7 @@ const MESSAGES: Record<string, { text: string; tone: "ok" | "warn" | "err" }> =
       tone: "err",
     },
     updated: { text: "Rezervacija je izmijenjena.", tone: "ok" },
+  created: { text: "Rezervacija je kreirana i potvrđena.", tone: "ok" },
     busy: {
       text: "Izmjena nije sačuvana: vozilo je u novom periodu već zauzeto.",
       tone: "err",
@@ -185,7 +189,8 @@ export default async function AdminPage({
     prisma.car.findMany({
       where: { isAvailable: true },
       orderBy: { sortOrder: "asc" },
-      select: { id: true, title: true },
+      // pricePerDay drives the live price calculation in the new-reservation form.
+      select: { id: true, title: true, pricePerDay: true },
     }),
     prisma.inquiry.groupBy({
       by: ["status"],
@@ -217,17 +222,40 @@ export default async function AdminPage({
     all: counts.reduce((s, c) => s + c._count, 0),
   };
 
+  // Prisma returns Decimal, which cannot cross into a client component.
+  const carsForForm = cars.map((c) => ({
+    id: c.id,
+    title: c.title,
+    pricePerDay: c.pricePerDay != null ? Number(c.pricePerDay) : null,
+  }));
+
   const today = new Date().toISOString().slice(0, 10);
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-      <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
-        Rezervacije
-      </h1>
-      <p className="mt-1.5 text-sm text-muted-foreground">
-        Potvrdite upit da zauzme vozilo — potvrđene rezervacije i blokade
-        automatski skrivaju vozilo iz rezultata pretrage za taj period.
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+            Rezervacije
+          </h1>
+          <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
+            Potvrdite upit da zauzme vozilo. Potvrđene rezervacije i blokade
+            automatski skrivaju vozilo iz pretrage za taj period.
+          </p>
+        </div>
+
+        <NewReservationButton>
+          <NewReservationForm
+            action={createManualInquiry}
+            cars={carsForForm}
+            locations={editLocations}
+            extras={blockExtras}
+            booked={blockBooked}
+            occupancy={carOccupancy}
+            today={today}
+          />
+        </NewReservationButton>
+      </div>
 
       {msg && (
         <div

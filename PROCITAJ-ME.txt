@@ -1,52 +1,107 @@
-POPRAVKA — "Application error: a server-side exception has occurred"
-===================================================================
+MANUELNE REZERVACIJE — zaseban sistem
+=====================================
 
 Schema se NE mijenja. Samo: npm run build
 
-UZROK (moja greška)
+ARHITEKTURNA ODLUKA
 -------------------
-Dugme "Uredi" sam napravio tako da obrazac prima kao FUNKCIJU:
+Manuelna rezervacija se sprema kao PRAVA REZERVACIJA, ne kao blokada.
 
-    <EditInquiryButton>
-      {() => <EditInquiryForm ... />}
-    </EditInquiryButton>
+Model rezervacije već ima kanal "MANUAL" predviđen baš za ovo. Zahvaljujući
+tome, rezervacija dogovorena telefonom:
 
-Stranica /admin je serverska komponenta, a dugme je klijentska. Između te
-dvije strane Next.js šalje podatke kao tekst, a funkcija se ne može tako
-poslati. Zbog toga je stranica pucala prije nego što se uopće prikaže.
+  - dobija svoj broj (MR-XXXXXX), isto kao online
+  - pojavljuje se u istoj listi, ne u zasebnoj
+  - ulazi u prihod i iskoristivost bez ikakvog dodatnog rada
+  - može se uređivati postojećim obrascem "Uredi"
+  - njena oprema koristi istu tabelu kao online, pa je dostupnost
+    automatski usklađena u oba smjera
 
-To je i razlog zašto poruka nije rekla ništa konkretno: greška se desila
-na serveru, prije renderovanja.
+Da je ostala blokada, sve navedeno bi trebalo praviti zasebno i održavati
+dvije polovične verzije iste stvari.
 
-POPRAVKA
---------
-Obrazac se sada prosljeđuje kao običan element, ne kao funkcija:
+Sprema se odmah kao POTVRĐENA: nema smisla da neko odobrava rezervaciju
+koju je upravo sam primio.
 
-    <EditInquiryButton>
-      <EditInquiryForm ... />
-    </EditInquiryButton>
+DUGME
+-----
+Na vrhu stranice "Rezervacije", desno od naslova, u brend crvenoj.
 
-Ponašanje je isto: obrazac se i dalje vidi tek nakon potvrde, samo se sada
-priprema unaprijed umjesto da se stvara u trenutku otvaranja. Za obrazac
-ove veličine razlika u brzini se ne primjećuje.
+FORMA — REDOSLIJED JE NAMJERAN
+------------------------------
+1. PERIOD NAJMA
+   Prvo datumi, jer bez njih nema se s čim uporediti dostupnost.
 
-PROVJERIO SAM I OSTALO
-----------------------
-Prošao sam kroz sve serverske stranice i tražio prosljeđuje li se igdje
-drugo funkcija u klijentsku komponentu. Nema drugih slučajeva.
+2. VOZILO I OPREMA
+   Dok datumi nisu uneseni, meni vozila je zaključan uz "Prvo odaberite
+   datume", a umjesto opreme stoji poruka da ih treba izabrati.
 
-Provjerio sam i broj stavki u Promise.all na /admin stranici, jer bi
-nesklad tamo dao istu vrstu greške. Slaže se: 8 dohvata, 8 imena.
+   Čim su uneseni:
+     - slobodna vozila su na vrhu, zauzeta siva i neaktivna uz razlog
+       (Zauzeto – rezervisano / servis / oštećenje / privatna upotreba)
+     - ispod piše "Slobodno 12 od 35 vozila"
+     - uz svaku opremu stoji "Slobodno: 3", a čega nema je zaključano
+     - uz vozilo piše i cijena po danu, da se bira s punom informacijom
+
+   Ako se datumi pomjere pa odabrano vozilo postane zauzeto, izbor se
+   poništava; količine opreme se režu na ono što je stvarno slobodno.
+
+3. PODACI KLIJENTA
+   Ime (obavezno), prezime, telefon, email, obje lokacije, napomena.
+
+4. CIJENA
+   Računa se dok se forma popunjava, sa razdiobom red po red:
+
+     Najam · 5 dana × 110 KM        550 KM
+     Dječija sjedalica × 2 · 5 dana 100 KM
+     Prelazak granice                50 KM
+     Dodatni vozač                Uključeno
+     Izračunato                     700 KM
+
+   Ispod je polje "Konačna cijena". Prazno znači izračunati iznos. Ako se
+   upiše svoj, on ima prednost i ide u izvještaje, jer je popust dogovoren
+   na licu mjesta stvaran iznos. Kad se upisani razlikuje, prikazuje se i
+   razlika ("Razlika od izračunatog: -100 KM"), da se slučajna greška u
+   kucanju odmah primijeti.
+
+PROVJERE NA SERVERU
+-------------------
+Sve se ponovo provjerava pri spremanju: ispravnost perioda, sudar vozila s
+potvrđenim rezervacijama i blokadama, te dostupnost opreme. Poruke su
+konkretne:
+
+  "Izmjena nije sačuvana: vozilo je u novom periodu već zauzeto."
+  "tražena oprema nije dostupna u novom periodu"
+  "Rezervacija je kreirana i potvrđena."
+
+TESTIRANO
+  5 dana × 110 KM = 550, sjedalica 10×2×5 = 100, granica 50 jednokratno,
+  dodatni vozač uključen -> ukupno 700 KM
+  override 600 KM prikazuje razliku -100 KM
+  isti dan se računa kao 1 dan
+  bez vozila se računa samo oprema
+
+NAPOMENA O BLOKADAMA
+--------------------
+Opcija "Manuelna rezervacija" u formi za blokade sada je suvišna, jer isti
+posao radi ovaj novi obrazac, i to bolje. Nisam je uklonio da ne pokvarim
+postojeće zapise, ali preporučujem da od sada koristiš samo dugme "Nova
+rezervacija". Reci ako želiš da je uklonim iz blokada.
 
 FAJLOVI
 -------
-  components/admin/EditInquiryButton.tsx
-  app/admin/page.tsx
+  components/admin/NewReservationButton.tsx  (NOVO — dugme i modal)
+  components/admin/NewReservationForm.tsx    (NOVO — obrazac)
+  app/admin/new-reservation-actions.ts       (NOVO — spremanje i provjere)
+  app/admin/page.tsx                         (dugme u zaglavlju, cijena vozila)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build          <-- mora proći
-3. npm run dev -> /admin  -> stranica se mora otvoriti
-   - klikni "Uredi" na nekoj rezervaciji
-   - potvrdi, obrazac se mora otvoriti
+2. npm run build
+3. npm run dev -> /admin
+   - klikni "Nova rezervacija"
+   - unesi datume kad je neko vozilo zauzeto i provjeri oznake
+   - dodaj opremu i gledaj kako se cijena računa
+   - upiši svoju cijenu i provjeri prikaz razlike
+   - sačuvaj pa provjeri /admin/analitika da je iznos u prihodu
