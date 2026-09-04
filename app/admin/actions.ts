@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { busyCarsFor, getCarOccupancy } from "@/lib/extras-availability";
 import { ADMIN_COOKIE, tokenValid } from "@/lib/admin-auth";
@@ -126,6 +126,11 @@ export async function confirmInquiry(formData: FormData) {
     }
   }
 
+  // Confirming, cancelling or blocking changes what the public site may offer,
+  // and the fleet and extras lists are cached for five minutes. Without these
+  // the site keeps advertising a vehicle that was just taken.
+  revalidateTag("fleet");
+  revalidateTag("extras");
   revalidatePath("/admin", "layout");
   backTo({ status, range, msg: outcome.msg });
 }
@@ -160,6 +165,11 @@ export async function cancelInquiry(formData: FormData) {
     }
   }
 
+  // Confirming, cancelling or blocking changes what the public site may offer,
+  // and the fleet and extras lists are cached for five minutes. Without these
+  // the site keeps advertising a vehicle that was just taken.
+  revalidateTag("fleet");
+  revalidateTag("extras");
   revalidatePath("/admin", "layout");
   backTo({ status, range, msg: "cancelled" });
 }
@@ -213,6 +223,11 @@ export async function addBlock(formData: FormData) {
     },
   });
 
+  // Confirming, cancelling or blocking changes what the public site may offer,
+  // and the fleet and extras lists are cached for five minutes. Without these
+  // the site keeps advertising a vehicle that was just taken.
+  revalidateTag("fleet");
+  revalidateTag("extras");
   revalidatePath("/admin", "layout");
   backTo({ msg: "blocked" });
 }
@@ -223,6 +238,11 @@ export async function removeBlock(formData: FormData) {
   if (id) {
     await prisma.carBlock.deleteMany({ where: { id } });
   }
+  // Confirming, cancelling or blocking changes what the public site may offer,
+  // and the fleet and extras lists are cached for five minutes. Without these
+  // the site keeps advertising a vehicle that was just taken.
+  revalidateTag("fleet");
+  revalidateTag("extras");
   revalidatePath("/admin", "layout");
   backTo({ msg: "unblocked" });
 }

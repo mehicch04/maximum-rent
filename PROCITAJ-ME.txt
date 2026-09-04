@@ -1,55 +1,67 @@
-POPRAVKA BUILDA — nedostaju generatori ugovora
-==============================================
+POPRAVKA KEŠA — dostupnost se sada osvježava odmah
+==================================================
 
-*** npm install (ako već nisi) pa npm run build ***
-Schema se NE mijenja.
+Schema se NE mijenja. Samo: npm run build
 
-GREŠKA
-------
-  Module not found: Can't resolve './generate-pdf'
-  Module not found: Can't resolve './generate-docx'
+PROBLEM
+-------
+Lista vozila i lista opreme na javnom sajtu čuvaju se u kešu pet minuta.
+Četiri akcije koje mijenjaju zauzetost taj keš nisu poništavale, nego su
+osvježavale samo admin stranicu.
 
-UZROK (moja greška, ista vrsta kao ranije)
-------------------------------------------
-Ta dva modula i fontovi postojali su samo u mojoj radnoj kopiji. Kad sam
-prošli put provjeravao, vidio sam ih kod sebe i zaključio da već postoje u
-projektu, pa sam poslao samo izmjene u komponenti koja ih poziva.
+Posljedica: potvrdiš rezervaciju, a sajt do pet minuta i dalje nudi to
+vozilo kao slobodno. Gost pošalje upit za auto koji je već dat, i to se
+otkrije tek kad ga pokušaš potvrditi.
 
-Nisu bili ni u jednom zipu, pa ih tvoj projekat nikad nije ni dobio.
+Rezervacija se time nije mogla dvostruko napraviti, jer server ionako
+provjerava sve prije upisa. Ali gost bi vidio pogrešnu ponudu i uzalud
+poslao upit.
 
-ŠTA JE U OVOM ZIPU
-------------------
-  components/admin/handover/generate-pdf.ts    PDF ugovor (jsPDF)
-  components/admin/handover/generate-docx.ts   Word ugovor (docx)
-  components/admin/handover/contract-data.ts   zajednički sadržaj oba
-  public/fonts/contract-regular.ttf            font
-  public/fonts/contract-bold.ttf               font
+POPRAVLJENO
+-----------
+  confirmInquiry       potvrda rezervacije
+  cancelInquiry        otkazivanje
+  addBlock             blokada vozila
+  removeBlock          uklanjanje blokade
 
-FONTOVI SU OBAVEZNI
--------------------
-Nisu ukras. Ugrađeni fontovi u PDF-u pokrivaju samo zapadnu latinicu, pa bez
-ovih Č, ć i đ nestaju iz dokumenta: "oštećenje" se ispiše kao "ošteenje", a
-"Čitluk" kao "itluk".
+Sve četiri sada poništavaju i "fleet" i "extras" keš, uz postojeće
+osvježavanje admin stranice.
 
-Fontovi se učitavaju iz public/fonts u trenutku generisanja i pamte, pa ne
-opterećuju veličinu sajta.
+Uz to sam dopunio i dvije koje su imale samo "fleet":
+  updateInquiry        uređivanje rezervacije
+  createManualInquiry  nova manuelna rezervacija
 
-Provjereno s ovim fontovima:
-    Čitluk, oštećenje, đak, Žepče, Ljubuški   -> ispravno
+Oprema se mijenja zajedno s rezervacijom, pa i njena lista mora pasti.
 
-KAKO SAM PROVJERIO OVAJ PUT
----------------------------
-Prošao sam sve uvoze u handover folderu i uporedio ih s onim što stvarno
-postoji. Vercelov ispis imenuje tačno ova dva modula kao nedostajuća, a
-sve ostalo se razriješilo, što znači da je ostatak već kod tebe.
+PROVJERA
+--------
+Prošao sam kroz sve serverske akcije u adminu i izdvojio one koje mijenjaju
+zauzetost vozila ili opreme. Njih je šest i sve sada poništavaju oba keša:
+
+  confirmInquiry        fleet + extras
+  cancelInquiry         fleet + extras
+  addBlock              fleet + extras
+  removeBlock           fleet + extras
+  updateInquiry         fleet + extras
+  createManualInquiry   fleet + extras
+
+ŠTA NAMJERNO NISAM DIRAO
+------------------------
+Javna ruta za upite (app/api/inquiries/route.ts) ne poništava keš, i tako
+treba. Novi upit ima status "Novo" i ne zauzima ni vozilo ni opremu dok ga
+ne potvrdiš, pa nema šta osvježavati.
+
+FAJLOVI
+-------
+  app/admin/actions.ts                  (četiri funkcije)
+  app/admin/edit-actions.ts             (dodan extras)
+  app/admin/new-reservation-actions.ts  (dodan extras)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-   (dodaje i folder public/fonts s dvije datoteke)
-2. npm install       ako nisi nakon prošlog zipa
-3. npm run build     <-- mora proći
-4. npm run dev -> /admin/ugovori
-   - preuzmi PDF i otvori ga
-   - provjeri č, ć, š, ž, đ u tekstu
-   - probaj i Word verziju
+2. npm run build
+3. npm run dev
+   - potvrdi rezervaciju u adminu
+   - odmah otvori /vozila za taj period u drugom tabu
+   - vozilo se više ne smije nuditi, bez čekanja

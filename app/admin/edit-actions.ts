@@ -204,6 +204,8 @@ export async function updateInquiry(formData: FormData) {
   ]);
 
   revalidateTag("fleet");
+  // Equipment moves with the reservation, so its list has to drop too.
+  revalidateTag("extras");
   revalidatePath("/admin", "layout");
   redirect("/admin?msg=updated");
 }
