@@ -179,7 +179,7 @@ export function DateField({
         }`}
       >
         <span className="truncate">{label}</span>
-        <Calendar className="h-4 w-4 shrink-0 text-brand" />
+        <Calendar className="pointer-events-none h-4 w-4 shrink-0 text-brand" />
       </button>
 
       {mounted &&
@@ -193,7 +193,16 @@ export function DateField({
               top: pos.top,
               transform: pos.up ? "translateY(-100%)" : "none",
             }}
-            className="z-[90] w-[304px] rounded-2xl border border-border bg-surface p-3 shadow-card-hover"
+            /*
+             * Above every dialog in the app.
+             *
+             * At z-90 the calendar sat underneath the modals, which all use
+             * z-95, so inside one it was drawn behind the overlay: clicks
+             * landed on the overlay and it looked like the field was dead.
+             * The popover is portalled to <body>, so nothing here can clip it
+             * once it is on top.
+             */
+            className="z-[110] w-[304px] rounded-2xl border border-border bg-surface p-3 shadow-card-hover"
           >
             <div className="mb-2 flex items-center justify-between">
               <button

@@ -1,78 +1,59 @@
-CUSTOM DATUM I VRIJEME U ADMIN OBRASCIMA
-========================================
+KALENDAR NE REAGUJE U ADMIN MODALIMA — popravka
+===============================================
 
 Schema se NE mijenja. Samo: npm run build
 
-*** RUČNO OBRISATI: Remove-Item components\admin\NewInquiryModal.tsx ***
-(objašnjeno na dnu)
+UZROK: JEDAN BROJ
+-----------------
+Kalendar se crtao na sloju 90, a svi modali su na sloju 95. Unutar modala
+kalendar je tako završavao ISPOD zatamnjene pozadine: bio je otvoren, ali
+se nije vidio, a klikovi su padali na pozadinu.
 
-ŠTA JE URAĐENO
---------------
-Native HTML polja za datum i vrijeme zamijenjena su istim komponentama koje
-koristi javni dio sajta, pa admin i sajt sada izgledaju i rade jednako.
+Zato je izgledalo kao da polje ne reaguje, i zato je problem bio najizraženiji
+baš u modalima, kako si i primijetio.
 
-Raspored je zadržan: datum i vrijeme stoje jedno pored drugog, preuzimanje
-lijevo, vraćanje desno.
+  prije:  kalendar z-90   |  modali z-95   -> kalendar ispod
+  sada:   kalendar z-110  |  modali z-95   -> kalendar iznad
 
-NOVA ZAJEDNIČKA KOMPONENTA
---------------------------
-Kalendar (DateField) je već bio zajednička komponenta, ali izbornik vremena
-NIJE. Bio je zakopan unutar obrasca za pretragu na sajtu, zajedno s popisom
-termina, i nije se mogao koristiti drugdje.
+Provjerio sam sve slojeve u projektu; 110 je iznad svega što postoji.
 
-Izdvojen je u components/ui/TimeField.tsx, pa sada postoji jedan izvor.
-Termini idu na pola sata, od 00:00 do 23:30, uvijek u 24-satnom formatu.
+ŠTA SI PRETPOSTAVIO, A NIJE BILO U KVARU
+----------------------------------------
+Provjerio sam i te tri stavke prije nego sam dirao išta:
 
-Razlog zašto uopće ne koristimo native polje za vrijeme: izgleda drugačije
-u svakom pregledniku, a na nekim sistemima prikazuje AM/PM, što kod nas
-nije uobičajeno.
+1) PORTAL — već je bio ispravan. Kalendar se od ranije crta preko portala
+   na <body> i koristi fiksno pozicioniranje, pa ga "overflow: hidden" na
+   modalu ne može odsjeći. To nije bio problem.
 
-GDJE JE PRIMIJENJENO
---------------------
-  modal za uređivanje rezervacije   (traženo)
-  obrazac za novu rezervaciju       (da ne bude pola na jedno pola na drugo)
-  filteri datuma u izvozu           (isti razlog)
+2) EVENT HANDLERI I STATE — ispravni. Klik na dugme uredno mijenja stanje,
+   a zatvaranje na klik izvan provjerava stvarni DOM čvor pa radi i kroz
+   portal.
 
-Poslije ovoga u cijelom adminu nema više nijednog native polja za datum ni
-vrijeme.
+3) POINTER EVENTS — ikona kalendara je bila UNUTAR dugmeta, pa klik na nju
+   ionako pogađa dugme. Nije bila uzrok, ali sam svejedno dodao
+   pointer-events-none: ne košta ništa i sprječava ovu vrstu problema ako
+   se ikona ikad izvuče izvan dugmeta.
 
-DVIJE SITNICE POPRAVLJENE USPUT
--------------------------------
-1) Kad se u modalu pomjeri datum preuzimanja iza datuma vraćanja, vraćanje
-   se povlači sa njim. Ranije je moglo ostati u prošlosti u odnosu na
-   preuzimanje, pa bi obrazac odbio spremanje.
+ŠTO SAM JOŠ PROVJERIO
+---------------------
+  Zatvara li klik na dan i sam modal?
+    Ne. Sadržaj modala zaustavlja propagaciju, pa klik u kalendaru ne
+    dopire do zatamnjene pozadine.
 
-2) U izvozu sam prvo stavio gornju granicu na prvo polje, ali kalendar tu
-   mogućnost nema. Umjesto lažnog ograničenja koje ne radi, poredak se sada
-   čuva logikom: ako "od" pređe "do", "do" se pomjeri.
-
-MRTAV FAJL
-----------
-Našao sam components/admin/NewInquiryModal.tsx: nije u repou i niko ga ne
-koristi. To je moj zaostatak iz ranijeg pokušaja, prije nego je napravljen
-pravi obrazac za manuelne rezervacije. Obriši ga:
-
-    Remove-Item components\admin\NewInquiryModal.tsx
-
-JAVNI OBRAZAC
--------------
-Nisam ga dirao. On i dalje ima vlastitu kopiju izbornika vremena i radi
-kako je radio. Kad budeš htio, može se prevesti na zajedničku komponentu,
-ali to je izmjena na živom dijelu sajta pa je bolje zasebno i s testiranjem.
+  Ostaje li kalendar na mjestu dok se modal skrola?
+    Da. Kalendar sluša skrolanje i sa unutrašnjih kontejnera, pa se
+    pomjera zajedno s poljem.
 
 FAJLOVI
 -------
-  components/ui/TimeField.tsx              (NOVO — zajednički izbornik vremena)
-  components/admin/EditInquiryForm.tsx     (custom kalendar i vrijeme)
-  components/admin/NewReservationForm.tsx  (isto)
-  components/admin/ExportForm.tsx          (custom kalendar u filterima)
+  components/ui/DateField.tsx
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. Remove-Item components\admin\NewInquiryModal.tsx
-3. npm run build
-4. npm run dev -> /admin
-   - otvori "Uredi" na rezervaciji i provjeri kalendar i vrijeme
-   - promijeni datume pa sačuvaj, izmjena mora proći
-   - provjeri i tamnu temu
+2. npm run build
+3. npm run dev -> /admin
+   - "Nova rezervacija": klik na polje datuma mora otvoriti kalendar
+   - "Uredi" na rezervaciji: isto
+   - filteri u izvozu i forma za blokade: isto
+   - probaj i skrolati modal dok je kalendar otvoren
