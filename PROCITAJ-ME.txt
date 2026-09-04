@@ -1,83 +1,55 @@
-UGOVORI — PDF i Word generisanje
-================================
+POPRAVKA BUILDA — nedostaju generatori ugovora
+==============================================
 
-*** OBAVEZNO: npm install  (dodaju se jspdf i docx) ***
+*** npm install (ako već nisi) pa npm run build ***
 Schema se NE mijenja.
 
-STANJE
+GREŠKA
 ------
-Generatori su već postojali u projektu (generate-pdf.ts, generate-docx.ts i
-contract-data.ts u folderu handover), zajedno s fontovima u public/fonts.
-Provjerio sam ih i rade ispravno, pa nisam pisao nove.
+  Module not found: Can't resolve './generate-pdf'
+  Module not found: Can't resolve './generate-docx'
 
-Ono što je nedostajalo: dugmad ih nisu pozivala. Sada su vezana.
+UZROK (moja greška, ista vrsta kao ranije)
+------------------------------------------
+Ta dva modula i fontovi postojali su samo u mojoj radnoj kopiji. Kad sam
+prošli put provjeravao, vidio sam ih kod sebe i zaključio da već postoje u
+projektu, pa sam poslao samo izmjene u komponenti koja ih poziva.
 
-ŠTA SAM POPRAVIO
-----------------
-1) DATUMI U UGOVORU
-   Ispisivali su se sirovo, onako kako ih drži obrazac:
+Nisu bili ni u jednom zipu, pa ih tvoj projekat nikad nije ni dobio.
 
-       Preuzimanje: 2026-09-12T10:00 · Mostar – Zračna luka
+ŠTA JE U OVOM ZIPU
+------------------
+  components/admin/handover/generate-pdf.ts    PDF ugovor (jsPDF)
+  components/admin/handover/generate-docx.ts   Word ugovor (docx)
+  components/admin/handover/contract-data.ts   zajednički sadržaj oba
+  public/fonts/contract-regular.ttf            font
+  public/fonts/contract-bold.ttf               font
 
-   Na štampanom ugovoru to izgleda kao greška sistema. Sada:
+FONTOVI SU OBAVEZNI
+-------------------
+Nisu ukras. Ugrađeni fontovi u PDF-u pokrivaju samo zapadnu latinicu, pa bez
+ovih Č, ć i đ nestaju iz dokumenta: "oštećenje" se ispiše kao "ošteenje", a
+"Čitluk" kao "itluk".
 
-       Preuzimanje: 12.09.2026. u 10:00 · Mostar – Zračna luka
+Fontovi se učitavaju iz public/fonts u trenutku generisanja i pamte, pa ne
+opterećuju veličinu sajta.
 
-2) DUGMAD POKAZUJU DA RADE
-   Biblioteke se učitavaju tek pri prvom kliku, pa zna potrajati sekundu.
-   Dugme u međuvremenu piše "Pravim PDF…" i zaključa se, umjesto da izgleda
-   kao da se ništa ne dešava.
+Provjereno s ovim fontovima:
+    Čitluk, oštećenje, đak, Žepče, Ljubuški   -> ispravno
 
-3) GREŠKA SE PRIJAVLJUJE
-   Ako generisanje pukne, ispod dugmadi se ispiše poruka umjesto da tiho
-   ne napravi ništa.
-
-ŠTA SAM PROVJERIO PRIJE NEGO SAM DIRAO
---------------------------------------
-NAŠA SLOVA U PDF-U. Ovo je najčešći razlog zašto ovakvi ugovori ispadnu
-neupotrebljivi: ugrađeni fontovi u PDF-u pokrivaju samo zapadnu latinicu, pa
-Č, ć i đ jednostavno nestanu. Bez posebnog fonta "oštećenje" se ispiše kao
-"ošteenje", a "Čitluk" kao "itluk".
-
-Testirao sam s fontom iz public/fonts i sve se ispisuje ispravno:
-
-    Čitluk, oštećenje, đak, Žepče, Ljubuški
-
-SADRŽAJ UGOVORA
----------------
-PDF i Word dijele isti opis sadržaja, pa ne mogu razići. Četiri sekcije:
-
-  1. Podaci o klijentu     ime, adresa, telefon, e-mail, vozačka, pasoš
-  2. Predmet najma         vozilo, registracija, datumi, lokacije, trajanje,
-                           dodatna oprema
-  3. Finansije             ugovoreni iznos, broj ugovora
-  4. Zapisnik o stanju     kilometraža, nivo goriva, postojeća oštećenja
-
-Na dnu su linije za "Potpis klijenta" i "Za agenciju".
-
-Prazna polja se ispisuju kao crtica, ne kao prazno mjesto, da se na
-štampanom papiru vidi da tu ništa nije uneseno.
-
-Naziv datoteke nosi broj ugovora: ugovor-MR-7K3P9W.pdf
-
-USPUT UKLONJENO
----------------
-Napravio sam bio drugu verziju istih generatora u lib/contract prije nego
-sam primijetio da već postoje. Obrisao sam je; ostaje jedna implementacija.
-
-FAJLOVI
--------
-  components/admin/handover/ContractEditor.tsx  (dugmad vezana, stanje, greške)
-  components/admin/handover/contract-data.ts    (format datuma)
-  package.json                                  (jspdf, docx)
+KAKO SAM PROVJERIO OVAJ PUT
+---------------------------
+Prošao sam sve uvoze u handover folderu i uporedio ih s onim što stvarno
+postoji. Vercelov ispis imenuje tačno ova dva modula kao nedostajuća, a
+sve ostalo se razriješilo, što znači da je ostatak već kod tebe.
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm install        <-- OBAVEZNO
-3. npm run build
+   (dodaje i folder public/fonts s dvije datoteke)
+2. npm install       ako nisi nakon prošlog zipa
+3. npm run build     <-- mora proći
 4. npm run dev -> /admin/ugovori
-   - odaberi rezervaciju, popuni dozvolu, kilometražu i zapisnik
-   - klikni "Generiši PDF ugovor" i otvori preuzeti fajl
-   - provjeri prikazuju li se č, ć, š, ž, đ ispravno
-   - isto probaj s Word verzijom i pokušaj je izmijeniti u Wordu
+   - preuzmi PDF i otvori ga
+   - provjeri č, ć, š, ž, đ u tekstu
+   - probaj i Word verziju
