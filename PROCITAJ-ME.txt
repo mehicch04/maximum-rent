@@ -1,67 +1,75 @@
-POPRAVKA KEŠA — dostupnost se sada osvježava odmah
-==================================================
+ŽIVI STATUS U TABOVIMA VOZILA I OPREMA
+======================================
 
 Schema se NE mijenja. Samo: npm run build
 
-PROBLEM
--------
-Lista vozila i lista opreme na javnom sajtu čuvaju se u kešu pet minuta.
-Četiri akcije koje mijenjaju zauzetost taj keš nisu poništavale, nego su
-osvježavale samo admin stranicu.
+VOZILA
+------
+Ispod svakog vozila stoji tačka i tekst:
 
-Posljedica: potvrdiš rezervaciju, a sajt do pet minuta i dalje nudi to
-vozilo kao slobodno. Gost pošalje upit za auto koji je već dat, i to se
-otkrije tek kad ga pokušaš potvrditi.
+    ● Slobodno                      (zeleno)
+    ● U najmu do 15.09.             (crveno)
+    ● servis do 20.09.              (crveno)
+    ● oštećenje do 06.09.           (crveno)
+    ● privatna upotreba do 03.09.   (crveno)
 
-Rezervacija se time nije mogla dvostruko napraviti, jer server ionako
-provjerava sve prije upisa. Ali gost bi vidio pogrešnu ponudu i uzalud
-poslao upit.
+Piše se pravi razlog, ne samo "zauzeto". Auto na servisu se možda može
+osloboditi, onaj koji je rezervisan ne.
 
-POPRAVLJENO
------------
-  confirmInquiry       potvrda rezervacije
-  cancelInquiry        otkazivanje
-  addBlock             blokada vozila
-  removeBlock          uklanjanje blokade
+USPUT PREIMENOVANO
+Postojeća oznaka "Dostupno / Nedostupno" sada piše "U ponudi / Nije u
+ponudi". Te dvije stvari su se lako miješale: vozilo može biti u katalogu i
+istovremeno danas kod gosta. Sada gornja oznaka govori nudi li se uopće, a
+donja šta radi u ovom trenutku.
 
-Sve četiri sada poništavaju i "fleet" i "extras" keš, uz postojeće
-osvježavanje admin stranice.
+Živi status se prikazuje samo za vozila koja jesu u ponudi; za povučena
+nema smisla.
 
-Uz to sam dopunio i dvije koje su imale samo "fleet":
-  updateInquiry        uređivanje rezervacije
-  createManualInquiry  nova manuelna rezervacija
+OPREMA
+------
+Ispod svake stavke:
 
-Oprema se mijenja zajedno s rezervacijom, pa i njena lista mora pasti.
+    ● Izdato: 3 / 10 · slobodno 7     (zeleno)
+    ● Izdato: 5 / 6 · slobodno 1      (narandžasto, preko 80 posto)
+    ● Izdato: 4 / 4 · slobodno 0      (crveno)
 
-PROVJERA
---------
-Prošao sam kroz sve serverske akcije u adminu i izdvojio one koje mijenjaju
-zauzetost vozila ili opreme. Njih je šest i sve sada poništavaju oba keša:
+Broji se i oprema izdata kroz rezervacije sa sajta i ona kroz manuelne
+rezervacije, isto kao kod provjere dostupnosti.
 
-  confirmInquiry        fleet + extras
-  cancelInquiry         fleet + extras
-  addBlock              fleet + extras
-  removeBlock           fleet + extras
-  updateInquiry         fleet + extras
-  createManualInquiry   fleet + extras
+Uz omjer stoji i koliko je slobodno, jer je to broj koji vlasnik zapravo
+traži kad ga neko pita ima li još sjedalica.
 
-ŠTA NAMJERNO NISAM DIRAO
-------------------------
-Javna ruta za upite (app/api/inquiries/route.ts) ne poništava keš, i tako
-treba. Novi upit ima status "Novo" i ne zauzima ni vozilo ni opremu dok ga
-ne potvrdiš, pa nema šta osvježavati.
+ZAŠTO NEKEŠIRANO
+----------------
+Oba podatka se čitaju direktno iz baze pri svakom otvaranju stranice, ne iz
+keširane liste. Status star pet minuta poslao bi vlasnika po ključeve auta
+koji je otišao prije sat vremena.
+
+"Sada" se provjerava kroz raspon od jedne sekunde oko trenutnog vremena,
+pa je pitanje jednostavno: je li vozilo vani u ovom trenutku. Servis koji
+je završio prošle sedmice ne prikazuje se kao zauzeće.
+
+Ako dohvat zakaže, kolona se jednostavno ne prikaže; ekrani za unos vozila
+i opreme rade dalje.
+
+TESTIRANO
+  vozilo u najmu               -> U najmu do 15.09, crveno
+  servis koji je prošao        -> Slobodno, zeleno
+  servis koji traje            -> servis do 20.09, crveno
+  vozilo bez ijednog zauzeća   -> Slobodno
+  oprema 3/10, 5/6, 4/4, 0/12  -> zeleno, narandžasto, crveno, zeleno
 
 FAJLOVI
 -------
-  app/admin/actions.ts                  (četiri funkcije)
-  app/admin/edit-actions.ts             (dodan extras)
-  app/admin/new-reservation-actions.ts  (dodan extras)
+  components/admin/VehicleManager.tsx  (prikaz statusa)
+  app/admin/vozila/page.tsx            (dohvat zauzetosti)
+  app/admin/oprema/page.tsx            (dohvat i prikaz izdatog)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run build
 3. npm run dev
-   - potvrdi rezervaciju u adminu
-   - odmah otvori /vozila za taj period u drugom tabu
-   - vozilo se više ne smije nuditi, bez čekanja
+   - potvrdi rezervaciju s opremom za današnji datum
+   - /admin/vozila -> to vozilo mora pisati "U najmu do ..."
+   - /admin/oprema -> brojka izdatog mora porasti

@@ -38,6 +38,44 @@ export default async function AdminExtrasPage({
   } catch {
     tableMissing = true;
   }
+  /**
+   * How many pieces of each item are out with guests at this moment.
+   *
+   * Counted live rather than from the cached list: the number is only useful
+   * if it matches what is actually missing from the shelf.
+   */
+  const outNow: Record<string, number> = {};
+  try {
+    const now = new Date();
+    const [fromInquiries, fromBlocks] = await Promise.all([
+      prisma.inquiryExtra.findMany({
+        where: {
+          extraId: { not: null },
+          inquiry: {
+            status: { in: ["CONFIRMED", "COMPLETED"] },
+            pickupAt: { lte: now },
+            returnAt: { gte: now },
+          },
+        },
+        select: { extraId: true, qty: true },
+      }),
+      prisma.blockExtra.findMany({
+        where: {
+          extraId: { not: null },
+          block: { kind: "MANUAL_BOOKING", startAt: { lte: now }, endAt: { gte: now } },
+        },
+        select: { extraId: true, qty: true },
+      }),
+    ]);
+    for (const r of [...fromInquiries, ...fromBlocks]) {
+      if (!r.extraId) continue;
+      outNow[r.extraId] = (outNow[r.extraId] ?? 0) + r.qty;
+    }
+  } catch (err) {
+    // The screen still works without the counter.
+    console.error("[oprema] live count failed:", err);
+  }
+
   const editing = editId ? extras.find((e) => e.id === editId) : null;
 
   if (tableMissing) {
@@ -274,8 +312,27 @@ npx prisma generate{"\n"}npx prisma db push
                   <p className="text-xs text-muted-foreground">
                     {price}
                     {e.maxQty > 1 && ` · do ${e.maxQty} po najmu`}
-                    {` · ${e.totalStock} na stanju`}
                     {!e.isActive && " · skriveno"}
+                  </p>
+
+                  {/* Stock on its own says little; what matters is how much of
+                      it is still on the shelf today. */}
+                  <p className="mt-1 flex items-center gap-1.5 text-xs">
+                    <span
+                      className={`h-2 w-2 shrink-0 rounded-full ${
+                        (outNow[e.id] ?? 0) >= e.totalStock
+                          ? "bg-brand"
+                          : (outNow[e.id] ?? 0) / Math.max(1, e.totalStock) >= 0.8
+                            ? "bg-amber-500"
+                            : "bg-emerald-500"
+                      }`}
+                    />
+                    <span className="font-medium text-foreground">
+                      Izdato: {outNow[e.id] ?? 0} / {e.totalStock}
+                    </span>
+                    <span className="text-muted-foreground">
+                      · slobodno {Math.max(0, e.totalStock - (outNow[e.id] ?? 0))}
+                    </span>
                   </p>
                 </div>
 

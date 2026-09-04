@@ -15,7 +15,21 @@ type Props = {
   deleteAction: (formData: FormData) => void;
 };
 
-export function VehicleManager({ vehicles, saveAction, deleteAction }: Props) {
+/** What a vehicle is doing right now, worked out fresh on every page load. */
+export type LiveStatus = {
+  busy: boolean;
+  /** "u najmu", "servis", "oštećenje"… */
+  reason: string;
+  /** When it comes back, already formatted. */
+  until: string;
+};
+
+export function VehicleManager({
+  vehicles,
+  saveAction,
+  deleteAction,
+  live = {},
+}: Props & { live?: Record<string, LiveStatus> }) {
   const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<AdminVehicle | null>(null);
@@ -110,9 +124,35 @@ export function VehicleManager({ vehicles, saveAction, deleteAction }: Props) {
                         : "bg-muted-foreground/10 text-muted-foreground"
                     }`}
                   >
-                    {v.isAvailable ? "Dostupno" : "Nedostupno"}
+                    {v.isAvailable ? "U ponudi" : "Nije u ponudi"}
                   </span>
                 </div>
+
+                {/*
+                 * What the car is doing right now, as opposed to whether it is
+                 * offered at all. The two are easy to confuse: a vehicle can be
+                 * in the catalogue and still be out with a guest today, and
+                 * until now this screen showed only the former.
+                 */}
+                {v.isAvailable && (
+                  <p className="mt-1 flex items-center gap-1.5 text-xs">
+                    <span
+                      className={`h-2 w-2 shrink-0 rounded-full ${
+                        live[v.id]?.busy ? "bg-brand" : "bg-emerald-500"
+                      }`}
+                    />
+                    {live[v.id]?.busy ? (
+                      <span className="text-brand-strong">
+                        {live[v.id].reason}
+                        {live[v.id].until ? ` do ${live[v.id].until}` : ""}
+                      </span>
+                    ) : (
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        Slobodno
+                      </span>
+                    )}
+                  </p>
+                )}
                 <p className="mt-0.5 text-sm text-muted-foreground">
                   {carClassLabel(v.carClass)} · {v.year} ·{" "}
                   {v.pricePerDay != null
