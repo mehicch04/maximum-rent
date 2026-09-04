@@ -5,7 +5,7 @@ import { FileDown, FileText, Fuel, Gauge, IdCard, Loader2 } from "lucide-react";
 import { DateField } from "@/components/ui/DateField";
 import { TimeField } from "@/components/ui/TimeField";
 import { FUEL_LEVELS, type FuelLevel, type HandoverItem } from "./types";
-import type { ContractData } from "./contract-data";
+import type { ContractCompany, ContractData } from "./contract-data";
 import { generateContractPdf } from "./generate-pdf";
 import { generateContractDocx } from "./generate-docx";
 
@@ -66,7 +66,13 @@ const dt = (iso: string) =>
  * arrive an hour late or swap a car at the desk, and a contract that cannot be
  * corrected on the spot gets rewritten by hand anyway.
  */
-export function ContractEditor({ item }: { item: HandoverItem }) {
+export function ContractEditor({
+  item,
+  company,
+}: {
+  item: HandoverItem;
+  company?: ContractCompany;
+}) {
   const [guest, setGuest] = useState(item.guest);
   const [phone, setPhone] = useState(item.phone);
   const [email, setEmail] = useState(item.email);
@@ -106,6 +112,7 @@ export function ContractEditor({ item }: { item: HandoverItem }) {
   const [error, setError] = useState("");
 
   const payload = (): ContractData => ({
+    company,
     reference: item.reference,
     guest,
     phone,

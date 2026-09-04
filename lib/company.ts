@@ -20,6 +20,8 @@ export type Company = {
   phones: Phone[];
   whatsapp: string;
   hours: string;
+  address: string | null;
+  taxId: string | null;
   map: { lat: number | null; lng: number | null; link: string | null };
   rating: { score: number | null; count: number | null };
   socials: { facebook: string | null; instagram: string | null };
@@ -41,6 +43,8 @@ export const COMPANY_FALLBACK: Company = {
   phones: SITE.phones.map((p) => ({ ...p })),
   whatsapp: SITE.whatsapp,
   hours: SITE.hours,
+  address: null,
+  taxId: null,
   map: { lat: SITE.map.lat, lng: SITE.map.lng, link: SITE.map.link },
   rating: { score: SITE.rating.score, count: SITE.rating.count },
   socials: {
@@ -68,6 +72,8 @@ export const getCompany = unstable_cache(
         phones,
         whatsapp: row.whatsapp,
         hours: row.hours,
+        address: row.address,
+        taxId: row.taxId,
         map: { lat: row.mapLat, lng: row.mapLng, link: row.mapLink },
         rating: { score: row.ratingScore, count: row.ratingCount },
         socials: { facebook: row.facebook, instagram: row.instagram },

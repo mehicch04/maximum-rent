@@ -1,5 +1,6 @@
 import { FileSignature, Info } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { getCompany } from "@/lib/company";
 import { HandoverBoard } from "@/components/admin/handover/HandoverBoard";
 import type { HandoverItem } from "@/components/admin/handover/types";
 
@@ -11,6 +12,17 @@ export default async function AdminHandoverPage() {
   // happened yet does not vanish from the desk.
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
+
+  // Issuer details for the contract header, with the same fallback the rest of
+  // the site uses so a contract is never printed without them.
+  const company = await getCompany();
+  const issuer = {
+    name: company.name,
+    address: company.address ?? "",
+    taxId: company.taxId ?? "",
+    phone: company.phones[0]?.value ?? "",
+    email: company.email,
+  };
 
   let items: HandoverItem[] = [];
   let failed = false;
@@ -68,7 +80,7 @@ export default async function AdminHandoverPage() {
         </p>
       ) : (
         <div className="mt-6">
-          <HandoverBoard items={items} />
+          <HandoverBoard items={items} company={issuer} />
         </div>
       )}
 

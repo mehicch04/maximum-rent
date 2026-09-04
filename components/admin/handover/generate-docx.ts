@@ -5,6 +5,7 @@ import {
   contractFilename,
   contractSections,
   type ContractData,
+  companyHeaderLines,
 } from "./contract-data";
 
 /**
@@ -58,7 +59,35 @@ export async function generateContractDocx(data: ContractData): Promise<void> {
       ],
     });
 
+  // The agency block, above the title for the same reason as in the PDF: the
+  // document has to say who issued it before it says anything else.
+  const issuer: InstanceType<typeof Paragraph>[] = data.company?.name
+    ? [
+        new Paragraph({
+          spacing: { after: 40 },
+          children: [
+            new TextRun({ text: data.company.name, bold: true, size: 24 }),
+          ],
+        }),
+        ...companyHeaderLines(data.company).map(
+          (line) =>
+            new Paragraph({
+              spacing: { after: 20 },
+              children: [new TextRun({ text: line, size: 17, color: "666666" })],
+            }),
+        ),
+        new Paragraph({
+          spacing: { after: 260 },
+          border: {
+            bottom: { style: BorderStyle.SINGLE, size: 6, color: "CCCCCC" },
+          },
+          children: [new TextRun({ text: "", size: 2 })],
+        }),
+      ]
+    : [];
+
   const body: (InstanceType<typeof Paragraph> | InstanceType<typeof Table>)[] = [
+    ...issuer,
     new Paragraph({
       alignment: AlignmentType.CENTER,
       heading: HeadingLevel.HEADING_1,

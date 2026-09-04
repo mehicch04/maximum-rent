@@ -49,6 +49,8 @@ export async function saveCompany(formData: FormData) {
     // wa.me needs digits only.
     whatsapp: str(formData, "whatsapp").replace(/\D/g, ""),
     hours: str(formData, "hours"),
+    address: opt(formData, "address"),
+    taxId: opt(formData, "taxId"),
     mapLat: numOpt(formData, "mapLat"),
     mapLng: numOpt(formData, "mapLng"),
     mapLink: opt(formData, "mapLink"),

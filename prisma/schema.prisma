@@ -322,6 +322,10 @@ model CompanyInfo {
   /// Digits only, E.164 without the plus (used to build wa.me links).
   whatsapp     String
   hours        String
+  /// Registered address and tax number. Needed on the contract header: a
+  /// contract that does not identify the party issuing it is not worth much.
+  address      String?
+  taxId        String?
   mapLat       Float?
   mapLng       Float?
   mapLink      String?

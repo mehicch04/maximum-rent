@@ -129,6 +129,30 @@ npx prisma generate{"\n"}npx prisma db push
           </div>
         </div>
 
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className={lbl}>Adresa sjedišta</label>
+            <input
+              name="address"
+              defaultValue={company.address ?? ""}
+              placeholder="Ulica i broj, 88260 Čitluk"
+              className={field}
+            />
+          </div>
+          <div>
+            <label className={lbl}>ID / PDV broj</label>
+            <input
+              name="taxId"
+              defaultValue={company.taxId ?? ""}
+              placeholder="4227…"
+              className={field}
+            />
+          </div>
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Oba podatka se ispisuju u zaglavlju ugovora o najmu.
+        </p>
+
         <p className="mt-5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
           Telefoni
         </p>

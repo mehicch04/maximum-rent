@@ -1,75 +1,88 @@
-ŽIVI STATUS U TABOVIMA VOZILA I OPREMA
-======================================
+PODACI FIRME U UGOVORIMA + PROŠIRENI IZVOZ
+==========================================
 
-Schema se NE mijenja. Samo: npm run build
+*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
 
+=======================================================================
+1) PODACI FIRME U UGOVORIMA
+=======================================================================
+NALAZ PRIJE POSLA
+Podaci firme nisu imali ni adresu ni identifikacijski broj. Bez toga
+zaglavlje ugovora nije bilo moguće napraviti, pa su dodana dva polja:
+
+  Adresa sjedišta      npr. Kralja Tomislava 1, 88260 Čitluk
+  ID / PDV broj        npr. 4227812340006
+
+Unose se u /admin/firma, uz napomenu da se ispisuju u ugovoru.
+
+ZAGLAVLJE
+Oba dokumenta sada na samom vrhu, iznad naslova, nose blok izdavaoca:
+
+    Maximum Rent a Car
+    Kralja Tomislava 1, 88260 Čitluk
+    ID broj: 4227812340006
+    +387 63 660 444 · info@maximum-rent.com
+    ─────────────────────────────────────────
+              UGOVOR O NAJMU VOZILA
+
+Iznad naslova je namjerno: prvo što potpisan dokument mora reći je ko ga
+izdaje. Bez toga ugovor imenuje samo gosta, pa piše ko je iznajmio ali ne
+i od koga.
+
+Zaglavlje se sastavlja na jednom mjestu, pa PDF i Word ne mogu razići.
+
+Prazni podaci se PRESKAČU, ne ispisuju kao crtice. Zaglavlje puno
+praznih mjesta izgleda kao nedovršen dokument. Ako firma nije unesena,
+zaglavlja jednostavno nema i ugovor izgleda kao i do sada.
+
+=======================================================================
+2) NOVE KOLONE U IZVOZU
+=======================================================================
 VOZILA
-------
-Ispod svakog vozila stoji tačka i tekst:
+  + Registarska oznaka   (odmah iza naziva)
+  + Sezonska cijena      (uz redovnu)
 
-    ● Slobodno                      (zeleno)
-    ● U najmu do 15.09.             (crveno)
-    ● servis do 20.09.              (crveno)
-    ● oštećenje do 06.09.           (crveno)
-    ● privatna upotreba do 03.09.   (crveno)
+Bez registracije se u tabeli nije znalo o kojoj je Octaviji riječ, jer
+flota ima više istih modela.
 
-Piše se pravi razlog, ne samo "zauzeto". Auto na servisu se možda može
-osloboditi, onaj koji je rezervisan ne.
+REZERVACIJE
+  + Kanal                Web / WhatsApp / Telefon ili uživo
+  + Razlog obnove        popunjen samo kod vraćenih otkazanih
 
-USPUT PREIMENOVANO
-Postojeća oznaka "Dostupno / Nedostupno" sada piše "U ponudi / Nije u
-ponudi". Te dvije stvari su se lako miješale: vozilo može biti u katalogu i
-istovremeno danas kod gosta. Sada gornja oznaka govori nudi li se uopće, a
-donja šta radi u ovom trenutku.
+Kanal je bitan za procjenu koliko sajt zapravo donosi u odnosu na
+telefon; do sada se ta razlika u izvozu gubila.
 
-Živi status se prikazuje samo za vozila koja jesu u ponudi; za povučena
-nema smisla.
+PROVJERA KOJU SAM MORAO NAPRAVITI
+Nakon dodavanja kolona uporedio sam broj kolona i broj vrijednosti u sva
+tri lista. Kod poruka su se moje dvije nove kolone bile ubacile gdje im
+nije mjesto (poruka nema kanal ni obnovu), pa bi se cijela tabela
+pomjerila za dvije kolone udesno. Uklonjeno.
 
-OPREMA
-------
-Ispod svake stavke:
-
-    ● Izdato: 3 / 10 · slobodno 7     (zeleno)
-    ● Izdato: 5 / 6 · slobodno 1      (narandžasto, preko 80 posto)
-    ● Izdato: 4 / 4 · slobodno 0      (crveno)
-
-Broji se i oprema izdata kroz rezervacije sa sajta i ona kroz manuelne
-rezervacije, isto kao kod provjere dostupnosti.
-
-Uz omjer stoji i koliko je slobodno, jer je to broj koji vlasnik zapravo
-traži kad ga neko pita ima li još sjedalica.
-
-ZAŠTO NEKEŠIRANO
-----------------
-Oba podatka se čitaju direktno iz baze pri svakom otvaranju stranice, ne iz
-keširane liste. Status star pet minuta poslao bi vlasnika po ključeve auta
-koji je otišao prije sat vremena.
-
-"Sada" se provjerava kroz raspon od jedne sekunde oko trenutnog vremena,
-pa je pitanje jednostavno: je li vozilo vani u ovom trenutku. Servis koji
-je završio prošle sedmice ne prikazuje se kao zauzeće.
-
-Ako dohvat zakaže, kolona se jednostavno ne prikaže; ekrani za unos vozila
-i opreme rade dalje.
-
-TESTIRANO
-  vozilo u najmu               -> U najmu do 15.09, crveno
-  servis koji je prošao        -> Slobodno, zeleno
-  servis koji traje            -> servis do 20.09, crveno
-  vozilo bez ijednog zauzeća   -> Slobodno
-  oprema 3/10, 5/6, 4/4, 0/12  -> zeleno, narandžasto, crveno, zeleno
+Konačno stanje:
+  Vozila       20 kolona / 20 vrijednosti
+  Rezervacije  20 kolona / 20 vrijednosti
+  Poruke       11 kolona / 11 vrijednosti
 
 FAJLOVI
 -------
-  components/admin/VehicleManager.tsx  (prikaz statusa)
-  app/admin/vozila/page.tsx            (dohvat zauzetosti)
-  app/admin/oprema/page.tsx            (dohvat i prikaz izdatog)
+  prisma/schema.prisma                          (address, taxId)
+  lib/company.ts                                (nova polja)
+  app/admin/firma/page.tsx, actions.ts          (unos)
+  app/admin/ugovori/page.tsx                    (dohvat firme)
+  components/admin/handover/contract-data.ts    (tip i zaglavlje)
+  components/admin/handover/generate-pdf.ts     (zaglavlje)
+  components/admin/handover/generate-docx.ts    (zaglavlje)
+  components/admin/handover/HandoverBoard.tsx   (prosljeđivanje)
+  components/admin/handover/ContractEditor.tsx  (prosljeđivanje)
+  app/api/admin/export/route.ts                 (nove kolone)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build
-3. npm run dev
-   - potvrdi rezervaciju s opremom za današnji datum
-   - /admin/vozila -> to vozilo mora pisati "U najmu do ..."
-   - /admin/oprema -> brojka izdatog mora porasti
+2. npx prisma generate
+3. npx prisma db push
+4. npm run build
+5. npm run dev
+   - /admin/firma -> unesi adresu i ID broj, sačuvaj
+   - /admin/ugovori -> preuzmi PDF, zaglavlje mora biti na vrhu
+   - /admin/izvoz -> preuzmi vozila i rezervacije, provjeri nove kolone

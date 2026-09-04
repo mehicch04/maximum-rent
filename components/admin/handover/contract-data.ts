@@ -1,5 +1,15 @@
 /** Everything the contract prints, gathered from the editor. */
+/** Who is issuing the contract. Printed at the very top of both formats. */
+export type ContractCompany = {
+  name: string;
+  address: string;
+  taxId: string;
+  phone: string;
+  email: string;
+};
+
 export type ContractData = {
+  company?: ContractCompany;
   reference: string;
   guest: string;
   phone: string;
@@ -101,3 +111,21 @@ export function contractFilename(reference: string, ext: string): string {
 export const CONDITION_TITLE = "Postojeća oštećenja i napomene";
 export const SIGN_LEFT = "Potpis klijenta";
 export const SIGN_RIGHT = "Za agenciju";
+
+
+/**
+ * The issuer block.
+ *
+ * Without it the contract names only the guest, so the document says who
+ * rented but not from whom. Empty lines are dropped rather than printed as
+ * dashes: a header full of placeholders looks unfinished.
+ */
+export function companyHeaderLines(c?: ContractCompany): string[] {
+  if (!c) return [];
+  const parts = [
+    c.address,
+    c.taxId ? `ID broj: ${c.taxId}` : "",
+    [c.phone, c.email].filter(Boolean).join(" · "),
+  ];
+  return parts.filter((v) => String(v ?? "").trim() !== "");
+}

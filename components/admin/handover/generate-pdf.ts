@@ -5,6 +5,7 @@ import {
   contractFilename,
   contractSections,
   type ContractData,
+  companyHeaderLines,
 } from "./contract-data";
 
 /**
@@ -59,6 +60,31 @@ export async function generateContractPdf(data: ContractData): Promise<void> {
       y = M;
     }
   };
+
+  // ── Issuer ──
+  // The agency block goes above the title: the first thing a signed document
+  // must say is who issued it.
+  const header = companyHeaderLines(data.company);
+  if (data.company?.name) {
+    doc.setFont("Contract", "bold");
+    doc.setFontSize(12);
+    doc.text(data.company.name, M, y);
+    y += 5;
+
+    doc.setFont("Contract", "normal");
+    doc.setFontSize(8.5);
+    doc.setTextColor(110);
+    for (const line of header) {
+      doc.text(line, M, y);
+      y += 4;
+    }
+    doc.setTextColor(0);
+    y += 3;
+
+    doc.setDrawColor(200);
+    doc.line(M, y, A4.w - M, y);
+    y += 8;
+  }
 
   // ── Header ──
   doc.setFont("Contract", "bold");

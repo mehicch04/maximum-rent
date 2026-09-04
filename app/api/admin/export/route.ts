@@ -21,6 +21,13 @@ const STATUS: Record<string, string> = {
   COMPLETED: "Završeno",
 };
 
+/** Where the reservation came from, in words the owner uses. */
+const CHANNEL: Record<string, string> = {
+  EMAIL: "Web",
+  WHATSAPP: "WhatsApp",
+  MANUAL: "Telefon / uživo",
+};
+
 const PRICING: Record<string, string> = {
   PER_DAY: "po danu",
   PER_RENTAL: "po najmu",
@@ -68,6 +75,7 @@ export async function GET(req: Request) {
       });
       columns = [
         { header: "Naziv" },
+        { header: "Registarska oznaka" },
         { header: "Marka" },
         { header: "Model" },
         { header: "Godište", kind: "number" },
@@ -79,6 +87,7 @@ export async function GET(req: Request) {
         { header: "Prtljag", kind: "number" },
         { header: "Klima" },
         { header: "Cijena / dan", kind: "money" },
+        { header: "Sezonska cijena", kind: "money" },
         { header: "Valuta" },
         { header: "Depozit", kind: "money" },
         { header: "Dostupno" },
@@ -87,10 +96,10 @@ export async function GET(req: Request) {
         { header: "Fotografija", kind: "number" },
       ];
       rows = cars.map((c) => [
-        safeText(c.title), safeText(c.brand), safeText(c.model), c.year,
+        safeText(c.title), safeText(c.plate), safeText(c.brand), safeText(c.model), c.year,
         c.carClass, c.transmission, c.fuelType, c.passengers, c.doors,
         c.luggage ?? null, c.airCondition ? "da" : "ne",
-        num(c.pricePerDay), c.currency, num(c.deposit),
+        num(c.pricePerDay), num(c.seasonalPrice), c.currency, num(c.deposit),
         c.isAvailable ? "da" : "ne", c.isFeatured ? "da" : "ne",
         c.sortOrder, c.images?.length ?? 0,
       ]);
@@ -151,6 +160,8 @@ export async function GET(req: Request) {
         { header: "Telefon" },
         { header: "Broj leta" },
         { header: "Jezik" },
+        { header: "Kanal" },
+        { header: "Razlog obnove" },
         { header: "Dodatna oprema", width: 38 },
         { header: "Napomena", width: 46 },
       ];
@@ -179,6 +190,8 @@ export async function GET(req: Request) {
           safeText(q.firstName), safeText(q.lastName),
           safeText(q.email), safeText(q.phone),
           safeText(q.flightNumber), q.locale,
+          CHANNEL[q.channel] ?? q.channel,
+          safeText(q.statusNote),
           safeText(extras), safeText(q.message),
         ];
       });
