@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Download } from "lucide-react";
+import { DateField } from "@/components/ui/DateField";
 
 const TYPES = [
   { value: "rezervacije", label: "Rezervacije" },
@@ -108,28 +109,32 @@ export function ExportForm() {
         <>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="ex-from" className={lbl}>
+              <label className={lbl}>
                 Od datuma
               </label>
-              <input
-                id="ex-from"
-                type="date"
+              <DateField
                 value={from}
-                max={to || undefined}
-                onChange={(e) => setFrom(e.target.value)}
+                locale="hr"
+                placeholder="Odaberite…"
+                onChange={(v) => {
+                  setFrom(v);
+                  // DateField has no upper bound, so the pair is kept in order
+                  // here instead.
+                  if (to && to < v) setTo(v);
+                }}
                 className={field}
               />
             </div>
             <div>
-              <label htmlFor="ex-to" className={lbl}>
+              <label className={lbl}>
                 Do datuma
               </label>
-              <input
-                id="ex-to"
-                type="date"
+              <DateField
                 value={to}
                 min={from || undefined}
-                onChange={(e) => setTo(e.target.value)}
+                locale="hr"
+                placeholder="Odaberite…"
+                onChange={setTo}
                 className={field}
               />
             </div>

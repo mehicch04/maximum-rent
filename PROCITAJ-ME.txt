@@ -1,64 +1,78 @@
-BLOKADE VOZILA — očišćena forma
-===============================
+CUSTOM DATUM I VRIJEME U ADMIN OBRASCIMA
+========================================
 
 Schema se NE mijenja. Samo: npm run build
 
-ŠTA JE UKLONJENO
-----------------
-  opcija "Manuelna rezervacija (telefon / uživo)"
-  polje "Ime klijenta"
-  polje "Ukupna cijena (KM)"
-  cijela sekcija za odabir dodatne opreme
+*** RUČNO OBRISATI: Remove-Item components\admin\NewInquiryModal.tsx ***
+(objašnjeno na dnu)
 
-Forma sada ima samo: Od datuma, Do datuma, Vozilo, Razlog i dugme.
-Razlog nudi tri opcije: Servis / Održavanje, Oštećenje / Sudar,
-Privatna upotreba.
+ŠTA JE URAĐENO
+--------------
+Native HTML polja za datum i vrijeme zamijenjena su istim komponentama koje
+koristi javni dio sajta, pa admin i sajt sada izgledaju i rade jednako.
 
-ŠTA JE ZADRŽANO, I ZAŠTO
-------------------------
-1) POLJE "OPIS ŠTETE" kod oštećenja
-   Nije operativni podatak nego dopuna razloga. Taj tekst se prikazuje kao
-   napomena uz vozilo u pregledu statusa flote ("oštećen prednji branik,
-   do 06.09."), pa bez njega ostaje samo suvo "oštećenje".
-   Ako ipak želiš i njega van, reci pa uklonim.
+Raspored je zadržan: datum i vrijeme stoje jedno pored drugog, preuzimanje
+lijevo, vraćanje desno.
 
-2) FILTRIRANJE ZAUZETIH VOZILA
-   Ostaje: dok nema datuma vozilo je zaključano, a kad se unesu, zauzeta
-   vozila su siva uz razlog. Nisi tražio uklanjanje, a i dalje sprječava
-   blokiranje vozila koje je već negdje zauzeto.
+NOVA ZAJEDNIČKA KOMPONENTA
+--------------------------
+Kalendar (DateField) je već bio zajednička komponenta, ali izbornik vremena
+NIJE. Bio je zakopan unutar obrasca za pretragu na sajtu, zajedno s popisom
+termina, i nije se mogao koristiti drugdje.
 
-ČIŠĆENJE I SA SERVERSKE STRANE
-------------------------------
-Akcija koja sprema blokadu više ne prima ni ne upisuje ime klijenta,
-cijenu ni opremu. Popis dozvoljenih razloga sveden je na tri, pa se
-"MANUAL_BOOKING" ne može podvaliti ni ručno poslanim zahtjevom.
+Izdvojen je u components/ui/TimeField.tsx, pa sada postoji jedan izvor.
+Termini idu na pola sata, od 00:00 do 23:30, uvijek u 24-satnom formatu.
 
-Uklonjeni su i neiskorišteni uvozi te dva propsa koja stranica više ne
-mora prosljeđivati formi.
+Razlog zašto uopće ne koristimo native polje za vrijeme: izgleda drugačije
+u svakom pregledniku, a na nekim sistemima prikazuje AM/PM, što kod nas
+nije uobičajeno.
 
-STARI ZAPISI I DALJE RADE
--------------------------
-Vrijednost MANUAL_BOOKING ostaje u bazi zbog blokada napravljenih prije
-ove promjene. Zato je i dalje spominju:
+GDJE JE PRIMIJENJENO
+--------------------
+  modal za uređivanje rezervacije   (traženo)
+  obrazac za novu rezervaciju       (da ne bude pola na jedno pola na drugo)
+  filteri datuma u izvozu           (isti razlog)
 
-  analitika        stare manuelne rezervacije i dalje ulaze u prihod i
-                   prikazuju se kao "U najmu", ne kao nedostupne
-  dostupnost       oprema izdata kroz stare blokade i dalje se oduzima
-                   sa stanja
+Poslije ovoga u cijelom adminu nema više nijednog native polja za datum ni
+vrijeme.
 
-Da sam to uklonio, stari zapisi bi nestali iz izvještaja i njihova oprema
-bi se pojavila kao slobodna iako nije.
+DVIJE SITNICE POPRAVLJENE USPUT
+-------------------------------
+1) Kad se u modalu pomjeri datum preuzimanja iza datuma vraćanja, vraćanje
+   se povlači sa njim. Ranije je moglo ostati u prošlosti u odnosu na
+   preuzimanje, pa bi obrazac odbio spremanje.
+
+2) U izvozu sam prvo stavio gornju granicu na prvo polje, ali kalendar tu
+   mogućnost nema. Umjesto lažnog ograničenja koje ne radi, poredak se sada
+   čuva logikom: ako "od" pređe "do", "do" se pomjeri.
+
+MRTAV FAJL
+----------
+Našao sam components/admin/NewInquiryModal.tsx: nije u repou i niko ga ne
+koristi. To je moj zaostatak iz ranijeg pokušaja, prije nego je napravljen
+pravi obrazac za manuelne rezervacije. Obriši ga:
+
+    Remove-Item components\admin\NewInquiryModal.tsx
+
+JAVNI OBRAZAC
+-------------
+Nisam ga dirao. On i dalje ima vlastitu kopiju izbornika vremena i radi
+kako je radio. Kad budeš htio, može se prevesti na zajedničku komponentu,
+ali to je izmjena na živom dijelu sajta pa je bolje zasebno i s testiranjem.
 
 FAJLOVI
 -------
-  components/admin/BlockForm.tsx   (očišćena forma)
-  app/admin/actions.ts             (očišćena akcija)
-  app/admin/page.tsx               (uklonjeni suvišni propsi)
+  components/ui/TimeField.tsx              (NOVO — zajednički izbornik vremena)
+  components/admin/EditInquiryForm.tsx     (custom kalendar i vrijeme)
+  components/admin/NewReservationForm.tsx  (isto)
+  components/admin/ExportForm.tsx          (custom kalendar u filterima)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build
-3. npm run dev -> /admin
-   - forma na dnu mora imati samo datume, vozilo i razlog
-   - dodaj blokadu za servis i provjeri je u statusu flote
+2. Remove-Item components\admin\NewInquiryModal.tsx
+3. npm run build
+4. npm run dev -> /admin
+   - otvori "Uredi" na rezervaciji i provjeri kalendar i vrijeme
+   - promijeni datume pa sačuvaj, izmjena mora proći
+   - provjeri i tamnu temu

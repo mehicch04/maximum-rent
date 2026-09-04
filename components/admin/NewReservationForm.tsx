@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Calculator, Lock, Minus, Plus } from "lucide-react";
+import { DateField } from "@/components/ui/DateField";
+import { TimeField } from "@/components/ui/TimeField";
 import type { ExtraItem } from "@/lib/extras";
 import {
   availabilityFor,
@@ -125,26 +127,54 @@ export function NewReservationForm({
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-brand-strong">
           1. Period najma
         </p>
-        <div className="grid gap-3 sm:grid-cols-4">
-          <div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="min-w-0">
             <label className={lbl}>Od datuma *</label>
-            <input type="date" name="pickupDate" required min={today} value={pickupDate}
-              onChange={(e) => setPickupDate(e.target.value)} className={input} />
+            <div className="flex gap-2">
+              <DateField
+                name="pickupDate"
+                value={pickupDate}
+                min={today}
+                locale="hr"
+                placeholder="Odaberite…"
+                onChange={(v) => {
+                  setPickupDate(v);
+                  if (returnDate && returnDate < v) setReturnDate(v);
+                }}
+                className={`${input} flex-1`}
+              />
+              <div className="w-28 shrink-0">
+                <TimeField
+                  name="pickupTime"
+                  value={pickupTime}
+                  onChange={setPickupTime}
+                  ariaLabel="Vrijeme preuzimanja"
+                />
+              </div>
+            </div>
           </div>
-          <div>
-            <label className={lbl}>Vrijeme</label>
-            <input type="time" name="pickupTime" value={pickupTime}
-              onChange={(e) => setPickupTime(e.target.value)} className={input} />
-          </div>
-          <div>
+
+          <div className="min-w-0">
             <label className={lbl}>Do datuma *</label>
-            <input type="date" name="returnDate" required min={pickupDate || today} value={returnDate}
-              onChange={(e) => setReturnDate(e.target.value)} className={input} />
-          </div>
-          <div>
-            <label className={lbl}>Vrijeme</label>
-            <input type="time" name="returnTime" value={returnTime}
-              onChange={(e) => setReturnTime(e.target.value)} className={input} />
+            <div className="flex gap-2">
+              <DateField
+                name="returnDate"
+                value={returnDate}
+                min={pickupDate || today}
+                locale="hr"
+                placeholder="Odaberite…"
+                onChange={setReturnDate}
+                className={`${input} flex-1`}
+              />
+              <div className="w-28 shrink-0">
+                <TimeField
+                  name="returnTime"
+                  value={returnTime}
+                  onChange={setReturnTime}
+                  ariaLabel="Vrijeme vraćanja"
+                />
+              </div>
+            </div>
           </div>
         </div>
         {datesReady && !validPeriod && (
