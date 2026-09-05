@@ -12,6 +12,7 @@ import { prisma } from "@/lib/prisma";
 import { getCompany } from "@/lib/company";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { SeasonalToggle } from "@/components/admin/SeasonalToggle";
+import { MigrateBlocksCard } from "@/components/admin/MigrateBlocksCard";
 import { saveCompany, saveLocation, deleteLocation } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -45,12 +46,17 @@ export default async function AdminCompanyPage({
 
   let locations: Awaited<ReturnType<typeof prisma.location.findMany>> = [];
   let seasonalCount = 0;
+  let oldManualBlocks = 0;
   let tableMissing = false;
   try {
     [locations, seasonalCount] = await Promise.all([
       prisma.location.findMany({ orderBy: [{ sortOrder: "asc" }, { name: "asc" }] }),
       prisma.car.count({ where: { seasonalPrice: { not: null } } }),
     ]);
+    // Drives the one-off migration card; zero means it has already been done.
+    oldManualBlocks = await prisma.carBlock
+      .count({ where: { kind: "MANUAL_BOOKING" } })
+      .catch(() => 0);
   } catch {
     tableMissing = true;
   }
@@ -100,6 +106,12 @@ npx prisma generate{"\n"}npx prisma db push
         <div className="mt-6 flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-300">
           <Check className="h-4 w-4" />
           Sačuvano.
+        </div>
+      )}
+
+      {oldManualBlocks > 0 && (
+        <div className="mt-8">
+          <MigrateBlocksCard count={oldManualBlocks} />
         </div>
       )}
 

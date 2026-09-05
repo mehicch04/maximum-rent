@@ -115,7 +115,7 @@ const EARNING = ["CONFIRMED", "COMPLETED"] as const;
 // ---------------------------------------------------------------------------
 
 async function windowTotals(from: Date, to: Date) {
-  const [agg, cancelled, total, manual] = await Promise.all([
+  const [agg, cancelled, total] = await Promise.all([
     prisma.inquiry.aggregate({
       where: { status: { in: [...EARNING] }, createdAt: { gte: from, lte: to } },
       _sum: { totalPrice: true },
@@ -126,19 +126,15 @@ async function windowTotals(from: Date, to: Date) {
       where: { status: "CANCELLED", createdAt: { gte: from, lte: to } },
     }),
     prisma.inquiry.count({ where: { createdAt: { gte: from, lte: to } } }),
-    // Bookings taken by phone are recorded as blocks, not inquiries, but they
-    // are real income and belong in the same total.
-    prisma.carBlock.aggregate({
-      where: { kind: "MANUAL_BOOKING", createdAt: { gte: from, lte: to } },
-      _sum: { totalPrice: true },
-      _count: true,
-    }),
   ]);
 
+  // Revenue comes from reservations alone. Phone bookings used to be stored as
+  // blocks and were added in here, which meant the reports and the export never
+  // matched; they are reservations now, so there is one place to read.
   return {
-    revenue: num(agg._sum.totalPrice) + num(manual._sum.totalPrice),
+    revenue: num(agg._sum.totalPrice),
     avgDays: num(agg._avg.rentalDays),
-    bookings: agg._count + manual._count,
+    bookings: agg._count,
     cancelled,
     total,
   };

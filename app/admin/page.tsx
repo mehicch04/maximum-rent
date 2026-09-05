@@ -117,6 +117,10 @@ const MESSAGES: Record<string, { text: string; tone: "ok" | "warn" | "err" }> =
     },
     updated: { text: "Rezervacija je izmijenjena.", tone: "ok" },
   created: { text: "Rezervacija je kreirana i potvrđena.", tone: "ok" },
+  migrated: {
+    text: "Stare manuelne rezervacije su prebačene u listu rezervacija.",
+    tone: "ok",
+  },
   reason: {
     text: "Obnova nije sačuvana: upišite razlog vraćanja rezervacije.",
     tone: "err",
