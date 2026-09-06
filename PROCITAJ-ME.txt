@@ -1,93 +1,75 @@
-MIGRACIJA STARIH MANUELNIH REZERVACIJA
-======================================
+IZDAVANJE VOZILA — evidencija početka najma
+===========================================
 
-Schema se NE mijenja. Samo: npm run build
+*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
 
-PROBLEM
--------
-Manuelne rezervacije su se prije bilježile kao blokade vozila, jer tada nisu
-imale svoj ekran. Zbog toga je prihod stajao na dva mjesta: analitika je
-čitala oba, izvoz samo jedno, i dva ukupna iznosa se nisu poklapala.
+ŠTA JE DODANO
+-------------
+Na rezervacijama sa statusom "Potvrđeno" pojavljuje se dugme
+"Izdaj vozilo". Klik otvara pitanje "Potvrdite izdavanje vozila klijentu?"
+s podacima gosta i vozila.
 
-KAKO POKRENUTI
---------------
-Na /admin/firma će se, ako ima šta prebaciti, pojaviti narandžasta kartica
-s brojem starih zapisa i dugmetom "Prebaci u rezervacije". Traži potvrdu
-prije pokretanja.
+Potvrdom se:
+  - u bazu upisuje trenutno vrijeme kao STVARNO preuzimanje
+  - status mijenja u "U toku"
 
-Kartica se sama skriva kad više nema šta prebaciti, pa poslije jednog
-pokretanja nestaje i panel se vraća u normalu.
+Agovoreno vrijeme preuzimanja ostaje netaknuto. Gost koji dođe dva sata
+kasnije ne smije tiho prepisati ono što je rezervisano, a razlika između
+dogovorenog i stvarnog je podatak koji kasnije vrijedi imati.
 
-ŠTA MIGRACIJA RADI
-------------------
-Za svaku blokadu tipa "manuelna rezervacija":
-  - pravi pravu rezervaciju s kanalom "Telefon / uživo", odmah potvrđenu
-  - dodjeljuje joj broj (MR-XXXXXX)
-  - prenosi vozilo, period, cijenu, ime klijenta i opremu
-  - briše staru blokadu
+NAJVAŽNIJI DIO POSLA NIJE DUGME
+-------------------------------
+Statusa "U toku" u sistemu nije bilo. Osamnaest mjesta u kodu držalo je
+vozilo zauzetim samo ako je rezervacija "Potvrđena".
 
-Vozilo ostaje zauzeto u istom terminu, samo sada kao rezervacija.
+Da sam dodao novi status bez toga, dogodilo bi se ovo: izdaš vozilo gostu,
+ono odmah postane "U toku", i u tom trenutku sistem ga prestane smatrati
+zauzetim. Sajt bi ga ponovo nudio, a admin bi dozvolio novu rezervaciju za
+isti termin. Auto koji je fizički kod gosta bio bi ponuđen drugome.
 
-ČETIRI DETALJA KOJE SAM MORAO RIJEŠITI
---------------------------------------
-1) DATUM NASTANKA SE ZADRŽAVA.
-   Rezervacija nosi datum kad je blokada napravljena, ne datum migracije.
-   Bez toga bi se cjelokupan stari prihod slio u tekući mjesec, a
-   izvještaji za prošle mjesece bi ostali prazni.
+Zato sam prošao kroz sva mjesta i provjerio svako:
 
-2) IME SE DIJELI NA IME I PREZIME.
-   Blokada je imala jedno polje, rezervacija traži dva.
-   "Ana Marić" -> Ana / Marić
-   "Ana" -> Ana / (prazno)
-   prazno -> "Nepoznat klijent", da zapis ne ostane bez imena
+  javna pretraga vozila            prepoznaje "U toku"    OK
+  zauzetost vozila i opreme        prepoznaje             OK
+  prihod i iskoristivost           prepoznaje             OK
+  izdata oprema u adminu           prepoznaje             OK
+  provjera sudara pri potvrdi      prepoznaje             OK
+  provjera sudara pri izmjeni      prepoznaje             OK
+  provjera sudara kod nove         prepoznaje             OK
 
-3) EMAIL I TELEFON OSTAJU PRAZNI.
-   Blokada ih nikad nije ni imala. Prazno je iskreno; izmišljen kontakt bi
-   bio gori od nikakvog.
+Namjerno JEDINO na ekranu Ugovori nije dodano: tamo se prikazuju
+nadolazeća preuzimanja, a vozilo koje je već izdato ne treba novi ugovor.
 
-4) OPREMA ČIJA JE STAVKA U MEĐUVREMENU OBRISANA.
-   Blokada čuva samo naziv i količinu, a rezervacija traži i cijenu.
-   Cijena se čita iz kataloga; ako stavke više nema, naziv se zadržava a
-   cijena ide na nulu. Bolje nego da oprema nestane iz zapisa.
-
-SIGURNOST
----------
-Svaka blokada se prebacuje u transakciji: rezervacija se stvara i blokada
-briše zajedno. Prekid na pola ne može ni udvostručiti ni izgubiti prihod.
-
-Ako neki zapis ne prođe, migracija ne staje: taj se preskoči, greška se
-ispiše u log, ostali se prebace. Na kraju se javi koliko je prebačeno.
-
-Pokretanje po drugi put je bezopasno. Prebačene blokade su obrisane, pa
-druga vožnja jednostavno ne nađe ništa.
-
-ANALITIKA
----------
-Prihod se sada računa ISKLJUČIVO iz tabele rezervacija. Grana koja je
-zbrajala prihod iz blokada je uklonjena.
-
-NAMJERNO NISAM DIRAO dvije preostale grane koje spominju stari tip
-blokade: iskoristivost flote i status flote. One su tu da sve radi
-ispravno DOK migracija ne bude pokrenuta. Nakon nje ne nalaze ništa i
-same postaju bezopasne. Da sam ih uklonio prije migracije, iskoristivost
-bi pala jer stari najmovi ne bi bili nigdje.
+OSTALO
+------
+  - Oznaka "U toku" u listi rezervacija, u brend crvenoj.
+  - Ako se pokuša izdati nešto što nije potvrđeno (već izdato, otkazano,
+    neodobreno), server to odbija uz poruku. Dugme se ionako ne prikazuje,
+    ali zahtjev se može poslati i mimo njega.
 
 FAJLOVI
 -------
-  app/admin/migrate-actions.ts             (NOVO — migracija)
-  components/admin/MigrateBlocksCard.tsx   (NOVO — pokretanje uz potvrdu)
-  app/admin/firma/page.tsx                 (kartica)
-  app/admin/page.tsx                       (poruka o ishodu)
-  lib/analytics.ts                         (prihod samo iz rezervacija)
+  prisma/schema.prisma                     (IN_PROGRESS, actualPickUpTime)
+  app/admin/checkout-actions.ts            (NOVO — izdavanje)
+  components/admin/StartRentalButton.tsx   (NOVO — dugme i potvrda)
+  app/admin/page.tsx                       (dugme, oznaka, poruke)
+  lib/availability.ts                      (zauzeće)
+  lib/extras-availability.ts               (zauzeće)
+  lib/analytics.ts                         (prihod i iskoristivost)
+  app/admin/oprema/page.tsx                (izdata oprema)
+  app/admin/actions.ts                     (provjera sudara)
+  app/admin/edit-actions.ts                (provjera sudara)
+  app/admin/new-reservation-actions.ts     (provjera sudara)
+  app/admin/ugovori/page.tsx               (napomena zašto ostaje samo Potvrđeno)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build
-3. npm run dev -> /admin/firma
-   - ako ima starih zapisa, pojavit će se kartica
-   - prebaci ih
-4. Provjeri poslije:
-   - /admin -> prebačene rezervacije su u listi, s brojem i kanalom
-   - /admin/analitika -> prihod isti kao prije migracije
-   - /admin/izvoz -> Excel sada pokazuje isti iznos kao analitika
+2. npx prisma generate
+3. npx prisma db push
+4. npm run build
+5. npm run dev -> /admin
+   - na potvrđenoj rezervaciji klikni "Izdaj vozilo" i potvrdi
+   - status mora preći u "U toku"
+   - OBAVEZNO PROVJERI: otvori /vozila na sajtu za taj isti period,
+     vozilo se i dalje NE SMIJE nuditi

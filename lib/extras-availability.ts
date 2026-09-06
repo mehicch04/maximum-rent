@@ -98,7 +98,7 @@ export async function getBookedExtras(): Promise<Booked[]> {
         where: {
           extraId: { not: null },
           inquiry: {
-            status: { in: ["CONFIRMED", "COMPLETED"] },
+            status: { in: ["CONFIRMED", "IN_PROGRESS", "COMPLETED"] },
             returnAt: { gte: now },
           },
         },
@@ -171,7 +171,7 @@ export async function getCarOccupancy(): Promise<CarBusy[]> {
   const [rentals, blocks] = await Promise.all([
     prisma.inquiry.findMany({
       where: {
-        status: { in: ["CONFIRMED", "COMPLETED"] },
+        status: { in: ["CONFIRMED", "IN_PROGRESS", "COMPLETED"] },
         carId: { not: null },
         returnAt: { gte: now },
       },

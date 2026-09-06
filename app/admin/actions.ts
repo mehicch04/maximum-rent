@@ -88,7 +88,7 @@ export async function confirmInquiry(formData: FormData) {
         tx.inquiry.count({
           where: {
             carId: inquiry.carId,
-            status: "CONFIRMED",
+            status: { in: ["CONFIRMED", "IN_PROGRESS"] },
             id: { not: inquiry.id },
             pickupAt: { lt: inquiry.returnAt },
             returnAt: { gt: inquiry.pickupAt },

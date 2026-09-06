@@ -52,7 +52,7 @@ export default async function AdminExtrasPage({
         where: {
           extraId: { not: null },
           inquiry: {
-            status: { in: ["CONFIRMED", "COMPLETED"] },
+            status: { in: ["CONFIRMED", "IN_PROGRESS", "COMPLETED"] },
             pickupAt: { lte: now },
             returnAt: { gte: now },
           },

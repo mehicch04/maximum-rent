@@ -28,7 +28,7 @@ export async function getAvailableCars(
       isAvailable: true,
       inquiries: {
         none: {
-          status: "CONFIRMED",
+          status: { in: ["CONFIRMED", "IN_PROGRESS", "COMPLETED"] },
           pickupAt: { lt: returnAt },
           returnAt: { gt: pickupAt },
         },

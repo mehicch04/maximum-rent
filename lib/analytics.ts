@@ -108,7 +108,7 @@ const num = (v: unknown) => (v == null ? 0 : Number(v));
 const fmtMoney = (n: number) => `${Math.round(n).toLocaleString("hr-HR")} KM`;
 
 /** Earns revenue. Cancelled and unanswered inquiries do not. */
-const EARNING = ["CONFIRMED", "COMPLETED"] as const;
+const EARNING = ["CONFIRMED", "IN_PROGRESS", "COMPLETED"] as const;
 
 // ---------------------------------------------------------------------------
 // KPIs

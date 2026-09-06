@@ -73,7 +73,7 @@ export async function updateInquiry(formData: FormData) {
         where: {
           id: { not: id },
           carId,
-          status: "CONFIRMED",
+          status: { in: ["CONFIRMED", "IN_PROGRESS"] },
           pickupAt: { lt: returnAt },
           returnAt: { gt: pickupAt },
         },

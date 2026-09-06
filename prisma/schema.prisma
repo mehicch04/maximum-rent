@@ -72,6 +72,9 @@ enum InquiryStatus {
   NEW
   CONTACTED
   CONFIRMED
+  /// Vehicle handed over and with the guest. Holds the car exactly like a
+  /// confirmed booking; it is only further along the same rental.
+  IN_PROGRESS
   CANCELLED
   COMPLETED
 }
@@ -185,6 +188,9 @@ model Inquiry {
   /// explained later; a booking that reappears without a reason is impossible
   /// to account for.
   statusNote         String?
+  /// When the keys actually changed hands, which is rarely the agreed hour.
+  /// Kept separate from pickupAt so the plan and what happened stay distinct.
+  actualPickUpTime   DateTime?
   /// Rental length in whole days, kept alongside the price for reporting.
   rentalDays Int?
 

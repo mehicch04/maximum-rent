@@ -56,7 +56,7 @@ export async function createManualInquiry(formData: FormData) {
       prisma.inquiry.count({
         where: {
           carId,
-          status: "CONFIRMED",
+          status: { in: ["CONFIRMED", "IN_PROGRESS"] },
           pickupAt: { lt: returnAt },
           returnAt: { gt: pickupAt },
         },

@@ -29,6 +29,8 @@ export default async function AdminHandoverPage() {
 
   try {
     const rows = await prisma.inquiry.findMany({
+      // Confirmed only: once a car is handed over the contract is already signed,
+      // so an in-progress rental has no place on the handover list.
       where: { status: "CONFIRMED", pickupAt: { gte: startOfToday } },
       orderBy: { pickupAt: "asc" },
       take: 100,

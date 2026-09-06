@@ -26,6 +26,7 @@ import { EditInquiryButton } from "@/components/admin/EditInquiryButton";
 import { EditInquiryForm } from "@/components/admin/EditInquiryForm";
 import { updateInquiry } from "./edit-actions";
 import { NewReservationButton } from "@/components/admin/NewReservationButton";
+import { StartRentalButton } from "@/components/admin/StartRentalButton";
 import { NewReservationForm } from "@/components/admin/NewReservationForm";
 import { createManualInquiry } from "./new-reservation-actions";
 import { getActiveExtras } from "@/lib/extras";
@@ -85,6 +86,10 @@ const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
     label: "Potvrđeno",
     cls: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
   },
+  IN_PROGRESS: {
+    label: "U toku",
+    cls: "bg-brand/15 text-brand-strong",
+  },
   CANCELLED: {
     label: "Otkazano",
     cls: "bg-zinc-500/15 text-zinc-500 dark:text-zinc-400",
@@ -117,6 +122,11 @@ const MESSAGES: Record<string, { text: string; tone: "ok" | "warn" | "err" }> =
     },
     updated: { text: "Rezervacija je izmijenjena.", tone: "ok" },
   created: { text: "Rezervacija je kreirana i potvrđena.", tone: "ok" },
+  started: { text: "Vozilo je izdato. Rezervacija je sada u toku.", tone: "ok" },
+  notconfirmed: {
+    text: "Vozilo se može izdati samo za potvrđenu rezervaciju.",
+    tone: "err",
+  },
   migrated: {
     text: "Stare manuelne rezervacije su prebačene u listu rezervacija.",
     tone: "ok",
@@ -452,6 +462,17 @@ export default async function AdminPage({
                     </form>
                   </div>
                 )}
+                {q.status === "CONFIRMED" && (
+                  <div className="flex flex-wrap gap-2">
+                    <StartRentalButton
+                      id={q.id}
+                      reference={q.reference}
+                      guest={[q.firstName, q.lastName].filter(Boolean).join(" ")}
+                      carTitle={q.car?.title ?? q.carTitleSnapshot ?? ""}
+                    />
+                  </div>
+                )}
+
                 {q.status === "CONFIRMED" && (
                   <form action={cancelInquiry}>
                     <input type="hidden" name="id" value={q.id} />
