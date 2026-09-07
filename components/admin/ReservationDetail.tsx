@@ -29,6 +29,7 @@ export type ReservationDetailData = {
   extraCharge: number | null;
   extraChargeNote: string | null;
   statusNote: string | null;
+  expiredAt: string | null;
   message: string | null;
   createdAt: string;
   extras: { name: string; qty: number }[];

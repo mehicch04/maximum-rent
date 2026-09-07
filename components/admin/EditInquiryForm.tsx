@@ -40,6 +40,8 @@ export type EditableInquiry = {
   flightNumber: string | null;
   message: string | null;
   status: string;
+  /** Set when the nightly job cancelled it for going unanswered. */
+  expiredAt?: string | null;
   /** The other half of a vehicle swap, if this rental is part of one. */
   continuesFrom?: LinkedRental | null;
   continuedBy?: LinkedRental[];
@@ -415,6 +417,9 @@ export function EditInquiryForm({
           <p className="mt-1 text-xs text-muted-foreground">
             Vozilo je pri otkazivanju oslobođeno, pa provjerite je li još
             slobodno za ove datume.
+            {inquiry.expiredAt
+              ? " Ova rezervacija je istekla bez odgovora, nije otkazana ručno."
+              : ""}
           </p>
           <label className={`${lbl} mt-3`}>Razlog obnove rezervacije *</label>
           <textarea

@@ -187,6 +187,11 @@ model Inquiry {
   /// Why a cancelled reservation was brought back. Kept so the decision can be
   /// explained later; a booking that reappears without a reason is impossible
   /// to account for.
+  /// Set when the nightly job cancelled an unanswered enquiry whose pickup
+  /// time had passed. Kept apart from statusNote, which holds a reason typed
+  /// by hand; one field for both meant restoring a booking erased the record
+  /// that it had ever expired.
+  expiredAt          DateTime?
   statusNote         String?
   /// When the keys actually changed hands, which is rarely the agreed hour.
   /// Kept separate from pickupAt so the plan and what happened stay distinct.

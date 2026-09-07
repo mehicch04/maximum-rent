@@ -278,7 +278,7 @@ export default async function AdminPage({
           : { createdAt: "desc" },
       take: 100,
       include: {
-        car: { select: { title: true, plate: true } },
+        car: { select: { title: true, plate: true, isAvailable: true } },
         pickupLocation: { select: { name: true } },
         returnLocation: { select: { name: true } },
         extras: true,
@@ -472,7 +472,16 @@ export default async function AdminPage({
         )}
 
         {inquiries.map((q) => {
-          const badge = STATUS_BADGE[q.status] ?? STATUS_BADGE.NEW;
+          // An expiry and a cancellation both end as "Otkazano", but they mean
+          // different things: one is a decision, the other is a missed one.
+          // Telling them apart used to mean opening the record.
+          const badge =
+            q.status === "CANCELLED" && q.expiredAt
+              ? {
+                  label: "Isteklo",
+                  cls: "bg-zinc-500/15 text-zinc-500 dark:text-zinc-400",
+                }
+              : (STATUS_BADGE[q.status] ?? STATUS_BADGE.NEW);
           const canAct = q.status === "NEW" || q.status === "CONTACTED";
           return (
             <div
@@ -552,6 +561,7 @@ export default async function AdminPage({
                       extraCharge: q.extraCharge != null ? Number(q.extraCharge) : null,
                       extraChargeNote: q.extraChargeNote,
                       statusNote: q.statusNote,
+                      expiredAt: q.expiredAt?.toISOString() ?? null,
                       message: q.message,
                       createdAt: q.createdAt.toISOString(),
                       extras: q.extras.map((e) => ({ name: e.nameHr, qty: e.qty })),
@@ -579,6 +589,7 @@ export default async function AdminPage({
                         flightNumber: q.flightNumber,
                         message: q.message,
                         status: q.status,
+                        expiredAt: q.expiredAt?.toISOString() ?? null,
                         continuesFrom: q.continuesFrom
                           ? {
                               reference: q.continuesFrom.reference,

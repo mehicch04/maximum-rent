@@ -1,80 +1,92 @@
-POVUČENO VOZILO KOJE JE JOŠ KOD GOSTA
-=====================================
+KUMULATIVNA POPRAVKA — sve od zadnjeg ispravnog builda
+======================================================
 
-Schema se NE mijenja. Samo: npm run build
+*** OBAVEZNO: prisma generate && prisma db push, pa npm run build ***
 
-PROBLEM
--------
-Kad povučete vozilo iz ponude, izvještaji su ga odmah prestali brojati.
-To je u redu za auto koji stoji u dvorištu i čeka kupca. Nije u redu za
-auto koji je u tom trenutku kod gosta.
+ZAŠTO KUMULATIVNO
+-----------------
+Build je pukao kod izmjene "upozorenje za povuceno vozilo", a poslije toga
+je otišlo još nekoliko pusheva. Umjesto da tražite koji ste zip primijenili
+a koji niste, ovdje je SVE u jednom, u ispravnom stanju.
 
-DVIJE POSLJEDICE
+Raspakujte preko projekta i sve je usklađeno.
 
-1) ISKORISTIVOST FLOTE JE SKAKALA SAMA OD SEBE
-   Flota 10 vozila, 6 u najmu, to je 60 posto.
-   Povučete jedan auto i broj skoči na 67 posto (6 od 9), iako se u poslu
-   nije promijenilo ništa.
+GREŠKA KOJA JE OBORILA BUILD
+----------------------------
+  Property 'isAvailable' does not exist on type '{ title; plate }'
 
-   Ako je taj povučeni auto bio baš jedan od onih u najmu, brojka postaje
-   dvostruko kriva: njegov najam se i dalje broji u zauzetim danima, a
-   sam auto više ne postoji u floti.
+Kartica rezervacije je čitala podatak je li vozilo u ponudi, a upit prema
+bazi taj podatak nije dohvatao. Dopunio sam upit.
 
-2) AUTO JE NESTAJAO S EKRANA
-   Status flote pokazivao je 9 umjesto 10 vozila, a auto koji je fizički
-   kod gosta nije se vidio nigdje. Isto i na stranici Vozila: povučeno
-   vozilo nije prikazivalo živi status, pa se nije znalo je li vani ili
-   stoji.
+Ista vrsta greške kao ranije s vremenom preuzimanja. Zato sam ovaj put
+prošao kroz SVE upite u projektu i uporedio dohvaćena polja s onima koja
+se stvarno koriste. Sve ostalo je pokriveno.
 
-KAKO SADA RADI
---------------
-U izvještaje ulaze vozila u ponudi PLUS svako povučeno vozilo koje još
-ima aktivan ili nadolazeći najam.
+ŠTA JE SVE U PAKETU
+-------------------
+1) POVUČENO VOZILO
+   Upozorenje pri potvrdi upita za vozilo koje je izvan ponude, na kartici
+   i u prozoru potvrde. Potvrda i dalje prolazi.
 
-  povučen auto koji stoji        -> ispada iz flote odmah
-  povučen auto koji je kod gosta -> ostaje dok se najam ne zatvori
+   Izbornik u "Uredi" sada sadrži i povučena vozila, s oznakom
+   "(nije u ponudi)". Ranije bi se vozilo tiho zamijenilo pri spremanju.
 
-Čim se posljednji najam zatvori, vozilo prirodno ispada iz izvještaja.
-Ništa ne treba raditi ručno.
+   Obrazac za novu rezervaciju ih ne nudi.
 
-OZNAKA UMJESTO SKRIVANJA
-   U statusu flote takvo vozilo sada piše:
+2) POVUČENO VOZILO KOJE JE KOD GOSTA
+   Ostaje u izvještajima dok se najam ne zatvori. Ranije je nestajalo, pa
+   je iskoristivost flote skakala sama od sebe i auto se nije vidio nigdje.
+   U statusu flote piše "povučeno iz ponude".
 
-     vraća se 18.09. · povučeno iz ponude
-     servis, do 20.09. · povučeno iz ponude
+3) IZDAVANJE I POVRAT SAMO S VOZILOM
+   Rezervacija bez dodijeljenog vozila više ne nudi ta dugmad, nego uputu
+   da se prvo odabere vozilo. Provjerava se i na serveru.
 
-   Vlasnik treba vidjeti gdje mu je auto koji prodaje, a ne da mu nestane
-   s ekrana.
+4) PONOVNA ŠTAMPA UGOVORA
+   Ekran Ugovori sada ima i grupu "Već izdato", da se ugovor može ponovo
+   odštampati kad gost izgubi primjerak.
 
-   Isto i na stranici Vozila: živi status se prikazuje i za povučena
-   vozila, ako su vani.
+5) ISTEKLE REZERVACIJE ODVOJENE OD OTKAZANIH
+   Isticanje se bilježi u zasebno polje. U listi stoji oznaka "Isteklo",
+   a razlog obnove više ne prepisuje trag da je bilo isteklo.
 
-RIJEŠENO NA JEDNOM MJESTU
-   Uvjet "šta se broji kao flota" bio je prepisan na četiri mjesta u
-   izvještajima. Sada je jedna funkcija koju sva četiri koriste, pa se
-   ubuduće ne mogu razići.
+6) ZAŠTITA PRI BRISANJU VOZILA
+   Vozilo s aktivnim ili nadolazećim rezervacijama se ne briše, uz poruku.
 
-PROVJERENO
-  ništa povučeno                 60% -> 60%
-  povučen auto koji stoji        67% -> 67%   (ispravno ispada)
-  povučen auto koji je kod gosta 67% -> 60%   (ispravljeno)
-
-ŠTO SE NIJE MIJENJALO
-  Provjera zauzetosti nikad nije ovisila o tome je li vozilo u ponudi, pa
-  se dupli booking ni ranije nije mogao desiti ovim putem. Provjerio sam.
+IZMJENA BAZE
+------------
+Dodaje se polje "expiredAt" na rezervaciju. Provjerio sam da ga ranije
+nije bilo.
 
 FAJLOVI
 -------
-  lib/analytics.ts                     (uvjet flote, oznake)
-  components/admin/VehicleManager.tsx  (živi status za povučena)
+  prisma/schema.prisma
+  lib/analytics.ts
+  app/admin/page.tsx
+  app/admin/checkout-actions.ts
+  app/admin/ugovori/page.tsx
+  app/admin/vozila/page.tsx, actions.ts
+  app/api/cron/cleanup/route.ts
+  components/admin/VehicleManager.tsx
+  components/admin/ReservationDetail.tsx
+  components/admin/EditInquiryForm.tsx
+  components/admin/SearchBox.tsx
+  components/admin/handover/  (svi)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build
-3. npm run dev
-   - izdaj neko vozilo gostu
-   - /admin/vozila -> isključi ga iz ponude
-   - /admin/analitika -> mora i dalje biti u statusu flote,
-     uz oznaku "povučeno iz ponude"
-   - iskoristivost se ne smije promijeniti
+2. npx prisma generate
+3. npx prisma db push
+4. npm run build          <-- OBAVEZNO PRIČEKAJTE DA PROĐE
+5. npm run dev, provjerite:
+   - /admin se otvara
+   - upit za povučeno vozilo ima narandžasto upozorenje
+   - /admin/ugovori ima grupu "Već izdato"
+   - /admin/analitika radi
+6. Tek onda git push.
+
+SAVJET ZA UBUDUĆE
+-----------------
+Pokrenite "npm run build" lokalno prije svakog pusha. Traje minutu, a hvata
+ovakve greške prije nego stignu na Vercel.

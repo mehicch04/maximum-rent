@@ -48,7 +48,10 @@ export async function GET(req: Request) {
     },
     data: {
       status: "CANCELLED",
-      statusNote: "Isteklo bez odgovora, poništeno automatski.",
+      // A timestamp rather than a sentence: it survives a later restore, and
+      // the list can tell an expiry apart from a cancellation without opening
+      // anything.
+      expiredAt: new Date(),
     },
   });
 
