@@ -190,6 +190,13 @@ model Inquiry {
   statusNote         String?
   /// When the keys actually changed hands, which is rarely the agreed hour.
   /// Kept separate from pickupAt so the plan and what happened stay distinct.
+  /// A rental that carries on from another one, on a different vehicle.
+  /// Recorded as a real link rather than a sentence in the note, so both
+  /// reservations can point at each other and neither gets edited blind.
+  continuesFromId    String?
+  continuesFrom      Inquiry?          @relation("RentalContinuation", fields: [continuesFromId], references: [id], onDelete: SetNull)
+  continuedBy        Inquiry[]         @relation("RentalContinuation")
+
   actualPickUpTime   DateTime?
   /// When the car actually came back, and in what state. Filled in at return;
   /// the fuel level and the deposit outcome are what disputes turn on later.

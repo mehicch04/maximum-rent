@@ -1,70 +1,67 @@
-NASTAVAK NAJMA NA DRUGOM VOZILU
-===============================
+VEZA IZMEĐU REZERVACIJA KOD ZAMJENE VOZILA
+==========================================
 
-Schema se NE mijenja. Samo: npm run build
+*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
 
 ŠTA JE DODANO
 -------------
-Kad produžetak nije moguć na trenutnom vozilu, upozorenje sada nudi dva
-izlaza umjesto samo objašnjenja.
+Kad se napravi nastavak najma na drugom vozilu, dvije rezervacije su sada
+stvarno povezane. Otvaranjem bilo koje od njih na vrhu obrasca stoji plavo
+obavještenje:
 
-  1. NASTAVITE NAJAM NA DRUGOM VOZILU
-     Padajući meni sa slobodnim vozilima i dugme "Napravi nastavak najma".
-     Gost vraća trenutno vozilo kako je dogovoreno i odmah preuzima drugo.
+  Ova rezervacija je dio zamjene vozila
 
-     Nova rezervacija se pravi s njegovim podacima: ime, telefon, e-mail,
-     broj leta i lokacije. Period ide od kraja trenutnog najma do novog
-     datuma. Cijena se računa po vozilu koje je izabrano.
+    Ima nastavak MR-4TQ8XN
+    VW T-Roc · 13.09. u 10:00 → 17.09. u 10:00
 
-     Trenutna rezervacija ostaje nepromijenjena i završava kako je bila
-     dogovorena. To je namjerno: gost je stvarno vozio dva različita auta,
-     pa su to dva najma, ne jedan.
+  Ako ovdje mijenjate datume, provjerite i tu rezervaciju. Inače gostu
+  ostaje rupa između dva vozila ili se dva najma preklope.
 
-     U napomeni nove rezervacije stoji da je nastavak, uz broj prve, da se
-     kasnije ne pitate zašto isti gost ima dvije rezervacije jednu do druge.
+Radi u OBA smjera:
+  otvorite original  -> "Ima nastavak MR-BBB"
+  otvorite nastavak  -> "Nastavlja se na MR-AAA"
 
-  2. ILI PREMJESTITE REZERVACIJU KOJA BLOKIRA
-     Ostaje kao i prije: spisak vozila slobodnih za termin gosta koji čeka,
-     uz broj njegove rezervacije da je lakše nađete.
+Ako je gost mijenjao vozilo dvaput, original prikazuje sve nastavke.
 
-DVIJE LISTE, NE JEDNA
----------------------
-Ovo je dio koji je bilo najlakše pogriješiti.
+ZAŠTO NIJE DOVOLJNO ONO ŠTO JE VEĆ POSTOJALO
+--------------------------------------------
+Do sada je veza postojala samo kao rečenica u napomeni nastavka:
+"Nastavak najma MR-AAA, zamjena vozila."
 
-Vozila slobodna za NASTAVAK i vozila slobodna za PREMJEŠTANJE nisu isti
-skup, jer se radi o dva različita perioda:
+To je bilo korisno za čitanje, ali ništa više. Original nije znao da ima
+nastavak, pa ste ga mogli uređivati bez ijednog upozorenja. Tekst se ne
+može pouzdano čitati, a napomena se može i obrisati.
 
-    Ana ima Octaviju do 13.09, hoće do 17.09
-    Marko preuzima tu Octaviju 14.09 i vraća 18.09
+Sada je to prava veza u bazi, pa obje strane znaju jedna za drugu.
 
-    nastavak za Anu     treba pokriti 13. – 17.09
-    premještanje Marka  treba pokriti 14. – 18.09
+Napomena u tekstu ostaje kakva jest; ne smeta, a stare zamjene napravljene
+prije ove izmjene i dalje se mogu pročitati iz nje.
 
-Primjer gdje se razilaze: ako je T-Roc zauzet od 17.09 u podne, Ani
-odgovara, a Marku ne. Jedna zajednička lista bi u tom slučaju ponudila
-vozilo koje ne rješava problem.
+STARE ZAMJENE
+-------------
+Rezervacije napravljene prije ove izmjene nemaju vezu u bazi i neće
+prikazati obavještenje. Vidjet ćete ih po napomeni. Novih se to ne tiče.
 
-Zato se svaka lista računa za svoj period.
-
-PROVJERA I NA SERVERU
----------------------
-Prije upisa se ponovo provjerava je li izabrano vozilo stvarno slobodno.
-Lista je bila tačna u trenutku kad je nacrtana, ali neko je u međuvremenu
-mogao uzeti to vozilo. Ako se sudari, nastavak se ne pravi i javlja se
-poruka.
+BRISANJE
+--------
+Ako se original obriše, nastavak ostaje. Prekida se samo veza i on postaje
+samostalna rezervacija. Bolje nego da se briše najam koji je gost stvarno
+odvezao.
 
 FAJLOVI
 -------
-  app/admin/extend-actions.ts           (NOVO — kreiranje nastavka)
-  components/admin/EditInquiryForm.tsx  (izbor vozila i dugme)
-  app/admin/page.tsx                    (povezano, poruka)
+  prisma/schema.prisma                  (veza continuesFrom / continuedBy)
+  app/admin/extend-actions.ts           (upisuje vezu)
+  app/admin/page.tsx                    (dohvata obje strane)
+  components/admin/EditInquiryForm.tsx  (obavještenje na vrhu)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build
-3. npm run dev
-   - napravi rezervaciju za sutra na vozilu koje je trenutno u najmu
-   - otvori taj aktivni najam i produži ga preko tog datuma
-   - u upozorenju izaberi vozilo i klikni "Napravi nastavak najma"
-   - u listi rezervacija moraju stajati dvije: originalna i nastavak
+2. npx prisma generate
+3. npx prisma db push
+4. npm run build
+5. npm run dev
+   - napravi nastavak najma na drugom vozilu
+   - otvori "Uredi" na originalu: mora pisati da ima nastavak
+   - otvori "Uredi" na nastavku: mora pisati na šta se nastavlja

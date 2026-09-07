@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, Lock, Minus, Plus } from "lucide-react";
+import { AlertTriangle, Link2, Lock, Minus, Plus } from "lucide-react";
 import { DateField } from "@/components/ui/DateField";
 import { TimeField } from "@/components/ui/TimeField";
 import type { ExtraItem } from "@/lib/extras";
@@ -16,6 +16,14 @@ import {
 const input =
   "h-10 w-full min-w-0 rounded-xl border border-border bg-background px-3 text-base outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-ring/30 sm:text-sm";
 const lbl = "mb-1 block text-xs font-medium text-muted-foreground";
+
+/** Just enough of the linked reservation to identify it on screen. */
+export type LinkedRental = {
+  reference: string;
+  carTitleSnapshot: string | null;
+  pickupAt: string;
+  returnAt: string;
+};
 
 export type EditableInquiry = {
   id: string;
@@ -32,6 +40,9 @@ export type EditableInquiry = {
   flightNumber: string | null;
   message: string | null;
   status: string;
+  /** The other half of a vehicle swap, if this rental is part of one. */
+  continuesFrom?: LinkedRental | null;
+  continuedBy?: LinkedRental[];
   totalPrice: number | null;
   extras: { extraId: string | null; qty: number }[];
 };
@@ -201,7 +212,17 @@ export function EditInquiryForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [extending, occupancy, cars, carId, returnDate, returnTime]);
 
+  /**
+   * The latest this rental can run to.
+   *
+   * This is the whole answer in most calls: the guest asks for a few more
+   * days, and the owner needs one date to say yes or no. Everything else is
+   * for the rarer case where that date is not enough.
+   */
+  const maxUntil = blockers.length > 0 ? blockers[0].from : null;
+
   const [contCar, setContCar] = useState("");
+  const [showOptions, setShowOptions] = useState(false);
 
   const swapOptions = useMemo(() => {
     const first = blockers[0];
@@ -280,6 +301,55 @@ export function EditInquiryForm({
   return (
     <form action={action} className="space-y-4">
       <input type="hidden" name="id" value={inquiry.id} />
+
+      {/*
+        * A swap has two halves, and changing one without the other leaves the
+        * guest with a gap or an overlap. Shown before anything else in the
+        * form, because by the time somebody has scrolled past it they are
+        * already typing.
+        */}
+      {(inquiry.continuesFrom || (inquiry.continuedBy?.length ?? 0) > 0) && (
+        <div className="rounded-xl border border-sky-500/50 bg-sky-500/[0.07] p-4">
+          <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
+            <Link2 className="h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400" />
+            Ova rezervacija je dio zamjene vozila
+          </p>
+
+          <ul className="mt-2 space-y-1.5">
+            {inquiry.continuesFrom && (
+              <li className="rounded-lg bg-surface px-3 py-2 text-xs">
+                <span className="text-muted-foreground">Nastavlja se na </span>
+                <span className="font-mono font-medium text-foreground">
+                  {inquiry.continuesFrom.reference}
+                </span>
+                <span className="block text-muted-foreground">
+                  {inquiry.continuesFrom.carTitleSnapshot || "vozilo"} ·{" "}
+                  {dayTime(new Date(inquiry.continuesFrom.pickupAt))} →{" "}
+                  {dayTime(new Date(inquiry.continuesFrom.returnAt))}
+                </span>
+              </li>
+            )}
+
+            {inquiry.continuedBy?.map((c) => (
+              <li key={c.reference} className="rounded-lg bg-surface px-3 py-2 text-xs">
+                <span className="text-muted-foreground">Ima nastavak </span>
+                <span className="font-mono font-medium text-foreground">
+                  {c.reference}
+                </span>
+                <span className="block text-muted-foreground">
+                  {c.carTitleSnapshot || "vozilo"} ·{" "}
+                  {dayTime(new Date(c.pickupAt))} → {dayTime(new Date(c.returnAt))}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+            Ako ovdje mijenjate datume, provjerite i tu rezervaciju. Inače
+            gostu ostaje rupa između dva vozila ili se dva najma preklope.
+          </p>
+        </div>
+      )}
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
@@ -364,11 +434,52 @@ export function EditInquiryForm({
         <div className="rounded-xl border border-brand/50 bg-brand/[0.06] p-4">
           <p className="flex items-center gap-2 text-sm font-semibold text-brand-strong">
             <AlertTriangle className="h-4 w-4 shrink-0" />
-            Produžetak se sudara s{" "}
-            {blockers.length === 1 ? "rezervacijom" : `${blockers.length} rezervacije`}
+            Termin je zauzet
           </p>
 
-          <ul className="mt-2 space-y-1.5">
+          {/* The one line that answers most calls, given room of its own. */}
+          {maxUntil && (
+            <p className="mt-2 text-base font-semibold leading-snug text-foreground">
+              Možete produžiti najviše do {dayTime(maxUntil)}.
+            </p>
+          )}
+
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            Tada vozilo preuzima{" "}
+            <span className="font-medium text-foreground">
+              {blockers[0]?.guest || "druga rezervacija"}
+            </span>
+            {blockers[0]?.reference ? ` (${blockers[0].reference})` : ""}.
+          </p>
+
+          {/* Most calls end here: set it to the latest possible date and save. */}
+          {maxUntil && (
+            <button
+              type="button"
+              onClick={() => {
+                const p = (n: number) => String(n).padStart(2, "0");
+                setReturnDate(
+                  `${maxUntil.getFullYear()}-${p(maxUntil.getMonth() + 1)}-${p(maxUntil.getDate())}`,
+                );
+                setReturnTime(`${p(maxUntil.getHours())}:${p(maxUntil.getMinutes())}`);
+              }}
+              className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-xl bg-brand text-sm font-semibold text-brand-foreground transition-colors hover:bg-brand-700"
+            >
+              Postavi na {dayTime(maxUntil)}
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setShowOptions((v) => !v)}
+            className="mt-3 text-xs font-medium text-brand-strong underline underline-offset-2"
+          >
+            {showOptions ? "Sakrij mogućnosti" : "Ako gost traži duže…"}
+          </button>
+
+          <div className={showOptions ? "block" : "hidden"}>
+
+          <ul className="mt-3 space-y-1.5">
             {blockers.map((b, i) => (
               <li
                 key={`${b.inquiryId ?? b.label}-${i}`}
@@ -496,6 +607,8 @@ export function EditInquiryForm({
                 )}
               </ul>
             )}
+          </div>
+
           </div>
         </div>
       )}

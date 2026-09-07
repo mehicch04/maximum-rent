@@ -87,8 +87,9 @@ export async function createContinuation(formData: FormData) {
         email: source.email,
         phone: source.phone,
         flightNumber: source.flightNumber,
-        // Written down so nobody later wonders why the same guest has two
-        // overlapping-looking bookings.
+        // Linked both ways: opening either reservation shows the other, so
+        // nobody edits one half of a swap without seeing the rest of it.
+        continuesFromId: sourceId,
         message: `Nastavak najma ${source.reference}, zamjena vozila.`,
         channel: "MANUAL",
         status: "CONFIRMED",

@@ -226,7 +226,17 @@ export default async function AdminPage({
           ? { returnAt: "asc" }
           : { createdAt: "desc" },
       take: 100,
-      include: { car: { select: { title: true } }, extras: true },
+      include: {
+        car: { select: { title: true } },
+        extras: true,
+        // Both directions of a swap, so the edit form can warn either way.
+        continuesFrom: {
+          select: { reference: true, carTitleSnapshot: true, pickupAt: true, returnAt: true },
+        },
+        continuedBy: {
+          select: { reference: true, carTitleSnapshot: true, pickupAt: true, returnAt: true },
+        },
+      },
     }),
     prisma.carBlock.findMany({
       orderBy: { startAt: "asc" },
@@ -451,6 +461,20 @@ export default async function AdminPage({
                         flightNumber: q.flightNumber,
                         message: q.message,
                         status: q.status,
+                        continuesFrom: q.continuesFrom
+                          ? {
+                              reference: q.continuesFrom.reference,
+                              carTitleSnapshot: q.continuesFrom.carTitleSnapshot,
+                              pickupAt: q.continuesFrom.pickupAt.toISOString(),
+                              returnAt: q.continuesFrom.returnAt.toISOString(),
+                            }
+                          : null,
+                        continuedBy: q.continuedBy.map((c) => ({
+                          reference: c.reference,
+                          carTitleSnapshot: c.carTitleSnapshot,
+                          pickupAt: c.pickupAt.toISOString(),
+                          returnAt: c.returnAt.toISOString(),
+                        })),
                         totalPrice:
                           q.totalPrice != null ? Number(q.totalPrice) : null,
                         extras: q.extras.map((e) => ({
