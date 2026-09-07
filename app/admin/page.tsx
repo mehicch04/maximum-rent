@@ -544,7 +544,8 @@ export default async function AdminPage({
                     </form>
                   </div>
                 )}
-                {q.status === "IN_PROGRESS" && (
+                {(q.status === "IN_PROGRESS" ||
+                  (q.status === "CONFIRMED" && q.pickupAt <= new Date())) && (
                   <div className="flex flex-wrap gap-2">
                     <FinishRentalButton
                       id={q.id}
@@ -552,6 +553,7 @@ export default async function AdminPage({
                       guest={[q.firstName, q.lastName].filter(Boolean).join(" ")}
                       carTitle={q.car?.title ?? q.carTitleSnapshot ?? ""}
                       returnAt={q.returnAt.toISOString()}
+                      handoverMissing={q.status === "CONFIRMED"}
                     />
                   </div>
                 )}

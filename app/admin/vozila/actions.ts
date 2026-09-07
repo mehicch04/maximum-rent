@@ -120,6 +120,26 @@ export async function deleteVehicle(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id") ?? "");
   if (id) {
+    /**
+     * Deleting a vehicle that is still promised to someone.
+     *
+     * The reservations survive but lose their car, so they stop holding the
+     * dates while still counting as income, and the panel goes on offering to
+     * hand over a vehicle that no longer exists. Nothing warned about any of
+     * that, so the check happens here instead.
+     */
+    const live = await prisma.inquiry.count({
+      where: {
+        carId: id,
+        status: { in: ["CONFIRMED", "IN_PROGRESS"] },
+        returnAt: { gte: new Date() },
+      },
+    });
+
+    if (live > 0) {
+      redirect(`/admin/vozila?msg=hasbookings&count=${live}`);
+    }
+
     try {
       await prisma.car.delete({ where: { id } });
     } catch {

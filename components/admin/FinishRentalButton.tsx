@@ -22,6 +22,7 @@ export function FinishRentalButton({
   guest,
   carTitle,
   returnAt,
+  handoverMissing = false,
 }: {
   id: string;
   reference: string;
@@ -29,6 +30,8 @@ export function FinishRentalButton({
   carTitle?: string;
   /** Agreed return time, used to show how late the car actually is. */
   returnAt?: string;
+  /** True when the car went out without the handover being recorded. */
+  handoverMissing?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -116,6 +119,13 @@ export function FinishRentalButton({
                 className="space-y-4 p-5"
               >
                 <input type="hidden" name="id" value={id} />
+
+                {handoverMissing && (
+                  <p className="rounded-xl border border-amber-500/40 bg-amber-500/[0.07] px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
+                    Izdavanje ovog vozila nije zabilježeno. Zatvaranjem najma
+                    upisuje se dogovoreno vrijeme preuzimanja.
+                  </p>
+                )}
 
                 {late > 0 && (
                   <p className="flex items-center gap-1.5 rounded-xl border border-brand/40 bg-brand/[0.06] px-3 py-2 text-xs font-medium text-brand-strong">

@@ -1,69 +1,120 @@
-OPREMA PRI PRODUŽETKU — provjera dostupnosti
-============================================
+TRI MJESTA GDJE JE KLIJENT MOGAO ZAPETI
+=======================================
 
 Schema se NE mijenja. Samo: npm run build
 
-ODGOVOR NA PITANJE
-------------------
-Do sada NE. Oprema se prepisivala naslijepo, bez ijedne provjere.
+=======================================================================
+1) UGOVOR JE NESTAJAO KAD GOST ZAKASNI
+=======================================================================
+PRIMJER
+  Gost je trebao preuzeti auto 12.09 u 10:00. Nije se pojavio.
+  Javi se 13.09 ujutro i dolazi po vozilo.
 
-To je značilo da gost zadrži sjedalicu koja je za te nove datume već
-obećana nekom drugom. Sistem bi je vodio kao izdatu dvaput.
+ŠTA SE DEŠAVALO
+  Ekran Ugovori prikazivao je samo preuzimanja od danas nadalje. Ta
+  rezervacija je u ponoć nestala s liste.
 
-SADA
-----
-Svaka stavka se provjerava zasebno za period nastavka. Prenosi se samo ono
-čega stvarno ima; ostalo se izostavi i o tome se javi.
+  Vlasnik ima gosta pred sobom, a ugovor ne može odštampati jer
+  rezervacije nema na ekranu. Nema ni pretrage ni filtera da je nađe.
 
-VAŽAN DETALJ
-------------
-Oprema koju gost VEĆ drži ne računa se protiv njega.
+KAKO SADA RADI
+  Lista ide sedam dana unazad. Propuštena preuzimanja se prikazuju
+  narandžasto, s oznakom "Nije preuzeto".
 
-Originalni najam drži sjedalice do svog kraja, a nastavak počinje tačno u
-tom trenutku. Ta dva perioda se ne preklapaju, pa gost ne blokira sam
-sebe. Blokira ga samo tuđa rezervacija koja pada u novi period.
+  Zašto baš sedam dana: dovoljno da pokrije vikend i praznik, a dovoljno
+  kratko da lista ne postane groblje starih rezervacija. Ono od prije
+  dvije sedmice ionako više nije aktuelno.
 
-Primjer:
-  Ana ima 2 sjedalice do 13.09 u 10:00, produžava do 17.09
-  druga rezervacija traži 3 sjedalice od 14.09
-  ukupno na stanju 4
+=======================================================================
+2) ZABORAVLJENO "IZDAJ VOZILO" JE ZAKLJUČAVALO POVRAT
+=======================================================================
+PRIMJER
+  Gužva je, gost žuri, vlasnik mu da ključeve i ne stigne kliknuti
+  "Izdaj vozilo". Rezervacija ostaje "Potvrđeno".
 
-  -> Anine sjedalice isteknu tačno kad nastavak počinje, ne smetaju
-  -> ali tuđa rezervacija od 14.09 zauzima 3 od 4
-  -> Ani ostaje 1, a treba joj 2 -> ne prenosi se
+  Sedam dana kasnije gost vraća auto.
 
-  Da je tražila nastavak samo do 13.09 u 20:00, prenijelo bi se sve.
+ŠTA SE DEŠAVALO
+  Dugme "Završi najam" prikazivalo se samo za najmove u statusu "U toku".
+  Pošto izdavanje nije zabilježeno, dugmeta nema.
 
-GDJE SE VIDI
-------------
-PRIJE klika, u samom upozorenju:
-  "Za produženi period nema: Dječija sjedalica, GPS navigacija.
-   Nastavak će biti napravljen bez toga."
+  Najam se nije mogao zatvoriti. Vozilo ostaje zauzeto, ne može se izdati
+  sljedećem gostu, a vlasnik ne zna zašto.
 
-POSLIJE spremanja, u poruci na vrhu:
-  "Nastavak je kreiran, ali dio opreme nije bio slobodan za te datume.
-   Nije preneseno: Dječija sjedalica"
+  Izlaz je postojao: ući u Uredi, ručno promijeniti status u "U toku",
+  sačuvati, pa tek onda završiti najam. Tri koraka koje niko neće
+  pogoditi sam.
 
-Namjerno se javlja na oba mjesta. Prije, da vlasnik zna šta da kaže gostu
-dok je još na telefonu. Poslije, da mu ne promakne ako je kliknuo brzo.
+KAKO SADA RADI
+  Dugme se prikazuje i za potvrđene rezervacije čije je vrijeme
+  preuzimanja prošlo. U prozoru stoji napomena:
 
-ZAŠTO SE NE ODBIJA CIJELI NASTAVAK
-----------------------------------
-Zamjena vozila je već dogovorena s gostom; odbiti je zbog jedne sjedalice
-bi bilo gore od toga da se najam napravi i gost obavijesti. Vozilo je
-važnije od opreme, a oprema se često može nabaviti ili posuditi.
+    "Izdavanje ovog vozila nije zabilježeno. Zatvaranjem najma upisuje se
+     dogovoreno vrijeme preuzimanja."
+
+  Kao stvarno vrijeme preuzimanja upisuje se dogovoreni termin. To je
+  najbliža poštena procjena; izmišljati tačan sat bi bio lažan podatak u
+  evidenciji.
+
+  Rezervacije čije preuzimanje TEK DOLAZI i dalje se ne mogu zatvoriti,
+  jer auto nije ni izašao.
+
+=======================================================================
+3) BRISANJE VOZILA KOJE IMA REZERVACIJE
+=======================================================================
+PRIMJER
+  Vlasnik prodaje Passat i briše ga iz sistema. Na njemu ima potvrđenu
+  rezervaciju za sljedeću sedmicu.
+
+ŠTA SE DEŠAVALO
+  Vozilo se obrisalo bez ijedne riječi. Rezervacija je preživjela, ali
+  je ostala bez auta, i to tiho:
+
+    - prestala je blokirati taj termin, pa se drugi auto mogao dvaput
+      obećati bez upozorenja
+    - i dalje je brojala prihod u analitici
+    - dugme "Izdaj vozilo" i dalje se nudilo, za vozilo kojeg nema
+
+  Vlasnik bi to otkrio tek kad gost dođe po auto koji je prodat.
+
+KAKO SADA RADI
+  Prije brisanja se broje aktivne i nadolazeće rezervacije. Ako ih ima,
+  brisanje se odbija uz poruku:
+
+    "Vozilo nije obrisano: ima 1 aktivnu ili nadolazeću rezervaciju.
+     Otkažite ih ili prebacite na drugo vozilo, ili vozilo samo isključite
+     iz ponude."
+
+  Završene i otkazane rezervacije ne blokiraju brisanje, jer one ništa i
+  ne drže.
+
+  Napomena u poruci o isključivanju iz ponude je namjerna: u većini
+  slučajeva to je ono što vlasnik zapravo želi. Vozilo nestane sa sajta,
+  a istorija najmova ostane.
+
+PROVJERENO
+  ugovori: propušteno preuzimanje se vidi i označeno je,
+           ono starije od sedmice ispada
+  povrat:  izdato -> može, zaboravljeno izdavanje -> može,
+           preuzimanje tek dolazi -> ne može, neodobren upit -> ne može
+  brisanje: 1 nadolazeća -> odbijeno; završene i otkazane -> ne smetaju
 
 FAJLOVI
 -------
-  app/admin/extend-actions.ts           (provjera po stavkama)
-  components/admin/EditInquiryForm.tsx  (upozorenje prije klika)
-  app/admin/page.tsx                    (poruka poslije)
+  app/admin/ugovori/page.tsx                     (sedam dana unazad)
+  components/admin/handover/ReservationList.tsx  (oznaka)
+  components/admin/handover/types.ts             (polje oznake)
+  app/admin/checkout-actions.ts                  (povrat bez izdavanja)
+  components/admin/FinishRentalButton.tsx        (napomena)
+  app/admin/page.tsx                             (kada se dugme vidi)
+  app/admin/vozila/actions.ts                    (provjera pri brisanju)
+  app/admin/vozila/page.tsx                      (poruka)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run build
 3. npm run dev
-   - napravi najam s opremom, pa rezerviši tu istu opremu za dane poslije
-   - produži prvi najam u te dane i pokušaj nastavak
-   - mora upozoriti prije klika i javiti poslije spremanja
+   - napravi rezervaciju s preuzimanjem jučer -> mora biti u Ugovorima
+   - na njoj klikni "Završi najam" -> mora raditi uz napomenu
+   - pokušaj obrisati vozilo s nadolazećom rezervacijom -> mora odbiti

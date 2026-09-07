@@ -51,7 +51,9 @@ export function ReservationList({
               className={`w-full rounded-xl border p-3 text-left transition-colors ${
                 active
                   ? "border-brand bg-brand/[0.06]"
-                  : "border-border bg-surface hover:border-brand/50"
+                  : r.overdue
+                    ? "border-amber-500/50 bg-amber-500/[0.06] hover:border-amber-500"
+                    : "border-border bg-surface hover:border-brand/50"
               }`}
             >
               <div className="flex items-baseline gap-2">
@@ -59,6 +61,11 @@ export function ReservationList({
                   {time}
                 </span>
                 <span className="text-xs text-muted-foreground">{date}</span>
+                {r.overdue && (
+                  <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-400">
+                    Nije preuzeto
+                  </span>
+                )}
               </div>
 
               <p className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-foreground">

@@ -13,6 +13,11 @@ export default async function AdminHandoverPage() {
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
 
+  // A week back as well, because a guest who was due yesterday and turned up
+  // today still needs a contract. Cutting the list off at midnight made those
+  // disappear with no way to reach them from this screen.
+  const weekAgo = new Date(startOfToday.getTime() - 7 * 86_400_000);
+
   // Issuer details for the contract header, with the same fallback the rest of
   // the site uses so a contract is never printed without them.
   const company = await getCompany();
@@ -31,7 +36,7 @@ export default async function AdminHandoverPage() {
     const rows = await prisma.inquiry.findMany({
       // Confirmed only: once a car is handed over the contract is already signed,
       // so an in-progress rental has no place on the handover list.
-      where: { status: "CONFIRMED", pickupAt: { gte: startOfToday } },
+      where: { status: "CONFIRMED", pickupAt: { gte: weekAgo } },
       orderBy: { pickupAt: "asc" },
       take: 100,
       include: {
@@ -55,6 +60,9 @@ export default async function AdminHandoverPage() {
       pickupLocation: r.pickupLocation?.name ?? "",
       returnLocation: r.returnLocation?.name ?? "",
       rentalDays: r.rentalDays ?? 1,
+      // Flags a pickup whose hour has already passed, so it reads as something
+      // outstanding rather than as tomorrow's work.
+      overdue: r.pickupAt < new Date(),
       totalPrice: r.totalPrice != null ? Number(r.totalPrice) : null,
       extras: r.extras.map((e) => ({ name: e.nameHr, qty: e.qty })),
     }));

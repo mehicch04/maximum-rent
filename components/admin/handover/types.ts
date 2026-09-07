@@ -12,6 +12,8 @@ export type HandoverItem = {
   pickupLocation: string;
   returnLocation: string;
   rentalDays: number;
+  /** Pickup time already passed and the car has not gone out. */
+  overdue?: boolean;
   totalPrice: number | null;
   extras: { name: string; qty: number }[];
 };

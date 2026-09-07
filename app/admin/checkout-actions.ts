@@ -75,9 +75,19 @@ export async function finishRental(formData: FormData) {
   });
   if (!inquiry) redirect("/admin?msg=error");
 
-  // Only a rental that is actually out can be returned. Closing anything else
-  // would free a car that was never handed over.
-  if (inquiry.status !== "IN_PROGRESS") redirect("/admin?msg=notactive");
+  /**
+   * A rental can be closed if the car is out, or if it should have gone out by
+   * now and somebody forgot to press the button.
+   *
+   * Refusing the second case left the owner stuck: the guest is standing there
+   * with the keys, the rental cannot be closed, and the only way forward is to
+   * change the status by hand in a form they have no reason to open.
+   */
+  const startedOrDue =
+    inquiry.status === "IN_PROGRESS" ||
+    (inquiry.status === "CONFIRMED" && inquiry.pickupAt <= new Date());
+
+  if (!startedOrDue) redirect("/admin?msg=notactive");
 
   const pick = <T extends readonly string[]>(raw: string, allowed: T) =>
     (allowed as readonly string[]).includes(raw) ? raw : null;
@@ -109,6 +119,9 @@ export async function finishRental(formData: FormData) {
     data: {
       status: "COMPLETED",
       actualDropOffTime: new Date(),
+      // Left alone if handover was recorded. When it was skipped, the agreed
+      // hour is the closest honest guess; inventing a time would be worse.
+      actualPickUpTime: inquiry.actualPickUpTime ?? inquiry.pickupAt,
       returnFuel,
       depositStatus,
       extraCharge,

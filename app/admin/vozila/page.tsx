@@ -7,7 +7,18 @@ import type { LiveStatus } from "@/components/admin/VehicleManager";
 
 export const dynamic = "force-dynamic";
 
-export default async function VehiclesPage() {
+type SearchParams = Record<string, string | string[] | undefined>;
+
+export default async function VehiclesPage({
+  searchParams = {},
+}: {
+  searchParams?: Record<string, string | string[] | undefined>;
+}) {
+  const one = (v: string | string[] | undefined) =>
+    Array.isArray(v) ? v[0] : v;
+  const blocked =
+    one(searchParams.msg) === "hasbookings" ? one(searchParams.count) : null;
+
   const cars = await prisma.car.findMany({
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
   });
@@ -65,11 +76,23 @@ export default async function VehiclesPage() {
   }));
 
   return (
-    <VehicleManager
-      vehicles={vehicles}
-      saveAction={saveVehicle}
-      deleteAction={deleteVehicle}
-      live={live}
-    />
+    <>
+      {blocked && (
+        <div className="mb-4 rounded-xl border border-brand/40 bg-brand/[0.06] p-3 text-sm text-foreground">
+          Vozilo nije obrisano: ima {blocked}{" "}
+          {blocked === "1"
+            ? "aktivnu ili nadolazeću rezervaciju"
+            : "aktivnih ili nadolazećih rezervacija"}
+          . Otkažite ih ili prebacite na drugo vozilo, ili vozilo samo
+          isključite iz ponude.
+        </div>
+      )}
+      <VehicleManager
+        vehicles={vehicles}
+        saveAction={saveVehicle}
+        deleteAction={deleteVehicle}
+        live={live}
+      />
+    </>
   );
 }
