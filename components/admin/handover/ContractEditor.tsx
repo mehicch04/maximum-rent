@@ -147,6 +147,13 @@ export function ContractEditor({
 
   return (
     <div className="space-y-5">
+      {item.active && (
+        <p className="rounded-xl border border-border bg-surface-muted/60 px-3 py-2 text-xs text-muted-foreground">
+          Vozilo je već izdato ovom gostu. Ovo je ponovna štampa; izmjene ovdje
+          ne mijenjaju samu rezervaciju.
+        </p>
+      )}
+
       <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border pb-3">
         <div>
           <p className="font-display text-lg font-bold text-foreground">

@@ -1,62 +1,73 @@
-REZERVACIJA BEZ DODIJELJENOG VOZILA
-===================================
+PONOVNA ŠTAMPA UGOVORA
+======================
 
 Schema se NE mijenja. Samo: npm run build
 
 PROBLEM
 -------
-Gost pošalje opći upit, bez odabranog vozila. To je normalno: pita okvirno
-šta imate i po kojoj cijeni.
+Ekran Ugovori prikazivao je samo rezervacije koje čekaju preuzimanje. Čim
+biste pritisnuli "Izdaj vozilo", rezervacija bi nestala s tog ekrana.
 
-Vlasnik taj upit potvrdi, jer se dogovorio telefonom. I tada se pojavi
-dugme "Izdaj vozilo", iako rezervacija nema nikakav auto.
-
-Klik bi zabilježio izdavanje vozila kojeg nema. Isto je vrijedilo i za
-"Završi najam": nijedno dugme nije provjeravalo ima li rezervacija vozilo.
-
-Posljedica nije samo pogrešan zapis. Takva rezervacija se vodi kao aktivan
-najam, ali ne drži nijedno vozilo, pa se u analitici pojavljuje kao prihod
-za auto koji nikad nije izašao.
+Ako gost izgubi svoj primjerak, ako treba drugi za firmu, ili ako se ugovor
+zgužva u autu, nema ga gdje ponovo odštampati. Najam traje, gost je tu, a
+dokument je nedostupan.
 
 KAKO SADA RADI
 --------------
-Oba dugmeta se prikazuju tek kad rezervacija ima dodijeljeno vozilo.
+Lista je podijeljena na dvije grupe.
 
-Umjesto njih, na potvrđenoj rezervaciji bez vozila stoji uputa:
+  NADOLAZEĆA PREUZIMANJA
+  Ono što tek treba obaviti. Propuštena preuzimanja su narandžasta, kao i
+  do sada.
 
-  "Rezervacija nema dodijeljeno vozilo, pa se ne može izdati ni zatvoriti.
-   Odaberite vozilo kroz Uredi."
+  VEĆ IZDATO
+  Vozila koja su trenutno kod gostiju. Prikazana blijeđe i na dnu, uz
+  napomenu:
 
-Uputa je namjerna. Dugme koje jednostavno nestane izgleda kao kvar, i
-vlasnik bi zvao da pita zašto mu se nešto ne prikazuje.
+    "Vozilo je kod gosta. Ovdje su samo da se ugovor može ponovo
+     odštampati."
 
-Uputa se ne prikazuje na upitima koji još čekaju odluku, jer je pitanje bez
-odabranog vozila tada sasvim uobičajeno.
+Kad odaberete takvu rezervaciju, u samom ugovoru na vrhu stoji:
 
-I NA SERVERU
-------------
-Obje akcije provjeravaju vozilo prije upisa i odbijaju zahtjev bez njega.
-Dugmad su skrivena, ali zahtjev se može poslati i mimo njih.
+  "Vozilo je već izdato ovom gostu. Ovo je ponovna štampa; izmjene ovdje
+   ne mijenjaju samu rezervaciju."
+
+ZAŠTO DVIJE GRUPE, A NE JEDAN POPIS
+-----------------------------------
+To su dva različita pitanja. Prvo je posao koji čeka, drugo je arhiva
+dohvata ruke. Da su pomiješani, jutarnja preuzimanja bi se izgubila među
+najmovima kojima ne treba ništa.
+
+Brojač u zaglavlju broji samo nadolazeća, iz istog razloga: ako piše
+"Nadolazeća preuzimanja (14)", a četiri su već izdata, broj laže.
+
+ZAVRŠENI NAJMOVI SE NE PRIKAZUJU
+--------------------------------
+Kad se najam zatvori, rezervacija odlazi s ovog ekrana. Ugovor za posao
+koji je gotov nema svrhu štampati, a lista bi za mjesec dana bila
+nepregledna. Sve o završenom najmu ostaje dostupno kroz "Pogledaj" na
+stranici Rezervacije.
 
 PROVJERENO
-  upit bez vozila         ništa se ne prikazuje
-  upit s vozilom          ništa (još nije potvrđen)
-  potvrđen bez vozila     uputa
-  potvrđen s vozilom      Izdaj vozilo, Završi najam
-  u toku bez vozila       uputa
-  u toku s vozilom        Završi najam
-  završen                 ništa
+  potvrđeno, preuzimanje danas        -> nadolazi
+  potvrđeno, preuzimanje bilo jučer   -> nadolazi, oznaka "Nije preuzeto"
+  u toku                              -> grupa "Već izdato"
+  završeno                            -> ne prikazuje se
+  starije od sedmice                  -> ne prikazuje se
+  brojač nadolazećih                  -> ne broji već izdata
 
 FAJLOVI
 -------
-  app/admin/checkout-actions.ts  (provjera na serveru)
-  app/admin/page.tsx             (dugmad i uputa)
+  app/admin/ugovori/page.tsx                     (uključeni najmovi u toku)
+  components/admin/handover/ReservationList.tsx  (dvije grupe)
+  components/admin/handover/types.ts             (oznaka)
+  components/admin/handover/HandoverBoard.tsx    (brojač)
+  components/admin/handover/ContractEditor.tsx   (napomena)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run build
-3. npm run dev -> /admin
-   - potvrdi upit koji nema odabrano vozilo
-   - umjesto dugmadi mora stajati uputa
-   - dodijeli mu vozilo kroz Uredi, dugmad se moraju pojaviti
+3. npm run dev -> /admin/ugovori
+   - izdaj neko vozilo, pa provjeri da se pojavilo u grupi "Već izdato"
+   - odaberi ga i preuzmi PDF: mora raditi, uz napomenu na vrhu

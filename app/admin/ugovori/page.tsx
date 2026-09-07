@@ -34,9 +34,17 @@ export default async function AdminHandoverPage() {
 
   try {
     const rows = await prisma.inquiry.findMany({
-      // Confirmed only: once a car is handed over the contract is already signed,
-      // so an in-progress rental has no place on the handover list.
-      where: { status: "CONFIRMED", pickupAt: { gte: weekAgo } },
+      /*
+       * Rentals already out are included too.
+       *
+       * The contract is signed at handover, but paper gets lost and guests ask
+       * for a second copy. Leaving them off meant a rental vanished from this
+       * screen the moment the keys moved, with nowhere left to reprint it.
+       */
+      where: {
+        status: { in: ["CONFIRMED", "IN_PROGRESS"] },
+        pickupAt: { gte: weekAgo },
+      },
       orderBy: { pickupAt: "asc" },
       take: 100,
       include: {
@@ -62,7 +70,9 @@ export default async function AdminHandoverPage() {
       rentalDays: r.rentalDays ?? 1,
       // Flags a pickup whose hour has already passed, so it reads as something
       // outstanding rather than as tomorrow's work.
-      overdue: r.pickupAt < new Date(),
+      overdue: r.status === "CONFIRMED" && r.pickupAt < new Date(),
+      // Already handed over; kept only so the contract can be printed again.
+      active: r.status === "IN_PROGRESS",
       totalPrice: r.totalPrice != null ? Number(r.totalPrice) : null,
       extras: r.extras.map((e) => ({ name: e.nameHr, qty: e.qty })),
     }));

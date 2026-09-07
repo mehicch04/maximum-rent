@@ -27,7 +27,7 @@ export function HandoverBoard({
     <div className="grid gap-4 lg:grid-cols-10">
       <aside className="lg:col-span-3">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Nadolazeća preuzimanja ({items.length})
+          Nadolazeća preuzimanja ({items.filter((i) => !i.active).length})
         </p>
         {/* Capped height with its own scroll, so a long queue never pushes the
             contract off the screen. */}
