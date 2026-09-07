@@ -110,6 +110,9 @@ const fmtMoney = (n: number) => `${Math.round(n).toLocaleString("hr-HR")} KM`;
 /** Earns revenue. Cancelled and unanswered inquiries do not. */
 const EARNING = ["CONFIRMED", "IN_PROGRESS", "COMPLETED"] as const;
 
+/** Statuses that keep a vehicle tied up. */
+const HOLDING = ["CONFIRMED", "IN_PROGRESS"] as const;
+
 /**
  * Which vehicles count as the fleet for reporting.
  *
@@ -127,7 +130,9 @@ function fleetWhere(now: Date) {
         isAvailable: false,
         inquiries: {
           some: {
-            status: { in: ["CONFIRMED", "IN_PROGRESS"] as const },
+            // Spread rather than the const tuple itself: Prisma expects a
+            // mutable array and rejects a readonly one outright.
+            status: { in: [...HOLDING] },
             returnAt: { gte: now },
           },
         },

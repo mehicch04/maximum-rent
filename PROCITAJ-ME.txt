@@ -1,92 +1,43 @@
-KUMULATIVNA POPRAVKA — sve od zadnjeg ispravnog builda
-======================================================
+POPRAVKA BUILDA — readonly niz u upitu
+======================================
 
-*** OBAVEZNO: prisma generate && prisma db push, pa npm run build ***
+Schema se NE mijenja. Samo: npm run build
 
-ZAŠTO KUMULATIVNO
------------------
-Build je pukao kod izmjene "upozorenje za povuceno vozilo", a poslije toga
-je otišlo još nekoliko pusheva. Umjesto da tražite koji ste zip primijenili
-a koji niste, ovdje je SVE u jednom, u ispravnom stanju.
+GREŠKA
+------
+  Type 'readonly ["CONFIRMED", "IN_PROGRESS"]' is readonly and cannot be
+  assigned to the mutable type 'InquiryStatus[]'
 
-Raspakujte preko projekta i sve je usklađeno.
+UZROK
+-----
+Popis statusa u novom uvjetu za flotu napisao sam s oznakom "as const".
+Ta oznaka niz čini nepromjenjivim, a Prisma na tom mjestu prima samo
+običan niz i odbija nepromjenjivi.
 
-GREŠKA KOJA JE OBORILA BUILD
-----------------------------
-  Property 'isAvailable' does not exist on type '{ title; plate }'
+Isti popis se drugdje u istom fajlu koristi ISPRAVNO, kroz raspakivanje:
 
-Kartica rezervacije je čitala podatak je li vozilo u ponudi, a upit prema
-bazi taj podatak nije dohvatao. Dopunio sam upit.
+    status: { in: [...EARNING] }
 
-Ista vrsta greške kao ranije s vremenom preuzimanja. Zato sam ovaj put
-prošao kroz SVE upite u projektu i uporedio dohvaćena polja s onima koja
-se stvarno koriste. Sve ostalo je pokriveno.
+Ja sam ovdje napisao "as const" direktno u upitu i propustio to
+raspakivanje.
 
-ŠTA JE SVE U PAKETU
--------------------
-1) POVUČENO VOZILO
-   Upozorenje pri potvrdi upita za vozilo koje je izvan ponude, na kartici
-   i u prozoru potvrde. Potvrda i dalje prolazi.
+POPRAVKA
+--------
+Popis je izdvojen u konstantu, kao i EARNING, i raspakuje se pri upotrebi:
 
-   Izbornik u "Uredi" sada sadrži i povučena vozila, s oznakom
-   "(nije u ponudi)". Ranije bi se vozilo tiho zamijenilo pri spremanju.
+    const HOLDING = ["CONFIRMED", "IN_PROGRESS"] as const;
+    ...
+    status: { in: [...HOLDING] }
 
-   Obrazac za novu rezervaciju ih ne nudi.
-
-2) POVUČENO VOZILO KOJE JE KOD GOSTA
-   Ostaje u izvještajima dok se najam ne zatvori. Ranije je nestajalo, pa
-   je iskoristivost flote skakala sama od sebe i auto se nije vidio nigdje.
-   U statusu flote piše "povučeno iz ponude".
-
-3) IZDAVANJE I POVRAT SAMO S VOZILOM
-   Rezervacija bez dodijeljenog vozila više ne nudi ta dugmad, nego uputu
-   da se prvo odabere vozilo. Provjerava se i na serveru.
-
-4) PONOVNA ŠTAMPA UGOVORA
-   Ekran Ugovori sada ima i grupu "Već izdato", da se ugovor može ponovo
-   odštampati kad gost izgubi primjerak.
-
-5) ISTEKLE REZERVACIJE ODVOJENE OD OTKAZANIH
-   Isticanje se bilježi u zasebno polje. U listi stoji oznaka "Isteklo",
-   a razlog obnove više ne prepisuje trag da je bilo isteklo.
-
-6) ZAŠTITA PRI BRISANJU VOZILA
-   Vozilo s aktivnim ili nadolazećim rezervacijama se ne briše, uz poruku.
-
-IZMJENA BAZE
-------------
-Dodaje se polje "expiredAt" na rezervaciju. Provjerio sam da ga ranije
-nije bilo.
+Prošao sam kroz cijeli projekat i provjerio ima li još upita s
+nepromjenjivim nizom. Nema ih.
 
 FAJLOVI
 -------
-  prisma/schema.prisma
   lib/analytics.ts
-  app/admin/page.tsx
-  app/admin/checkout-actions.ts
-  app/admin/ugovori/page.tsx
-  app/admin/vozila/page.tsx, actions.ts
-  app/api/cron/cleanup/route.ts
-  components/admin/VehicleManager.tsx
-  components/admin/ReservationDetail.tsx
-  components/admin/EditInquiryForm.tsx
-  components/admin/SearchBox.tsx
-  components/admin/handover/  (svi)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npx prisma generate
-3. npx prisma db push
-4. npm run build          <-- OBAVEZNO PRIČEKAJTE DA PROĐE
-5. npm run dev, provjerite:
-   - /admin se otvara
-   - upit za povučeno vozilo ima narandžasto upozorenje
-   - /admin/ugovori ima grupu "Već izdato"
-   - /admin/analitika radi
-6. Tek onda git push.
-
-SAVJET ZA UBUDUĆE
------------------
-Pokrenite "npm run build" lokalno prije svakog pusha. Traje minutu, a hvata
-ovakve greške prije nego stignu na Vercel.
+2. npm run build          <-- mora proći
+3. npm run dev -> /admin/analitika mora raditi
