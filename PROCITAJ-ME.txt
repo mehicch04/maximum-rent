@@ -1,82 +1,69 @@
-TRI POPRAVKE IZ PREGLEDA
-========================
+OPREMA PRI PRODUŽETKU — provjera dostupnosti
+============================================
 
 Schema se NE mijenja. Samo: npm run build
 
-=======================================================================
-1) SEZONSKA CIJENA SE NIJE PRIMJENJIVALA PRI SPREMANJU  (najvažnije)
-=======================================================================
-Sajt je gostu prikazivao sezonsku cijenu, ali svako mjesto koje je cijenu
-SPREMALO čitalo je redovnu iz baze.
+ODGOVOR NA PITANJE
+------------------
+Do sada NE. Oprema se prepisivala naslijepo, bez ijedne provjere.
 
-Tokom sezone: gost vidi 130 KM po danu, a u mejlu, u bazi i u analitici
-završi 100 KM. Tiho manjak prihoda, svaki dan dok je sezona uključena.
+To je značilo da gost zadrži sjedalicu koja je za te nove datume već
+obećana nekom drugom. Sistem bi je vodio kao izdatu dvaput.
 
-Popravljeno na sedam mjesta, ali kroz JEDNU funkciju (lib/pricing.ts), ne
-sedam kopija istog računa. Sada:
+SADA
+----
+Svaka stavka se provjerava zasebno za period nastavka. Prenosi se samo ono
+čega stvarno ima; ostalo se izostavi i o tome se javi.
 
-  javni upit sa sajta          sezonska
-  nova manuelna rezervacija    sezonska
-  uređivanje rezervacije       sezonska
-  nastavak najma               sezonska
-  oba obrasca u pregledniku    sezonska
+VAŽAN DETALJ
+------------
+Oprema koju gost VEĆ drži ne računa se protiv njega.
 
-Obrasci sada prikazuju isti iznos koji će server spremiti. Ranije su i oni
-računali po redovnoj, pa se prikaz i zapis nisu poklapali.
+Originalni najam drži sjedalice do svog kraja, a nastavak počinje tačno u
+tom trenutku. Ta dva perioda se ne preklapaju, pa gost ne blokira sam
+sebe. Blokira ga samo tuđa rezervacija koja pada u novi period.
 
-Vozilo bez unesene sezonske cijene zadržava redovnu, kao i do sada.
+Primjer:
+  Ana ima 2 sjedalice do 13.09 u 10:00, produžava do 17.09
+  druga rezervacija traži 3 sjedalice od 14.09
+  ukupno na stanju 4
 
-=======================================================================
-2) NASTAVAK NAJMA NIJE PRENOSIO OPREMU
-=======================================================================
-Gost ima dvije dječije sjedalice, zamijeni vozilo, sjedalice idu s njim.
-Nastavak ih nije bilježio, pa je sistem mislio da su na polici i mogao ih
-obećati drugom gostu.
+  -> Anine sjedalice isteknu tačno kad nastavak počinje, ne smetaju
+  -> ali tuđa rezervacija od 14.09 zauzima 3 od 4
+  -> Ani ostaje 1, a treba joj 2 -> ne prenosi se
 
-Sada se prenose na novu rezervaciju, s istim količinama i cijenama.
+  Da je tražila nastavak samo do 13.09 u 20:00, prenijelo bi se sve.
 
-Oprema koja je u međuvremenu obrisana iz kataloga se preskače, jer joj
-nema šta ni prenijeti.
+GDJE SE VIDI
+------------
+PRIJE klika, u samom upozorenju:
+  "Za produženi period nema: Dječija sjedalica, GPS navigacija.
+   Nastavak će biti napravljen bez toga."
 
-=======================================================================
-3) RUPA ILI PREKLAPANJE IZMEĐU DVA NAJMA
-=======================================================================
-Ako poslije zamjene vozila skratite ili produžite ORIGINAL, nastavak je
-i dalje počinjao na starom datumu. Ranije je stajao samo savjet da
-provjerite; sada se računa dok kucate:
+POSLIJE spremanja, u poruci na vrhu:
+  "Nastavak je kreiran, ali dio opreme nije bio slobodan za te datume.
+   Nije preneseno: Dječija sjedalica"
 
-  original skraćen   -> "Gost ostaje bez vozila 1 dana između ovog
-                         najma i nastavka."
-  original produžen  -> "Ovaj najam se preklapa s nastavkom 2 dana.
-                         Gost bi imao dva vozila istovremeno."
-  usklađeno          -> ništa se ne prikazuje
+Namjerno se javlja na oba mjesta. Prije, da vlasnik zna šta da kaže gostu
+dok je još na telefonu. Poslije, da mu ne promakne ako je kliknuo brzo.
 
-Uz poruku stoji broj rezervacije koju treba uskladiti.
-
-PROVJERENO
-  sezona uključena:  5 dana × 130 = 650 KM
-  sezona isključena: 5 dana × 100 = 500 KM
-  vozilo bez sezonske cijene: zadržava redovnu
-  oprema: prenosi se, obrisane stavke se preskaču
-  rupa 1 dan, preklapanje 2 dana, usklađeno -> sve tri poruke tačne
+ZAŠTO SE NE ODBIJA CIJELI NASTAVAK
+----------------------------------
+Zamjena vozila je već dogovorena s gostom; odbiti je zbog jedne sjedalice
+bi bilo gore od toga da se najam napravi i gost obavijesti. Vozilo je
+važnije od opreme, a oprema se često može nabaviti ili posuditi.
 
 FAJLOVI
 -------
-  lib/pricing.ts                        (NOVO — jedna funkcija za cijenu)
-  app/api/inquiries/route.ts            (javni upit)
-  app/admin/new-reservation-actions.ts  (nova rezervacija)
-  app/admin/edit-actions.ts             (uređivanje)
-  app/admin/extend-actions.ts           (nastavak + oprema)
-  app/admin/page.tsx                    (obrasci dobijaju sezonsku)
-  components/admin/EditInquiryForm.tsx  (rupa i preklapanje)
+  app/admin/extend-actions.ts           (provjera po stavkama)
+  components/admin/EditInquiryForm.tsx  (upozorenje prije klika)
+  app/admin/page.tsx                    (poruka poslije)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run build
 3. npm run dev
-   - /admin/firma -> uključi sezonske cijene
-   - napravi upit sa sajta i provjeri iznos u mejlu i u adminu:
-     mora biti sezonski, isti kao prikazani
-   - napravi nastavak najma s opremom i provjeri /admin/oprema
-   - skrati original i provjeri poruku o rupi
+   - napravi najam s opremom, pa rezerviši tu istu opremu za dane poslije
+   - produži prvi najam u te dane i pokušaj nastavak
+   - mora upozoriti prije klika i javiti poslije spremanja

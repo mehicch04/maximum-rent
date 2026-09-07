@@ -132,6 +132,10 @@ const MESSAGES: Record<string, { text: string; tone: "ok" | "warn" | "err" }> =
     text: "Nastavak najma je kreiran na drugom vozilu.",
     tone: "ok",
   },
+  continuedpartial: {
+    text: "Nastavak je kreiran, ali dio opreme nije bio slobodan za te datume.",
+    tone: "warn",
+  },
   finished: {
     text: "Najam je zatvoren. Vozilo i oprema su ponovo slobodni.",
     tone: "ok",
@@ -180,6 +184,7 @@ export default async function AdminPage({
     RANGES.some((r) => r.id === rangeRaw) ? rangeRaw : "all"
   ) as Range;
   const msg = MESSAGES[one(searchParams.msg) ?? ""];
+  const missingExtras = one(searchParams.missing);
 
   const rangeMs = RANGES.find((r) => r.id === range)?.ms ?? null;
   const createdAtWhere = rangeMs
@@ -329,6 +334,11 @@ export default async function AdminPage({
           }`}
         >
           {msg.text}
+          {missingExtras && (
+            <span className="mt-0.5 block text-xs opacity-90">
+              Nije preneseno: {missingExtras}
+            </span>
+          )}
         </div>
       )}
 

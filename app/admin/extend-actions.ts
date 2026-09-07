@@ -8,6 +8,11 @@ import { ADMIN_COOKIE, tokenValid } from "@/lib/admin-auth";
 import { REF_PREFIX, withUniqueReference } from "@/lib/reference";
 import { rentalDays } from "@/lib/extras";
 import { rentalTotal } from "@/lib/pricing";
+import {
+  availabilityFor,
+  getBookedExtras,
+  maxSelectable,
+} from "@/lib/extras-availability";
 
 /**
  * Continuing a rental on a different vehicle.
@@ -70,19 +75,56 @@ export async function createContinuation(formData: FormData) {
     select: { title: true, pricePerDay: true, seasonalPrice: true },
   });
 
-  // Equipment travels with the guest, not with the car: the child seats move
-  // into the new vehicle. Leaving them off the continuation would put them
-  // back on the shelf while they are strapped into somebody's back seat.
-  const carriedExtras = source.extras
-    .filter((e) => e.extraId)
-    .map((e) => ({
-      extraId: e.extraId,
-      qty: e.qty,
-      nameHr: e.nameHr,
-      nameEn: e.nameEn,
-      pricing: e.pricing,
-      unitPrice: Number(e.unitPrice),
-    }));
+  /**
+   * Equipment travels with the guest, not with the car, so the child seats
+   * move into the new vehicle. But holding them for longer is a fresh claim on
+   * stock: the original booking releases them when it ends, and somebody else
+   * may already be promised them for the days that follow. Each item is
+   * checked against the continuation period and only carried over if it is
+   * genuinely free.
+   */
+  const wanted = source.extras.filter((e) => e.extraId);
+  const carriedExtras: {
+    extraId: string;
+    qty: number;
+    nameHr: string;
+    nameEn: string;
+    pricing: "PER_DAY" | "PER_RENTAL" | "INCLUDED";
+    unitPrice: number;
+  }[] = [];
+  const droppedExtras: string[] = [];
+
+  if (wanted.length > 0) {
+    const [stock, booked] = await Promise.all([
+      prisma.extra.findMany({
+        where: { id: { in: wanted.map((e) => e.extraId as string) } },
+        select: { id: true, maxQty: true, totalStock: true },
+      }),
+      getBookedExtras().catch(() => []),
+    ]);
+
+    // The source rental ends where this one begins, so its own hold never
+    // counts against it here.
+    const free = availabilityFor(stock, booked, pickupAt, returnAt);
+
+    for (const e of wanted) {
+      const item = stock.find((x) => x.id === e.extraId);
+      if (!item) continue;
+      const cap = maxSelectable(item.maxQty, free[item.id] ?? 0);
+      if (cap < e.qty) {
+        droppedExtras.push(e.nameHr);
+        continue;
+      }
+      carriedExtras.push({
+        extraId: e.extraId as string,
+        qty: e.qty,
+        nameHr: e.nameHr,
+        nameEn: e.nameEn,
+        pricing: e.pricing,
+        unitPrice: Number(e.unitPrice),
+      });
+    }
+  }
 
   const days = rentalDays(pickupAt, returnAt);
   const price = await rentalTotal(car, days);
@@ -120,5 +162,12 @@ export async function createContinuation(formData: FormData) {
   revalidateTag("fleet");
   revalidateTag("extras");
   revalidatePath("/admin", "layout");
+  // The owner has to know what did not come across, so they can tell the guest
+  // before they drive off expecting a seat that is not there.
+  if (droppedExtras.length > 0) {
+    redirect(
+      `/admin?msg=continuedpartial&missing=${encodeURIComponent(droppedExtras.join(", "))}`,
+    );
+  }
   redirect("/admin?msg=continued");
 }

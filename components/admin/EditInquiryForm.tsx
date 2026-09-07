@@ -567,6 +567,34 @@ export function EditInquiryForm({
                   ))}
                 </select>
 
+                {/* Checked here too, so the owner sees it before the guest
+                    is told they can keep everything. */}
+                {(() => {
+                  const start = new Date(inquiry.returnAt);
+                  const freeThen = availabilityFor(
+                    extras,
+                    booked.filter((b) => b.extraId),
+                    start,
+                    to,
+                  );
+                  const short = inquiry.extras
+                    .filter((e) => e.extraId)
+                    .map((e) => {
+                      const item = extras.find((x) => x.id === e.extraId);
+                      if (!item) return null;
+                      const cap = maxSelectable(item.maxQty, freeThen[item.id] ?? 0);
+                      return cap < e.qty ? item.nameHr : null;
+                    })
+                    .filter(Boolean) as string[];
+                  if (short.length === 0) return null;
+                  return (
+                    <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                      Za produženi period nema: {short.join(", ")}. Nastavak će
+                      biti napravljen bez toga.
+                    </p>
+                  );
+                })()}
+
                 <button
                   type="button"
                   disabled={!contCar}
