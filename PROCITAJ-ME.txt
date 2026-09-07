@@ -1,68 +1,48 @@
-AKTIVNI NAJMOVI — filter, upozorenja i brza akcija
-==================================================
+POPRAVKA BUILDA — brojač uz filter "Aktivne"
+============================================
 
 Schema se NE mijenja. Samo: npm run build
 
-ŠTO JE VEĆ POSTOJALO
---------------------
-Filter "Aktivne" i sortiranje po vremenu vraćanja bili su već uvedeni uz
-status "U toku". Provjerio sam ih: lista prikazuje samo aktivne, a poredana
-je tako da onaj kome prvi ističe vrijeme stoji na vrhu.
+GREŠKA
+------
+  Property 'active' is missing in type
+  '{ pending; confirmed; cancelled; all }'
 
-ŠTO JE DODANO SADA
-------------------
-1) ODBROJAVANJE UZ VRIJEME VRAĆANJA
-   Uz svaku aktivnu rezervaciju stoji sat i tekst:
+UZROK
+-----
+Uz filtere stoji broj rezervacija u svakoj grupi. Kad je dodan filter
+"Aktivne", u tu mapu brojeva nije dodan i njegov unos, pa je jedan filter
+postojao bez svog brojača.
 
-     Ističe za 3 h        sivo, ima vremena
-     Ističe za 30 min     narandžasto, manje od dva sata
-     Kasni 30 min         crveno
-     Kasni 1 dan          crveno
+POPRAVKA
+--------
+  active: broj rezervacija sa statusom "U toku"
 
-   Jedinica se bira sama: minute, sati, pa dani. "Kasni 1440 min" niko ne
-   čita, "Kasni 1 dan" se razumije odmah.
+ZAŠTO OVO NIJE UHVAĆENO KOD MENE
+--------------------------------
+Ovo je moj propust u načinu provjere, ne slučajnost.
 
-2) CRVENI NAGLASAK NA KARTICI
-   Kad vrijeme povrata prođe, cijela kartica dobija blagu crvenu pozadinu i
-   okvir. Dovoljno da se primijeti pri listanju, a da ne nadjača ostalo.
+U mom okruženju Prisma klijent se ne može generisati, pa provjera tipova
+izbaci sedamdesetak lažnih grešaka o Prisma tipovima. Da bih vidio prave,
+filtrirao sam ih po šifri greške. Problem je što je jedna od tih šifri
+(TS2322) ista ona pod kojom se prijavila i OVA stvarna greška, pa ju je
+moj filter sakrio zajedno sa šumom.
 
-3) DUGME "ZAVRŠI NAJAM"
-   Izvučeno na karticu, ne u meni. Za vozilo koje je vani to je jedina radnja
-   koju iko traži, a skriveno u meniju košta jedan klik na svakom povratu.
+Sada sam prošao kroz sve greške bez filtera i pregledao svaku pojedinačno.
+Preostalih dvadeset dvije su sve posljedica negenerisanog Prisma klijenta
+(nedostajući tipovi Car, CarClass, FuelType i slično) i kod tebe se ne
+pojavljuju.
 
-   Za sada ispisuje u konzolu; modal dolazi u idućem koraku.
-
-DETALJ KOJI JE MORAO BITI RIJEŠEN
----------------------------------
-Odbrojavanje se računa u pregledniku i osvježava svakih pola minute.
-
-Da se računalo na serveru, ostalo bi zamrznuto na trenutku učitavanja
-stranice: piše "Ističe za 5 min" i sat kasnije, dok gost odavno kasni. To
-je jedini podatak na ekranu koji zastarijeva dok ga neko gleda.
-
-Prvo računanje ide tek nakon učitavanja, da se server i preglednik ne
-razilaze oko toga koliko je sati.
-
-PROVJERENO
-  za 30 min    -> Ističe za 30 min, narandžasto
-  za 1h 45m    -> Ističe za 2 h, narandžasto
-  za 3 h       -> Ističe za 3 h, sivo
-  za 2 dana    -> Ističe za 2 dana, sivo
-  kasni 30 min -> Kasni 30 min, crveno
-  kasni 1 dan  -> Kasni 1 dan, crveno
+Ubuduće ću provjeravati bez prečica, pogotovo nakon dodavanja novog
+statusa ili filtera, jer se tada mape ovog tipa najlakše zaborave.
 
 FAJLOVI
 -------
-  components/admin/DueBadge.tsx            (NOVO — odbrojavanje)
-  components/admin/FinishRentalButton.tsx  (NOVO — brza akcija)
-  app/admin/page.tsx                       (naglasak, oznaka, dugme)
+  app/admin/page.tsx
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build
+2. npm run build          <-- mora proći
 3. npm run dev -> /admin
-   - klikni filter "Aktivne"
-   - izdaj neko vozilo s vremenom vraćanja u prošlosti pa provjeri
-     crveni naglasak i tekst "Kasni ..."
-   - klikni "Završi najam" i pogledaj konzolu preglednika
+   - filter "Aktivne" mora imati broj pored sebe

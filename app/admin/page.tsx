@@ -245,6 +245,7 @@ export default async function AdminPage({
   const filterCount: Record<Filter, number> = {
     pending: pendingCount,
     confirmed: countByStatus.get("CONFIRMED") ?? 0,
+    active: countByStatus.get("IN_PROGRESS") ?? 0,
     cancelled:
       (countByStatus.get("CANCELLED") ?? 0) +
       (countByStatus.get("COMPLETED") ?? 0),
