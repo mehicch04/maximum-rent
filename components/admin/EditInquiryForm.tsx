@@ -110,6 +110,17 @@ export function EditInquiryForm({
   const isRestoring = inquiry.status === "CANCELLED" && status === "CONFIRMED";
 
   /**
+   * Taking a rental that is already out and putting it back a step.
+   *
+   * The car is physically with the guest, so this only makes sense if the
+   * handover was recorded by mistake. Worth saying out loud rather than
+   * letting it happen with one click of a dropdown.
+   */
+  const undoingHandover =
+    inquiry.status === "IN_PROGRESS" &&
+    (status === "CONFIRMED" || status === "CONTACTED" || status === "NEW");
+
+  /**
    * Vehicles taken for these dates.
    *
    * This reservation is skipped: while it is confirmed it holds the car
@@ -194,6 +205,7 @@ export function EditInquiryForm({
             <option value="NEW">Novo</option>
             <option value="CONTACTED">Kontaktiran</option>
             <option value="CONFIRMED">Potvrđeno</option>
+            <option value="IN_PROGRESS">U toku (vozilo kod klijenta)</option>
             <option value="CANCELLED">Otkazano</option>
             <option value="COMPLETED">Završeno</option>
           </select>
@@ -240,6 +252,20 @@ export function EditInquiryForm({
             placeholder="npr. gost se ponovo javio i potvrdio termin"
             className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-ring/30"
           />
+        </div>
+      )}
+
+      {undoingHandover && (
+        <div className="rounded-xl border border-amber-500/50 bg-amber-500/[0.07] p-4">
+          <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
+            <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+            Vraćate najam koji je već u toku
+          </p>
+          <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+            Vozilo je izdato i vodi se kod klijenta. Ovo mijenjajte samo ako je
+            izdavanje zabilježeno greškom. Vozilo ostaje zauzeto u ovom terminu
+            u oba slučaja.
+          </p>
         </div>
       )}
 

@@ -1,48 +1,69 @@
-POPRAVKA BUILDA — brojač uz filter "Aktivne"
-============================================
+POPRAVKA — aktivna rezervacija je ispadala iz aktivnih
+=====================================================
 
 Schema se NE mijenja. Samo: npm run build
 
-GREŠKA
-------
-  Property 'active' is missing in type
-  '{ pending; confirmed; cancelled; all }'
+ŠTA SE DEŠAVALO
+---------------
+Uredite rezervaciju kojoj je vozilo već izdato, sačuvate, i ona se vrati
+među potvrđene iako je auto i dalje kod klijenta.
 
 UZROK
 -----
-Uz filtere stoji broj rezervacija u svakoj grupi. Kad je dodan filter
-"Aktivne", u tu mapu brojeva nije dodan i njegov unos, pa je jedan filter
-postojao bez svog brojača.
+Izbornik statusa u obrascu nije imao opciju "U toku". Kad se otvori aktivna
+rezervacija, izbornik nije mogao prikazati njeno stvarno stanje, pa je pri
+spremanju poslao neku drugu vrijednost.
 
-POPRAVKA
---------
-  active: broj rezervacija sa statusom "U toku"
+Server je imao isti propust: u popisu dozvoljenih statusa "U toku" nije
+postojao, pa ga ne bi ni prihvatio da je poslan.
 
-ZAŠTO OVO NIJE UHVAĆENO KOD MENE
---------------------------------
-Ovo je moj propust u načinu provjere, ne slučajnost.
+POPRAVLJENO
+-----------
+Status "U toku (vozilo kod klijenta)" sada postoji i u izborniku i na
+serveru. Kad uređujete aktivnu rezervaciju, izbornik pokazuje njeno stvarno
+stanje i ona OSTAJE aktivna nakon spremanja.
 
-U mom okruženju Prisma klijent se ne može generisati, pa provjera tipova
-izbaci sedamdesetak lažnih grešaka o Prisma tipovima. Da bih vidio prave,
-filtrirao sam ih po šifri greške. Problem je što je jedna od tih šifri
-(TS2322) ista ona pod kojom se prijavila i OVA stvarna greška, pa ju je
-moj filter sakrio zajedno sa šumom.
+Ako je želite vratiti u potvrđene, to i dalje možete: samo odaberite drugi
+status u izborniku. Razlika je što se sada to dešava kad vi tako odlučite, a
+ne samo od sebe.
 
-Sada sam prošao kroz sve greške bez filtera i pregledao svaku pojedinačno.
-Preostalih dvadeset dvije su sve posljedica negenerisanog Prisma klijenta
-(nedostajući tipovi Car, CarClass, FuelType i slično) i kod tebe se ne
-pojavljuju.
+UPOZORENJE PRI VRAĆANJU UNAZAD
+------------------------------
+Ako aktivnu rezervaciju vratite u potvrđene, kontaktirane ili nove, iskoči
+narandžasto upozorenje:
 
-Ubuduće ću provjeravati bez prečica, pogotovo nakon dodavanja novog
-statusa ili filtera, jer se tada mape ovog tipa najlakše zaborave.
+  "Vraćate najam koji je već u toku. Vozilo je izdato i vodi se kod klijenta.
+   Ovo mijenjajte samo ako je izdavanje zabilježeno greškom."
+
+Nije zabrana, samo napomena. Postoje slučajevi kad je izdavanje kliknuto
+greškom i treba ga poništiti.
+
+USPUT POPRAVLJENO
+-----------------
+Provjera sudara pri uređivanju gledala je samo potvrđene rezervacije. Sada
+obuhvata i one u toku, pa se vozilo koje je kod klijenta ne može dodijeliti
+nekom drugom kroz obrazac za uređivanje.
+
+Provjerio sam i da se popis opcija u obrascu i popis dozvoljenih statusa na
+serveru potpuno poklapaju, jer je upravo njihov nesklad i bio uzrok.
+
+PROVJERENO
+  aktivna, ništa se ne dira        -> ostaje aktivna
+  aktivna, namjerno u potvrđene    -> prelazi, uz upozorenje
+  aktivna -> završeno              -> prelazi
+  potvrđena -> u toku              -> prelazi
+  podmetnuta nepostojeća vrijednost -> zadržava se postojeći status
 
 FAJLOVI
 -------
-  app/admin/page.tsx
+  components/admin/EditInquiryForm.tsx  (opcija i upozorenje)
+  app/admin/edit-actions.ts             (dozvoljeni statusi, provjera sudara)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build          <-- mora proći
-3. npm run dev -> /admin
-   - filter "Aktivne" mora imati broj pored sebe
+2. npm run build
+3. npm run dev -> /admin -> filter "Aktivne"
+   - uredi aktivnu rezervaciju i sačuvaj bez diranja statusa
+   - mora ostati u tabu "Aktivne"
+   - zatim probaj namjerno prebaciti u "Potvrđeno" i provjeri upozorenje

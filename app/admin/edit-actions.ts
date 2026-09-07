@@ -37,7 +37,17 @@ export async function updateInquiry(formData: FormData) {
   });
   if (!existing) redirect("/admin?msg=error");
 
-  const STATUSES = ["NEW", "CONTACTED", "CONFIRMED", "CANCELLED", "COMPLETED"] as const;
+  // IN_PROGRESS belongs here too. While it was missing, editing a rental that
+  // was already handed over sent a status the server did not recognise, and the
+  // reservation quietly dropped back to confirmed — with the car still out.
+  const STATUSES = [
+    "NEW",
+    "CONTACTED",
+    "CONFIRMED",
+    "IN_PROGRESS",
+    "CANCELLED",
+    "COMPLETED",
+  ] as const;
   const rawStatus = str(formData, "status");
   const status = (STATUSES as readonly string[]).includes(rawStatus)
     ? (rawStatus as (typeof STATUSES)[number])
@@ -67,7 +77,7 @@ export async function updateInquiry(formData: FormData) {
   // otherwise a booking would always report a clash with itself.
   // The clash check runs whenever the reservation will hold a vehicle: either
   // it already does, or it is about to because it is being confirmed now.
-  if (carId && status === "CONFIRMED") {
+  if (carId && (status === "CONFIRMED" || status === "IN_PROGRESS")) {
     const [clashes, blocks] = await Promise.all([
       prisma.inquiry.count({
         where: {
