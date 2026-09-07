@@ -110,6 +110,32 @@ const fmtMoney = (n: number) => `${Math.round(n).toLocaleString("hr-HR")} KM`;
 /** Earns revenue. Cancelled and unanswered inquiries do not. */
 const EARNING = ["CONFIRMED", "IN_PROGRESS", "COMPLETED"] as const;
 
+/**
+ * Which vehicles count as the fleet for reporting.
+ *
+ * Cars in the offer, plus any withdrawn car that still has a rental running or
+ * booked. A car being sold is off the website, but while a guest is driving it
+ * it is still part of what the business has on the road: dropping it made the
+ * utilisation figure jump on its own and hid the car from the fleet chart
+ * while it was physically out.
+ */
+function fleetWhere(now: Date) {
+  return {
+    OR: [
+      { isAvailable: true },
+      {
+        isAvailable: false,
+        inquiries: {
+          some: {
+            status: { in: ["CONFIRMED", "IN_PROGRESS"] as const },
+            returnAt: { gte: now },
+          },
+        },
+      },
+    ],
+  };
+}
+
 // ---------------------------------------------------------------------------
 // KPIs
 // ---------------------------------------------------------------------------
@@ -147,7 +173,7 @@ async function windowTotals(from: Date, to: Date) {
  */
 async function utilisation(from: Date, to: Date): Promise<number> {
   const [fleet, rentals, manual] = await Promise.all([
-    prisma.car.count({ where: { isAvailable: true } }),
+    prisma.car.count({ where: fleetWhere(new Date()) }),
     prisma.inquiry.findMany({
       where: {
         status: { in: [...EARNING] },
@@ -199,7 +225,7 @@ export async function getAnalytics(range: Range): Promise<Analytics> {
       prisma.inquiry.count({
         where: { status: { in: [...EARNING] }, pickupAt: { gt: now } },
       }),
-      prisma.car.count({ where: { isAvailable: true } }),
+      prisma.car.count({ where: fleetWhere(now) }),
     ]);
 
   const rate = (c: { cancelled: number; total: number }) =>
@@ -340,8 +366,8 @@ export async function getFleetStatus(): Promise<FleetSlice[]> {
 
   const [cars, rentals, blocks] = await Promise.all([
     prisma.car.findMany({
-      where: { isAvailable: true },
-      select: { id: true, title: true, plate: true },
+      where: fleetWhere(now),
+      select: { id: true, title: true, plate: true, isAvailable: true },
       orderBy: { sortOrder: "asc" },
     }),
     prisma.inquiry.findMany({
@@ -392,7 +418,7 @@ export async function getFleetStatus(): Promise<FleetSlice[]> {
         id: c.id,
         title: c.title,
         plate: c.plate ?? "",
-        note: `${block.reason || REASON[block.kind] || "blokirano"}, do ${fmtDay(block.endAt)}`,
+        note: `${block.reason || REASON[block.kind] || "blokirano"}, do ${fmtDay(block.endAt)}${c.isAvailable ? "" : " · povučeno iz ponude"}`,
       });
       continue;
     }
@@ -402,7 +428,7 @@ export async function getFleetStatus(): Promise<FleetSlice[]> {
         id: c.id,
         title: c.title,
         plate: c.plate ?? "",
-        note: `vraća se ${fmtDay(rent.returnAt)}`,
+        note: `vraća se ${fmtDay(rent.returnAt)}${c.isAvailable ? "" : " · povučeno iz ponude"}`,
       });
       continue;
     }

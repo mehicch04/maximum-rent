@@ -1,66 +1,80 @@
-POVUČENO VOZILO
-===============
+POVUČENO VOZILO KOJE JE JOŠ KOD GOSTA
+=====================================
 
 Schema se NE mijenja. Samo: npm run build
 
 PROBLEM
 -------
-Vozilo označite "Nije u ponudi" jer ga prodajete. Stari upit za to vozilo
-i dalje stoji u listi, i potvrdi se bez ijedne riječi upozorenja.
+Kad povučete vozilo iz ponude, izvještaji su ga odmah prestali brojati.
+To je u redu za auto koji stoji u dvorištu i čeka kupca. Nije u redu za
+auto koji je u tom trenutku kod gosta.
 
-Otkrijete tek kad gost dođe po auto koji više nemate.
+DVIJE POSLJEDICE
+
+1) ISKORISTIVOST FLOTE JE SKAKALA SAMA OD SEBE
+   Flota 10 vozila, 6 u najmu, to je 60 posto.
+   Povučete jedan auto i broj skoči na 67 posto (6 od 9), iako se u poslu
+   nije promijenilo ništa.
+
+   Ako je taj povučeni auto bio baš jedan od onih u najmu, brojka postaje
+   dvostruko kriva: njegov najam se i dalje broji u zauzetim danima, a
+   sam auto više ne postoji u floti.
+
+2) AUTO JE NESTAJAO S EKRANA
+   Status flote pokazivao je 9 umjesto 10 vozila, a auto koji je fizički
+   kod gosta nije se vidio nigdje. Isto i na stranici Vozila: povučeno
+   vozilo nije prikazivalo živi status, pa se nije znalo je li vani ili
+   stoji.
 
 KAKO SADA RADI
 --------------
-Na kartici takvog upita stoji narandžasto upozorenje:
+U izvještaje ulaze vozila u ponudi PLUS svako povučeno vozilo koje još
+ima aktivan ili nadolazeći najam.
 
-  "Vozilo je povučeno iz ponude. Provjerite je li još raspoloživo prije
-   nego potvrdite, ili kroz Uredi dodijelite drugo."
+  povučen auto koji stoji        -> ispada iz flote odmah
+  povučen auto koji je kod gosta -> ostaje dok se najam ne zatvori
 
-Isto piše i u prozoru koji iskoči kad pritisnete "Potvrdi".
+Čim se posljednji najam zatvori, vozilo prirodno ispada iz izvještaja.
+Ništa ne treba raditi ručno.
 
-Potvrda i dalje PROLAZI. Vozilo je možda još u dvorištu i najam se može
-izvršiti; prodaja se često oduži. Zabrana bi vam vezala ruke u slučaju koji
-je sasvim izvediv.
+OZNAKA UMJESTO SKRIVANJA
+   U statusu flote takvo vozilo sada piše:
 
-DRUGA GREŠKA, NAĐENA USPUT
---------------------------
-Ovo je ozbiljnije od prvog.
+     vraća se 18.09. · povučeno iz ponude
+     servis, do 20.09. · povučeno iz ponude
 
-Izbornik vozila u obrascu "Uredi" nudio je samo vozila koja su u ponudi.
-Ako rezervacija ima povučeno vozilo, ono nije bilo na popisu.
+   Vlasnik treba vidjeti gdje mu je auto koji prodaje, a ne da mu nestane
+   s ekrana.
 
-Izbornik koji ne sadrži svoju trenutnu vrijednost ne može je ni prikazati,
-pa bi se pri spremanju poslalo nešto drugo: prvo vozilo s liste ili prazno.
-Vozilo bi se TIHO zamijenilo ili obrisalo s rezervacije.
+   Isto i na stranici Vozila: živi status se prikazuje i za povučena
+   vozila, ako su vani.
 
-Isti obrazac greške već smo imali sa statusom "U toku", kad je aktivna
-rezervacija ispadala u potvrđene nakon uređivanja.
-
-POPRAVKA
-  Izbornik u "Uredi" sada sadrži i povučena vozila, ali s oznakom:
-
-      VW Passat (nije u ponudi)
-
-  Obrazac za NOVU rezervaciju ih i dalje ne nudi. Nova rezervacija ne bi
-  smjela ni počinjati na vozilu koje ste povukli.
+RIJEŠENO NA JEDNOM MJESTU
+   Uvjet "šta se broji kao flota" bio je prepisan na četiri mjesta u
+   izvještajima. Sada je jedna funkcija koju sva četiri koriste, pa se
+   ubuduće ne mogu razići.
 
 PROVJERENO
-  uredi, sva vozila:        Octavia, Passat (nije u ponudi), Q5
-  nova rezervacija:         Octavia, Q5
-  rezervacija s povučenim:  vozilo ostaje nakon spremanja
-  potvrda povučenog:        prolazi, uz upozorenje na dva mjesta
+  ništa povučeno                 60% -> 60%
+  povučen auto koji stoji        67% -> 67%   (ispravno ispada)
+  povučen auto koji je kod gosta 67% -> 60%   (ispravljeno)
+
+ŠTO SE NIJE MIJENJALO
+  Provjera zauzetosti nikad nije ovisila o tome je li vozilo u ponudi, pa
+  se dupli booking ni ranije nije mogao desiti ovim putem. Provjerio sam.
 
 FAJLOVI
 -------
-  app/admin/page.tsx
+  lib/analytics.ts                     (uvjet flote, oznake)
+  components/admin/VehicleManager.tsx  (živi status za povučena)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run build
 3. npm run dev
-   - /admin/vozila -> neko vozilo isključi iz ponude
-   - /admin -> upit za to vozilo mora imati narandžasto upozorenje
-   - otvori Uredi na njemu: vozilo mora biti u izborniku s oznakom
-   - sačuvaj bez izmjena: vozilo mora ostati isto
+   - izdaj neko vozilo gostu
+   - /admin/vozila -> isključi ga iz ponude
+   - /admin/analitika -> mora i dalje biti u statusu flote,
+     uz oznaku "povučeno iz ponude"
+   - iskoristivost se ne smije promijeniti

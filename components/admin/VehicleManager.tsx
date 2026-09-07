@@ -134,7 +134,12 @@ export function VehicleManager({
                  * in the catalogue and still be out with a guest today, and
                  * until now this screen showed only the former.
                  */}
-                {v.isAvailable && (
+                {/*
+                  * Shown for withdrawn cars too. One that is out with a guest
+                  * is still on the road, and hiding its status was how it
+                  * disappeared from view the moment it left the offer.
+                  */}
+                {(v.isAvailable || live[v.id]?.busy) && (
                   <p className="mt-1 flex items-center gap-1.5 text-xs">
                     <span
                       className={`h-2 w-2 shrink-0 rounded-full ${
