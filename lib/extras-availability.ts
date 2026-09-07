@@ -155,6 +155,9 @@ export type CarBusy = {
   label: string;
   /** Set for reservations, so a form can skip the one it is editing. */
   inquiryId?: string;
+  /** Who holds it, so a clash can name the guest instead of just the dates. */
+  guest?: string;
+  reference?: string;
 };
 
 /**
@@ -175,7 +178,15 @@ export async function getCarOccupancy(): Promise<CarBusy[]> {
         carId: { not: null },
         returnAt: { gte: now },
       },
-      select: { id: true, carId: true, pickupAt: true, returnAt: true },
+      select: {
+        id: true,
+        carId: true,
+        pickupAt: true,
+        returnAt: true,
+        firstName: true,
+        lastName: true,
+        reference: true,
+      },
     }),
     prisma.carBlock.findMany({
       where: { endAt: { gte: now } },
@@ -197,6 +208,8 @@ export async function getCarOccupancy(): Promise<CarBusy[]> {
       to: r.returnAt,
       label: "rezervisano",
       inquiryId: r.id,
+      guest: [r.firstName, r.lastName].filter(Boolean).join(" "),
+      reference: r.reference,
     })),
     ...blocks.map((b) => ({
       carId: b.carId,

@@ -46,6 +46,17 @@ function split(iso: string) {
   };
 }
 
+/** "12.09. u 10:00" — enough to place a booking without a full timestamp. */
+function dayTime(d: Date): string {
+  return new Intl.DateTimeFormat("hr-HR", {
+    timeZone: "Europe/Sarajevo",
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(d);
+}
+
 export function EditInquiryForm({
   action,
   inquiry,
@@ -133,6 +144,50 @@ export function EditInquiryForm({
   }, [occupancy, pickupDate, pickupTime, returnDate, returnTime]);
 
   const carTaken = Boolean(carId && busy.has(carId));
+
+  /**
+   * Extending a rental that is already out.
+   *
+   * The usual answer to a clash — swap the vehicle — makes no sense here: the
+   * car is with the guest and cannot be swapped remotely. What can move is the
+   * booking standing in the way, so that is what gets shown.
+   */
+  const extending =
+    inquiry.status === "IN_PROGRESS" &&
+    new Date(inquiry.returnAt).getTime() < to.getTime();
+
+  /** The bookings this period now runs into, with who holds them. */
+  const blockers = useMemo(() => {
+    if (!carId) return [];
+    return occupancy
+      .filter(
+        (o) =>
+          o.carId === carId &&
+          o.inquiryId !== inquiry.id &&
+          o.from < to &&
+          o.to > from,
+      )
+      .sort((a, b) => a.from.getTime() - b.from.getTime());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [occupancy, carId, pickupDate, pickupTime, returnDate, returnTime]);
+
+  /**
+   * Vehicles free for the blocking booking's own dates.
+   *
+   * Deliberately measured against that booking's period, not this one: the
+   * point is to find somewhere to move the guest who is waiting, and their
+   * dates are the ones that have to be covered.
+   */
+  const swapOptions = useMemo(() => {
+    const first = blockers[0];
+    if (!first) return [];
+    const takenThen = busyCarsFor(
+      occupancy.filter((o) => o.inquiryId !== first.inquiryId),
+      first.from,
+      first.to,
+    );
+    return cars.filter((c) => c.id !== carId && !takenThen.has(c.id));
+  }, [blockers, occupancy, cars, carId]);
   const freeCars = useMemo(
     () => cars.filter((c) => !busy.has(c.id)),
     [cars, busy],
@@ -191,7 +246,11 @@ export function EditInquiryForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [computed, invalidPeriod]);
 
-  const blocked = invalidPeriod || carTaken || (isRestoring && !restoreReason.trim());
+  const blocked =
+    invalidPeriod ||
+    carTaken ||
+    (extending && blockers.length > 0) ||
+    (isRestoring && !restoreReason.trim());
 
   return (
     <form action={action} className="space-y-4">
@@ -269,8 +328,85 @@ export function EditInquiryForm({
         </div>
       )}
 
+      {/*
+        * Extending an active rental into somebody else's booking.
+        *
+        * Shown instead of the ordinary clash box, because the useful move is
+        * the opposite one: keep this guest in the car they are sitting in and
+        * find another vehicle for whoever is waiting.
+        */}
+      {extending && blockers.length > 0 && (
+        <div className="rounded-xl border border-brand/50 bg-brand/[0.06] p-4">
+          <p className="flex items-center gap-2 text-sm font-semibold text-brand-strong">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
+            Produžetak se sudara s{" "}
+            {blockers.length === 1 ? "rezervacijom" : `${blockers.length} rezervacije`}
+          </p>
+
+          <ul className="mt-2 space-y-1.5">
+            {blockers.map((b, i) => (
+              <li
+                key={`${b.inquiryId ?? b.label}-${i}`}
+                className="rounded-lg bg-surface px-3 py-2 text-xs"
+              >
+                <span className="font-medium text-foreground">
+                  {b.guest || b.label}
+                </span>
+                {b.reference && (
+                  <span className="ml-1.5 font-mono text-[11px] text-muted-foreground">
+                    {b.reference}
+                  </span>
+                )}
+                <span className="block text-muted-foreground">
+                  preuzima {dayTime(b.from)} · vraća {dayTime(b.to)}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+            Vozilo je kod trenutnog gosta, pa se njemu ne može zamijeniti.
+            Da biste produžili, prebacite gornju rezervaciju na drugo vozilo
+            preko dugmeta Uredi na njoj.
+          </p>
+
+          <div className="mt-3">
+            <p className="mb-1 text-xs font-medium text-foreground">
+              Slobodno za termin te rezervacije:
+            </p>
+            {swapOptions.length === 0 ? (
+              <p className="text-xs font-medium text-brand-strong">
+                Nijedno vozilo nije slobodno u tom terminu. Produžetak nije
+                moguć bez dogovora s tim gostom.
+              </p>
+            ) : (
+              <ul className="flex flex-wrap gap-1.5">
+                {swapOptions.slice(0, 8).map((c) => (
+                  <li
+                    key={c.id}
+                    className="rounded-lg border border-border bg-surface px-2 py-1 text-xs text-foreground"
+                  >
+                    {c.title}
+                    {c.pricePerDay != null && (
+                      <span className="ml-1 text-muted-foreground">
+                        {c.pricePerDay} KM
+                      </span>
+                    )}
+                  </li>
+                ))}
+                {swapOptions.length > 8 && (
+                  <li className="px-1 py-1 text-xs text-muted-foreground">
+                    +{swapOptions.length - 8} još
+                  </li>
+                )}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Vehicle clash: say it plainly and offer what can be given instead. */}
-      {carTaken && (
+      {carTaken && !extending && (
         <div className="rounded-xl border border-brand/50 bg-brand/[0.06] p-4">
           <p className="flex items-center gap-2 text-sm font-semibold text-brand-strong">
             <AlertTriangle className="h-4 w-4 shrink-0" />
@@ -499,7 +635,9 @@ export function EditInquiryForm({
         disabled={blocked}
         className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-brand text-sm font-semibold text-brand-foreground transition-colors hover:bg-brand-700 disabled:opacity-50"
       >
-        {carTaken
+        {extending && blockers.length > 0
+          ? "Termin je zauzet"
+          : carTaken
           ? "Odaberite slobodno vozilo"
           : isRestoring && !restoreReason.trim()
             ? "Upišite razlog obnove"

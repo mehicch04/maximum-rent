@@ -1,50 +1,72 @@
-POPRAVKA — greška pri kliku na "Završi najam"
-=============================================
+PRODUŽETAK AKTIVNOG NAJMA
+=========================
 
 Schema se NE mijenja. Samo: npm run build
 
-GREŠKA
-------
-  Application error: a client-side exception has occurred
+ODGOVOR NA PITANJE: NE, DUPLI BOOKING NIJE MOGUĆ
+------------------------------------------------
+Provjerio sam prije nego što sam išta dirao. Kad produžite aktivnu
+rezervaciju, server prije upisa provjeri sudara li se novi period s nekom
+drugom rezervacijom ili blokadom na tom vozilu. Ako se sudara, izmjena se
+ne sprema.
 
-UZROK (moja greška)
--------------------
-Popise za gorivo i status depozita stavio sam u istu datoteku u kojoj je i
-serverska akcija.
+To je već radilo. Ono što nije radilo je objašnjenje.
 
-Datoteka označena kao serverska smije prema van davati samo funkcije.
-Popisi kroz nju do preglednika ne stignu, pa su u modalu bili prazni. Prvi
-pokušaj da se ispišu opcije obori cijelu stranicu.
+ŠTO JE BILO POGREŠNO
+--------------------
+Kod sudara se prikazivalo "Vozilo je zauzeto" i nudio se spisak drugih
+vozila da se zamijeni.
 
-Zato je greška bila baš na klik: modal se dotad nije ni otvarao.
+Kod produžetka to nema smisla. Auto je fizički kod gosta, na putu ili pred
+hotelom. Ne možete mu ga zamijeniti kroz panel.
 
-POPRAVKA
---------
-Popisi su izdvojeni u zasebnu datoteku lib/rental-return.ts. Odatle ih
-čitaju i obrazac i serverska akcija, pa postoji jedan izvor i za prikaz i za
-provjeru na serveru.
+ŠTO SADA PIŠE
+-------------
+Kad produžavate najam koji je u toku i naiđete na sudar, prikazuje se ko
+tačno blokira:
 
-PROŠAO SAM I OSTALE
--------------------
-Provjerio sam sve serverske datoteke u adminu traži li se igdje isto. Devet
-ih je i sve sada prema van daju samo funkcije.
+    Produžetak se sudara s rezervacijom
+      Marko Ilić   MR-4TQ8XN
+      preuzima 14.09. u 09:00 · vraća 18.09. u 10:00
 
-Usput sam u migraciji uklonio jedan izvoz tipa koji se nigdje nije koristio.
-Tipovi se inače brišu pri prevođenju i nisu problem, ali nije ni trebao
-biti izvezen.
+    Vozilo je kod trenutnog gosta, pa se njemu ne može zamijeniti.
+    Da biste produžili, prebacite gornju rezervaciju na drugo vozilo.
+
+    Slobodno za termin te rezervacije:
+      VW Passat 95 KM   Audi Q5 110 KM   VW T-Roc 85 KM
+
+KLJUČNA RAZLIKA
+---------------
+Spisak slobodnih vozila računa se za termin ONOGA KO BLOKIRA, ne za
+produženi termin.
+
+To je bit stvari: tražite gdje smjestiti gosta koji čeka, pa moraju biti
+pokriveni NJEGOVI datumi. Vozilo slobodno tokom produžetka ne pomaže ako je
+zauzeto baš onda kad Marko dolazi po njega.
+
+Ako nijedno vozilo nije slobodno u tom terminu, i to piše otvoreno:
+produžetak nije moguć bez dogovora s tim gostom.
+
+Dugme ostaje zaključano dok sudar postoji, uz tekst "Termin je zauzet".
+
+TESTIRANO
+  Ana produžava 10.-13.09 na 17.09, Marko preuzima 14.09
+    -> imenuje Marka i nudi Passat, Q5 i T-Roc za njegov termin
+  Ana produžava samo do 13.09 u 18h
+    -> nema sudara, produžetak prolazi normalno
+  sva ostala vozila zauzeta u Markovom terminu
+    -> poruka da produžetak nije moguć
 
 FAJLOVI
 -------
-  lib/rental-return.ts                     (NOVO — popisi)
-  app/admin/checkout-actions.ts            (uvozi ih)
-  components/admin/FinishRentalButton.tsx  (uvozi ih)
-  app/admin/migrate-actions.ts             (uklonjen suvišan izvoz)
+  lib/extras-availability.ts            (zauzetost nosi ime gosta i broj)
+  components/admin/EditInquiryForm.tsx  (prikaz sudara i alternativa)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run build
-3. npm run dev -> /admin -> filter "Aktivne"
-   - klikni "Završi najam", modal se mora otvoriti
-   - u padajućim menijima moraju stajati opcije goriva i depozita
-   - potvrdi povrat pa provjeri /vozila na sajtu za taj period
+3. npm run dev
+   - napravi rezervaciju za vozilo koje je trenutno u najmu, za sutra
+   - otvori aktivni najam na tom vozilu i produži ga preko tog datuma
+   - mora imenovati gosta koji blokira i ponuditi vozila za njegov termin
