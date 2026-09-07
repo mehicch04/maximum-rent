@@ -71,7 +71,7 @@ export async function finishRental(formData: FormData) {
 
   const inquiry = await prisma.inquiry.findUnique({
     where: { id },
-    select: { id: true, status: true },
+    select: { id: true, status: true, pickupAt: true, actualPickUpTime: true },
   });
   if (!inquiry) redirect("/admin?msg=error");
 
