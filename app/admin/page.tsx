@@ -25,6 +25,7 @@ import { BlockForm } from "@/components/admin/BlockForm";
 import { EditInquiryButton } from "@/components/admin/EditInquiryButton";
 import { EditInquiryForm } from "@/components/admin/EditInquiryForm";
 import { updateInquiry } from "./edit-actions";
+import { createContinuation } from "./extend-actions";
 import { NewReservationButton } from "@/components/admin/NewReservationButton";
 import { StartRentalButton } from "@/components/admin/StartRentalButton";
 import { DueBadge } from "@/components/admin/DueBadge";
@@ -126,6 +127,10 @@ const MESSAGES: Record<string, { text: string; tone: "ok" | "warn" | "err" }> =
     updated: { text: "Rezervacija je izmijenjena.", tone: "ok" },
   created: { text: "Rezervacija je kreirana i potvrđena.", tone: "ok" },
   started: { text: "Vozilo je izdato. Rezervacija je sada u toku.", tone: "ok" },
+  continued: {
+    text: "Nastavak najma je kreiran na drugom vozilu.",
+    tone: "ok",
+  },
   finished: {
     text: "Najam je zatvoren. Vozilo i oprema su ponovo slobodni.",
     tone: "ok",
@@ -455,6 +460,7 @@ export default async function AdminPage({
                       }}
                       cars={carsForForm}
                       occupancy={carOccupancy}
+                      onContinue={createContinuation}
                       locations={editLocations}
                       extras={blockExtras}
                       booked={blockBooked}

@@ -65,6 +65,7 @@ export function EditInquiryForm({
   extras = [],
   booked = [],
   occupancy = [],
+  onContinue = () => {},
 }: {
   action: (formData: FormData) => void;
   inquiry: EditableInquiry;
@@ -74,6 +75,8 @@ export function EditInquiryForm({
   booked?: Booked[];
   /** Periods each vehicle is taken, so a clash can be spotted while typing. */
   occupancy?: CarBusy[];
+  /** Creates the follow-on rental on another vehicle. */
+  onContinue?: (fd: FormData) => void;
 }) {
   const p0 = split(inquiry.pickupAt);
   const r0 = split(inquiry.returnAt);
@@ -178,6 +181,28 @@ export function EditInquiryForm({
    * point is to find somewhere to move the guest who is waiting, and their
    * dates are the ones that have to be covered.
    */
+  /**
+   * Vehicles the guest could move into for the extra days.
+   *
+   * Measured over the extension window — from when the current rental ends to
+   * the new date — and not over the blocking booking's dates. Those are two
+   * different questions, and answering the wrong one hands over a car that is
+   * taken on exactly the days needed.
+   */
+  const continuationCars = useMemo(() => {
+    if (!extending) return [];
+    const start = new Date(inquiry.returnAt);
+    const takenThen = busyCarsFor(
+      occupancy.filter((o) => o.inquiryId !== inquiry.id),
+      start,
+      to,
+    );
+    return cars.filter((c) => c.id !== carId && !takenThen.has(c.id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [extending, occupancy, cars, carId, returnDate, returnTime]);
+
+  const [contCar, setContCar] = useState("");
+
   const swapOptions = useMemo(() => {
     const first = blockers[0];
     if (!first) return [];
@@ -370,8 +395,78 @@ export function EditInquiryForm({
             preko dugmeta Uredi na njoj.
           </p>
 
-          <div className="mt-3">
-            <p className="mb-1 text-xs font-medium text-foreground">
+          {/*
+            * Two ways out, and they answer different questions.
+            *
+            * First: keep the guest, change the car. Second: keep the car,
+            * move the booking that is in the way. Which one is right depends
+            * on who is easier to reach, so both are offered rather than
+            * guessed at.
+            */}
+          <div className="mt-3 rounded-lg border border-border bg-surface p-3">
+            <p className="text-xs font-semibold text-foreground">
+              1. Nastavite najam na drugom vozilu
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Gost vraća trenutno vozilo kako je dogovoreno i odmah preuzima
+              drugo. Nova rezervacija se pravi s njegovim podacima, za period
+              od {dayTime(new Date(inquiry.returnAt))} do {dayTime(to)}.
+            </p>
+
+            {continuationCars.length === 0 ? (
+              <p className="mt-2 text-xs font-medium text-brand-strong">
+                Nijedno vozilo nije slobodno u tom periodu.
+              </p>
+            ) : (
+              <div className="mt-2 space-y-2">
+                <select
+                  value={contCar}
+                  onChange={(e) => setContCar(e.target.value)}
+                  className={input}
+                >
+                  <option value="">
+                    Odaberite vozilo ({continuationCars.length} slobodno)…
+                  </option>
+                  {continuationCars.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.title}
+                      {c.pricePerDay != null ? ` · ${c.pricePerDay} KM/dan` : ""}
+                    </option>
+                  ))}
+                </select>
+
+                <button
+                  type="button"
+                  disabled={!contCar}
+                  onClick={() => {
+                    const fd = new FormData();
+                    fd.set("sourceId", inquiry.id);
+                    fd.set("carId", contCar);
+                    fd.set("until", to.toISOString());
+                    onContinue(fd);
+                  }}
+                  className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-brand text-sm font-semibold text-brand-foreground transition-colors hover:bg-brand-700 disabled:opacity-50"
+                >
+                  Napravi nastavak najma
+                </button>
+                <p className="text-xs text-muted-foreground">
+                  Trenutna rezervacija ostaje nepromijenjena i završava kako je
+                  dogovoreno.
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-2 rounded-lg border border-border bg-surface p-3">
+            <p className="text-xs font-semibold text-foreground">
+              2. Ili premjestite rezervaciju koja blokira
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Gost zadržava vozilo koje već ima. Otvorite rezervaciju
+              {blockers[0]?.reference ? ` ${blockers[0].reference}` : ""} i
+              dodijelite joj drugo vozilo.
+            </p>
+            <p className="mb-1 mt-2 text-xs font-medium text-foreground">
               Slobodno za termin te rezervacije:
             </p>
             {swapOptions.length === 0 ? (
