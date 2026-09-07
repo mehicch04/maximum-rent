@@ -1,58 +1,62 @@
-POPRAVKA BUILDA — dvije nedostajuće komponente
-==============================================
+REZERVACIJA BEZ DODIJELJENOG VOZILA
+===================================
 
 Schema se NE mijenja. Samo: npm run build
 
-GREŠKA
-------
-  Can't resolve '@/components/admin/SearchBox'
-  Can't resolve '@/components/admin/ReservationDetail'
+PROBLEM
+-------
+Gost pošalje opći upit, bez odabranog vozila. To je normalno: pita okvirno
+šta imate i po kojoj cijeni.
 
-UZROK (moja greška, treći put ista vrsta)
------------------------------------------
-Poslao sam app/admin/page.tsx koji te dvije komponente koristi, a same
-komponente nisu bile ni u jednom zipu. Postojale su samo kod mene.
+Vlasnik taj upit potvrdi, jer se dogovorio telefonom. I tada se pojavi
+dugme "Izdaj vozilo", iako rezervacija nema nikakav auto.
 
-USPUT SAM NAŠAO I DUPLIKAT
---------------------------
-Pregled rezervacije je već postojao kao ReservationDetail. Ja sam
-napravio drugi, InquiryDetailButton, ne znajući za prvi. Oba su bila
-ugrađena, pa bi na svakoj kartici stajala DVA dugmeta "Pogledaj".
+Klik bi zabilježio izdavanje vozila kojeg nema. Isto je vrijedilo i za
+"Završi najam": nijedno dugme nije provjeravalo ima li rezervacija vozilo.
 
-Uporedio sam ih: rade istu stvar, oba imaju kašnjenje, gorivo, depozit,
-dodatnu naplatu i vezu zamjene vozila. Zadržao sam ReservationDetail jer
-je već bio ugrađen, a svoj obrisao.
+Posljedica nije samo pogrešan zapis. Takva rezervacija se vodi kao aktivan
+najam, ali ne drži nijedno vozilo, pa se u analitici pojavljuje kao prihod
+za auto koji nikad nije izašao.
 
-Ako si primijenio prošli zip, obriši i taj fajl:
+KAKO SADA RADI
+--------------
+Oba dugmeta se prikazuju tek kad rezervacija ima dodijeljeno vozilo.
 
-    Remove-Item components\admin\InquiryDetailButton.tsx
+Umjesto njih, na potvrđenoj rezervaciji bez vozila stoji uputa:
 
-Ako nisi, nemaš ga ni da brišeš.
+  "Rezervacija nema dodijeljeno vozilo, pa se ne može izdati ni zatvoriti.
+   Odaberite vozilo kroz Uredi."
 
-ŠTA JE U ZIPU
--------------
-  components/admin/SearchBox.tsx         pretraga iznad liste
-  components/admin/ReservationDetail.tsx pregled rezervacije
-  app/admin/page.tsx                     bez duplikata
+Uputa je namjerna. Dugme koje jednostavno nestane izgleda kao kvar, i
+vlasnik bi zvao da pita zašto mu se nešto ne prikazuje.
 
-KAKO SAM PROVJERIO OVAJ PUT
----------------------------
-Prošao sam kroz svaki uvoz u fajlovima koje šaljem i provjerio da se
-razrješava. Ranije sam se oslanjao na provjeru tipova, ali ona kod mene
-prijavi i sedamdesetak lažnih grešaka zbog Prisma tipova, pa se nedostajuća
-komponenta u tome izgubi.
+Uputa se ne prikazuje na upitima koji još čekaju odluku, jer je pitanje bez
+odabranog vozila tada sasvim uobičajeno.
+
+I NA SERVERU
+------------
+Obje akcije provjeravaju vozilo prije upisa i odbijaju zahtjev bez njega.
+Dugmad su skrivena, ali zahtjev se može poslati i mimo njih.
+
+PROVJERENO
+  upit bez vozila         ništa se ne prikazuje
+  upit s vozilom          ništa (još nije potvrđen)
+  potvrđen bez vozila     uputa
+  potvrđen s vozilom      Izdaj vozilo, Završi najam
+  u toku bez vozila       uputa
+  u toku s vozilom        Završi najam
+  završen                 ništa
 
 FAJLOVI
 -------
-  components/admin/SearchBox.tsx          (NOVO)
-  components/admin/ReservationDetail.tsx  (NOVO)
-  app/admin/page.tsx
+  app/admin/checkout-actions.ts  (provjera na serveru)
+  app/admin/page.tsx             (dugmad i uputa)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. Remove-Item components\admin\InquiryDetailButton.tsx   (ako postoji)
-3. npm run build          <-- mora proći
-4. npm run dev -> /admin
-   - iznad liste mora stajati polje za pretragu
-   - na svakoj rezervaciji JEDNO dugme "Pogledaj"
+2. npm run build
+3. npm run dev -> /admin
+   - potvrdi upit koji nema odabrano vozilo
+   - umjesto dugmadi mora stajati uputa
+   - dodijeli mu vozilo kroz Uredi, dugmad se moraju pojaviti

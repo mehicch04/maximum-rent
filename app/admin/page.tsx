@@ -143,6 +143,10 @@ const MESSAGES: Record<string, { text: string; tone: "ok" | "warn" | "err" }> =
     text: "Najam je zatvoren. Vozilo i oprema su ponovo slobodni.",
     tone: "ok",
   },
+  nocar: {
+    text: "Rezervaciji prvo dodijelite vozilo, pa je onda izdajte ili zatvorite.",
+    tone: "err",
+  },
   notactive: {
     text: "Povrat se može zabilježiti samo za najam koji je u toku.",
     tone: "err",
@@ -636,8 +640,9 @@ export default async function AdminPage({
                   />
                 )}
 
-                {(q.status === "IN_PROGRESS" ||
-                  (q.status === "CONFIRMED" && q.pickupAt <= new Date())) && (
+                {q.carId &&
+                  (q.status === "IN_PROGRESS" ||
+                    (q.status === "CONFIRMED" && q.pickupAt <= new Date())) && (
                   <div className="flex flex-wrap gap-2">
                     <FinishRentalButton
                       id={q.id}
@@ -650,7 +655,22 @@ export default async function AdminPage({
                   </div>
                 )}
 
-                {q.status === "CONFIRMED" && (
+                {/*
+                  * A missing button reads as a bug unless something says why.
+                  * Shown only once the enquiry is approved, since before that
+                  * a general question without a car is perfectly normal.
+                  */}
+                {!q.carId &&
+                  (q.status === "CONFIRMED" || q.status === "IN_PROGRESS") && (
+                    <p className="rounded-xl border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
+                      Rezervacija nema dodijeljeno vozilo, pa se ne može izdati
+                      ni zatvoriti. Odaberite vozilo kroz Uredi.
+                    </p>
+                  )}
+
+                {/* Both actions need a vehicle to act on, so neither is
+                    offered until one is assigned. */}
+                {q.status === "CONFIRMED" && q.carId && (
                   <div className="flex flex-wrap gap-2">
                     <StartRentalButton
                       id={q.id}

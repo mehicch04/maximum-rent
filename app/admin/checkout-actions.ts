@@ -25,7 +25,7 @@ export async function startRental(formData: FormData) {
 
   const inquiry = await prisma.inquiry.findUnique({
     where: { id },
-    select: { id: true, status: true },
+    select: { id: true, status: true, carId: true },
   });
 
   if (!inquiry) redirect("/admin?msg=error");
@@ -34,6 +34,10 @@ export async function startRental(formData: FormData) {
   // cancelled, or never approved — is a mistake worth stopping rather than
   // silently accepting.
   if (inquiry.status !== "CONFIRMED") redirect("/admin?msg=notconfirmed");
+
+  // Nothing to hand over without a vehicle. A general enquiry can be confirmed
+  // as a conversation, but there are no keys to give until a car is assigned.
+  if (!inquiry.carId) redirect("/admin?msg=nocar");
 
   await prisma.inquiry.update({
     where: { id },
@@ -71,7 +75,13 @@ export async function finishRental(formData: FormData) {
 
   const inquiry = await prisma.inquiry.findUnique({
     where: { id },
-    select: { id: true, status: true, pickupAt: true, actualPickUpTime: true },
+    select: {
+      id: true,
+      status: true,
+      carId: true,
+      pickupAt: true,
+      actualPickUpTime: true,
+    },
   });
   if (!inquiry) redirect("/admin?msg=error");
 
@@ -88,6 +98,10 @@ export async function finishRental(formData: FormData) {
     (inquiry.status === "CONFIRMED" && inquiry.pickupAt <= new Date());
 
   if (!startedOrDue) redirect("/admin?msg=notactive");
+
+  // Same reasoning as handover: a rental with no vehicle has nothing to give
+  // back, and closing it would record a return that never happened.
+  if (!inquiry.carId) redirect("/admin?msg=nocar");
 
   const pick = <T extends readonly string[]>(raw: string, allowed: T) =>
     (allowed as readonly string[]).includes(raw) ? raw : null;
