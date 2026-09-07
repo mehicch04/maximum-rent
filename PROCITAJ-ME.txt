@@ -1,91 +1,66 @@
-UPITI NA ČEKANJU — isticanje i preklapanje
-==========================================
+PREGLED REZERVACIJE
+===================
 
 Schema se NE mijenja. Samo: npm run build
 
-=======================================================================
-1) UPITI KOJI SE SAMI PONIŠTE
-=======================================================================
-PRIMJER
-  Gost je 05.09 poslao upit za auto od 12.09. Vlasnik ga nije stigao ni
-  potvrditi ni otkazati. Danas je 13.09.
+NALAZ O PRETRAZI
+----------------
+Pretraga je već postojala i radi. Stoji iznad liste na Rezervacijama i na
+Porukama, a traži po imenu, prezimenu, telefonu, e-mailu, broju rezervacije
+i nazivu vozila. Ne razlikuje velika i mala slova.
 
-ŠTA SE DEŠAVA SADA
-  Noćni posao, koji već radi u 3:30, sada uz čišćenje starih zapisa
-  poništava i upite kojima je vrijeme preuzimanja prošlo, a još su na
-  čekanju.
+Bitno: pretraga IGNORIŠE aktivni tab. Ako ste na "Aktivne" i tražite gosta
+čija je rezervacija završena, ipak ćete je naći. Suženje na tab bi sakrilo
+baš ono što se traži.
 
-  Poništavaju se samo "Novo" i "Kontaktiran". Potvrđene se NE diraju, ma
-  koliko stare bile, jer je tamo posao stvarno obavljen.
+Nisam je dirao.
 
-TRI ODLUKE KOJE SAM DONIO
-  Ne brišu se, nego se otkazuju. Ostaje trag da je upit stigao, pa
-  statistika pristiglih upita ostaje tačna.
+ŠTA JE DODANO: DUGME "POGLEDAJ"
+-------------------------------
+Otvara prozor sa svime što se dešavalo s tom rezervacijom, u pet dijelova:
 
-  Upisuje se razlog: "Isteklo bez odgovora, poništeno automatski." Kad
-  vlasnik za mjesec dana vidi otkazanu rezervaciju, zna zašto.
+  KLIJENT           ime, telefon, e-mail, broj leta
+  NAJAM             vozilo, registracija, datumi, obje lokacije,
+                    trajanje, dodatna oprema
+  KAKO JE PROTEKLO  stvarno vrijeme preuzimanja i vraćanja, kašnjenje,
+                    gorivo pri povratu, status depozita
+  FINANSIJE         ugovoreni iznos, dodatna naplata s razlogom, ukupno
+  ZAPIS             kad je zaprimljena, kanal, napomene
 
-  Gostu se NE šalje mejl. Poruka "vaša rezervacija je otkazana" tri dana
-  nakon datuma bila bi gora od šutnje; gost je odavno našao drugo
-  rješenje ili se javio telefonom.
+Ako je rezervacija dio zamjene vozila, na vrhu stoji plavo obavještenje s
+brojem druge rezervacije i vozilom na koje se nastavlja.
 
-=======================================================================
-2) DVA UPITA ZA ISTI AUTO I ISTE DATUME
-=======================================================================
-PRIMJER
-  Stignu dva upita za Octaviju, oba za 22.-24.09. Vlasnik potvrdi prvi.
+TRI ODLUKE
+----------
+1) PRAZNI REDOVI SE NE PRIKAZUJU.
+   Rezervacija bez broja leta neće imati taj red. Pregled pun crtica se
+   teže čita od kraćeg koji pokazuje samo ono što postoji.
 
-ŠTA SE DEŠAVALO
-  Drugi upit je i dalje stajao u listi i izgledao potpuno normalno.
-  Vlasnik bi pritisnuo "Potvrdi" i dobio suvu poruku da je vozilo
-  zauzeto, bez ijednog prijedloga šta dalje.
+2) SEKCIJA "KAKO JE PROTEKLO" SE VIDI SAMO AKO JE VOZILO IZAŠLO.
+   Na upitu koji čeka odluku svaki red tamo bio bi prazan.
 
-KAKO SADA RADI
-  Na kartici tog upita odmah stoji narandžasto upozorenje:
+3) KAŠNJENJE ISPOD DESET MINUTA SE NE PRIKAZUJE.
+   Gotovo svaki povrat kasni koju minutu. Da se prikazuje, svaki najam bi
+   izgledao problematično i oznaka bi izgubila značenje.
+   Raniji povrat se također ne prikazuje kao kašnjenje.
 
-    Vozilo je u međuvremenu zauzeto (rezervisano)
-    Ovaj upit se ne može potvrditi za 22.09 – 24.09 na traženom vozilu.
-
-    Slobodno za te datume (2):
-      VW Passat 95 KM   Audi Q5 110 KM
-
-    Ponudite gostu jedno od njih, pa kroz Uredi promijenite vozilo
-    prije potvrde.
-
-  Vlasnik tako zna prije nego išta klikne, i ima gotov odgovor za gosta
-  kad ga nazove.
-
-  Ako nijedno vozilo nije slobodno, i to piše otvoreno.
-
-GDJE SE PRIKAZUJE
-  Samo na upitima koji čekaju odluku. Potvrđene rezervacije same drže
-  vozilo pa se ne mogu sudarati, a otkazane nisu ni bitne.
-
-  Upit bez odabranog vozila, kad je gost pitao okvirno, ne prikazuje
-  ništa jer nema šta biti zauzeto.
-
-PROVJERENO
-  isticanje: novo i kontaktiran s prošlim datumom -> poništeno
-             novo s budućim datumom -> ostaje
-             potvrđeno sa starim datumom -> ostaje
-  preklapanje: zauzet auto -> upozorenje i dvije alternative
-               slobodan auto -> ništa se ne prikazuje
-               upit bez vozila -> ništa se ne prikazuje
+DUGME JE NA SVAKOJ REZERVACIJI
+------------------------------
+Ne samo na završenima. Traženje podatka ne bi trebalo ovisiti o tome u
+kojoj je fazi rezervacija, a i na aktivnoj se često treba provjeriti broj
+telefona ili šta je gost tražio.
 
 FAJLOVI
 -------
-  app/api/cron/cleanup/route.ts       (isticanje u noćnom poslu)
-  components/admin/ConflictNotice.tsx (NOVO — upozorenje o preklapanju)
-  app/admin/page.tsx                  (upozorenje na kartici)
+  components/admin/InquiryDetailButton.tsx  (NOVO — pregled)
+  app/admin/page.tsx                        (dugme, dohvat registracije
+                                             i lokacija)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run build
 3. npm run dev -> /admin
-   - napravi dva upita za isto vozilo i iste datume
-   - potvrdi jedan, drugi mora dobiti narandžasto upozorenje
-     s popisom slobodnih vozila
-
-  Isticanje se pokreće samo noću na Vercelu. Ručno se može provjeriti
-  pozivom /api/cron/cleanup s ispravnim CRON_SECRET zaglavljem.
+   - klikni "Pogledaj" na završenoj rezervaciji
+   - provjeri sekciju "Kako je proteklo" i kašnjenje
+   - u pretragu upiši ime ili telefon gosta

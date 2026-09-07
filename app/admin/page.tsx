@@ -30,6 +30,9 @@ import { createContinuation } from "./extend-actions";
 import { NewReservationButton } from "@/components/admin/NewReservationButton";
 import { StartRentalButton } from "@/components/admin/StartRentalButton";
 import { ConflictNotice } from "@/components/admin/ConflictNotice";
+import { InquiryDetailButton } from "@/components/admin/InquiryDetailButton";
+import { SearchBox } from "@/components/admin/SearchBox";
+import { ReservationDetail } from "@/components/admin/ReservationDetail";
 import { DueBadge } from "@/components/admin/DueBadge";
 import { FinishRentalButton } from "@/components/admin/FinishRentalButton";
 import { NewReservationForm } from "@/components/admin/NewReservationForm";
@@ -171,6 +174,20 @@ const MESSAGES: Record<string, { text: string; tone: "ok" | "warn" | "err" }> =
     },
   };
 
+/**
+ * Digits from a query, but only when it actually looks like a phone number.
+ *
+ * Stripping non-digits from anything at all turns a reference like "MR-4TQ"
+ * into "4", which then matches every phone number containing a four. A term is
+ * treated as a number only when digits are what it is mostly made of.
+ */
+function phoneTerm(q: string): string | null {
+  const digits = q.replace(/[^0-9]/g, "");
+  if (digits.length < 3) return null;
+  // Half or more of the characters must be digits for this to be a number.
+  return digits.length * 2 >= q.replace(/\s/g, "").length ? digits : null;
+}
+
 export default async function AdminPage({
   searchParams,
 }: {
@@ -211,7 +228,31 @@ export default async function AdminPage({
             }
           : {};
 
-  const where = { ...statusWhere, ...createdAtWhere };
+  /**
+   * Free-text search over the fields somebody actually remembers: a name, the
+   * number they were called from, the reference on the contract, or the car.
+   * Case-insensitive, because nobody types names the way they were entered.
+   */
+  const q = (one(searchParams.q) ?? "").trim();
+  const searchWhere = q
+    ? {
+        OR: [
+          { firstName: { contains: q, mode: "insensitive" as const } },
+          { lastName: { contains: q, mode: "insensitive" as const } },
+          { email: { contains: q, mode: "insensitive" as const } },
+          // Digits only, so "062 784 029" finds "+38762784029".
+          ...(phoneTerm(q) ? [{ phone: { contains: phoneTerm(q)! } }] : []),
+          { reference: { contains: q, mode: "insensitive" as const } },
+          { carTitleSnapshot: { contains: q, mode: "insensitive" as const } },
+        ],
+      }
+    : {};
+
+  // A search looks across everything; narrowing it by tab as well would hide
+  // the very reservation somebody is trying to find.
+  const where = q
+    ? { ...searchWhere, ...createdAtWhere }
+    : { ...statusWhere, ...createdAtWhere };
 
   const [
     inquiries,
@@ -234,7 +275,9 @@ export default async function AdminPage({
           : { createdAt: "desc" },
       take: 100,
       include: {
-        car: { select: { title: true } },
+        car: { select: { title: true, plate: true } },
+        pickupLocation: { select: { name: true } },
+        returnLocation: { select: { name: true } },
         extras: true,
         // Both directions of a swap, so the edit form can warn either way.
         continuesFrom: {
@@ -311,6 +354,10 @@ export default async function AdminPage({
             Potvrdite upit da zauzme vozilo. Potvrđene rezervacije i blokade
             automatski skrivaju vozilo iz pretrage za taj period.
           </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <SearchBox placeholder="Ime, telefon, broj rezervacije…" />
         </div>
 
         <NewReservationButton>
@@ -396,8 +443,10 @@ export default async function AdminPage({
       {/* Inquiries */}
       <div className="mt-5 space-y-4">
         {inquiries.length === 0 && (
-          <p className="rounded-2xl border border-border bg-surface p-8 text-center text-sm text-muted-foreground">
-            Nema upita u ovoj kategoriji.
+          <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            {q
+              ? `Nema rezervacija koje odgovaraju pretrazi "${q}".`
+              : "Nema rezervacija u ovom pregledu."}
           </p>
         )}
 
@@ -458,6 +507,82 @@ export default async function AdminPage({
                 </div>
 
                 <div className="flex flex-wrap items-start gap-2">
+                  {/* Available on every reservation, not just finished ones:
+                      looking something up should not depend on which stage it
+                      happens to be at. */}
+                  <InquiryDetailButton
+                    data={{
+                      id: q.id,
+                      reference: q.reference,
+                      status: q.status,
+                      channel: q.channel,
+                      createdAt: q.createdAt.toISOString(),
+                      guest: [q.firstName, q.lastName].filter(Boolean).join(" "),
+                      email: q.email,
+                      phone: q.phone,
+                      flightNumber: q.flightNumber,
+                      message: q.message,
+                      carTitle: q.car?.title ?? q.carTitleSnapshot ?? "",
+                      plate: q.car?.plate ?? "",
+                      pickupLocation: q.pickupLocation?.name ?? "",
+                      returnLocation: q.returnLocation?.name ?? "",
+                      pickupAt: q.pickupAt.toISOString(),
+                      returnAt: q.returnAt.toISOString(),
+                      actualPickUpTime: q.actualPickUpTime?.toISOString() ?? null,
+                      actualDropOffTime: q.actualDropOffTime?.toISOString() ?? null,
+                      rentalDays: q.rentalDays,
+                      totalPrice: q.totalPrice != null ? Number(q.totalPrice) : null,
+                      extras: q.extras.map((e) => ({ name: e.nameHr, qty: e.qty })),
+                      returnFuel: q.returnFuel,
+                      depositStatus: q.depositStatus,
+                      extraCharge:
+                        q.extraCharge != null ? Number(q.extraCharge) : null,
+                      extraChargeNote: q.extraChargeNote,
+                      statusNote: q.statusNote,
+                      continuesFrom: q.continuesFrom
+                        ? {
+                            reference: q.continuesFrom.reference,
+                            carTitleSnapshot: q.continuesFrom.carTitleSnapshot,
+                          }
+                        : null,
+                      continuedBy: q.continuedBy.map((c) => ({
+                        reference: c.reference,
+                        carTitleSnapshot: c.carTitleSnapshot,
+                      })),
+                    }}
+                  />
+
+                  <ReservationDetail
+                    data={{
+                      reference: q.reference,
+                      status: q.status,
+                      channel: q.channel,
+                      guest: [q.firstName, q.lastName].filter(Boolean).join(" "),
+                      email: q.email,
+                      phone: q.phone,
+                      flightNumber: q.flightNumber,
+                      carTitle: q.car?.title ?? q.carTitleSnapshot ?? "",
+                      plate: q.car?.plate ?? "",
+                      pickupLocation: q.pickupLocation?.name ?? "",
+                      returnLocation: q.returnLocation?.name ?? "",
+                      pickupAt: q.pickupAt.toISOString(),
+                      returnAt: q.returnAt.toISOString(),
+                      actualPickUpTime: q.actualPickUpTime?.toISOString() ?? null,
+                      actualDropOffTime: q.actualDropOffTime?.toISOString() ?? null,
+                      rentalDays: q.rentalDays,
+                      totalPrice: q.totalPrice != null ? Number(q.totalPrice) : null,
+                      returnFuel: q.returnFuel,
+                      depositStatus: q.depositStatus,
+                      extraCharge: q.extraCharge != null ? Number(q.extraCharge) : null,
+                      extraChargeNote: q.extraChargeNote,
+                      statusNote: q.statusNote,
+                      message: q.message,
+                      createdAt: q.createdAt.toISOString(),
+                      extras: q.extras.map((e) => ({ name: e.nameHr, qty: e.qty })),
+                      continuesFrom: q.continuesFrom?.reference ?? null,
+                      continuedBy: q.continuedBy.map((c) => c.reference),
+                    }}
+                  />
                   {/* Editing stays available whatever the status: plans change
                       after a booking is confirmed just as often as before. */}
                   <EditInquiryButton reference={q.reference} status={q.status}>
