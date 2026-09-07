@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE, tokenValid } from "@/lib/admin-auth";
 import { availabilityFor, getBookedExtras, maxSelectable } from "@/lib/extras-availability";
 import { extraLineTotal, rentalDays } from "@/lib/extras";
+import { rentalTotal } from "@/lib/pricing";
 
 /**
  * Editing an existing reservation.
@@ -167,11 +168,11 @@ export async function updateInquiry(formData: FormData) {
   const car = carId
     ? await prisma.car.findUnique({
         where: { id: carId },
-        select: { title: true, pricePerDay: true },
+        select: { title: true, pricePerDay: true, seasonalPrice: true },
       })
     : null;
 
-  const rentalTotal = car?.pricePerDay != null ? Number(car.pricePerDay) * days : 0;
+  const rental = await rentalTotal(car, days);
   const extrasTotal = extraRows.reduce(
     (a, e) => a + extraLineTotal(e.pricing, e.unitPrice, e.qty, days),
     0,
@@ -183,7 +184,7 @@ export async function updateInquiry(formData: FormData) {
   const totalPrice =
     manual !== "" && Number.isFinite(Number(manual))
       ? Number(manual)
-      : rentalTotal + extrasTotal;
+      : rental + extrasTotal;
 
   await prisma.$transaction([
     prisma.inquiryExtra.deleteMany({ where: { inquiryId: id } }),

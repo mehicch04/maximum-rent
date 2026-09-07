@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { effectivePrice, getCompany } from "@/lib/company";
 import {
   confirmInquiry,
   cancelInquiry,
@@ -246,7 +247,7 @@ export default async function AdminPage({
       where: { isAvailable: true },
       orderBy: { sortOrder: "asc" },
       // pricePerDay drives the live price calculation in the new-reservation form.
-      select: { id: true, title: true, pricePerDay: true },
+      select: { id: true, title: true, pricePerDay: true, seasonalPrice: true },
     }),
     prisma.inquiry.groupBy({
       by: ["status"],
@@ -280,10 +281,15 @@ export default async function AdminPage({
   };
 
   // Prisma returns Decimal, which cannot cross into a client component.
+  // The rate in force today, so the live calculation in the forms matches the
+  // figure the server will actually store.
+  const { seasonalPricing } = await getCompany().catch(() => ({
+    seasonalPricing: false,
+  }));
   const carsForForm = cars.map((c) => ({
     id: c.id,
     title: c.title,
-    pricePerDay: c.pricePerDay != null ? Number(c.pricePerDay) : null,
+    pricePerDay: effectivePrice(c, seasonalPricing),
   }));
 
   const today = new Date().toISOString().slice(0, 10);

@@ -7,6 +7,7 @@ import { buildOwnerSummaryText } from "@/lib/whatsapp";
 import { rentalDays, extraLineTotal } from "@/lib/extras";
 import { withUniqueReference, REF_PREFIX } from "@/lib/reference";
 import { sendOwnerNotification } from "@/lib/notify";
+import { dailyRate, rentalTotal as rentalTotalFor } from "@/lib/pricing";
 
 export const runtime = "nodejs";
 
@@ -88,8 +89,8 @@ export async function POST(req: Request) {
 
   // Rental plus extras, locked in now. Reports read this figure, so it must
   // not shift when the owner edits prices later.
-  const rentalTotal =
-    car?.pricePerDay != null ? Number(car.pricePerDay) * days : 0;
+    // Seasonal rate included, so the stored figure matches what was quoted.
+    const rentalTotal = await rentalTotalFor(car, days);
   const extrasTotal = extrasForEmail.reduce((a, e) => a + e.lineTotal, 0);
   const totalPrice = rentalTotal + extrasTotal;
 
@@ -126,7 +127,7 @@ export async function POST(req: Request) {
       returnLocationName: ret?.name ?? null,
       extras: extrasForEmail,
       days,
-      pricePerDay: car?.pricePerDay != null ? Number(car.pricePerDay) : null,
+      pricePerDay: car ? await dailyRate(car) : null,
     };
 
     const email = await sendInquiryEmail(emailData);

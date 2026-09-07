@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE, tokenValid } from "@/lib/admin-auth";
 import { REF_PREFIX, withUniqueReference } from "@/lib/reference";
 import { rentalDays } from "@/lib/extras";
+import { rentalTotal } from "@/lib/pricing";
 
 /**
  * Continuing a rental on a different vehicle.
@@ -33,6 +34,7 @@ export async function createContinuation(formData: FormData) {
       firstName: true, lastName: true, email: true, phone: true,
       flightNumber: true, returnAt: true, reference: true,
       pickupLocationId: true, returnLocationId: true,
+      extras: true,
     },
   });
   if (!source) redirect("/admin?msg=error");
@@ -65,11 +67,25 @@ export async function createContinuation(formData: FormData) {
 
   const car = await prisma.car.findUnique({
     where: { id: carId },
-    select: { title: true, pricePerDay: true },
+    select: { title: true, pricePerDay: true, seasonalPrice: true },
   });
 
+  // Equipment travels with the guest, not with the car: the child seats move
+  // into the new vehicle. Leaving them off the continuation would put them
+  // back on the shelf while they are strapped into somebody's back seat.
+  const carriedExtras = source.extras
+    .filter((e) => e.extraId)
+    .map((e) => ({
+      extraId: e.extraId,
+      qty: e.qty,
+      nameHr: e.nameHr,
+      nameEn: e.nameEn,
+      pricing: e.pricing,
+      unitPrice: Number(e.unitPrice),
+    }));
+
   const days = rentalDays(pickupAt, returnAt);
-  const price = car?.pricePerDay != null ? Number(car.pricePerDay) * days : 0;
+  const price = await rentalTotal(car, days);
 
   await withUniqueReference(REF_PREFIX.inquiry, (reference) =>
     prisma.inquiry.create({
@@ -96,6 +112,7 @@ export async function createContinuation(formData: FormData) {
         locale: "HR",
         rentalDays: days,
         totalPrice: price,
+        extras: carriedExtras.length ? { create: carriedExtras } : undefined,
       },
     }),
   );

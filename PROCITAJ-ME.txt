@@ -1,67 +1,82 @@
-VEZA IZMEĐU REZERVACIJA KOD ZAMJENE VOZILA
-==========================================
+TRI POPRAVKE IZ PREGLEDA
+========================
 
-*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
+Schema se NE mijenja. Samo: npm run build
 
-ŠTA JE DODANO
--------------
-Kad se napravi nastavak najma na drugom vozilu, dvije rezervacije su sada
-stvarno povezane. Otvaranjem bilo koje od njih na vrhu obrasca stoji plavo
-obavještenje:
+=======================================================================
+1) SEZONSKA CIJENA SE NIJE PRIMJENJIVALA PRI SPREMANJU  (najvažnije)
+=======================================================================
+Sajt je gostu prikazivao sezonsku cijenu, ali svako mjesto koje je cijenu
+SPREMALO čitalo je redovnu iz baze.
 
-  Ova rezervacija je dio zamjene vozila
+Tokom sezone: gost vidi 130 KM po danu, a u mejlu, u bazi i u analitici
+završi 100 KM. Tiho manjak prihoda, svaki dan dok je sezona uključena.
 
-    Ima nastavak MR-4TQ8XN
-    VW T-Roc · 13.09. u 10:00 → 17.09. u 10:00
+Popravljeno na sedam mjesta, ali kroz JEDNU funkciju (lib/pricing.ts), ne
+sedam kopija istog računa. Sada:
 
-  Ako ovdje mijenjate datume, provjerite i tu rezervaciju. Inače gostu
-  ostaje rupa između dva vozila ili se dva najma preklope.
+  javni upit sa sajta          sezonska
+  nova manuelna rezervacija    sezonska
+  uređivanje rezervacije       sezonska
+  nastavak najma               sezonska
+  oba obrasca u pregledniku    sezonska
 
-Radi u OBA smjera:
-  otvorite original  -> "Ima nastavak MR-BBB"
-  otvorite nastavak  -> "Nastavlja se na MR-AAA"
+Obrasci sada prikazuju isti iznos koji će server spremiti. Ranije su i oni
+računali po redovnoj, pa se prikaz i zapis nisu poklapali.
 
-Ako je gost mijenjao vozilo dvaput, original prikazuje sve nastavke.
+Vozilo bez unesene sezonske cijene zadržava redovnu, kao i do sada.
 
-ZAŠTO NIJE DOVOLJNO ONO ŠTO JE VEĆ POSTOJALO
---------------------------------------------
-Do sada je veza postojala samo kao rečenica u napomeni nastavka:
-"Nastavak najma MR-AAA, zamjena vozila."
+=======================================================================
+2) NASTAVAK NAJMA NIJE PRENOSIO OPREMU
+=======================================================================
+Gost ima dvije dječije sjedalice, zamijeni vozilo, sjedalice idu s njim.
+Nastavak ih nije bilježio, pa je sistem mislio da su na polici i mogao ih
+obećati drugom gostu.
 
-To je bilo korisno za čitanje, ali ništa više. Original nije znao da ima
-nastavak, pa ste ga mogli uređivati bez ijednog upozorenja. Tekst se ne
-može pouzdano čitati, a napomena se može i obrisati.
+Sada se prenose na novu rezervaciju, s istim količinama i cijenama.
 
-Sada je to prava veza u bazi, pa obje strane znaju jedna za drugu.
+Oprema koja je u međuvremenu obrisana iz kataloga se preskače, jer joj
+nema šta ni prenijeti.
 
-Napomena u tekstu ostaje kakva jest; ne smeta, a stare zamjene napravljene
-prije ove izmjene i dalje se mogu pročitati iz nje.
+=======================================================================
+3) RUPA ILI PREKLAPANJE IZMEĐU DVA NAJMA
+=======================================================================
+Ako poslije zamjene vozila skratite ili produžite ORIGINAL, nastavak je
+i dalje počinjao na starom datumu. Ranije je stajao samo savjet da
+provjerite; sada se računa dok kucate:
 
-STARE ZAMJENE
--------------
-Rezervacije napravljene prije ove izmjene nemaju vezu u bazi i neće
-prikazati obavještenje. Vidjet ćete ih po napomeni. Novih se to ne tiče.
+  original skraćen   -> "Gost ostaje bez vozila 1 dana između ovog
+                         najma i nastavka."
+  original produžen  -> "Ovaj najam se preklapa s nastavkom 2 dana.
+                         Gost bi imao dva vozila istovremeno."
+  usklađeno          -> ništa se ne prikazuje
 
-BRISANJE
---------
-Ako se original obriše, nastavak ostaje. Prekida se samo veza i on postaje
-samostalna rezervacija. Bolje nego da se briše najam koji je gost stvarno
-odvezao.
+Uz poruku stoji broj rezervacije koju treba uskladiti.
+
+PROVJERENO
+  sezona uključena:  5 dana × 130 = 650 KM
+  sezona isključena: 5 dana × 100 = 500 KM
+  vozilo bez sezonske cijene: zadržava redovnu
+  oprema: prenosi se, obrisane stavke se preskaču
+  rupa 1 dan, preklapanje 2 dana, usklađeno -> sve tri poruke tačne
 
 FAJLOVI
 -------
-  prisma/schema.prisma                  (veza continuesFrom / continuedBy)
-  app/admin/extend-actions.ts           (upisuje vezu)
-  app/admin/page.tsx                    (dohvata obje strane)
-  components/admin/EditInquiryForm.tsx  (obavještenje na vrhu)
+  lib/pricing.ts                        (NOVO — jedna funkcija za cijenu)
+  app/api/inquiries/route.ts            (javni upit)
+  app/admin/new-reservation-actions.ts  (nova rezervacija)
+  app/admin/edit-actions.ts             (uređivanje)
+  app/admin/extend-actions.ts           (nastavak + oprema)
+  app/admin/page.tsx                    (obrasci dobijaju sezonsku)
+  components/admin/EditInquiryForm.tsx  (rupa i preklapanje)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npx prisma generate
-3. npx prisma db push
-4. npm run build
-5. npm run dev
-   - napravi nastavak najma na drugom vozilu
-   - otvori "Uredi" na originalu: mora pisati da ima nastavak
-   - otvori "Uredi" na nastavku: mora pisati na šta se nastavlja
+2. npm run build
+3. npm run dev
+   - /admin/firma -> uključi sezonske cijene
+   - napravi upit sa sajta i provjeri iznos u mejlu i u adminu:
+     mora biti sezonski, isti kao prikazani
+   - napravi nastavak najma s opremom i provjeri /admin/oprema
+   - skrati original i provjeri poruku o rupi

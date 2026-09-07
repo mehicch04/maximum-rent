@@ -344,9 +344,30 @@ export function EditInquiryForm({
             ))}
           </ul>
 
+          {/*
+            * Checked while typing rather than left as advice. Moving this
+            * rental's end without moving the follow-on either leaves the guest
+            * without a car for a while, or hands them two at once.
+            */}
+          {(() => {
+            const next = inquiry.continuedBy?.[0];
+            if (!next) return null;
+            const gap = new Date(next.pickupAt).getTime() - to.getTime();
+            if (Math.abs(gap) < 60_000) return null;
+            const hours = Math.round(Math.abs(gap) / 3_600_000);
+            const span = hours < 24 ? `${hours} h` : `${Math.round(hours / 24)} dana`;
+            return (
+              <p className="mt-2 rounded-lg bg-surface px-3 py-2 text-xs font-medium text-brand-strong">
+                {gap > 0
+                  ? `Gost ostaje bez vozila ${span} između ovog najma i nastavka.`
+                  : `Ovaj najam se preklapa s nastavkom ${span}. Gost bi imao dva vozila istovremeno.`}{" "}
+                Uskladite datume ili uredite {next.reference}.
+              </p>
+            );
+          })()}
+
           <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-            Ako ovdje mijenjate datume, provjerite i tu rezervaciju. Inače
-            gostu ostaje rupa između dva vozila ili se dva najma preklope.
+            Ako ovdje mijenjate datume, provjerite i tu rezervaciju.
           </p>
         </div>
       )}
