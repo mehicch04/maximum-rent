@@ -52,7 +52,8 @@ export default async function AdminExtrasPage({
         where: {
           extraId: { not: null },
           inquiry: {
-            status: { in: ["CONFIRMED", "IN_PROGRESS", "COMPLETED"] },
+            // Finished rentals have handed their equipment back.
+            status: { in: ["CONFIRMED", "IN_PROGRESS"] },
             pickupAt: { lte: now },
             returnAt: { gte: now },
           },

@@ -1,69 +1,92 @@
-POPRAVKA — aktivna rezervacija je ispadala iz aktivnih
-=====================================================
+POVRAT VOZILA — zatvaranje najma
+================================
 
-Schema se NE mijenja. Samo: npm run build
+*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
 
-ŠTA SE DEŠAVALO
----------------
-Uredite rezervaciju kojoj je vozilo već izdato, sačuvate, i ona se vrati
-među potvrđene iako je auto i dalje kod klijenta.
-
-UZROK
------
-Izbornik statusa u obrascu nije imao opciju "U toku". Kad se otvori aktivna
-rezervacija, izbornik nije mogao prikazati njeno stvarno stanje, pa je pri
-spremanju poslao neku drugu vrijednost.
-
-Server je imao isti propust: u popisu dozvoljenih statusa "U toku" nije
-postojao, pa ga ne bi ni prihvatio da je poslan.
-
-POPRAVLJENO
------------
-Status "U toku (vozilo kod klijenta)" sada postoji i u izborniku i na
-serveru. Kad uređujete aktivnu rezervaciju, izbornik pokazuje njeno stvarno
-stanje i ona OSTAJE aktivna nakon spremanja.
-
-Ako je želite vratiti u potvrđene, to i dalje možete: samo odaberite drugi
-status u izborniku. Razlika je što se sada to dešava kad vi tako odlučite, a
-ne samo od sebe.
-
-UPOZORENJE PRI VRAĆANJU UNAZAD
-------------------------------
-Ako aktivnu rezervaciju vratite u potvrđene, kontaktirane ili nove, iskoči
-narandžasto upozorenje:
-
-  "Vraćate najam koji je već u toku. Vozilo je izdato i vodi se kod klijenta.
-   Ovo mijenjajte samo ako je izdavanje zabilježeno greškom."
-
-Nije zabrana, samo napomena. Postoje slučajevi kad je izdavanje kliknuto
-greškom i treba ga poništiti.
-
-USPUT POPRAVLJENO
+NALAZ PRIJE POSLA
 -----------------
-Provjera sudara pri uređivanju gledala je samo potvrđene rezervacije. Sada
-obuhvata i one u toku, pa se vozilo koje je kod klijenta ne može dodijeliti
-nekom drugom kroz obrazac za uređivanje.
+Zadatak traži da povrat "oslobodi vozilo u floti". Provjerio sam i našao da
+to ne bi radilo: završena rezervacija je na TRI mjesta i dalje držala vozilo
+zauzetim.
 
-Provjerio sam i da se popis opcija u obrascu i popis dozvoljenih statusa na
-serveru potpuno poklapaju, jer je upravo njihov nesklad i bio uzrok.
+Klik na "Potvrdi povrat" bi promijenio status, poništio keš, i auto bi i
+dalje ostao nedostupan. Bez ikakve poruke o grešci.
 
-PROVJERENO
-  aktivna, ništa se ne dira        -> ostaje aktivna
-  aktivna, namjerno u potvrđene    -> prelazi, uz upozorenje
-  aktivna -> završeno              -> prelazi
-  potvrđena -> u toku              -> prelazi
-  podmetnuta nepostojeća vrijednost -> zadržava se postojeći status
+Popravljeno prvo. Sada:
+  Potvrđeno    drži vozilo
+  U toku       drži vozilo
+  Završeno     vozilo slobodno
+  Otkazano     vozilo slobodno
+
+Isto vrijedi i za opremu, i u adminu i na sajtu.
+
+Analitika je posebna priča: tamo završeni najmovi MORAJU ostati u prihodu,
+jer su zarađeni. To sam ostavio kako jest i provjerio.
+
+ZAŠTO JE OVO VAŽNIJE NEGO ŠTO ZVUČI
+-----------------------------------
+Gost vrati auto dva dana ranije. Zatvorite najam, i ta dva dana odmah
+postaju slobodna za nekog drugog. Ranije bi vozilo stajalo neiskorišteno do
+kraja prvobitnog termina.
+
+MODAL
+-----
+Dugme "Završi najam" sada otvara prozor sa:
+
+  Stanje goriva pri povratu    Prazan, 1/4, 1/2, 3/4, Pun
+  Status depozita              Vraćen, Djelimično zadržan, Zadržan zbog štete
+  Dodatna naplata (KM)         iznos
+  Opis troška                  npr. "nedostaje pola rezervoara"
+
+Ako je vozilo vraćeno nakon dogovorenog vremena, na vrhu piše koliko kasni.
+
+DODATNA NAPLATA MORA IMATI OPIS
+-------------------------------
+Ako upišete iznos veći od nule, opis postaje obavezan i dugme se zaključa
+dok ga ne unesete. Provjerava se i na serveru.
+
+Razlog: iznos bez objašnjenja je prva stvar koju gost ospori, a mjesec dana
+kasnije se niko ne sjeća zbog čega je naplaćen.
+
+Naplata nula i prazno polje prolaze normalno; nije svaki povrat sporan.
+
+ŠTO SE UPISUJE
+--------------
+  stvarno vrijeme povrata (trenutni trenutak)
+  status prelazi u "Završeno"
+  gorivo, depozit, naplata i opis
+  keš vozila i opreme se odmah poništava, pa sajt zna da je auto slobodan
+
+Povrat se može zabilježiti samo za najam koji je u toku. Za sve ostalo
+server odbija, jer bi inače oslobodio vozilo koje nikad nije ni izdato.
+
+TESTIRANO
+  naplata 50 bez opisa        -> odbijeno
+  naplata 50 s opisom         -> prolazi
+  naplata 0 ili prazno        -> prolazi
+  iznos s zarezom (25,50)     -> prolazi
+  raniji povrat               -> preostali dani odmah slobodni
+  zatvoreni najam             -> i dalje u prihodu
 
 FAJLOVI
 -------
-  components/admin/EditInquiryForm.tsx  (opcija i upozorenje)
-  app/admin/edit-actions.ts             (dozvoljeni statusi, provjera sudara)
+  prisma/schema.prisma                     (polja povrata)
+  app/admin/checkout-actions.ts            (finishRental)
+  components/admin/FinishRentalButton.tsx  (modal)
+  app/admin/page.tsx                       (povezano, poruke)
+  lib/availability.ts                      (oslobađanje)
+  lib/extras-availability.ts               (oslobađanje)
+  app/admin/oprema/page.tsx                (oslobađanje opreme)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build
-3. npm run dev -> /admin -> filter "Aktivne"
-   - uredi aktivnu rezervaciju i sačuvaj bez diranja statusa
-   - mora ostati u tabu "Aktivne"
-   - zatim probaj namjerno prebaciti u "Potvrđeno" i provjeri upozorenje
+2. npx prisma generate
+3. npx prisma db push
+4. npm run build
+5. npm run dev -> /admin -> filter "Aktivne"
+   - klikni "Završi najam", popuni gorivo i depozit
+   - probaj upisati naplatu bez opisa: dugme mora biti zaključano
+   - potvrdi povrat
+   - OBAVEZNO: otvori /vozila na sajtu za taj period,
+     vozilo se sada MORA nuditi

@@ -49,3 +49,84 @@ export async function startRental(formData: FormData) {
   revalidatePath("/admin", "layout");
   redirect("/admin?msg=started");
 }
+
+
+/** What the guest can be told about their deposit. */
+export const DEPOSIT_STATUSES = [
+  { value: "RETURNED", label: "Vraćen u cijelosti" },
+  { value: "PARTIAL", label: "Djelimično zadržan" },
+  { value: "WITHHELD", label: "Zadržan zbog štete" },
+] as const;
+
+export const FUEL_LEVELS = ["Prazan", "1/4", "1/2", "3/4", "Pun"] as const;
+
+/**
+ * Closing a rental.
+ *
+ * Records when the car came back and in what state, then frees it. The freeing
+ * is the part that matters operationally: a guest who brings the car back two
+ * days early leaves two bookable days behind, and they are worth nothing if the
+ * site only learns about them when the original period runs out.
+ */
+export async function finishRental(formData: FormData) {
+  if (!(await tokenValid(cookies().get(ADMIN_COOKIE)?.value))) {
+    redirect("/admin/login");
+  }
+
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) redirect("/admin?msg=error");
+
+  const inquiry = await prisma.inquiry.findUnique({
+    where: { id },
+    select: { id: true, status: true },
+  });
+  if (!inquiry) redirect("/admin?msg=error");
+
+  // Only a rental that is actually out can be returned. Closing anything else
+  // would free a car that was never handed over.
+  if (inquiry.status !== "IN_PROGRESS") redirect("/admin?msg=notactive");
+
+  const pick = <T extends readonly string[]>(raw: string, allowed: T) =>
+    (allowed as readonly string[]).includes(raw) ? raw : null;
+
+  const returnFuel = pick(
+    String(formData.get("returnFuel") ?? ""),
+    FUEL_LEVELS,
+  );
+  const depositStatus = pick(
+    String(formData.get("depositStatus") ?? ""),
+    DEPOSIT_STATUSES.map((d) => d.value),
+  );
+
+  const rawCharge = String(formData.get("extraCharge") ?? "").replace(",", ".");
+  const parsed = rawCharge === "" ? null : Number(rawCharge);
+  const extraCharge =
+    parsed != null && Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+
+  const note = String(formData.get("extraChargeNote") ?? "").trim().slice(0, 200);
+
+  // A charge with no explanation is the one thing that always gets questioned
+  // later, so it is refused rather than saved half-finished.
+  if (extraCharge != null && extraCharge > 0 && note === "") {
+    redirect(`/admin?msg=chargenote&filter=active`);
+  }
+
+  await prisma.inquiry.update({
+    where: { id },
+    data: {
+      status: "COMPLETED",
+      actualDropOffTime: new Date(),
+      returnFuel,
+      depositStatus,
+      extraCharge,
+      extraChargeNote: extraCharge != null && extraCharge > 0 ? note || null : null,
+    },
+  });
+
+  // The car and its equipment are free from this moment, so the cached public
+  // lists have to be dropped straight away.
+  revalidateTag("fleet");
+  revalidateTag("extras");
+  revalidatePath("/admin", "layout");
+  redirect("/admin?msg=finished&filter=active");
+}

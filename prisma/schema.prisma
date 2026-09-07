@@ -191,6 +191,13 @@ model Inquiry {
   /// When the keys actually changed hands, which is rarely the agreed hour.
   /// Kept separate from pickupAt so the plan and what happened stay distinct.
   actualPickUpTime   DateTime?
+  /// When the car actually came back, and in what state. Filled in at return;
+  /// the fuel level and the deposit outcome are what disputes turn on later.
+  actualDropOffTime  DateTime?
+  returnFuel         String?
+  depositStatus      String?
+  extraCharge        Decimal?          @db.Decimal(10, 2)
+  extraChargeNote    String?
   /// Rental length in whole days, kept alongside the price for reporting.
   rentalDays Int?
 

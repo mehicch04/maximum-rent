@@ -126,6 +126,18 @@ const MESSAGES: Record<string, { text: string; tone: "ok" | "warn" | "err" }> =
     updated: { text: "Rezervacija je izmijenjena.", tone: "ok" },
   created: { text: "Rezervacija je kreirana i potvrđena.", tone: "ok" },
   started: { text: "Vozilo je izdato. Rezervacija je sada u toku.", tone: "ok" },
+  finished: {
+    text: "Najam je zatvoren. Vozilo i oprema su ponovo slobodni.",
+    tone: "ok",
+  },
+  notactive: {
+    text: "Povrat se može zabilježiti samo za najam koji je u toku.",
+    tone: "err",
+  },
+  chargenote: {
+    text: "Dodatna naplata mora imati opis troška.",
+    tone: "err",
+  },
   notconfirmed: {
     text: "Vozilo se može izdati samo za potvrđenu rezervaciju.",
     tone: "err",
@@ -488,7 +500,13 @@ export default async function AdminPage({
                 )}
                 {q.status === "IN_PROGRESS" && (
                   <div className="flex flex-wrap gap-2">
-                    <FinishRentalButton id={q.id} reference={q.reference} />
+                    <FinishRentalButton
+                      id={q.id}
+                      reference={q.reference}
+                      guest={[q.firstName, q.lastName].filter(Boolean).join(" ")}
+                      carTitle={q.car?.title ?? q.carTitleSnapshot ?? ""}
+                      returnAt={q.returnAt.toISOString()}
+                    />
                   </div>
                 )}
 
