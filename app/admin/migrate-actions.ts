@@ -20,7 +20,7 @@ import { rentalDays } from "@/lib/extras";
  * second run simply finds nothing left to do.
  */
 
-export type MigrationResult = {
+type MigrationResult = {
   moved: number;
   extras: number;
   skipped: number;

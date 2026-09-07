@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE, tokenValid } from "@/lib/admin-auth";
+import { DEPOSIT_STATUSES, FUEL_LEVELS } from "@/lib/rental-return";
 
 /**
  * Handing the keys over.
@@ -51,14 +52,6 @@ export async function startRental(formData: FormData) {
 }
 
 
-/** What the guest can be told about their deposit. */
-export const DEPOSIT_STATUSES = [
-  { value: "RETURNED", label: "Vraćen u cijelosti" },
-  { value: "PARTIAL", label: "Djelimično zadržan" },
-  { value: "WITHHELD", label: "Zadržan zbog štete" },
-] as const;
-
-export const FUEL_LEVELS = ["Prazan", "1/4", "1/2", "3/4", "Pun"] as const;
 
 /**
  * Closing a rental.

@@ -1,92 +1,50 @@
-POVRAT VOZILA — zatvaranje najma
-================================
+POPRAVKA — greška pri kliku na "Završi najam"
+=============================================
 
-*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
+Schema se NE mijenja. Samo: npm run build
 
-NALAZ PRIJE POSLA
------------------
-Zadatak traži da povrat "oslobodi vozilo u floti". Provjerio sam i našao da
-to ne bi radilo: završena rezervacija je na TRI mjesta i dalje držala vozilo
-zauzetim.
+GREŠKA
+------
+  Application error: a client-side exception has occurred
 
-Klik na "Potvrdi povrat" bi promijenio status, poništio keš, i auto bi i
-dalje ostao nedostupan. Bez ikakve poruke o grešci.
+UZROK (moja greška)
+-------------------
+Popise za gorivo i status depozita stavio sam u istu datoteku u kojoj je i
+serverska akcija.
 
-Popravljeno prvo. Sada:
-  Potvrđeno    drži vozilo
-  U toku       drži vozilo
-  Završeno     vozilo slobodno
-  Otkazano     vozilo slobodno
+Datoteka označena kao serverska smije prema van davati samo funkcije.
+Popisi kroz nju do preglednika ne stignu, pa su u modalu bili prazni. Prvi
+pokušaj da se ispišu opcije obori cijelu stranicu.
 
-Isto vrijedi i za opremu, i u adminu i na sajtu.
+Zato je greška bila baš na klik: modal se dotad nije ni otvarao.
 
-Analitika je posebna priča: tamo završeni najmovi MORAJU ostati u prihodu,
-jer su zarađeni. To sam ostavio kako jest i provjerio.
+POPRAVKA
+--------
+Popisi su izdvojeni u zasebnu datoteku lib/rental-return.ts. Odatle ih
+čitaju i obrazac i serverska akcija, pa postoji jedan izvor i za prikaz i za
+provjeru na serveru.
 
-ZAŠTO JE OVO VAŽNIJE NEGO ŠTO ZVUČI
------------------------------------
-Gost vrati auto dva dana ranije. Zatvorite najam, i ta dva dana odmah
-postaju slobodna za nekog drugog. Ranije bi vozilo stajalo neiskorišteno do
-kraja prvobitnog termina.
+PROŠAO SAM I OSTALE
+-------------------
+Provjerio sam sve serverske datoteke u adminu traži li se igdje isto. Devet
+ih je i sve sada prema van daju samo funkcije.
 
-MODAL
------
-Dugme "Završi najam" sada otvara prozor sa:
-
-  Stanje goriva pri povratu    Prazan, 1/4, 1/2, 3/4, Pun
-  Status depozita              Vraćen, Djelimično zadržan, Zadržan zbog štete
-  Dodatna naplata (KM)         iznos
-  Opis troška                  npr. "nedostaje pola rezervoara"
-
-Ako je vozilo vraćeno nakon dogovorenog vremena, na vrhu piše koliko kasni.
-
-DODATNA NAPLATA MORA IMATI OPIS
--------------------------------
-Ako upišete iznos veći od nule, opis postaje obavezan i dugme se zaključa
-dok ga ne unesete. Provjerava se i na serveru.
-
-Razlog: iznos bez objašnjenja je prva stvar koju gost ospori, a mjesec dana
-kasnije se niko ne sjeća zbog čega je naplaćen.
-
-Naplata nula i prazno polje prolaze normalno; nije svaki povrat sporan.
-
-ŠTO SE UPISUJE
---------------
-  stvarno vrijeme povrata (trenutni trenutak)
-  status prelazi u "Završeno"
-  gorivo, depozit, naplata i opis
-  keš vozila i opreme se odmah poništava, pa sajt zna da je auto slobodan
-
-Povrat se može zabilježiti samo za najam koji je u toku. Za sve ostalo
-server odbija, jer bi inače oslobodio vozilo koje nikad nije ni izdato.
-
-TESTIRANO
-  naplata 50 bez opisa        -> odbijeno
-  naplata 50 s opisom         -> prolazi
-  naplata 0 ili prazno        -> prolazi
-  iznos s zarezom (25,50)     -> prolazi
-  raniji povrat               -> preostali dani odmah slobodni
-  zatvoreni najam             -> i dalje u prihodu
+Usput sam u migraciji uklonio jedan izvoz tipa koji se nigdje nije koristio.
+Tipovi se inače brišu pri prevođenju i nisu problem, ali nije ni trebao
+biti izvezen.
 
 FAJLOVI
 -------
-  prisma/schema.prisma                     (polja povrata)
-  app/admin/checkout-actions.ts            (finishRental)
-  components/admin/FinishRentalButton.tsx  (modal)
-  app/admin/page.tsx                       (povezano, poruke)
-  lib/availability.ts                      (oslobađanje)
-  lib/extras-availability.ts               (oslobađanje)
-  app/admin/oprema/page.tsx                (oslobađanje opreme)
+  lib/rental-return.ts                     (NOVO — popisi)
+  app/admin/checkout-actions.ts            (uvozi ih)
+  components/admin/FinishRentalButton.tsx  (uvozi ih)
+  app/admin/migrate-actions.ts             (uklonjen suvišan izvoz)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npx prisma generate
-3. npx prisma db push
-4. npm run build
-5. npm run dev -> /admin -> filter "Aktivne"
-   - klikni "Završi najam", popuni gorivo i depozit
-   - probaj upisati naplatu bez opisa: dugme mora biti zaključano
-   - potvrdi povrat
-   - OBAVEZNO: otvori /vozila na sajtu za taj period,
-     vozilo se sada MORA nuditi
+2. npm run build
+3. npm run dev -> /admin -> filter "Aktivne"
+   - klikni "Završi najam", modal se mora otvoriti
+   - u padajućim menijima moraju stajati opcije goriva i depozita
+   - potvrdi povrat pa provjeri /vozila na sajtu za taj period

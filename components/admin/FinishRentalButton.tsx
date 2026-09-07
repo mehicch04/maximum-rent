@@ -3,11 +3,8 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { CheckCircle2, Clock, Fuel, Loader2, ShieldCheck, X } from "lucide-react";
-import {
-  DEPOSIT_STATUSES,
-  FUEL_LEVELS,
-  finishRental,
-} from "@/app/admin/checkout-actions";
+import { finishRental } from "@/app/admin/checkout-actions";
+import { DEPOSIT_STATUSES, FUEL_LEVELS } from "@/lib/rental-return";
 
 const input =
   "h-10 w-full min-w-0 rounded-xl border border-border bg-background px-3 text-base outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-ring/30 sm:text-sm";
