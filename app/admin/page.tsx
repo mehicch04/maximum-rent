@@ -29,6 +29,7 @@ import { updateInquiry } from "./edit-actions";
 import { createContinuation } from "./extend-actions";
 import { NewReservationButton } from "@/components/admin/NewReservationButton";
 import { StartRentalButton } from "@/components/admin/StartRentalButton";
+import { ConflictNotice } from "@/components/admin/ConflictNotice";
 import { DueBadge } from "@/components/admin/DueBadge";
 import { FinishRentalButton } from "@/components/admin/FinishRentalButton";
 import { NewReservationForm } from "@/components/admin/NewReservationForm";
@@ -544,6 +545,18 @@ export default async function AdminPage({
                     </form>
                   </div>
                 )}
+                {/* Only for enquiries still awaiting a decision: once a
+                    booking is confirmed it holds the car itself. */}
+                {canAct && (
+                  <ConflictNotice
+                    carId={q.carId}
+                    pickupAt={q.pickupAt.toISOString()}
+                    returnAt={q.returnAt.toISOString()}
+                    occupancy={carOccupancy}
+                    cars={carsForForm}
+                  />
+                )}
+
                 {(q.status === "IN_PROGRESS" ||
                   (q.status === "CONFIRMED" && q.pickupAt <= new Date())) && (
                   <div className="flex flex-wrap gap-2">

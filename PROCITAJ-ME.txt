@@ -1,43 +1,91 @@
-POPRAVKA BUILDA — nedostajuća polja u upitu
-===========================================
+UPITI NA ČEKANJU — isticanje i preklapanje
+==========================================
 
 Schema se NE mijenja. Samo: npm run build
 
-GREŠKA
-------
-  Property 'pickupAt' does not exist on type '{ status; id }'
+=======================================================================
+1) UPITI KOJI SE SAMI PONIŠTE
+=======================================================================
+PRIMJER
+  Gost je 05.09 poslao upit za auto od 12.09. Vlasnik ga nije stigao ni
+  potvrditi ni otkazati. Danas je 13.09.
 
-UZROK (moja greška)
--------------------
-Kad sam omogućio zatvaranje najma i za rezervacije kod kojih je izdavanje
-zaboravljeno, funkciji su zatrebala dva nova podatka: dogovoreno vrijeme
-preuzimanja i stvarno vrijeme preuzimanja.
+ŠTA SE DEŠAVA SADA
+  Noćni posao, koji već radi u 3:30, sada uz čišćenje starih zapisa
+  poništava i upite kojima je vrijeme preuzimanja prošlo, a još su na
+  čekanju.
 
-Upit prema bazi sam dopunio, ali u POGREŠNOJ funkciji. Datoteka ima dvije
-gotovo identične linije, jednu u izdavanju vozila i jednu u povratu. Moja
-izmjena je pogodila prvu, a trebala je drugu.
+  Poništavaju se samo "Novo" i "Kontaktiran". Potvrđene se NE diraju, ma
+  koliko stare bile, jer je tamo posao stvarno obavljen.
 
-POPRAVKA
---------
-Upit u funkciji povrata sada dohvata i ta dva polja.
+TRI ODLUKE KOJE SAM DONIO
+  Ne brišu se, nego se otkazuju. Ostaje trag da je upit stigao, pa
+  statistika pristiglih upita ostaje tačna.
 
-PROVJERIO SAM I OSTALE
-----------------------
-Prošao sam kroz sve serverske akcije i uporedio šta svaki upit dohvata s
-onim što se u toj funkciji stvarno koristi. Ostale su ispravne.
+  Upisuje se razlog: "Isteklo bez odgovora, poništeno automatski." Kad
+  vlasnik za mjesec dana vidi otkazanu rezervaciju, zna zašto.
 
-Ovo je greška koju provjera tipova hvata odmah, ali samo ako se pokrene bez
-prečica. Kod mene Prisma tipovi nisu dostupni pa se ta greška utopi među
-lažnima; zato sam ovaj put prošao cijeli ispis, red po red.
+  Gostu se NE šalje mejl. Poruka "vaša rezervacija je otkazana" tri dana
+  nakon datuma bila bi gora od šutnje; gost je odavno našao drugo
+  rješenje ili se javio telefonom.
+
+=======================================================================
+2) DVA UPITA ZA ISTI AUTO I ISTE DATUME
+=======================================================================
+PRIMJER
+  Stignu dva upita za Octaviju, oba za 22.-24.09. Vlasnik potvrdi prvi.
+
+ŠTA SE DEŠAVALO
+  Drugi upit je i dalje stajao u listi i izgledao potpuno normalno.
+  Vlasnik bi pritisnuo "Potvrdi" i dobio suvu poruku da je vozilo
+  zauzeto, bez ijednog prijedloga šta dalje.
+
+KAKO SADA RADI
+  Na kartici tog upita odmah stoji narandžasto upozorenje:
+
+    Vozilo je u međuvremenu zauzeto (rezervisano)
+    Ovaj upit se ne može potvrditi za 22.09 – 24.09 na traženom vozilu.
+
+    Slobodno za te datume (2):
+      VW Passat 95 KM   Audi Q5 110 KM
+
+    Ponudite gostu jedno od njih, pa kroz Uredi promijenite vozilo
+    prije potvrde.
+
+  Vlasnik tako zna prije nego išta klikne, i ima gotov odgovor za gosta
+  kad ga nazove.
+
+  Ako nijedno vozilo nije slobodno, i to piše otvoreno.
+
+GDJE SE PRIKAZUJE
+  Samo na upitima koji čekaju odluku. Potvrđene rezervacije same drže
+  vozilo pa se ne mogu sudarati, a otkazane nisu ni bitne.
+
+  Upit bez odabranog vozila, kad je gost pitao okvirno, ne prikazuje
+  ništa jer nema šta biti zauzeto.
+
+PROVJERENO
+  isticanje: novo i kontaktiran s prošlim datumom -> poništeno
+             novo s budućim datumom -> ostaje
+             potvrđeno sa starim datumom -> ostaje
+  preklapanje: zauzet auto -> upozorenje i dvije alternative
+               slobodan auto -> ništa se ne prikazuje
+               upit bez vozila -> ništa se ne prikazuje
 
 FAJLOVI
 -------
-  app/admin/checkout-actions.ts
+  app/api/cron/cleanup/route.ts       (isticanje u noćnom poslu)
+  components/admin/ConflictNotice.tsx (NOVO — upozorenje o preklapanju)
+  app/admin/page.tsx                  (upozorenje na kartici)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build          <-- mora proći
+2. npm run build
 3. npm run dev -> /admin
-   - na rezervaciji čije je preuzimanje prošlo, a nije izdana,
-     klikni "Završi najam": mora raditi uz napomenu
+   - napravi dva upita za isto vozilo i iste datume
+   - potvrdi jedan, drugi mora dobiti narandžasto upozorenje
+     s popisom slobodnih vozila
+
+  Isticanje se pokreće samo noću na Vercelu. Ručno se može provjeriti
+  pozivom /api/cron/cleanup s ispravnim CRON_SECRET zaglavljem.
