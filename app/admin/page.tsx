@@ -27,6 +27,8 @@ import { EditInquiryForm } from "@/components/admin/EditInquiryForm";
 import { updateInquiry } from "./edit-actions";
 import { NewReservationButton } from "@/components/admin/NewReservationButton";
 import { StartRentalButton } from "@/components/admin/StartRentalButton";
+import { DueBadge } from "@/components/admin/DueBadge";
+import { FinishRentalButton } from "@/components/admin/FinishRentalButton";
 import { NewReservationForm } from "@/components/admin/NewReservationForm";
 import { createManualInquiry } from "./new-reservation-actions";
 import { getActiveExtras } from "@/lib/extras";
@@ -60,6 +62,7 @@ function fmtDay(d: Date): string {
 const FILTERS = [
   { id: "pending", label: "Na čekanju" },
   { id: "confirmed", label: "Potvrđene" },
+  { id: "active", label: "Aktivne" },
   { id: "cancelled", label: "Otkazane" },
   { id: "all", label: "Sve" },
 ] as const;
@@ -174,6 +177,8 @@ export default async function AdminPage({
         }
       : filter === "confirmed"
         ? { status: "CONFIRMED" as const }
+        : filter === "active"
+          ? { status: "IN_PROGRESS" as const }
         : filter === "cancelled"
           ? {
               status: { in: ["CANCELLED", "COMPLETED"] } as {
@@ -196,7 +201,13 @@ export default async function AdminPage({
   ] = await Promise.all([
     prisma.inquiry.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      // Active rentals are sorted by when they are due back, so whoever is
+      // closest to running over sits at the top. Everywhere else the newest
+      // enquiry is what matters.
+      orderBy:
+        filter === "active"
+          ? { returnAt: "asc" }
+          : { createdAt: "desc" },
       take: 100,
       include: { car: { select: { title: true } }, extras: true },
     }),
@@ -351,7 +362,13 @@ export default async function AdminPage({
           return (
             <div
               key={q.id}
-              className="rounded-2xl border border-border bg-surface p-5 shadow-card"
+              // A rental that is out and past its hour gets a tinted card, so
+              // it stands out while scrolling without shouting over the rest.
+              className={`rounded-2xl border p-5 shadow-card ${
+                q.status === "IN_PROGRESS" && q.returnAt < new Date()
+                  ? "border-brand/50 bg-brand/[0.04]"
+                  : "border-border bg-surface"
+              }`}
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -372,6 +389,12 @@ export default async function AdminPage({
                   <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
                     <CalendarDays className="h-4 w-4 shrink-0 text-brand" />
                     {fmt(q.pickupAt)} → {fmt(q.returnAt)}
+                    {q.status === "IN_PROGRESS" && (
+                      <>
+                        {" · "}
+                        <DueBadge returnAt={q.returnAt.toISOString()} />
+                      </>
+                    )}
                     {q.rentalDays ? (
                       <span className="text-xs">· {q.rentalDays} dana</span>
                     ) : null}
@@ -462,6 +485,12 @@ export default async function AdminPage({
                     </form>
                   </div>
                 )}
+                {q.status === "IN_PROGRESS" && (
+                  <div className="flex flex-wrap gap-2">
+                    <FinishRentalButton id={q.id} reference={q.reference} />
+                  </div>
+                )}
+
                 {q.status === "CONFIRMED" && (
                   <div className="flex flex-wrap gap-2">
                     <StartRentalButton

@@ -1,75 +1,68 @@
-IZDAVANJE VOZILA — evidencija početka najma
-===========================================
+AKTIVNI NAJMOVI — filter, upozorenja i brza akcija
+==================================================
 
-*** SCHEMA SE MIJENJA: prisma generate && prisma db push ***
+Schema se NE mijenja. Samo: npm run build
 
-ŠTA JE DODANO
--------------
-Na rezervacijama sa statusom "Potvrđeno" pojavljuje se dugme
-"Izdaj vozilo". Klik otvara pitanje "Potvrdite izdavanje vozila klijentu?"
-s podacima gosta i vozila.
+ŠTO JE VEĆ POSTOJALO
+--------------------
+Filter "Aktivne" i sortiranje po vremenu vraćanja bili su već uvedeni uz
+status "U toku". Provjerio sam ih: lista prikazuje samo aktivne, a poredana
+je tako da onaj kome prvi ističe vrijeme stoji na vrhu.
 
-Potvrdom se:
-  - u bazu upisuje trenutno vrijeme kao STVARNO preuzimanje
-  - status mijenja u "U toku"
+ŠTO JE DODANO SADA
+------------------
+1) ODBROJAVANJE UZ VRIJEME VRAĆANJA
+   Uz svaku aktivnu rezervaciju stoji sat i tekst:
 
-Agovoreno vrijeme preuzimanja ostaje netaknuto. Gost koji dođe dva sata
-kasnije ne smije tiho prepisati ono što je rezervisano, a razlika između
-dogovorenog i stvarnog je podatak koji kasnije vrijedi imati.
+     Ističe za 3 h        sivo, ima vremena
+     Ističe za 30 min     narandžasto, manje od dva sata
+     Kasni 30 min         crveno
+     Kasni 1 dan          crveno
 
-NAJVAŽNIJI DIO POSLA NIJE DUGME
--------------------------------
-Statusa "U toku" u sistemu nije bilo. Osamnaest mjesta u kodu držalo je
-vozilo zauzetim samo ako je rezervacija "Potvrđena".
+   Jedinica se bira sama: minute, sati, pa dani. "Kasni 1440 min" niko ne
+   čita, "Kasni 1 dan" se razumije odmah.
 
-Da sam dodao novi status bez toga, dogodilo bi se ovo: izdaš vozilo gostu,
-ono odmah postane "U toku", i u tom trenutku sistem ga prestane smatrati
-zauzetim. Sajt bi ga ponovo nudio, a admin bi dozvolio novu rezervaciju za
-isti termin. Auto koji je fizički kod gosta bio bi ponuđen drugome.
+2) CRVENI NAGLASAK NA KARTICI
+   Kad vrijeme povrata prođe, cijela kartica dobija blagu crvenu pozadinu i
+   okvir. Dovoljno da se primijeti pri listanju, a da ne nadjača ostalo.
 
-Zato sam prošao kroz sva mjesta i provjerio svako:
+3) DUGME "ZAVRŠI NAJAM"
+   Izvučeno na karticu, ne u meni. Za vozilo koje je vani to je jedina radnja
+   koju iko traži, a skriveno u meniju košta jedan klik na svakom povratu.
 
-  javna pretraga vozila            prepoznaje "U toku"    OK
-  zauzetost vozila i opreme        prepoznaje             OK
-  prihod i iskoristivost           prepoznaje             OK
-  izdata oprema u adminu           prepoznaje             OK
-  provjera sudara pri potvrdi      prepoznaje             OK
-  provjera sudara pri izmjeni      prepoznaje             OK
-  provjera sudara kod nove         prepoznaje             OK
+   Za sada ispisuje u konzolu; modal dolazi u idućem koraku.
 
-Namjerno JEDINO na ekranu Ugovori nije dodano: tamo se prikazuju
-nadolazeća preuzimanja, a vozilo koje je već izdato ne treba novi ugovor.
+DETALJ KOJI JE MORAO BITI RIJEŠEN
+---------------------------------
+Odbrojavanje se računa u pregledniku i osvježava svakih pola minute.
 
-OSTALO
-------
-  - Oznaka "U toku" u listi rezervacija, u brend crvenoj.
-  - Ako se pokuša izdati nešto što nije potvrđeno (već izdato, otkazano,
-    neodobreno), server to odbija uz poruku. Dugme se ionako ne prikazuje,
-    ali zahtjev se može poslati i mimo njega.
+Da se računalo na serveru, ostalo bi zamrznuto na trenutku učitavanja
+stranice: piše "Ističe za 5 min" i sat kasnije, dok gost odavno kasni. To
+je jedini podatak na ekranu koji zastarijeva dok ga neko gleda.
+
+Prvo računanje ide tek nakon učitavanja, da se server i preglednik ne
+razilaze oko toga koliko je sati.
+
+PROVJERENO
+  za 30 min    -> Ističe za 30 min, narandžasto
+  za 1h 45m    -> Ističe za 2 h, narandžasto
+  za 3 h       -> Ističe za 3 h, sivo
+  za 2 dana    -> Ističe za 2 dana, sivo
+  kasni 30 min -> Kasni 30 min, crveno
+  kasni 1 dan  -> Kasni 1 dan, crveno
 
 FAJLOVI
 -------
-  prisma/schema.prisma                     (IN_PROGRESS, actualPickUpTime)
-  app/admin/checkout-actions.ts            (NOVO — izdavanje)
-  components/admin/StartRentalButton.tsx   (NOVO — dugme i potvrda)
-  app/admin/page.tsx                       (dugme, oznaka, poruke)
-  lib/availability.ts                      (zauzeće)
-  lib/extras-availability.ts               (zauzeće)
-  lib/analytics.ts                         (prihod i iskoristivost)
-  app/admin/oprema/page.tsx                (izdata oprema)
-  app/admin/actions.ts                     (provjera sudara)
-  app/admin/edit-actions.ts                (provjera sudara)
-  app/admin/new-reservation-actions.ts     (provjera sudara)
-  app/admin/ugovori/page.tsx               (napomena zašto ostaje samo Potvrđeno)
+  components/admin/DueBadge.tsx            (NOVO — odbrojavanje)
+  components/admin/FinishRentalButton.tsx  (NOVO — brza akcija)
+  app/admin/page.tsx                       (naglasak, oznaka, dugme)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npx prisma generate
-3. npx prisma db push
-4. npm run build
-5. npm run dev -> /admin
-   - na potvrđenoj rezervaciji klikni "Izdaj vozilo" i potvrdi
-   - status mora preći u "U toku"
-   - OBAVEZNO PROVJERI: otvori /vozila na sajtu za taj isti period,
-     vozilo se i dalje NE SMIJE nuditi
+2. npm run build
+3. npm run dev -> /admin
+   - klikni filter "Aktivne"
+   - izdaj neko vozilo s vremenom vraćanja u prošlosti pa provjeri
+     crveni naglasak i tekst "Kasni ..."
+   - klikni "Završi najam" i pogledaj konzolu preglednika
