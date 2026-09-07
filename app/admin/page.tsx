@@ -30,7 +30,6 @@ import { createContinuation } from "./extend-actions";
 import { NewReservationButton } from "@/components/admin/NewReservationButton";
 import { StartRentalButton } from "@/components/admin/StartRentalButton";
 import { ConflictNotice } from "@/components/admin/ConflictNotice";
-import { InquiryDetailButton } from "@/components/admin/InquiryDetailButton";
 import { SearchBox } from "@/components/admin/SearchBox";
 import { ReservationDetail } from "@/components/admin/ReservationDetail";
 import { DueBadge } from "@/components/admin/DueBadge";
@@ -507,51 +506,6 @@ export default async function AdminPage({
                 </div>
 
                 <div className="flex flex-wrap items-start gap-2">
-                  {/* Available on every reservation, not just finished ones:
-                      looking something up should not depend on which stage it
-                      happens to be at. */}
-                  <InquiryDetailButton
-                    data={{
-                      id: q.id,
-                      reference: q.reference,
-                      status: q.status,
-                      channel: q.channel,
-                      createdAt: q.createdAt.toISOString(),
-                      guest: [q.firstName, q.lastName].filter(Boolean).join(" "),
-                      email: q.email,
-                      phone: q.phone,
-                      flightNumber: q.flightNumber,
-                      message: q.message,
-                      carTitle: q.car?.title ?? q.carTitleSnapshot ?? "",
-                      plate: q.car?.plate ?? "",
-                      pickupLocation: q.pickupLocation?.name ?? "",
-                      returnLocation: q.returnLocation?.name ?? "",
-                      pickupAt: q.pickupAt.toISOString(),
-                      returnAt: q.returnAt.toISOString(),
-                      actualPickUpTime: q.actualPickUpTime?.toISOString() ?? null,
-                      actualDropOffTime: q.actualDropOffTime?.toISOString() ?? null,
-                      rentalDays: q.rentalDays,
-                      totalPrice: q.totalPrice != null ? Number(q.totalPrice) : null,
-                      extras: q.extras.map((e) => ({ name: e.nameHr, qty: e.qty })),
-                      returnFuel: q.returnFuel,
-                      depositStatus: q.depositStatus,
-                      extraCharge:
-                        q.extraCharge != null ? Number(q.extraCharge) : null,
-                      extraChargeNote: q.extraChargeNote,
-                      statusNote: q.statusNote,
-                      continuesFrom: q.continuesFrom
-                        ? {
-                            reference: q.continuesFrom.reference,
-                            carTitleSnapshot: q.continuesFrom.carTitleSnapshot,
-                          }
-                        : null,
-                      continuedBy: q.continuedBy.map((c) => ({
-                        reference: c.reference,
-                        carTitleSnapshot: c.carTitleSnapshot,
-                      })),
-                    }}
-                  />
-
                   <ReservationDetail
                     data={{
                       reference: q.reference,

@@ -1,66 +1,58 @@
-PREGLED REZERVACIJE
-===================
+POPRAVKA BUILDA — dvije nedostajuće komponente
+==============================================
 
 Schema se NE mijenja. Samo: npm run build
 
-NALAZ O PRETRAZI
-----------------
-Pretraga je već postojala i radi. Stoji iznad liste na Rezervacijama i na
-Porukama, a traži po imenu, prezimenu, telefonu, e-mailu, broju rezervacije
-i nazivu vozila. Ne razlikuje velika i mala slova.
+GREŠKA
+------
+  Can't resolve '@/components/admin/SearchBox'
+  Can't resolve '@/components/admin/ReservationDetail'
 
-Bitno: pretraga IGNORIŠE aktivni tab. Ako ste na "Aktivne" i tražite gosta
-čija je rezervacija završena, ipak ćete je naći. Suženje na tab bi sakrilo
-baš ono što se traži.
+UZROK (moja greška, treći put ista vrsta)
+-----------------------------------------
+Poslao sam app/admin/page.tsx koji te dvije komponente koristi, a same
+komponente nisu bile ni u jednom zipu. Postojale su samo kod mene.
 
-Nisam je dirao.
+USPUT SAM NAŠAO I DUPLIKAT
+--------------------------
+Pregled rezervacije je već postojao kao ReservationDetail. Ja sam
+napravio drugi, InquiryDetailButton, ne znajući za prvi. Oba su bila
+ugrađena, pa bi na svakoj kartici stajala DVA dugmeta "Pogledaj".
 
-ŠTA JE DODANO: DUGME "POGLEDAJ"
--------------------------------
-Otvara prozor sa svime što se dešavalo s tom rezervacijom, u pet dijelova:
+Uporedio sam ih: rade istu stvar, oba imaju kašnjenje, gorivo, depozit,
+dodatnu naplatu i vezu zamjene vozila. Zadržao sam ReservationDetail jer
+je već bio ugrađen, a svoj obrisao.
 
-  KLIJENT           ime, telefon, e-mail, broj leta
-  NAJAM             vozilo, registracija, datumi, obje lokacije,
-                    trajanje, dodatna oprema
-  KAKO JE PROTEKLO  stvarno vrijeme preuzimanja i vraćanja, kašnjenje,
-                    gorivo pri povratu, status depozita
-  FINANSIJE         ugovoreni iznos, dodatna naplata s razlogom, ukupno
-  ZAPIS             kad je zaprimljena, kanal, napomene
+Ako si primijenio prošli zip, obriši i taj fajl:
 
-Ako je rezervacija dio zamjene vozila, na vrhu stoji plavo obavještenje s
-brojem druge rezervacije i vozilom na koje se nastavlja.
+    Remove-Item components\admin\InquiryDetailButton.tsx
 
-TRI ODLUKE
-----------
-1) PRAZNI REDOVI SE NE PRIKAZUJU.
-   Rezervacija bez broja leta neće imati taj red. Pregled pun crtica se
-   teže čita od kraćeg koji pokazuje samo ono što postoji.
+Ako nisi, nemaš ga ni da brišeš.
 
-2) SEKCIJA "KAKO JE PROTEKLO" SE VIDI SAMO AKO JE VOZILO IZAŠLO.
-   Na upitu koji čeka odluku svaki red tamo bio bi prazan.
+ŠTA JE U ZIPU
+-------------
+  components/admin/SearchBox.tsx         pretraga iznad liste
+  components/admin/ReservationDetail.tsx pregled rezervacije
+  app/admin/page.tsx                     bez duplikata
 
-3) KAŠNJENJE ISPOD DESET MINUTA SE NE PRIKAZUJE.
-   Gotovo svaki povrat kasni koju minutu. Da se prikazuje, svaki najam bi
-   izgledao problematično i oznaka bi izgubila značenje.
-   Raniji povrat se također ne prikazuje kao kašnjenje.
-
-DUGME JE NA SVAKOJ REZERVACIJI
-------------------------------
-Ne samo na završenima. Traženje podatka ne bi trebalo ovisiti o tome u
-kojoj je fazi rezervacija, a i na aktivnoj se često treba provjeriti broj
-telefona ili šta je gost tražio.
+KAKO SAM PROVJERIO OVAJ PUT
+---------------------------
+Prošao sam kroz svaki uvoz u fajlovima koje šaljem i provjerio da se
+razrješava. Ranije sam se oslanjao na provjeru tipova, ali ona kod mene
+prijavi i sedamdesetak lažnih grešaka zbog Prisma tipova, pa se nedostajuća
+komponenta u tome izgubi.
 
 FAJLOVI
 -------
-  components/admin/InquiryDetailButton.tsx  (NOVO — pregled)
-  app/admin/page.tsx                        (dugme, dohvat registracije
-                                             i lokacija)
+  components/admin/SearchBox.tsx          (NOVO)
+  components/admin/ReservationDetail.tsx  (NOVO)
+  app/admin/page.tsx
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build
-3. npm run dev -> /admin
-   - klikni "Pogledaj" na završenoj rezervaciji
-   - provjeri sekciju "Kako je proteklo" i kašnjenje
-   - u pretragu upiši ime ili telefon gosta
+2. Remove-Item components\admin\InquiryDetailButton.tsx   (ako postoji)
+3. npm run build          <-- mora proći
+4. npm run dev -> /admin
+   - iznad liste mora stajati polje za pretragu
+   - na svakoj rezervaciji JEDNO dugme "Pogledaj"
