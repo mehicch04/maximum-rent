@@ -1,73 +1,66 @@
-PONOVNA ŠTAMPA UGOVORA
-======================
+POVUČENO VOZILO
+===============
 
 Schema se NE mijenja. Samo: npm run build
 
 PROBLEM
 -------
-Ekran Ugovori prikazivao je samo rezervacije koje čekaju preuzimanje. Čim
-biste pritisnuli "Izdaj vozilo", rezervacija bi nestala s tog ekrana.
+Vozilo označite "Nije u ponudi" jer ga prodajete. Stari upit za to vozilo
+i dalje stoji u listi, i potvrdi se bez ijedne riječi upozorenja.
 
-Ako gost izgubi svoj primjerak, ako treba drugi za firmu, ili ako se ugovor
-zgužva u autu, nema ga gdje ponovo odštampati. Najam traje, gost je tu, a
-dokument je nedostupan.
+Otkrijete tek kad gost dođe po auto koji više nemate.
 
 KAKO SADA RADI
 --------------
-Lista je podijeljena na dvije grupe.
+Na kartici takvog upita stoji narandžasto upozorenje:
 
-  NADOLAZEĆA PREUZIMANJA
-  Ono što tek treba obaviti. Propuštena preuzimanja su narandžasta, kao i
-  do sada.
+  "Vozilo je povučeno iz ponude. Provjerite je li još raspoloživo prije
+   nego potvrdite, ili kroz Uredi dodijelite drugo."
 
-  VEĆ IZDATO
-  Vozila koja su trenutno kod gostiju. Prikazana blijeđe i na dnu, uz
-  napomenu:
+Isto piše i u prozoru koji iskoči kad pritisnete "Potvrdi".
 
-    "Vozilo je kod gosta. Ovdje su samo da se ugovor može ponovo
-     odštampati."
+Potvrda i dalje PROLAZI. Vozilo je možda još u dvorištu i najam se može
+izvršiti; prodaja se često oduži. Zabrana bi vam vezala ruke u slučaju koji
+je sasvim izvediv.
 
-Kad odaberete takvu rezervaciju, u samom ugovoru na vrhu stoji:
+DRUGA GREŠKA, NAĐENA USPUT
+--------------------------
+Ovo je ozbiljnije od prvog.
 
-  "Vozilo je već izdato ovom gostu. Ovo je ponovna štampa; izmjene ovdje
-   ne mijenjaju samu rezervaciju."
+Izbornik vozila u obrascu "Uredi" nudio je samo vozila koja su u ponudi.
+Ako rezervacija ima povučeno vozilo, ono nije bilo na popisu.
 
-ZAŠTO DVIJE GRUPE, A NE JEDAN POPIS
------------------------------------
-To su dva različita pitanja. Prvo je posao koji čeka, drugo je arhiva
-dohvata ruke. Da su pomiješani, jutarnja preuzimanja bi se izgubila među
-najmovima kojima ne treba ništa.
+Izbornik koji ne sadrži svoju trenutnu vrijednost ne može je ni prikazati,
+pa bi se pri spremanju poslalo nešto drugo: prvo vozilo s liste ili prazno.
+Vozilo bi se TIHO zamijenilo ili obrisalo s rezervacije.
 
-Brojač u zaglavlju broji samo nadolazeća, iz istog razloga: ako piše
-"Nadolazeća preuzimanja (14)", a četiri su već izdata, broj laže.
+Isti obrazac greške već smo imali sa statusom "U toku", kad je aktivna
+rezervacija ispadala u potvrđene nakon uređivanja.
 
-ZAVRŠENI NAJMOVI SE NE PRIKAZUJU
---------------------------------
-Kad se najam zatvori, rezervacija odlazi s ovog ekrana. Ugovor za posao
-koji je gotov nema svrhu štampati, a lista bi za mjesec dana bila
-nepregledna. Sve o završenom najmu ostaje dostupno kroz "Pogledaj" na
-stranici Rezervacije.
+POPRAVKA
+  Izbornik u "Uredi" sada sadrži i povučena vozila, ali s oznakom:
+
+      VW Passat (nije u ponudi)
+
+  Obrazac za NOVU rezervaciju ih i dalje ne nudi. Nova rezervacija ne bi
+  smjela ni počinjati na vozilu koje ste povukli.
 
 PROVJERENO
-  potvrđeno, preuzimanje danas        -> nadolazi
-  potvrđeno, preuzimanje bilo jučer   -> nadolazi, oznaka "Nije preuzeto"
-  u toku                              -> grupa "Već izdato"
-  završeno                            -> ne prikazuje se
-  starije od sedmice                  -> ne prikazuje se
-  brojač nadolazećih                  -> ne broji već izdata
+  uredi, sva vozila:        Octavia, Passat (nije u ponudi), Q5
+  nova rezervacija:         Octavia, Q5
+  rezervacija s povučenim:  vozilo ostaje nakon spremanja
+  potvrda povučenog:        prolazi, uz upozorenje na dva mjesta
 
 FAJLOVI
 -------
-  app/admin/ugovori/page.tsx                     (uključeni najmovi u toku)
-  components/admin/handover/ReservationList.tsx  (dvije grupe)
-  components/admin/handover/types.ts             (oznaka)
-  components/admin/handover/HandoverBoard.tsx    (brojač)
-  components/admin/handover/ContractEditor.tsx   (napomena)
+  app/admin/page.tsx
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run build
-3. npm run dev -> /admin/ugovori
-   - izdaj neko vozilo, pa provjeri da se pojavilo u grupi "Već izdato"
-   - odaberi ga i preuzmi PDF: mora raditi, uz napomenu na vrhu
+3. npm run dev
+   - /admin/vozila -> neko vozilo isključi iz ponude
+   - /admin -> upit za to vozilo mora imati narandžasto upozorenje
+   - otvori Uredi na njemu: vozilo mora biti u izborniku s oznakom
+   - sačuvaj bez izmjena: vozilo mora ostati isto

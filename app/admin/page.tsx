@@ -296,10 +296,22 @@ export default async function AdminPage({
       include: { car: { select: { title: true } } },
     }),
     prisma.car.findMany({
-      where: { isAvailable: true },
+      /*
+       * Withdrawn vehicles are included, marked rather than hidden.
+       *
+       * A reservation may already point at one, and a dropdown that does not
+       * contain its current value silently replaces it on save. The new
+       * reservation form filters them out for itself; here they have to be
+       * listed so nothing gets reassigned behind the owner's back.
+       */
       orderBy: { sortOrder: "asc" },
-      // pricePerDay drives the live price calculation in the new-reservation form.
-      select: { id: true, title: true, pricePerDay: true, seasonalPrice: true },
+      select: {
+        id: true,
+        title: true,
+        pricePerDay: true,
+        seasonalPrice: true,
+        isAvailable: true,
+      },
     }),
     prisma.inquiry.groupBy({
       by: ["status"],
@@ -340,9 +352,15 @@ export default async function AdminPage({
   }));
   const carsForForm = cars.map((c) => ({
     id: c.id,
-    title: c.title,
+    // Withdrawn cars stay selectable when editing, but say so in the label.
+    title: c.isAvailable ? c.title : `${c.title} (nije u ponudi)`,
     pricePerDay: effectivePrice(c, seasonalPricing),
   }));
+
+  // A brand new booking should never start on a car that is out of the offer.
+  const carsForNew = carsForForm.filter(
+    (c) => cars.find((x) => x.id === c.id)?.isAvailable,
+  );
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -366,7 +384,7 @@ export default async function AdminPage({
         <NewReservationButton>
           <NewReservationForm
             action={createManualInquiry}
-            cars={carsForForm}
+            cars={carsForNew}
             locations={editLocations}
             extras={blockExtras}
             booked={blockBooked}
@@ -653,6 +671,23 @@ export default async function AdminPage({
                       handoverMissing={q.status === "CONFIRMED"}
                     />
                   </div>
+                )}
+
+                {/*
+                  * The car was pulled from the offer, most often because it is
+                  * being sold. The booking can still be honoured if it is still
+                  * on the lot, so this warns rather than blocks; nothing said
+                  * anything at all before, and the owner found out when the
+                  * guest arrived.
+                  */}
+                {canAct && q.car && !q.car.isAvailable && (
+                  <p className="rounded-xl border border-amber-500/50 bg-amber-500/[0.07] px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
+                    <strong className="font-semibold">
+                      Vozilo je povučeno iz ponude.
+                    </strong>{" "}
+                    Provjerite je li još raspoloživo prije nego potvrdite, ili
+                    kroz Uredi dodijelite drugo.
+                  </p>
                 )}
 
                 {/*
