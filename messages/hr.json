@@ -80,7 +80,13 @@
     "resultsCount": "{count, plural, one {# vozilo} few {# vozila} other {# vozila}}",
     "clearFilters": "Poništi filtere",
     "typeLabel": "Tip vozila",
-    "allTypes": "Svi tipovi"
+    "allTypes": "Svi tipovi",
+    "backToFleet": "Nazad na vozila",
+    "specifications": "Specifikacije",
+    "description": "O vozilu",
+    "similar": "Slična vozila",
+    "notOffered": "Ovo vozilo trenutno nije u ponudi.",
+    "bookNow": "Rezerviši ovo vozilo"
   },
   "Inquiry": {
     "title": "Upit za rezervaciju",

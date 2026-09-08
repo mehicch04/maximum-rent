@@ -80,7 +80,13 @@
     "resultsCount": "{count, plural, one {# vehicle} other {# vehicles}}",
     "clearFilters": "Clear filters",
     "typeLabel": "Vehicle type",
-    "allTypes": "All types"
+    "allTypes": "All types",
+    "backToFleet": "Back to fleet",
+    "specifications": "Specifications",
+    "description": "About this car",
+    "similar": "Similar vehicles",
+    "notOffered": "This vehicle is not currently offered.",
+    "bookNow": "Book this vehicle"
   },
   "Inquiry": {
     "title": "Reservation inquiry",

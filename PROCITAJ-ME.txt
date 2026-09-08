@@ -1,47 +1,75 @@
-VRAĆANJE POPRAVLJENE ANALITIKE
-==============================
+STRANICA PO VOZILU
+==================
 
 Schema se NE mijenja. Samo: npm run build
 
-ŠTA SE DESILO
--------------
-Primijenili ste "maximum-povuceno-u-najmu" NAKON "maximum-readonly-fix".
+ŠTO JE NAPRAVLJENO
+------------------
+Svako vozilo sada ima svoju adresu:
 
-Taj stariji paket u sebi nosi raniju verziju lib/analytics.ts, onu s
-greškom. Kad ste ga raspakovali preko projekta, prepisao je popravljeni
-fajl i greška se vratila.
+    /vozila/skoda-octavia-combi
 
-NIJE GREŠKA DO VAS. Trebao sam vas upozoriti da su ta dva paketa već
-sadržana u kumulativnom.
+Polje za adresu (slug) već je postojalo u bazi, pa nije trebalo ništa
+mijenjati ni migrirati.
 
-ŠTA NE TREBA PRIMJENJIVATI
---------------------------
-  maximum-povuceno-u-najmu    već je unutar kumulativnog
-  maximum-isteklo-odvojeno    već je unutar kumulativnog
+ŠTA STRANICA IMA
+  velika galerija sa svim fotografijama i uvećanjem
+  cijena po danu, u markama ili eurima
+  dugme za rezervaciju koje otvara isti obrazac kao i lista
+  puna specifikacija: sjedišta, vrata, mjenjač, gorivo, godište,
+    prtljag, klima, klasa
+  opis vozila, na oba jezika
+  tri slična vozila iz iste klase
 
-Provjerio sam sadržaj svakog: kumulativni paket ima sve iz oba.
+Naslov na kartici u listi sada vodi na tu stranicu.
 
-  iz "povuceno-u-najmu":  fleetWhere, oznaka "povučeno iz ponude",
-                          živi status za povučena vozila
-  iz "isteklo-odvojeno":  polje expiredAt, upis u noćnom poslu,
-                          oznaka "Isteklo", prikaz u pregledu
+ZAŠTO SLIČNA VOZILA IZ ISTE KLASE, A NE PO CIJENI
+  Ko gleda kombi treba drugi kombi. Jeftinija limuzina mu ne pomaže, ma
+  koliko blizu bila po cijeni.
 
-REDOSLIJED KOJI JE ISPRAVAN
----------------------------
-  1. maximum-kumulativna-popravka   (sve osim popravke tipa)
-  2. maximum-readonly-fix           (popravka tipa)
-  3. ovaj paket                     (isto što i readonly-fix)
+ZA GOOGLE
+---------
+  Svaka stranica ima svoj naslov i opis.
+  Dodani su strukturirani podaci, pa se u rezultatu pretrage može
+    prikazati cijena i tip vozila, a ne samo plavi link.
+  Obje jezične verzije su povezane, da se ne tretiraju kao duplikat.
+  Sve stranice su dodane u sitemap.
 
-Ovaj paket sadrži isti popravljeni lib/analytics.ts kao readonly-fix.
-Ako ste readonly-fix već primijenili, dovoljno je raspakovati ovaj i
-build će proći.
+To je ono zbog čega ovo vrijedi: neko traži "iznajmljivanje Octavie
+Mostar" i sada postoji stranica koja na to odgovara. Ranije je postojala
+samo lista svih vozila, koja ne odgovara ni na jedno konkretno pitanje.
+
+POVUČENA VOZILA
+---------------
+Vozilo koje ste isključili iz ponude i dalje ima stranicu, ali bez dugmeta
+za rezervaciju i uz napomenu da trenutno nije u ponudi.
+
+Razlog: link je možda u nečijim porukama ili u Googleovom indeksu.
+Stranica koja objašnjava je bolja od prazne greške.
+
+ŠTO JOŠ TREBA URADITI
+---------------------
+Opisi. Bez njih su sve stranice gotovo iste i Google ih neće razlikovati.
+
+U zipu je datoteka OPISI-VOZILA-PREDLOZAK.txt s uputom i primjerom.
+Klijent to može popuniti sam, tri do pet rečenica po vozilu, u
+/admin/vozila.
+
+FAJLOVI
+-------
+  app/[locale]/vozila/[slug]/page.tsx  (NOVO — stranica)
+  components/fleet/CarDetail.tsx       (NOVO — prikaz)
+  lib/car-detail.ts                    (NOVO — dohvat)
+  components/fleet/CarCard.tsx         (naslov vodi na stranicu)
+  app/sitemap.ts                       (stranice vozila)
+  messages/hr.json, en.json            (novi tekstovi)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
-2. npm run build          <-- mora proći
-3. git add -A
-   git commit -m "fix(analitika): vrati popravljeni uvjet flote"
-   git push
-
-Poslije ovoga nemate više ništa za primijeniti. Sve je unutra.
+2. npm run build
+3. npm run dev
+   - /vozila -> klikni na naziv vozila
+   - mora se otvoriti stranica tog auta
+   - probaj rezervaciju s te stranice
+   - provjeri /sitemap.xml, moraju biti sve stranice vozila

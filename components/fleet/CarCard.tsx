@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Calendar, Car as CarIcon, ChevronRight, Cog, Fuel, Users } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -90,7 +91,15 @@ export function CarCard({ car, search, onSelect, index = 0, priority = false, im
       <div className="flex flex-1 flex-col gap-4 p-5">
         <div>
           <h3 className="font-display text-lg font-semibold leading-tight tracking-tight">
-            {car.title}
+            {/* The title is the link: a card in a grid is where people
+                expect to click through, and it gives the page a crawlable
+                route in from the fleet listing. */}
+            <Link
+              href={`/${locale}/vozila/${car.slug}`}
+              className="transition-colors hover:text-brand-strong"
+            >
+              {car.title}
+            </Link>
           </h3>
           <p className="mt-0.5 text-sm text-muted-foreground">
             {car.brand} {car.model}

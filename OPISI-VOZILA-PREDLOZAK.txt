@@ -1,0 +1,49 @@
+KAKO NAPISATI OPIS ZA SVAKO VOZILO
+==================================
+
+Zašto je ovo bitno
+------------------
+Stranica po vozilu ima smisla samo ako svaka kaže nešto svoje. Ako svih 35
+imaju isti generički tekst, Google ih tretira kao duplikate i nijedna se ne
+pojavljuje u pretrazi.
+
+Ne treba mnogo. Tri do pet rečenica po autu je dovoljno.
+
+Šta napisati
+------------
+1. ZA KOGA JE
+   "Prostran karavan za porodicu s dvoje djece i punim prtljažnikom."
+
+2. ŠTA GA IZDVAJA
+   Nešto konkretno: potrošnja, prtljažnik, mjenjač, oprema.
+   "Automatik i adaptivni tempomat, ugodan na dužim relacijama."
+
+3. GDJE SE NAJVIŠE KORISTI
+   "Najčešće ga uzimaju gosti koji sa aerodroma idu prema moru."
+
+4. JEDNA PRAKTIČNA NAPOMENA
+   "Staje pet kofera i dvije dječije sjedalice."
+
+Primjer, Škoda Octavia Combi
+---------------------------
+  Prostran karavan za porodicu ili duži put. Prtljažnik prima pet kofera,
+  a s automatskim mjenjačem i tempomatom vožnja do mora prođe bez napora.
+  Najčešće ga biraju gosti koji slijeću u Mostar i nastavljaju prema
+  Dubrovniku ili Splitu. Uz njega staju dvije dječije sjedalice bez gužve.
+
+Čega se kloniti
+---------------
+  "Kvalitetno i pouzdano vozilo po povoljnoj cijeni."
+  To se može reći za bilo koji auto, pa ne govori ništa i ne pomaže u
+  pretrazi.
+
+  Nabrajanja koja već stoje u specifikaciji. Broj vrata i godište su
+  ispisani iznad opisa; ponavljanje samo troši prostor.
+
+Gdje se unosi
+-------------
+  /admin/vozila -> uredi vozilo -> polje "Opis"
+  Postoje dva polja, za naš jezik i za engleski.
+
+  Engleski ne mora biti doslovan prijevod. Stranac traži druge stvari:
+  automatik, klimu, prostor za kofere.
