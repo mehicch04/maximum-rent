@@ -22,6 +22,7 @@ import { useCurrency } from "@/components/currency/CurrencyProvider";
 import { CarGallery } from "@/components/fleet/CarGallery";
 import { ImageLightbox } from "@/components/fleet/ImageLightbox";
 import { InquiryModal } from "@/components/reservation/InquiryModal";
+import { SimilarCars } from "@/components/fleet/SimilarCars";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { buildWhatsAppUrl, type InquiryContext } from "@/lib/whatsapp";
 
@@ -98,6 +99,7 @@ export function CarDetail({
             images={car.images ?? []}
             title={car.title}
             onOpen={(i) => setLightbox(i)}
+            autoPlay
             priority
             sizes="(max-width: 1023px) 92vw, 52vw"
           />
@@ -182,35 +184,7 @@ export function CarDetail({
         </div>
       </div>
 
-      {similar.length > 0 && (
-        <section className="mt-12 border-t border-border pt-8">
-          <h2 className="mb-4 font-display text-lg font-bold text-foreground">
-            {t("similar")}
-          </h2>
-          <ul className="grid gap-4 sm:grid-cols-3">
-            {similar.map((s) => (
-              <li key={s.id}>
-                <Link
-                  href={`/${locale}/vozila/${s.slug}`}
-                  className="block rounded-2xl border border-border bg-surface p-4 transition-colors hover:border-brand"
-                >
-                  <p className="truncate text-sm font-semibold text-foreground">
-                    {s.title}
-                  </p>
-                  {s.pricePerDay != null && (
-                    <p className="mt-1 text-sm text-brand-strong">
-                      {formatPrice(s.pricePerDay, currency)}{" "}
-                      <span className="text-xs text-muted-foreground">
-                        / {en ? "day" : "dan"}
-                      </span>
-                    </p>
-                  )}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <SimilarCars cars={similar} locale={locale} title={t("similar")} />
 
       <ImageLightbox
         images={car.images ?? []}

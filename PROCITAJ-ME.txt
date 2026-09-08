@@ -1,52 +1,65 @@
-KARTICA VOZILA I WHATSAPP NA STRANICI
-=====================================
+GALERIJA I SLIČNA VOZILA
+========================
 
 Schema se NE mijenja. Samo: npm run build
 
-1) CIJELA KARTICA OTVARA STRANICU VOZILA
-----------------------------------------
-Ranije je samo naziv bio veza, što se nije primjećivalo. Sada se klikom
-bilo gdje na kartici otvara stranica tog automobila.
+1) TAČKICE SE NISU VIDJELE
+--------------------------
+Ovo nije bila greška teme, nego nešto šire.
 
-Kartica mijenja rub i sjenu kad pređete mišem, a pokazivač postaje ruka,
-pa se vidi da je klikabilna.
+Tačkice stoje NA SLICI, ne na pozadini stranice. Bijele su, pa su
+nestajale na svakoj svijetloj fotografiji: bijeli auto, vedro nebo, snijeg.
+Mijenjanje boje prema temi to ne bi riješilo, jer tema ne odlučuje kakva
+je slika ispod.
 
-KAKO JE IZVEDENO
-   Kartica NIJE umotana u vezu. Unutra su galerija i dva dugmeta, a veza
-   oko dugmeta je neispravna i ne radi s tastaturom.
+Riješeno tamnom podlogom iza cijelog reda tačkica, s blagim zamućenjem.
+Isto rješenje koje strelice već koriste, i iz istog razloga. Sada se vide
+na svakoj slici i u obje teme.
 
-   Umjesto toga, veza na nazivu se nevidljivo rasteže preko cijele
-   kartice, a galerija i dugmad stoje iznad nje. Tako:
+2) AUTOMATSKO LISTANJE
+----------------------
+Glavna galerija na stranici vozila sama prelazi na sljedeću sliku svakih
+3,5 sekunde.
 
-     klik na sliku       -> otvara uvećanje, kao i prije
-     klik na "Rezerviši" -> otvara obrazac, kao i prije
-     klik na WhatsApp    -> otvara poruku, kao i prije
-     klik bilo gdje drugo -> otvara stranicu vozila
+Prestaje ČIM korisnik nešto klikne: strelicu, tačkicu, bilo šta. Ne
+nastavlja kasnije. Slika koja se promijeni pod rukom dok neko gleda
+konkretan detalj je vrlo neugodna.
 
-   Za Google i za čitače ekrana i dalje postoji jedna uredna veza s
-   nazivom vozila, ne šuma nevidljivih.
+VAŽNO: automatsko listanje je uključeno SAMO na stranici vozila.
+Na listi vozila ima dvanaest kartica; da se sve vrte istovremeno,
+stranica bi izgledala nemirno i teško bi se čitala.
 
-2) WHATSAPP NA STRANICI VOZILA
-------------------------------
-Pored dugmeta za rezervaciju stoji i WhatsApp, isto kao na kartici.
+3) SLIČNA VOZILA
+----------------
+Kartice sada imaju sliku vozila, ne samo naziv i cijenu. Slika se blago
+uveća kad se pređe mišem.
 
-Poruka se otvara s već upisanim nazivom vozila, pa gost koji nikada neće
-popuniti obrazac ipak stigne do vas s nečim konkretnim.
+Do dva vozila stoje u običnom redu, jer nema šta listati.
+Od tri naviše postaje slider sa strelicama, koji se vrti u krug: na kraju
+skače na početak i obrnuto.
 
-Namjerno je pored obrasca, a ne umjesto njega. To su dva različita tipa
-gosta: jedan hoće sve unijeti i vidjeti cijenu, drugi hoće samo pitati.
+KAKO JE IZVEDEN KRUG
+   Ne dupliranjem kartica, nego skokom na suprotnu stranu. Duplirane
+   kartice znače duple linkove na stranici, što šteti u pretrazi i zbunjuje
+   čitače ekrana.
+
+   Na dodir se lista prstom, a kartice se "hvataju" tako da prst uvijek
+   završi na cijeloj kartici, nikad između dvije.
 
 FAJLOVI
 -------
-  components/fleet/CarCard.tsx    (cijela kartica klikabilna)
-  components/fleet/CarDetail.tsx  (WhatsApp dugme)
+  components/fleet/CarGallery.tsx   (tačkice, automatsko listanje)
+  components/fleet/SimilarCars.tsx  (NOVO — slider sa slikama)
+  components/fleet/CarDetail.tsx    (koristi oboje)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run build
-3. npm run dev -> /vozila
-   - klikni bilo gdje na kartici, mora otvoriti stranicu vozila
-   - klikni na sliku, mora otvoriti uvećanje a NE stranicu
-   - klikni "Rezerviši", mora otvoriti obrazac
-   - na stranici vozila provjeri WhatsApp dugme
+3. npm run dev -> otvori stranicu nekog vozila
+   - slike se moraju same listati
+   - klikni strelicu: listanje mora prestati
+   - prebaci na svijetlu temu i provjeri tačkice na svijetloj slici
+   - dolje moraju biti slična vozila sa slikama
+   - ako ih ima tri ili više, provjeri strelice i vrtnju u krug
+   - vrati se na /vozila: tamo se slike NE smiju same listati

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Car as CarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -11,6 +11,14 @@ type Props = {
   /** Called when the visitor taps/clicks the photo (opens the lightbox). */
   onOpen?: (index: number) => void;
   /** Load the first shown image eagerly + high priority (above-the-fold cards). */
+  /**
+   * Advance on its own every few seconds.
+   *
+   * Off by default: a dozen cards in a grid all cycling at once is noise, and
+   * it makes the page feel unstable. On a single vehicle page there is one
+   * gallery and it reads as a slideshow.
+   */
+  autoPlay?: boolean;
   priority?: boolean;
   /** Override the responsive `sizes` (e.g. smaller on the homepage teaser). */
   sizes?: string;
@@ -24,16 +32,31 @@ export function CarGallery({
   images,
   title,
   onOpen,
+  autoPlay = false,
   priority = false,
   sizes = "(max-width: 639px) 84vw, (max-width: 1023px) 44vw, 31vw",
 }: Props) {
   const t = useTranslations("Common");
   const [index, setIndex] = useState(0);
+  // Any manual move stops the slideshow for good: once somebody is browsing
+  // themselves, having the picture change under their hand is infuriating.
+  const [paused, setPaused] = useState(false);
+
   const touchX = useRef<number | null>(null);
 
   const count = images.length;
-  const go = (dir: 1 | -1) =>
+
+  useEffect(() => {
+    if (!autoPlay || paused || count < 2) return;
+    const t = setInterval(() => setIndex((i) => (i + 1) % count), 3500);
+    return () => clearInterval(t);
+  }, [autoPlay, paused, count]);
+  const go = (dir: 1 | -1) => {
+    // Any deliberate move ends the slideshow: once somebody is browsing on
+    // their own, having the picture change under their hand is infuriating.
+    setPaused(true);
     setIndex((i) => (i + dir + count) % count);
+  };
 
   if (count === 0) {
     return (
@@ -99,7 +122,11 @@ export function CarGallery({
           </button>
 
           {/* Dots */}
-          <div className="absolute bottom-2.5 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+          {/* The dots sit on the photo, not on the page, so the theme is not
+              what decides whether they show: a white car against a bright sky
+              swallowed them either way. A dark pill behind the row fixes it
+              everywhere, and matches the arrows, which already work. */}
+          <div className="absolute bottom-2.5 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-black/40 px-2 py-1.5 backdrop-blur-sm">
             {images.map((_, i) => (
               <button
                 key={i}
@@ -107,12 +134,13 @@ export function CarGallery({
                 aria-label={`${i + 1}/${count}`}
                 onClick={(e) => {
                   e.stopPropagation();
+                  setPaused(true);
                   setIndex(i);
                 }}
                 className={`h-1.5 rounded-full transition-all ${
                   i === index
-                    ? "w-5 bg-brand"
-                    : "w-1.5 bg-white/50 hover:bg-white/80"
+                    ? "w-5 bg-brand-foreground"
+                    : "w-1.5 bg-white/60 hover:bg-white"
                 }`}
               />
             ))}
