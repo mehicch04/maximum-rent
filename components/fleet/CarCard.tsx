@@ -3,7 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Calendar, Car as CarIcon, ChevronRight, Cog, Fuel, Users } from "lucide-react";
+import {
+  Calendar,
+  Car as CarIcon,
+  ChevronRight,
+  Cog,
+  Fuel,
+  Users,
+} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { AppLocale } from "@/i18n/routing";
 import {
@@ -31,7 +38,14 @@ type Props = {
   imageSizes?: string;
 };
 
-export function CarCard({ car, search, onSelect, index = 0, priority = false, imageSizes }: Props) {
+export function CarCard({
+  car,
+  search,
+  onSelect,
+  index = 0,
+  priority = false,
+  imageSizes,
+}: Props) {
   const locale = useLocale() as AppLocale;
   const t = useTranslations("Fleet");
   const common = useTranslations("Common");
@@ -73,13 +87,22 @@ export function CarCard({ car, search, onSelect, index = 0, priority = false, im
         ease: [0.22, 1, 0.36, 1],
       }}
       whileHover={{ y: -4 }}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-shadow duration-300 hover:shadow-card-hover"
+      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-all duration-300 hover:border-brand/50 hover:shadow-card-hover"
     >
       <span className="absolute left-4 top-4 z-10 rounded-full bg-brand px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-foreground">
         {label(CLASS_LABELS[car.carClass], locale)}
       </span>
 
-      <CarGallery images={images} title={car.title} onOpen={setLightbox} priority={priority} sizes={imageSizes} />
+      {/* Above the stretched link so zooming a photo still works. */}
+      <div className="relative z-10">
+        <CarGallery
+          images={images}
+          title={car.title}
+          onOpen={setLightbox}
+          priority={priority}
+          sizes={imageSizes}
+        />
+      </div>
 
       <ImageLightbox
         images={images}
@@ -96,7 +119,7 @@ export function CarCard({ car, search, onSelect, index = 0, priority = false, im
                 route in from the fleet listing. */}
             <Link
               href={`/${locale}/vozila/${car.slug}`}
-              className="transition-colors hover:text-brand-strong"
+              className="transition-colors before:absolute before:inset-0 before:z-0 before:content-[''] hover:text-brand-strong"
             >
               {car.title}
             </Link>
@@ -128,7 +151,7 @@ export function CarCard({ car, search, onSelect, index = 0, priority = false, im
           </p>
         )}
 
-        <div className="mt-auto flex items-center gap-2 pt-2">
+        <div className="relative z-10 mt-auto flex items-center gap-2 pt-2">
           <button
             type="button"
             onClick={() => onSelect?.(car)}

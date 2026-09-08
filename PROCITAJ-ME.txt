@@ -1,75 +1,52 @@
-STRANICA PO VOZILU
-==================
+KARTICA VOZILA I WHATSAPP NA STRANICI
+=====================================
 
 Schema se NE mijenja. Samo: npm run build
 
-ŠTO JE NAPRAVLJENO
-------------------
-Svako vozilo sada ima svoju adresu:
+1) CIJELA KARTICA OTVARA STRANICU VOZILA
+----------------------------------------
+Ranije je samo naziv bio veza, što se nije primjećivalo. Sada se klikom
+bilo gdje na kartici otvara stranica tog automobila.
 
-    /vozila/skoda-octavia-combi
+Kartica mijenja rub i sjenu kad pređete mišem, a pokazivač postaje ruka,
+pa se vidi da je klikabilna.
 
-Polje za adresu (slug) već je postojalo u bazi, pa nije trebalo ništa
-mijenjati ni migrirati.
+KAKO JE IZVEDENO
+   Kartica NIJE umotana u vezu. Unutra su galerija i dva dugmeta, a veza
+   oko dugmeta je neispravna i ne radi s tastaturom.
 
-ŠTA STRANICA IMA
-  velika galerija sa svim fotografijama i uvećanjem
-  cijena po danu, u markama ili eurima
-  dugme za rezervaciju koje otvara isti obrazac kao i lista
-  puna specifikacija: sjedišta, vrata, mjenjač, gorivo, godište,
-    prtljag, klima, klasa
-  opis vozila, na oba jezika
-  tri slična vozila iz iste klase
+   Umjesto toga, veza na nazivu se nevidljivo rasteže preko cijele
+   kartice, a galerija i dugmad stoje iznad nje. Tako:
 
-Naslov na kartici u listi sada vodi na tu stranicu.
+     klik na sliku       -> otvara uvećanje, kao i prije
+     klik na "Rezerviši" -> otvara obrazac, kao i prije
+     klik na WhatsApp    -> otvara poruku, kao i prije
+     klik bilo gdje drugo -> otvara stranicu vozila
 
-ZAŠTO SLIČNA VOZILA IZ ISTE KLASE, A NE PO CIJENI
-  Ko gleda kombi treba drugi kombi. Jeftinija limuzina mu ne pomaže, ma
-  koliko blizu bila po cijeni.
+   Za Google i za čitače ekrana i dalje postoji jedna uredna veza s
+   nazivom vozila, ne šuma nevidljivih.
 
-ZA GOOGLE
----------
-  Svaka stranica ima svoj naslov i opis.
-  Dodani su strukturirani podaci, pa se u rezultatu pretrage može
-    prikazati cijena i tip vozila, a ne samo plavi link.
-  Obje jezične verzije su povezane, da se ne tretiraju kao duplikat.
-  Sve stranice su dodane u sitemap.
+2) WHATSAPP NA STRANICI VOZILA
+------------------------------
+Pored dugmeta za rezervaciju stoji i WhatsApp, isto kao na kartici.
 
-To je ono zbog čega ovo vrijedi: neko traži "iznajmljivanje Octavie
-Mostar" i sada postoji stranica koja na to odgovara. Ranije je postojala
-samo lista svih vozila, koja ne odgovara ni na jedno konkretno pitanje.
+Poruka se otvara s već upisanim nazivom vozila, pa gost koji nikada neće
+popuniti obrazac ipak stigne do vas s nečim konkretnim.
 
-POVUČENA VOZILA
----------------
-Vozilo koje ste isključili iz ponude i dalje ima stranicu, ali bez dugmeta
-za rezervaciju i uz napomenu da trenutno nije u ponudi.
-
-Razlog: link je možda u nečijim porukama ili u Googleovom indeksu.
-Stranica koja objašnjava je bolja od prazne greške.
-
-ŠTO JOŠ TREBA URADITI
----------------------
-Opisi. Bez njih su sve stranice gotovo iste i Google ih neće razlikovati.
-
-U zipu je datoteka OPISI-VOZILA-PREDLOZAK.txt s uputom i primjerom.
-Klijent to može popuniti sam, tri do pet rečenica po vozilu, u
-/admin/vozila.
+Namjerno je pored obrasca, a ne umjesto njega. To su dva različita tipa
+gosta: jedan hoće sve unijeti i vidjeti cijenu, drugi hoće samo pitati.
 
 FAJLOVI
 -------
-  app/[locale]/vozila/[slug]/page.tsx  (NOVO — stranica)
-  components/fleet/CarDetail.tsx       (NOVO — prikaz)
-  lib/car-detail.ts                    (NOVO — dohvat)
-  components/fleet/CarCard.tsx         (naslov vodi na stranicu)
-  app/sitemap.ts                       (stranice vozila)
-  messages/hr.json, en.json            (novi tekstovi)
+  components/fleet/CarCard.tsx    (cijela kartica klikabilna)
+  components/fleet/CarDetail.tsx  (WhatsApp dugme)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run build
-3. npm run dev
-   - /vozila -> klikni na naziv vozila
-   - mora se otvoriti stranica tog auta
-   - probaj rezervaciju s te stranice
-   - provjeri /sitemap.xml, moraju biti sve stranice vozila
+3. npm run dev -> /vozila
+   - klikni bilo gdje na kartici, mora otvoriti stranicu vozila
+   - klikni na sliku, mora otvoriti uvećanje a NE stranicu
+   - klikni "Rezerviši", mora otvoriti obrazac
+   - na stranici vozila provjeri WhatsApp dugme

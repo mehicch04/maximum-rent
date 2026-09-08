@@ -22,6 +22,8 @@ import { useCurrency } from "@/components/currency/CurrencyProvider";
 import { CarGallery } from "@/components/fleet/CarGallery";
 import { ImageLightbox } from "@/components/fleet/ImageLightbox";
 import { InquiryModal } from "@/components/reservation/InquiryModal";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
+import { buildWhatsAppUrl, type InquiryContext } from "@/lib/whatsapp";
 
 /**
  * One vehicle, in full.
@@ -52,19 +54,38 @@ export function CarDetail({
   const [booking, setBooking] = useState(false);
 
   const en = locale === "en";
+
+  // The message opens with the car already named, so a guest who will never
+  // fill in a form still arrives with something the owner can act on.
+  const whatsappUrl = buildWhatsAppUrl({
+    car: { title: car.title },
+    locale,
+  } as InquiryContext);
   const description = en ? car.descriptionEn : car.descriptionHr;
 
   const specs = [
-    { icon: Users, label: en ? "Seats" : "Sjedišta", value: String(car.passengers) },
+    {
+      icon: Users,
+      label: en ? "Seats" : "Sjedišta",
+      value: String(car.passengers),
+    },
     { icon: DoorOpen, label: en ? "Doors" : "Vrata", value: String(car.doors) },
-    { icon: Settings2, label: en ? "Gearbox" : "Mjenjač", value: car.transmission },
+    {
+      icon: Settings2,
+      label: en ? "Gearbox" : "Mjenjač",
+      value: car.transmission,
+    },
     { icon: Fuel, label: en ? "Fuel" : "Gorivo", value: car.fuelType },
     { icon: Calendar, label: en ? "Year" : "Godište", value: String(car.year) },
-    { icon: Briefcase, label: en ? "Luggage" : "Prtljag", value: car.luggage ?? "—" },
+    {
+      icon: Briefcase,
+      label: en ? "Luggage" : "Prtljag",
+      value: car.luggage ?? "—",
+    },
     {
       icon: Snowflake,
       label: en ? "Air conditioning" : "Klima",
-      value: car.airCondition ? (en ? "Yes" : "Da") : (en ? "No" : "Ne"),
+      value: car.airCondition ? (en ? "Yes" : "Da") : en ? "No" : "Ne",
     },
     { icon: Armchair, label: en ? "Class" : "Klasa", value: car.carClass },
   ];
@@ -105,13 +126,28 @@ export function CarDetail({
               {t("notOffered")}
             </p>
           ) : (
-            <button
-              type="button"
-              onClick={() => setBooking(true)}
-              className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-xl bg-brand px-6 text-sm font-semibold text-brand-foreground shadow-brand transition-colors hover:bg-brand-700"
-            >
-              {t("bookNow")}
-            </button>
+            <div className="mt-4 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setBooking(true)}
+                className="inline-flex h-12 flex-1 items-center justify-center rounded-xl bg-brand px-6 text-sm font-semibold text-brand-foreground shadow-brand transition-colors hover:bg-brand-700"
+              >
+                {t("bookNow")}
+              </button>
+
+              {/* Side by side with the form, not instead of it: some people
+                  will never fill anything in, and a message is the only way
+                  they get in touch. */}
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="WhatsApp"
+                className="inline-flex h-12 shrink-0 items-center justify-center rounded-xl border border-border bg-surface-muted px-4 text-foreground transition-colors hover:border-brand hover:text-brand"
+              >
+                <WhatsAppIcon className="h-5 w-5" />
+              </a>
+            </div>
           )}
 
           <div className="mt-6">
