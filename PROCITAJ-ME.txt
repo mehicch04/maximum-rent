@@ -1,65 +1,77 @@
-GALERIJA I SLIČNA VOZILA
-========================
+TREPERENJE KARTICA PRI SKROLANJU NA TELEFONU
+============================================
 
 Schema se NE mijenja. Samo: npm run build
 
-1) TAČKICE SE NISU VIDJELE
---------------------------
-Ovo nije bila greška teme, nego nešto šire.
-
-Tačkice stoje NA SLICI, ne na pozadini stranice. Bijele su, pa su
-nestajale na svakoj svijetloj fotografiji: bijeli auto, vedro nebo, snijeg.
-Mijenjanje boje prema temi to ne bi riješilo, jer tema ne odlučuje kakva
-je slika ispod.
-
-Riješeno tamnom podlogom iza cijelog reda tačkica, s blagim zamućenjem.
-Isto rješenje koje strelice već koriste, i iz istog razloga. Sada se vide
-na svakoj slici i u obje teme.
-
-2) AUTOMATSKO LISTANJE
+ŠTA SAM PRVO PROVJERIO
 ----------------------
-Glavna galerija na stranici vozila sama prelazi na sljedeću sliku svakih
-3,5 sekunde.
+Tri stvari koje ste naveli već su bile ispravne:
 
-Prestaje ČIM korisnik nešto klikne: strelicu, tačkicu, bilo šta. Ne
-nastavlja kasnije. Slika koja se promijeni pod rukom dok neko gleda
-konkretan detalj je vrlo neugodna.
+  animacija se okida samo jednom   viewport once: true, već postavljeno
+  ključevi u listi                 key={car.id}, ne indeks
+  prioritet za prve kartice        prve tri na /vozila već ga imaju
 
-VAŽNO: automatsko listanje je uključeno SAMO na stranici vozila.
-Na listi vozila ima dvanaest kartica; da se sve vrte istovremeno,
-stranica bi izgledala nemirno i teško bi se čitala.
+Nisam ih dirao. Uzrok je bio drugdje.
 
-3) SLIČNA VOZILA
-----------------
-Kartice sada imaju sliku vozila, ne samo naziv i cijenu. Slika se blago
-uveća kad se pređe mišem.
+PRAVI UZROK
+-----------
+Dva podešenja u animaciji, koja zajedno prave tačno onaj dojam da se
+kartica učitava dvaput.
 
-Do dva vozila stoje u običnom redu, jer nema šta listati.
-Od tri naviše postaje slider sa strelicama, koji se vrti u krug: na kraju
-skače na početak i obrnuto.
+1) KARTICA JE ČEKALA DA UĐE 60 PIKSELA U EKRAN
+   Tek tada bi počela da se pojavljuje. Na telefonu je jedna kartica po
+   redu i visoka je, pa se dobrim dijelom već vidi prije nego animacija
+   uopće krene.
 
-KAKO JE IZVEDEN KRUG
-   Ne dupliranjem kartica, nego skokom na suprotnu stranu. Duplirane
-   kartice znače duple linkove na stranici, što šteti u pretrazi i zbunjuje
-   čitače ekrana.
+2) SVAKA KARTICA JE IMALA ODGODU PO REDNOM BROJU
+   Do 0,3 sekunde. Na širokom ekranu, gdje tri kartice ulaze zajedno, to
+   izgleda lijepo. Na telefonu, gdje ulaze jedna po jedna, svaka kartica
+   je čekala svoju odgodu.
 
-   Na dodir se lista prstom, a kartice se "hvataju" tako da prst uvijek
-   završi na cijeloj kartici, nikad između dvije.
+   Zajedno: prazno mjesto, pauza, kartica se pojavi, pa se pojavi slika.
+   To se čita kao dvostruko učitavanje.
+
+POPRAVKA
+   Animacija sada kreće 200 piksela PRIJE nego kartica dođe na red, pa
+   završi prije nego je iko pogleda.
+
+   Odgoda je zadržana samo za prvi red, gdje je namjeran efekat pri
+   otvaranju stranice. Ispod toga je nema.
+
+   Trajanje skraćeno s 0,45 na 0,35 sekunde.
+
+DRUGI NALAZ: POGREŠNA VELIČINA SLIKE
+------------------------------------
+Stranica /vozila uopće nije govorila koliko je slika široka, pa se
+koristila zadana pretpostavka od 84 posto širine ekrana.
+
+Stvarna kartica na telefonu je oko 92 posto. Preglednik je zbog toga
+uzimao manju sliku nego što mu treba, pa je izgledala mekše nego što bi
+trebala.
+
+Ispravljeno i u galeriji kao zadana vrijednost i izričito na stranici
+/vozila:
+
+  telefon   92vw
+  tablet    46vw
+  računar   31vw
+
+ŠTO JE VEĆ BILO DOBRO
+---------------------
+Okvir slike ima fiksan omjer 16:10 i sivu pozadinu dok se slika učitava,
+pa se raspored ne pomjera. To nije trebalo dirati.
 
 FAJLOVI
 -------
-  components/fleet/CarGallery.tsx   (tačkice, automatsko listanje)
-  components/fleet/SimilarCars.tsx  (NOVO — slider sa slikama)
-  components/fleet/CarDetail.tsx    (koristi oboje)
+  components/fleet/CarCard.tsx      (tempiranje animacije)
+  components/fleet/CarGallery.tsx   (zadane dimenzije slike)
+  app/[locale]/vozila/page.tsx      (izričite dimenzije)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run build
-3. npm run dev -> otvori stranicu nekog vozila
-   - slike se moraju same listati
-   - klikni strelicu: listanje mora prestati
-   - prebaci na svijetlu temu i provjeri tačkice na svijetloj slici
-   - dolje moraju biti slična vozila sa slikama
-   - ako ih ima tri ili više, provjeri strelice i vrtnju u krug
-   - vrati se na /vozila: tamo se slike NE smiju same listati
+3. npm run dev, pa otvori /vozila na telefonu
+   - skrolaj brzo dolje i gore
+   - kartice se moraju pojavljivati mirno, bez pauze i ponovnog pojavljivanja
+   - slike moraju biti oštre

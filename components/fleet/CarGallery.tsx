@@ -34,7 +34,12 @@ export function CarGallery({
   onOpen,
   autoPlay = false,
   priority = false,
-  sizes = "(max-width: 639px) 84vw, (max-width: 1023px) 44vw, 31vw",
+  /*
+   * Matches what the card is actually rendered at, so the browser picks the
+   * right file first time. It claimed 84vw on phones where the card is nearer
+   * 92vw, which meant fetching an image too small for the slot.
+   */
+  sizes = "(max-width: 639px) 92vw, (max-width: 1023px) 46vw, 31vw",
 }: Props) {
   const t = useTranslations("Common");
   const [index, setIndex] = useState(0);

@@ -117,6 +117,7 @@ export default async function VehiclesPage({
           search={search}
           locations={locations.map((l) => ({ id: l.id, name: l.name }))}
           eagerFirstImages
+          imageSizes="(max-width: 639px) 92vw, (max-width: 1023px) 46vw, 31vw"
           extras={extras}
           bookedExtras={bookedExtras}
         />
