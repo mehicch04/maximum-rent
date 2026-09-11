@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, X } from "lucide-react";
 import { CarCard } from "./CarCard";
@@ -78,7 +78,16 @@ export type SortKey =
  * because the fleet is small — instant, no extra requests. Cars can match
  * several categories at once.
  */
-export function FleetGrid({ cars, search, locations, showFilters = true, eagerFirstImages = false, imageSizes, extras, bookedExtras }: Props) {
+export function FleetGrid({
+  cars,
+  search,
+  locations,
+  showFilters = true,
+  eagerFirstImages = false,
+  imageSizes,
+  extras,
+  bookedExtras,
+}: Props) {
   const t = useTranslations("Fleet");
   const [selected, setSelected] = useState<CarListItem | null>(null);
   const [active, setActive] = useState<CarCategory | "ALL">("ALL");
@@ -91,16 +100,30 @@ export function FleetGrid({ cars, search, locations, showFilters = true, eagerFi
     [cars],
   );
 
-  // Counts per category — used for the chip badges and to hide empty ones.
+  /**
+   * Each filter's options are counted against what the *other* filters allow,
+   * not against the whole fleet.
+   *
+   * Listing every brand regardless of the chosen category meant picking
+   * "Transport" and then "BMW" landed on an empty page, with nothing to
+   * suggest the combination was impossible before clicking it.
+   *
+   * A filter never narrows its own list: if categories were counted after the
+   * category filter had been applied, choosing one would leave a dropdown with
+   * a single entry and no way back.
+   */
   const counts = useMemo(() => {
     const m = new Map<CarCategory, number>();
-    for (const cats of carCats.values()) {
-      for (const cat of cats) m.set(cat, (m.get(cat) ?? 0) + 1);
+    for (const c of cars) {
+      if (brand !== "ALL" && c.brand !== brand) continue;
+      for (const cat of carCats.get(c.id) ?? []) {
+        m.set(cat, (m.get(cat) ?? 0) + 1);
+      }
     }
     return m;
-  }, [carCats]);
+  }, [cars, carCats, brand]);
 
-  // Only categories that actually have cars, so the list never shows dead ends.
+  // Only categories that still have cars under the current brand.
   const typeOptions = useMemo(
     () =>
       CAR_CATEGORIES.filter((cat) => (counts.get(cat) ?? 0) > 0).map((cat) => ({
@@ -111,15 +134,36 @@ export function FleetGrid({ cars, search, locations, showFilters = true, eagerFi
     [counts, t],
   );
 
-  // Brands present in the fleet, alphabetical, with how many cars each has.
+  // Brands that still have cars in the chosen category, alphabetical.
   const brands = useMemo(() => {
     const m = new Map<string, number>();
     for (const c of cars) {
+      if (active !== "ALL" && !carCats.get(c.id)?.includes(active)) continue;
       const b = c.brand?.trim();
       if (b) m.set(b, (m.get(b) ?? 0) + 1);
     }
     return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0], "hr"));
-  }, [cars]);
+  }, [cars, carCats, active]);
+
+  /**
+   * Clears a selection that the other filter has just made impossible.
+   *
+   * Picking BMW and then switching to Transport leaves a combination with no
+   * cars in it. Rather than showing an empty page and letting the visitor work
+   * out which of the two choices to undo, the one that no longer exists is
+   * dropped and the other is honoured, since it is the one just chosen.
+   */
+  useEffect(() => {
+    if (brand !== "ALL" && !brands.some(([b]) => b === brand)) {
+      setBrand("ALL");
+    }
+  }, [brands, brand]);
+
+  useEffect(() => {
+    if (active !== "ALL" && (counts.get(active) ?? 0) === 0) {
+      setActive("ALL");
+    }
+  }, [counts, active]);
 
   const filtersActive = active !== "ALL" || brand !== "ALL";
   const clearFilters = () => {

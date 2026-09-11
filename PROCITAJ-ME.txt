@@ -1,77 +1,63 @@
-TREPERENJE KARTICA PRI SKROLANJU NA TELEFONU
-============================================
+ZAVISNI FILTERI NA STRANICI VOZILA
+==================================
 
 Schema se NE mijenja. Samo: npm run build
 
-ŠTA SAM PRVO PROVJERIO
-----------------------
-Tri stvari koje ste naveli već su bile ispravne:
+PROBLEM
+-------
+Filteri se nisu obazirali jedan na drugi. Izaberete kategoriju Transport, a
+popis brendova i dalje nudi BMW, iako transportnih BMW-a nemate. Klik vodi
+na prazan ekran.
 
-  animacija se okida samo jednom   viewport once: true, već postavljeno
-  ključevi u listi                 key={car.id}, ne indeks
-  prioritet za prve kartice        prve tri na /vozila već ga imaju
+KAKO SADA RADI
+--------------
+Svaki filter se računa prema onome što drugi dopušta.
 
-Nisam ih dirao. Uzrok je bio drugdje.
+  Transport izabran -> brendovi nude samo Škoda i VW
+  BMW izabran       -> kategorije nude samo Luksuz i Limuzina
 
-PRAVI UZROK
------------
-Dva podešenja u animaciji, koja zajedno prave tačno onaj dojam da se
-kartica učitava dvaput.
+Brojevi u zagradama prate isto pravilo, pa "Škoda (1)" znači jedno vozilo
+koje zadovoljava OBA filtera, ne ukupno u floti.
 
-1) KARTICA JE ČEKALA DA UĐE 60 PIKSELA U EKRAN
-   Tek tada bi počela da se pojavljuje. Na telefonu je jedna kartica po
-   redu i visoka je, pa se dobrim dijelom već vidi prije nego animacija
-   uopće krene.
+DETALJ KOJI JE BILO VAŽNO POGODITI
+----------------------------------
+Filter ne sužava sam sebe.
 
-2) SVAKA KARTICA JE IMALA ODGODU PO REDNOM BROJU
-   Do 0,3 sekunde. Na širokom ekranu, gdje tri kartice ulaze zajedno, to
-   izgleda lijepo. Na telefonu, gdje ulaze jedna po jedna, svaka kartica
-   je čekala svoju odgodu.
+Da se kategorije računaju nakon što je kategorija već primijenjena, nakon
+odabira Transporta u popisu bi ostala samo jedna stavka i ne biste se imali
+čime vratiti na ostale.
 
-   Zajedno: prazno mjesto, pauza, kartica se pojavi, pa se pojavi slika.
-   To se čita kao dvostruko učitavanje.
+Zato se brendovi računaju prema izabranoj kategoriji, a kategorije prema
+izabranom brendu. Svaki gleda onog drugog, nikad sebe.
 
-POPRAVKA
-   Animacija sada kreće 200 piksela PRIJE nego kartica dođe na red, pa
-   završi prije nego je iko pogleda.
+AUTOMATSKO PONIŠTAVANJE
+-----------------------
+Izaberete BMW, pa se predomislite i prebacite na Transport. Ta kombinacija
+ne postoji.
 
-   Odgoda je zadržana samo za prvi red, gdje je namjeran efekat pri
-   otvaranju stranice. Ispod toga je nema.
+Umjesto praznog ekrana, brend se sam vraća na "Svi brendovi", a kategorija
+ostaje. Poništava se ono što više ne postoji, a poštuje ono što ste upravo
+izabrali.
 
-   Trajanje skraćeno s 0,45 na 0,35 sekunde.
+Vrijedi i obrnuto: ako kategorija postane nemoguća zbog izabranog brenda,
+ona se poništi.
 
-DRUGI NALAZ: POGREŠNA VELIČINA SLIKE
-------------------------------------
-Stranica /vozila uopće nije govorila koliko je slika široka, pa se
-koristila zadana pretpostavka od 84 posto širine ekrana.
-
-Stvarna kartica na telefonu je oko 92 posto. Preglednik je zbog toga
-uzimao manju sliku nego što mu treba, pa je izgledala mekše nego što bi
-trebala.
-
-Ispravljeno i u galeriji kao zadana vrijednost i izričito na stranici
-/vozila:
-
-  telefon   92vw
-  tablet    46vw
-  računar   31vw
-
-ŠTO JE VEĆ BILO DOBRO
----------------------
-Okvir slike ima fiksan omjer 16:10 i sivu pozadinu dok se slika učitava,
-pa se raspored ne pomjera. To nije trebalo dirati.
+PROVJERENO
+  Transport   -> Škoda (1), VW (1)
+  Luksuz      -> BMW (1), Audi (1)
+  BMW         -> Luksuz (1), Limuzina (1)
+  BMW pa Transport -> brend se poništi, ostaju 2 brenda i rezultati
+  izabran Transport -> kategorije i dalje nude sve četiri
 
 FAJLOVI
 -------
-  components/fleet/CarCard.tsx      (tempiranje animacije)
-  components/fleet/CarGallery.tsx   (zadane dimenzije slike)
-  app/[locale]/vozila/page.tsx      (izričite dimenzije)
+  components/fleet/FleetGrid.tsx
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run build
-3. npm run dev, pa otvori /vozila na telefonu
-   - skrolaj brzo dolje i gore
-   - kartice se moraju pojavljivati mirno, bez pauze i ponovnog pojavljivanja
-   - slike moraju biti oštre
+3. npm run dev -> /vozila
+   - izaberi neku kategoriju i pogledaj popis brendova
+   - izaberi brend pa promijeni kategoriju u onu gdje taj brend nema vozila
+   - brend se mora sam poništiti, a rezultati moraju ostati
