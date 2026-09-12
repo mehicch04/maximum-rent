@@ -16,7 +16,8 @@ import type { TrendPoint } from "@/lib/analytics";
 
 const W = 660;
 const H = 260;
-const PAD = { top: 16, right: 46, bottom: 28, left: 40 };
+// Left padding fits a three-digit label without clipping.
+const PAD = { top: 16, right: 46, bottom: 28, left: 46 };
 const PLOT_W = W - PAD.left - PAD.right;
 const PLOT_H = H - PAD.top - PAD.bottom;
 
@@ -29,15 +30,39 @@ const PLOT_H = H - PAD.top - PAD.bottom;
  */
 const NICE_STEPS = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
 
-function niceScale(max: number, ticks = 5): { max: number; values: number[] } {
+function niceScale(
+  max: number,
+  ticks = 5,
+  /**
+   * Whole numbers only.
+   *
+   * Bookings are counted, not measured: an axis reading 7.5 is nonsense, and
+   * the 2.5 step produced exactly that for small totals. Multiplying decimal
+   * factors also left values like 0.8000000000000001, which printed in full
+   * and ran off the edge of the chart.
+   */
+  integer = false,
+): { max: number; values: number[] } {
   if (!(max > 0)) return { max: 1, values: [1, 0] };
+
   const raw = max / (ticks - 1);
   const magnitude = Math.pow(10, Math.floor(Math.log10(raw)));
-  const step = (NICE_STEPS.find((s) => raw / magnitude <= s) ?? 10) * magnitude;
+  const steps = integer ? NICE_STEPS.filter((s) => s !== 2.5) : NICE_STEPS;
+  let step = (steps.find((s) => raw / magnitude <= s) ?? 10) * magnitude;
+
+  if (integer) {
+    // Never below one, and rounded so repeated addition cannot drift.
+    step = Math.max(1, Math.round(step));
+  }
+
   const top = step * (ticks - 1);
+  const values = Array.from({ length: ticks }, (_, i) => top - step * i);
+
   return {
     max: top,
-    values: Array.from({ length: ticks }, (_, i) => top - step * i),
+    // Rounded even in the decimal case: the axis shows whole units either way,
+    // and this is the last place a floating point remainder can slip through.
+    values: values.map((v) => (integer ? v : Math.round(v * 100) / 100)),
   };
 }
 
@@ -67,7 +92,7 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
 
   // Each axis is scaled on its own: bookings are counts, revenue is money, and
   // forcing them onto a shared scale would distort both.
-  const left = niceScale(Math.max(...data.map((d) => d.bookings), 1));
+  const left = niceScale(Math.max(...data.map((d) => d.bookings), 1), 5, true);
   const right = niceScale(Math.max(...data.map((d) => d.revenue), 1));
   const maxBookings = left.max;
   const maxRevenue = right.max;

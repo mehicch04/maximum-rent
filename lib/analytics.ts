@@ -463,8 +463,15 @@ export async function getTopCars(range: Range): Promise<TopCar[]> {
     },
     _sum: { totalPrice: true },
     _count: true,
-    orderBy: { _sum: { totalPrice: "desc" } },
-    take: 5,
+    /*
+     * Deliberately unsorted and untrimmed here.
+     *
+     * Sorting by the sum in the database put reservations with no recorded
+     * price at the top, because an empty sum counts as unknown and unknown
+     * sorts first in descending order. Combined with taking only five rows,
+     * that meant the five best earners could be cut off before they were ever
+     * read. Ordering happens below, where an empty sum is simply zero.
+     */
   });
 
   const ids = grouped.map((g) => g.carId as string);
@@ -474,16 +481,22 @@ export async function getTopCars(range: Range): Promise<TopCar[]> {
   });
   const carById = new Map(cars.map((c) => [c.id, c]));
 
-  return grouped.map((g) => {
-    const car = carById.get(g.carId as string);
-    return {
-      id: g.carId as string,
-      title: car?.title ?? "Nepoznato vozilo",
-      plate: car?.plate ?? "",
-      rentals: g._count,
-      revenue: num(g._sum.totalPrice),
-    };
-  });
+  return grouped
+    .map((g) => {
+      const car = carById.get(g.carId as string);
+      return {
+        id: g.carId as string,
+        title: car?.title ?? "Nepoznato vozilo",
+        plate: car?.plate ?? "",
+        rentals: g._count,
+        revenue: num(g._sum.totalPrice),
+      };
+    })
+    // Highest earner first. Where two are level, usually at zero, the one that
+    // went out more often ranks higher: it earned nothing only because the
+    // price was never recorded, not because nobody rented it.
+    .sort((a, b) => b.revenue - a.revenue || b.rentals - a.rentals)
+    .slice(0, 5);
 }
 
 export async function getExtrasStats(): Promise<ExtraStat[]> {

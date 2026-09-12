@@ -1,63 +1,68 @@
-ZAVISNI FILTERI NA STRANICI VOZILA
-==================================
+ANALITIKA — sortiranje vozila i brojevi na osi
+==============================================
 
 Schema se NE mijenja. Samo: npm run build
 
-PROBLEM
--------
-Filteri se nisu obazirali jedan na drugi. Izaberete kategoriju Transport, a
-popis brendova i dalje nudi BMW, iako transportnih BMW-a nemate. Klik vodi
-na prazan ekran.
+1) NAJPROFITABILNIJA VOZILA
+---------------------------
+UZROK JE BIO OZBILJNIJI NEGO ŠTO SE VIDJELO
 
-KAKO SADA RADI
---------------
-Svaki filter se računa prema onome što drugi dopušta.
+Sortiranje se radilo u bazi. Rezervacije kojima cijena nikad nije unesena
+nemaju zbir, a baza prazan zbir tretira kao nepoznatu vrijednost i stavlja
+je NA VRH kad se sortira opadajuće.
 
-  Transport izabran -> brendovi nude samo Škoda i VW
-  BMW izabran       -> kategorije nude samo Luksuz i Limuzina
+Uz to se uzimalo samo prvih pet redova. Znači: pet vozila bez ijedne
+unesene cijene zauzme svih pet mjesta, a prava najprofitabilnija vozila se
+iz baze nikad ni ne dohvate.
 
-Brojevi u zagradama prate isto pravilo, pa "Škoda (1)" znači jedno vozilo
-koje zadovoljava OBA filtera, ne ukupno u floti.
+Nije bio samo pogrešan redoslijed. Podaci su nedostajali.
 
-DETALJ KOJI JE BILO VAŽNO POGODITI
-----------------------------------
-Filter ne sužava sam sebe.
+POPRAVKA
+   Dohvate se sva vozila, pa se tek onda sortiraju i uzme pet najboljih.
+   Prazna cijena se pritom broji kao nula.
 
-Da se kategorije računaju nakon što je kategorija već primijenjena, nakon
-odabira Transporta u popisu bi ostala samo jedna stavka i ne biste se imali
-čime vratiti na ostale.
+   Kad su dva vozila izjednačena, obično oba na nuli, ispred ide ono s više
+   najmova. Razlog: nula je najčešće posljedica neunesene cijene, a ne toga
+   da vozilo nije radilo.
 
-Zato se brendovi računaju prema izabranoj kategoriji, a kategorije prema
-izabranom brendu. Svaki gleda onog drugog, nikad sebe.
+   Primjer, isti podaci:
+     prije: 4 vozila s 0 KM, pa Octavia
+     sada:  Octavia 138.500, Q5 121.300, A4 86.400, Transporter 62.800
 
-AUTOMATSKO PONIŠTAVANJE
------------------------
-Izaberete BMW, pa se predomislite i prebacite na Transport. Ta kombinacija
-ne postoji.
+2) BROJEVI NA LIJEVOJ OSI
+-------------------------
+NAPOMENA: grafikon nije Recharts nego vlastiti SVG, pa "tickFormatter" i
+"margin" ne postoje. Riješeno u samom računu skale.
 
-Umjesto praznog ekrana, brend se sam vraća na "Svi brendovi", a kategorija
-ostaje. Poništava se ono što više ne postoji, a poštuje ono što ste upravo
-izabrali.
+UZROK
+   Skala bira korake iz niza 1, 2, 2,5, 5, 10. Korak od 2,5 na osi koja
+   broji rezervacije daje "7,5 rezervacija", što nema smisla.
 
-Vrijedi i obrnuto: ako kategorija postane nemoguća zbog izabranog brenda,
-ona se poništi.
+   Uz to se decimalni faktori množe, pa nastaju brojevi poput
+   0.8000000000000001. Ti se ispišu u punoj dužini i izađu izvan okvira.
 
-PROVJERENO
-  Transport   -> Škoda (1), VW (1)
-  Luksuz      -> BMW (1), Audi (1)
-  BMW         -> Luksuz (1), Limuzina (1)
-  BMW pa Transport -> brend se poništi, ostaju 2 brenda i rezultati
-  izabran Transport -> kategorije i dalje nude sve četiri
+POPRAVKA
+   Lijeva osa sada traži cijele brojeve: korak 2,5 se preskače, minimalni
+   korak je 1, a vrijednosti se zaokružuju.
+
+   Provjereno na 200 uzastopnih vrijednosti: nijedna decimalna.
+
+   Desna osa, koja prikazuje prihod, radi kao i prije. Tamo veliki brojevi
+   ionako ispadaju okrugli.
+
+   Lijevi rub grafikona proširen sa 40 na 46 piksela, da troznamenkasti broj
+   sigurno stane.
 
 FAJLOVI
 -------
-  components/fleet/FleetGrid.tsx
+  lib/analytics.ts                           (sortiranje)
+  components/admin/analytics/TrendChart.tsx  (skala i rub)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run build
-3. npm run dev -> /vozila
-   - izaberi neku kategoriju i pogledaj popis brendova
-   - izaberi brend pa promijeni kategoriju u onu gdje taj brend nema vozila
-   - brend se mora sam poništiti, a rezultati moraju ostati
+3. npm run dev -> /admin/analitika
+   - izaberi "Ova godina"
+   - tabela najprofitabilnijih mora imati najveće iznose na vrhu
+   - brojevi na lijevoj osi moraju biti cijeli i cijeli vidljivi
