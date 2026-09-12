@@ -1,68 +1,80 @@
-ANALITIKA — sortiranje vozila i brojevi na osi
-==============================================
+PRILAGOĐENI PERIOD U ANALITICI
+==============================
 
 Schema se NE mijenja. Samo: npm run build
 
-1) NAJPROFITABILNIJA VOZILA
----------------------------
-UZROK JE BIO OZBILJNIJI NEGO ŠTO SE VIDJELO
+ŠTA JE DODANO
+-------------
+U izborniku perioda postoji nova stavka "Prilagođeni period". Kad se
+izabere, pojave se polja Od i Do, te dugme Primijeni.
 
-Sortiranje se radilo u bazi. Rezervacije kojima cijena nikad nije unesena
-nemaju zbir, a baza prazan zbir tretira kao nepoznatu vrijednost i stavlja
-je NA VRH kad se sortira opadajuće.
+Postojeće opcije rade kao i prije.
 
-Uz to se uzimalo samo prvih pet redova. Znači: pet vozila bez ijedne
-unesene cijene zauzme svih pet mjesta, a prava najprofitabilnija vozila se
-iz baze nikad ni ne dohvate.
+KAKO RADI U POZADINI
+--------------------
+Svaka opcija se svodi na par datuma. "Ovaj mjesec" je samo kraći način da
+se kaže prvi do zadnji dan mjeseca; prilagođeni period taj par daje
+direktno.
 
-Nije bio samo pogrešan redoslijed. Podaci su nedostajali.
+Zato grafikon, tabela vozila i sve brojke rade jednako, bez obzira koja je
+opcija izabrana. Ne postoje dva puta kroz kod koja bi se mogla razići.
 
-POPRAVKA
-   Dohvate se sva vozila, pa se tek onda sortiraju i uzme pet najboljih.
-   Prazna cijena se pritom broji kao nula.
+POREĐENJE S PRETHODNIM PERIODOM
+   Postotak pored svake brojke poredi se s periodom ISTE DUŽINE koji stoji
+   tačno prije izabranog. Za period od 10 dana to je prethodnih 10 dana, za
+   godinu prethodna godina.
 
-   Kad su dva vozila izjednačena, obično oba na nuli, ispred ide ono s više
-   najmova. Razlog: nula je najčešće posljedica neunesene cijene, a ne toga
-   da vozilo nije radilo.
+KOLONE NA GRAFIKONU
+   Prilagođeni period može biti bilo koje dužine, pa se kolone biraju prema
+   tome koliko traje:
 
-   Primjer, isti podaci:
-     prije: 4 vozila s 0 KM, pa Octavia
-     sada:  Octavia 138.500, Q5 121.300, A4 86.400, Transporter 62.800
+     do 14 dana    jedna kolona po danu
+     do 92 dana    jedna kolona po sedmici
+     preko toga    jedna kolona po mjesecu
 
-2) BROJEVI NA LIJEVOJ OSI
--------------------------
-NAPOMENA: grafikon nije Recharts nego vlastiti SVG, pa "tickFormatter" i
-"margin" ne postoje. Riješeno u samom računu skale.
+   Bez toga bi period od godinu dana dobio 365 kolona i ne bi se dao
+   pročitati.
 
-UZROK
-   Skala bira korake iz niza 1, 2, 2,5, 5, 10. Korak od 2,5 na osi koja
-   broji rezervacije daje "7,5 rezervacija", što nema smisla.
+DUGME PRIMIJENI
+   Namjerno postoji. Bez njega bi se izvještaj ponovo računao pri svakom
+   dodiru kalendara, a prvi odabrani datum je gotovo uvijek nepotpun period.
 
-   Uz to se decimalni faktori množe, pa nastaju brojevi poput
-   0.8000000000000001. Ti se ispišu u punoj dužini i izađu izvan okvira.
+   Zaključano je dok oba datuma nisu unesena i dok se nešto stvarno ne
+   promijeni.
 
-POPRAVKA
-   Lijeva osa sada traži cijele brojeve: korak 2,5 se preskače, minimalni
-   korak je 1, a vrijednosti se zaokružuju.
+DATUMI SU U ADRESI
+   Izabrani period ostaje u adresi stranice, pa se izvještaj može spremiti u
+   favorite ili poslati nekome. Osvježavanje ne gubi izbor.
 
-   Provjereno na 200 uzastopnih vrijednosti: nijedna decimalna.
+AKO SU DATUMI NEISPRAVNI
+   Nepotpun par ili datum "do" prije datuma "od" vraća izvještaj na tekući
+   mjesec, umjesto da pokaže prazan ekran bez objašnjenja.
 
-   Desna osa, koja prikazuje prihod, radi kao i prije. Tamo veliki brojevi
-   ionako ispadaju okrugli.
+KALENDAR
+   Koristi se isti kalendar kao svugdje drugdje u panelu, ne preglednikov.
+   Native polje izgleda različito u svakom pregledniku, što smo već jednom
+   uklanjali iz admina.
 
-   Lijevi rub grafikona proširen sa 40 na 46 piksela, da troznamenkasti broj
-   sigurno stane.
+PROVJERENO
+  jedan dan       1 dnevna kolona, poređenje s prethodnim danom
+  10 dana         10 dnevnih kolona
+  2,5 mjeseca     11 sedmičnih kolona
+  cijela godina   12 mjesečnih kolona
+  "do" prije "od" odbijeno, vraća se na ovaj mjesec
 
 FAJLOVI
 -------
-  lib/analytics.ts                           (sortiranje)
-  components/admin/analytics/TrendChart.tsx  (skala i rub)
+  lib/analytics.ts                            (datumi kroz sve funkcije)
+  components/admin/analytics/RangeFilter.tsx  (izbornik i polja)
+  app/admin/analitika/page.tsx                (prosljeđivanje)
 
 KORACI
 ------
 1. Raspakuj preko root-a projekta.
 2. npm run build
 3. npm run dev -> /admin/analitika
-   - izaberi "Ova godina"
-   - tabela najprofitabilnijih mora imati najveće iznose na vrhu
-   - brojevi na lijevoj osi moraju biti cijeli i cijeli vidljivi
+   - izaberi "Prilagođeni period"
+   - unesi datume i klikni Primijeni
+   - grafikon, brojke i tabela vozila moraju se svi osvježiti
+   - kopiraj adresu iz preglednika i otvori je u novom tabu:
+     mora prikazati isti period

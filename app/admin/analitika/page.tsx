@@ -31,6 +31,13 @@ export default async function AdminAnalyticsPage({
 }) {
   const raw = one(searchParams.period);
   const range = isRange(raw) ? raw : "month";
+
+  // Only meaningful for a custom window; the presets work their own out.
+  const custom = {
+    from: one(searchParams.from),
+    to: one(searchParams.to),
+  };
+
   // A reporting screen must never take the panel down with it, so a failed
   // query falls back to empty sections that say so.
   let kpis: Awaited<ReturnType<typeof getAnalytics>>["kpis"] = [];
@@ -42,9 +49,9 @@ export default async function AdminAnalyticsPage({
 
   try {
     [{ kpis }, trend, topCars, fleet, extras] = await Promise.all([
-      getAnalytics(range),
-      getTrend(range),
-      getTopCars(range),
+      getAnalytics(range, custom),
+      getTrend(range, custom),
+      getTopCars(range, custom),
       getFleetStatus(),
       getExtrasStats(),
     ]);
@@ -69,7 +76,7 @@ export default async function AdminAnalyticsPage({
 
         {/* Suspense is required because the filter reads the URL query. */}
         <Suspense fallback={<div className="h-11 w-full sm:w-52" />}>
-          <RangeFilter value={range} />
+          <RangeFilter value={range} from={custom.from} to={custom.to} />
         </Suspense>
       </div>
 

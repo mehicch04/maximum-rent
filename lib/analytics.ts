@@ -8,13 +8,14 @@ import { prisma } from "@/lib/prisma";
  * placeholder version, so the page and its components did not need changing.
  */
 
-export type Range = "today" | "7d" | "month" | "year";
+export type Range = "today" | "7d" | "month" | "year" | "custom";
 
 export const RANGES: { value: Range; label: string }[] = [
   { value: "today", label: "Danas" },
   { value: "7d", label: "Zadnjih 7 dana" },
   { value: "month", label: "Ovaj mjesec" },
   { value: "year", label: "Ova godina" },
+  { value: "custom", label: "Prilagođeni period" },
 ];
 
 export const RANGE_LABEL: Record<Range, string> = {
@@ -22,6 +23,7 @@ export const RANGE_LABEL: Record<Range, string> = {
   "7d": "zadnjih 7 dana",
   month: "ovaj mjesec",
   year: "ova godina",
+  custom: "odabrani period",
 };
 
 export const COMPARED_TO: Record<Range, string> = {
@@ -29,6 +31,7 @@ export const COMPARED_TO: Record<Range, string> = {
   "7d": "u odnosu na prethodnih 7 dana",
   month: "u odnosu na prošli mjesec",
   year: "u odnosu na prošlu godinu",
+  custom: "u odnosu na prethodni period iste dužine",
 };
 
 export type Kpi = {
@@ -39,6 +42,9 @@ export type Kpi = {
   lowerIsBetter?: boolean;
   hint?: string;
 };
+
+/** Explicit dates for a custom period, as they arrive from the URL. */
+export type CustomRange = { from?: string; to?: string };
 
 export type Analytics = { range: Range; kpis: Kpi[] };
 export type TrendPoint = { label: string; bookings: number; revenue: number };
@@ -54,7 +60,10 @@ export type TopCar = { id: string; title: string; plate: string; rentals: number
 export type ExtraStat = { name: string; rented: number; stock: number };
 
 export function isRange(v: unknown): v is Range {
-  return typeof v === "string" && ["today", "7d", "month", "year"].includes(v);
+  return (
+    typeof v === "string" &&
+    ["today", "7d", "month", "year", "custom"].includes(v)
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -67,8 +76,37 @@ const DAY = 86_400_000;
  * Start and end of the selected period, plus the one directly before it of the
  * same length, so the percentage beside each figure compares like with like.
  */
-function bounds(range: Range) {
+/**
+ * The window a report covers, and the one before it of equal length.
+ *
+ * Presets are shorthand: each simply resolves to a pair of dates, the same
+ * pair a custom range supplies directly. Keeping one representation means the
+ * charts and tables never need to know which of the two they were given.
+ */
+function bounds(range: Range, custom?: { from?: string; to?: string }) {
   const now = new Date();
+
+  if (range === "custom") {
+    const start = custom?.from ? new Date(`${custom.from}T00:00:00`) : null;
+    // Through the end of the closing day, not its first second, or a
+    // single-day report would cover nothing at all.
+    const end = custom?.to ? new Date(`${custom.to}T23:59:59.999`) : null;
+
+    if (start && end && !Number.isNaN(start.getTime()) && end > start) {
+      const span = end.getTime() - start.getTime();
+      return {
+        from: start,
+        to: end,
+        prevFrom: new Date(start.getTime() - span),
+        prevTo: new Date(start.getTime()),
+        now,
+      };
+    }
+    // An incomplete or backwards pair falls back to the current month rather
+    // than showing an empty report with no explanation.
+    range = "month";
+  }
+
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   let from: Date;
@@ -211,8 +249,8 @@ async function utilisation(from: Date, to: Date): Promise<number> {
   return Math.min(100, Math.round((used / capacity) * 100));
 }
 
-export async function getAnalytics(range: Range): Promise<Analytics> {
-  const { from, to, prevFrom, prevTo, now } = bounds(range);
+export async function getAnalytics(range: Range, custom?: CustomRange): Promise<Analytics> {
+  const { from, to, prevFrom, prevTo, now } = bounds(range, custom);
 
   const [cur, prev, utilNow, utilPrev, active, upcoming, fleetSize] =
     await Promise.all([
@@ -294,6 +332,51 @@ export async function getAnalytics(range: Range): Promise<Analytics> {
 
 /** Buckets differ per period so the axis never turns into a wall of labels. */
 function buckets(range: Range, from: Date, to: Date) {
+  /*
+   * A custom window can be any length, so its columns are built from the span
+   * itself rather than borrowed from a preset: the preset branches assume a
+   * fixed number of days or the current month, and would silently truncate
+   * anything longer.
+   *
+   * Days up to a fortnight, weeks up to a quarter, months beyond that. Around
+   * a dozen columns reads well at any width.
+   */
+  if (range === "custom") {
+    const out: { label: string; start: Date; end: Date }[] = [];
+    const totalDays = Math.max(
+      1,
+      Math.ceil((to.getTime() - from.getTime()) / DAY),
+    );
+    const fmt = (d: Date) =>
+      `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}`;
+
+    if (totalDays <= 14) {
+      for (let i = 0; i < totalDays; i++) {
+        const s = new Date(from.getTime() + i * DAY);
+        out.push({ label: fmt(s), start: s, end: new Date(s.getTime() + DAY) });
+      }
+    } else if (totalDays <= 92) {
+      for (let i = 0; i < totalDays; i += 7) {
+        const s = new Date(from.getTime() + i * DAY);
+        const e = new Date(Math.min(s.getTime() + 7 * DAY, to.getTime() + 1));
+        out.push({ label: fmt(s), start: s, end: e });
+      }
+    } else {
+      const names = ["Jan","Feb","Mar","Apr","Maj","Jun","Jul","Avg","Sep","Okt","Nov","Dec"];
+      const cur = new Date(from.getFullYear(), from.getMonth(), 1);
+      while (cur <= to) {
+        const next = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+        out.push({
+          label: names[cur.getMonth()],
+          start: new Date(Math.max(cur.getTime(), from.getTime())),
+          end: new Date(Math.min(next.getTime(), to.getTime() + 1)),
+        });
+        cur.setMonth(cur.getMonth() + 1);
+      }
+    }
+    return out;
+  }
+
   const out: { label: string; start: Date; end: Date }[] = [];
 
   if (range === "today") {
@@ -335,8 +418,8 @@ function buckets(range: Range, from: Date, to: Date) {
   return out;
 }
 
-export async function getTrend(range: Range): Promise<TrendPoint[]> {
-  const { from, to } = bounds(range);
+export async function getTrend(range: Range, custom?: CustomRange): Promise<TrendPoint[]> {
+  const { from, to } = bounds(range, custom);
   const slots = buckets(range, from, to);
 
   // One query, bucketed in memory: far cheaper than a query per bucket.
@@ -451,8 +534,8 @@ export async function getFleetStatus(): Promise<FleetSlice[]> {
 // Top vehicles and extras
 // ---------------------------------------------------------------------------
 
-export async function getTopCars(range: Range): Promise<TopCar[]> {
-  const { from, to } = bounds(range);
+export async function getTopCars(range: Range, custom?: CustomRange): Promise<TopCar[]> {
+  const { from, to } = bounds(range, custom);
 
   const grouped = await prisma.inquiry.groupBy({
     by: ["carId"],
