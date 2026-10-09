@@ -85,114 +85,139 @@ export function VehicleManager({
           </button>
         </div>
       ) : (
-        <div className="space-y-2.5">
-          {vehicles.map((v) => (
-            <div
-              key={v.id}
-              className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-3 shadow-card sm:flex-row sm:items-center"
-            >
-              {/* thumb */}
-              <div className="relative h-20 w-full shrink-0 overflow-hidden rounded-xl bg-surface-muted sm:h-16 sm:w-24">
-                {v.images?.[0] ? (
-                  <Image
-                    src={v.images[0]}
-                    alt={v.title}
-                    fill
-                    sizes="96px"
-                    className="object-contain p-1.5"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-muted-foreground">
-                    <CarIcon className="h-6 w-6" />
-                  </div>
-                )}
-              </div>
-
-              {/* info */}
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="truncate font-semibold">{v.title}</h3>
-                  {v.isFeatured && (
-                    <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-medium text-brand">
-                      Izdvojeno
-                    </span>
-                  )}
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
-                      v.isAvailable
-                        ? "bg-emerald-500/10 text-emerald-600"
-                        : "bg-muted-foreground/10 text-muted-foreground"
-                    }`}
-                  >
-                    {v.isAvailable ? "U ponudi" : "Nije u ponudi"}
-                  </span>
-                </div>
-
-                {/*
-                 * What the car is doing right now, as opposed to whether it is
-                 * offered at all. The two are easy to confuse: a vehicle can be
-                 * in the catalogue and still be out with a guest today, and
-                 * until now this screen showed only the former.
-                 */}
-                {/*
-                  * Shown for withdrawn cars too. One that is out with a guest
-                  * is still on the road, and hiding its status was how it
-                  * disappeared from view the moment it left the offer.
-                  */}
-                {(v.isAvailable || live[v.id]?.busy) && (
-                  <p className="mt-1 flex items-center gap-1.5 text-xs">
-                    <span
-                      className={`h-2 w-2 shrink-0 rounded-full ${
-                        live[v.id]?.busy ? "bg-brand" : "bg-emerald-500"
-                      }`}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1 lg:gap-2.5">
+          {vehicles.map((v) => {
+            const st = live[v.id];
+            const showStatus = v.isAvailable || st?.busy;
+            return (
+              <div
+                key={v.id}
+                className="flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-card lg:flex-row lg:items-center lg:gap-4 lg:p-3"
+              >
+                <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-surface-muted lg:aspect-auto lg:h-20 lg:w-32 lg:rounded-xl">
+                  {v.images?.[0] ? (
+                    <Image
+                      src={v.images[0]}
+                      alt={v.title}
+                      fill
+                      sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 128px"
+                      className="object-contain p-3 lg:p-1.5"
                     />
-                    {live[v.id]?.busy ? (
-                      <span className="text-brand-strong">
-                        {live[v.id].reason}
-                        {live[v.id].until ? ` do ${live[v.id].until}` : ""}
-                      </span>
-                    ) : (
-                      <span className="text-emerald-600 dark:text-emerald-400">
-                        Slobodno
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-muted-foreground">
+                      <CarIcon className="h-10 w-10 lg:h-6 lg:w-6" />
+                    </div>
+                  )}
+                  <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 lg:hidden">
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-[11px] font-semibold backdrop-blur ${
+                        v.isAvailable
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                          : "bg-background/80 text-muted-foreground"
+                      }`}
+                    >
+                      {v.isAvailable ? "U ponudi" : "Nije u ponudi"}
+                    </span>
+                    {v.isFeatured && (
+                      <span className="rounded-full bg-brand px-2.5 py-1 text-[11px] font-semibold text-brand-foreground">
+                        Izdvojeno
                       </span>
                     )}
-                  </p>
-                )}
-                <p className="mt-0.5 text-sm text-muted-foreground">
-                  {carClassLabel(v.carClass)} · {v.year} ·{" "}
-                  {v.pricePerDay != null
-                    ? `${v.pricePerDay} ${v.currency}/dan`
-                    : "cijena nije postavljena"}
-                </p>
-              </div>
+                  </div>
+                </div>
 
-              {/* actions */}
-              <div className="flex shrink-0 items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => openEdit(v)}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-border px-3 text-sm font-medium text-foreground/80 transition-colors hover:border-brand hover:text-brand"
-                >
-                  <Pencil className="h-4 w-4" />
-                  Uredi
-                </button>
-                <form action={deleteAction}>
-                  <input type="hidden" name="id" value={v.id} />
-                  <ConfirmSubmit
-                    title="Obrisati vozilo?"
-                    message={`„${v.title}“ će biti trajno uklonjeno iz baze i nestat će sa sajta. Ova radnja se ne može poništiti.`}
-                    confirmLabel="Da, obriši"
-                    cancelLabel="Nazad"
-                    tone="danger"
-                    className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-border px-3 text-sm font-medium text-foreground/80 transition-colors hover:border-brand hover:text-brand"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    <span className="hidden sm:inline">Obriši</span>
-                  </ConfirmSubmit>
-                </form>
+                <div className="flex min-w-0 flex-1 flex-col gap-3 p-4 lg:flex-row lg:items-center lg:gap-4 lg:p-0">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="truncate text-base font-semibold lg:text-sm">
+                        {v.title}
+                      </h3>
+                      {v.isFeatured && (
+                        <span className="hidden rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-medium text-brand lg:inline">
+                          Izdvojeno
+                        </span>
+                      )}
+                      <span
+                        className={`hidden rounded-full px-2 py-0.5 text-[11px] font-medium lg:inline ${
+                          v.isAvailable
+                            ? "bg-emerald-500/10 text-emerald-600"
+                            : "bg-muted-foreground/10 text-muted-foreground"
+                        }`}
+                      >
+                        {v.isAvailable ? "U ponudi" : "Nije u ponudi"}
+                      </span>
+                    </div>
+
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {carClassLabel(v.carClass)} · {v.year}
+                      {v.plate ? ` · ${v.plate}` : ""}
+                    </p>
+
+                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                      <span className="text-base font-bold lg:text-sm">
+                        {v.pricePerDay != null ? (
+                          <>
+                            {v.pricePerDay} {v.currency}
+                            <span className="ml-1 text-xs font-normal text-muted-foreground">
+                              / dan
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-sm font-normal text-muted-foreground">
+                            Cijena nije postavljena
+                          </span>
+                        )}
+                      </span>
+                      {showStatus && (
+                        <span className="flex items-center gap-1.5 text-xs">
+                          <span
+                            className={`h-2 w-2 shrink-0 rounded-full ${
+                              st?.busy ? "bg-brand" : "bg-emerald-500"
+                            }`}
+                          />
+                          {st?.busy ? (
+                            <span className="text-brand-strong">
+                              {st.reason}
+                              {st.until ? ` do ${st.until}` : ""}
+                            </span>
+                          ) : (
+                            <span className="text-emerald-600 dark:text-emerald-400">
+                              Slobodno
+                            </span>
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 lg:flex lg:shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => openEdit(v)}
+                      className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-border px-3 text-sm font-medium text-foreground/80 transition-colors hover:border-brand hover:text-brand lg:h-9"
+                    >
+                      <Pencil className="h-4 w-4" />
+                      Uredi
+                    </button>
+                    <form action={deleteAction} className="contents">
+                      <input type="hidden" name="id" value={v.id} />
+                      <ConfirmSubmit
+                        title="Obrisati vozilo?"
+                        message={`„${v.title}“ će biti trajno uklonjeno iz baze i nestat će sa sajta. Ova radnja se ne može poništiti.`}
+                        confirmLabel="Da, obriši"
+                        cancelLabel="Nazad"
+                        tone="danger"
+                        className="inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-border px-3 text-sm font-medium text-foreground/80 transition-colors hover:border-brand hover:text-brand lg:h-9 lg:w-auto"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Obriši
+                      </ConfirmSubmit>
+                    </form>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
