@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
   ArrowUpDown,
@@ -100,51 +99,110 @@ function Chip({
   );
 }
 
+const BRAND_LOGOS: Record<string, string> = {
+  audi: "audi",
+  bmw: "bmw",
+  mercedes: "mercedes-benz",
+  "mercedes-benz": "mercedes-benz",
+  skoda: "skoda",
+  volkswagen: "volkswagen",
+  vw: "volkswagen",
+};
+
+const BRAND_SHORT: Record<string, string> = {
+  "mercedes-benz": "Mercedes",
+  volkswagen: "Volkswagen",
+};
+
+function brandSlug(name: string) {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function brandLogo(name: string) {
+  const file = BRAND_LOGOS[brandSlug(name)];
+  return file ? `/brands/${file}.png` : null;
+}
+
 function BrandTile({
   active,
   onClick,
   name,
   count,
-  image,
+  all = false,
 }: {
   active: boolean;
   onClick: () => void;
   name: string;
   count: number;
-  image?: string;
+  all?: boolean;
 }) {
+  const logo = all ? null : brandLogo(name);
+  const initials = name
+    .split(/[\s-]+/)
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`group flex w-[104px] shrink-0 flex-col items-center gap-1 rounded-2xl border p-2 pb-2.5 transition-all sm:w-[112px] ${
+      className={`group flex w-[92px] shrink-0 flex-col items-center gap-2 rounded-2xl border px-2 pb-2.5 pt-3.5 transition-[border-color,background-color,box-shadow] duration-200 sm:w-[100px] ${
         active
-          ? "border-brand bg-brand/[0.06] ring-2 ring-brand/25"
-          : "border-border bg-surface hover:border-brand/50"
+          ? "border-brand bg-brand/[0.06] ring-2 ring-brand/20"
+          : "border-border bg-surface hover:border-brand/40"
       }`}
     >
-      <span className="relative flex h-12 w-full items-center justify-center overflow-hidden rounded-xl bg-surface-muted">
-        {image ? (
-          <Image
-            src={image}
-            alt=""
-            fill
-            sizes="112px"
-            className="object-contain p-1 transition-transform duration-300 group-hover:scale-105"
+      <span
+        className={`flex h-10 w-14 items-center justify-center transition-colors duration-200 ${
+          active ? "text-brand" : "text-foreground/80 group-hover:text-brand"
+        }`}
+      >
+        {all ? (
+          <LayoutGrid className="h-7 w-7" strokeWidth={1.75} />
+        ) : logo ? (
+          <span
+            aria-hidden
+            className="h-10 w-14 bg-current"
+            style={{
+              WebkitMaskImage: `url(${logo})`,
+              maskImage: `url(${logo})`,
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+            }}
           />
         ) : (
-          <LayoutGrid className="h-5 w-5 text-brand" />
+          <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-current font-display text-sm font-bold tracking-tight">
+            {initials}
+          </span>
         )}
       </span>
       <span
-        className={`w-full truncate text-center text-[13px] font-semibold ${
+        className={`w-full truncate text-center text-[13px] font-semibold leading-tight ${
           active ? "text-brand-strong" : "text-foreground"
         }`}
+        title={name}
       >
-        {name}
+        {all ? name : (BRAND_SHORT[brandSlug(name)] ?? name)}
       </span>
-      <span className="text-[11px] tabular-nums text-muted-foreground">
+      <span
+        className={`rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums ${
+          active
+            ? "bg-brand text-brand-foreground"
+            : "bg-surface-muted text-muted-foreground"
+        }`}
+      >
         {count}
       </span>
     </button>
@@ -231,15 +289,6 @@ export function FleetGrid({
     }
     return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0], "hr"));
   }, [cars, carCats, active]);
-
-  const brandImage = useMemo(() => {
-    const m = new Map<string, string>();
-    for (const c of cars) {
-      const b = c.brand?.trim();
-      if (b && !m.has(b) && c.images?.[0]) m.set(b, c.images[0]);
-    }
-    return m;
-  }, [cars]);
 
   const totalForBrands = useMemo(
     () => brands.reduce((a, [, n]) => a + n, 0),
@@ -349,6 +398,7 @@ export function FleetGrid({
                   onClick={() => setBrand("ALL")}
                   name={t("allBrands")}
                   count={totalForBrands}
+                  all
                 />
                 {brands.map(([name, count]) => (
                   <BrandTile
@@ -357,7 +407,6 @@ export function FleetGrid({
                     onClick={() => setBrand(brand === name ? "ALL" : name)}
                     name={name}
                     count={count}
-                    image={brandImage.get(name)}
                   />
                 ))}
               </div>
