@@ -91,23 +91,26 @@ export function ImageLightbox({ images, title, openIndex, onClose }: Props) {
             </span>
           )}
 
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.2 }}
+          <div
             onClick={(e) => e.stopPropagation()}
             className="relative h-[80vh] w-[94vw] sm:h-[85vh] sm:w-[88vw]"
           >
-            <Image
-              src={images[index]}
-              alt={`${title} — ${index + 1}/${count}`}
-              fill
-              sizes="100vw"
-              priority
-              className="object-contain"
-            />
-          </motion.div>
+            {images.map((src, i) => (
+              <Image
+                key={src + i}
+                src={src}
+                alt={i === index ? `${title} — ${i + 1}/${count}` : ""}
+                aria-hidden={i !== index}
+                fill
+                sizes="100vw"
+                priority={i === index}
+                loading={i === index ? undefined : "eager"}
+                className={`object-contain transition-opacity duration-200 ${
+                  i === index ? "opacity-100" : "opacity-0"
+                }`}
+              />
+            ))}
+          </div>
 
           {count > 1 && (
             <>

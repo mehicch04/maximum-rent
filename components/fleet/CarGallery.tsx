@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Car as CarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -51,6 +51,27 @@ export function CarGallery({
 
   const count = images.length;
 
+  const [ready, setReady] = useState<Set<number>>(() => new Set([0]));
+  const warm = useCallback(
+    (targets: number[]) =>
+      setReady((prev) => {
+        const next = targets.filter((i) => i >= 0 && i < count && !prev.has(i));
+        if (next.length === 0) return prev;
+        const s = new Set(prev);
+        next.forEach((i) => s.add(i));
+        return s;
+      }),
+    [count],
+  );
+  const warmAll = useCallback(
+    () => warm(Array.from({ length: count }, (_, i) => i)),
+    [warm, count],
+  );
+
+  useEffect(() => {
+    if (count > 1) warm([(index + 1) % count, (index - 1 + count) % count]);
+  }, [index, count, warm]);
+
   useEffect(() => {
     if (!autoPlay || paused || count < 2) return;
     const t = setInterval(() => setIndex((i) => (i + 1) % count), 3500);
@@ -74,7 +95,10 @@ export function CarGallery({
   return (
     <div
       className="group/gallery relative aspect-[16/10] w-full overflow-hidden bg-surface-muted"
+      onPointerEnter={warmAll}
+      onFocus={warmAll}
       onTouchStart={(e) => {
+        warmAll();
         touchX.current = e.touches[0].clientX;
       }}
       onTouchEnd={(e) => {
@@ -90,14 +114,23 @@ export function CarGallery({
         aria-label={title}
         className="absolute inset-0 cursor-zoom-in"
       >
-        <Image
-          src={images[index]}
-          alt={`${title} — ${index + 1}/${count}`}
-          fill
-          priority={priority && index === 0}
-          sizes={sizes}
-          className="object-contain p-6 transition-transform duration-500 ease-out group-hover/gallery:scale-[1.03]"
-        />
+        {images.map((src, i) =>
+          ready.has(i) ? (
+            <Image
+              key={src + i}
+              src={src}
+              alt={i === index ? `${title} — ${i + 1}/${count}` : ""}
+              aria-hidden={i !== index}
+              fill
+              priority={priority && i === 0}
+              fetchPriority={i === index ? undefined : "low"}
+              sizes={sizes}
+              className={`object-contain p-6 transition-[opacity,transform] duration-300 ease-out group-hover/gallery:scale-[1.03] ${
+                i === index ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          ) : null,
+        )}
       </button>
 
       {count > 1 && (
