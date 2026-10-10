@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -36,14 +35,17 @@ export function ImageLightbox({
   const [lastOpen, setLastOpen] = useState(openIndex);
   if (openIndex !== lastOpen) {
     setLastOpen(openIndex);
-    if (openIndex !== null) setIndex(Math.min(openIndex, Math.max(count - 1, 0)));
+    if (openIndex !== null)
+      setIndex(Math.min(openIndex, Math.max(count - 1, 0)));
   }
   const [mounted, setMounted] = useState(false);
+  const [used, setUsed] = useState(false);
   const touchX = useRef<number | null>(null);
 
   const open = openIndex !== null && count > 0;
 
   useEffect(() => setMounted(true), []);
+  if (open && !used) setUsed(true);
 
   // Keyboard + scroll lock while open.
   useEffect(() => {
@@ -66,99 +68,100 @@ export function ImageLightbox({
   if (!mounted) return null;
 
   return createPortal(
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          key="lightbox"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-          transition={{ duration: 0.18, ease: "easeOut" }}
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/90"
-          onTouchStart={(e) => {
-            touchX.current = e.touches[0].clientX;
-          }}
-          onTouchEnd={(e) => {
-            if (touchX.current === null || count < 2) return;
-            const dx = e.changedTouches[0].clientX - touchX.current;
-            touchX.current = null;
-            if (Math.abs(dx) > 40)
-              setIndex((i) => (i + (dx < 0 ? 1 : -1) + count) % count);
-          }}
-        >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-hidden={!open}
+      onClick={onClose}
+      className={`fixed inset-0 z-[80] flex items-center justify-center bg-black/90 transition-[opacity,visibility] duration-200 ease-out ${
+        open
+          ? "visible opacity-100"
+          : "pointer-events-none invisible opacity-0 [transition-delay:0s,200ms]"
+      }`}
+      onTouchStart={(e) => {
+        touchX.current = e.touches[0].clientX;
+      }}
+      onTouchEnd={(e) => {
+        if (touchX.current === null || count < 2) return;
+        const dx = e.changedTouches[0].clientX - touchX.current;
+        touchX.current = null;
+        if (Math.abs(dx) > 40)
+          setIndex((i) => (i + (dx < 0 ? 1 : -1) + count) % count);
+      }}
+    >
+      <button
+        type="button"
+        aria-label={t("closeGallery")}
+        onClick={onClose}
+        className="absolute right-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20"
+      >
+        <X className="h-5 w-5" />
+      </button>
+
+      {count > 1 && (
+        <span className="absolute left-1/2 top-5 z-10 -translate-x-1/2 rounded-full border border-white/15 bg-black/50 px-3 py-1 text-sm tabular-nums text-white/90">
+          {index + 1} / {count}
+        </span>
+      )}
+
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative h-[80vh] w-[94vw] sm:h-[85vh] sm:w-[88vw]"
+      >
+        {used && (
+          <Image
+            key={`thumb-${index}`}
+            src={images[index]}
+            alt=""
+            aria-hidden
+            fill
+            sizes={thumbSizes}
+            className="object-contain"
+          />
+        )}
+        {used &&
+          images.map((src, i) => (
+            <Image
+              key={src + i}
+              src={src}
+              alt={i === index ? `${title} — ${i + 1}/${count}` : ""}
+              aria-hidden={i !== index}
+              fill
+              sizes="100vw"
+              priority={i === index}
+              loading={i === index ? undefined : "eager"}
+              className={`object-contain ${i === index ? "visible" : "invisible"}`}
+            />
+          ))}
+      </div>
+
+      {count > 1 && (
+        <>
           <button
             type="button"
-            aria-label={t("closeGallery")}
-            onClick={onClose}
-            className="absolute right-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20"
+            aria-label={t("prevImage")}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIndex((i) => (i - 1 + count) % count);
+            }}
+            className="absolute left-3 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20 sm:left-5"
           >
-            <X className="h-5 w-5" />
+            <ChevronLeft className="h-6 w-6" />
           </button>
-
-          {count > 1 && (
-            <span className="absolute left-1/2 top-5 z-10 -translate-x-1/2 rounded-full border border-white/15 bg-black/50 px-3 py-1 text-sm tabular-nums text-white/90">
-              {index + 1} / {count}
-            </span>
-          )}
-
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative h-[80vh] w-[94vw] sm:h-[85vh] sm:w-[88vw]"
+          <button
+            type="button"
+            aria-label={t("nextImage")}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIndex((i) => (i + 1) % count);
+            }}
+            className="absolute right-3 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20 sm:right-5"
           >
-            <Image
-              key={`thumb-${index}`}
-              src={images[index]}
-              alt=""
-              aria-hidden
-              fill
-              sizes={thumbSizes}
-              className="object-contain"
-            />
-            {images.map((src, i) => (
-              <Image
-                key={src + i}
-                src={src}
-                alt={i === index ? `${title} — ${i + 1}/${count}` : ""}
-                aria-hidden={i !== index}
-                fill
-                sizes="100vw"
-                priority={i === index}
-                loading={i === index ? undefined : "eager"}
-                className={`object-contain ${i === index ? "visible" : "invisible"}`}
-              />
-            ))}
-          </div>
-
-          {count > 1 && (
-            <>
-              <button
-                type="button"
-                aria-label={t("prevImage")}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIndex((i) => (i - 1 + count) % count);
-                }}
-                className="absolute left-3 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20 sm:left-5"
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </button>
-              <button
-                type="button"
-                aria-label={t("nextImage")}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIndex((i) => (i + 1) % count);
-                }}
-                className="absolute right-3 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20 sm:right-5"
-              >
-                <ChevronRight className="h-6 w-6" />
-              </button>
-            </>
-          )}
-        </motion.div>
+            <ChevronRight className="h-6 w-6" />
+          </button>
+        </>
       )}
-    </AnimatePresence>,
+    </div>,
     document.body,
   );
 }
