@@ -25,11 +25,13 @@ export async function generateMetadata({
   params: { locale: string };
 }): Promise<Metadata> {
   const tSeo = await getTranslations({ locale, namespace: "Seo" });
+  const tNav = await getTranslations({ locale, namespace: "Nav" });
   return buildPageMetadata({
     locale,
     path: "/poslovna-ponuda",
     title: tSeo("business.title"),
     description: tSeo("business.description"),
+    tab: tNav("business"),
   });
 }
 

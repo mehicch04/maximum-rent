@@ -30,15 +30,17 @@ export function buildPageMetadata({
   path,
   title,
   description,
+  tab,
 }: {
   locale: string;
   path: string;
   title: string;
   description: string;
+  tab?: string;
 }): Metadata {
   const url = `${SITE_URL}/${locale}${path === "/" ? "" : path}`;
   return {
-    title: { absolute: SITE.name },
+    title: { absolute: tab ? `${tab} | ${SITE.name}` : SITE.name },
     description,
     alternates: buildAlternates(locale, path),
     openGraph: {
