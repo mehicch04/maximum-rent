@@ -76,7 +76,8 @@ export function CarCard({
 
   return (
     <article
-      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-[transform,box-shadow,border-color] duration-300 [@media(hover:hover)]:hover:-translate-y-1 hover:border-brand/50 hover:shadow-card-hover"
+      data-frozen={lightbox !== null || undefined}
+      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-[transform,box-shadow,border-color] duration-300 [@media(hover:hover)]:hover:-translate-y-1 hover:border-brand/50 hover:shadow-card-hover [@media(hover:hover)]:data-[frozen]:-translate-y-1 [@media(hover:hover)]:data-[frozen]:border-brand/50 [@media(hover:hover)]:data-[frozen]:shadow-card-hover"
     >
       <span className="absolute left-4 top-4 z-10 rounded-full bg-brand px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-foreground">
         {label(CLASS_LABELS[car.carClass], locale)}
@@ -88,6 +89,7 @@ export function CarCard({
           images={images}
           title={car.title}
           onOpen={setLightbox}
+          frozen={lightbox !== null}
           priority={priority}
           sizes={imageSizes}
         />

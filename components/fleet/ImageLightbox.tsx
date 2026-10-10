@@ -38,7 +38,6 @@ export function ImageLightbox({
     setLastOpen(openIndex);
     if (openIndex !== null) setIndex(Math.min(openIndex, Math.max(count - 1, 0)));
   }
-  const [loaded, setLoaded] = useState<Set<number>>(() => new Set());
   const [mounted, setMounted] = useState(false);
   const touchX = useRef<number | null>(null);
 
@@ -107,16 +106,15 @@ export function ImageLightbox({
             onClick={(e) => e.stopPropagation()}
             className="relative h-[80vh] w-[94vw] sm:h-[85vh] sm:w-[88vw]"
           >
-            {!loaded.has(index) && (
-              <Image
-                src={images[index]}
-                alt=""
-                aria-hidden
-                fill
-                sizes={thumbSizes}
-                className="object-contain"
-              />
-            )}
+            <Image
+              key={`thumb-${index}`}
+              src={images[index]}
+              alt=""
+              aria-hidden
+              fill
+              sizes={thumbSizes}
+              className="object-contain"
+            />
             {images.map((src, i) => (
               <Image
                 key={src + i}
@@ -127,12 +125,7 @@ export function ImageLightbox({
                 sizes="100vw"
                 priority={i === index}
                 loading={i === index ? undefined : "eager"}
-                onLoad={() =>
-                  setLoaded((prev) => (prev.has(i) ? prev : new Set(prev).add(i)))
-                }
-                className={`object-contain transition-opacity duration-200 ${
-                  i === index && loaded.has(i) ? "opacity-100" : "opacity-0"
-                }`}
+                className={`object-contain ${i === index ? "visible" : "invisible"}`}
               />
             ))}
           </div>

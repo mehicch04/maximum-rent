@@ -22,6 +22,7 @@ type Props = {
   priority?: boolean;
   /** Override the responsive `sizes` (e.g. smaller on the homepage teaser). */
   sizes?: string;
+  frozen?: boolean;
 };
 
 /**
@@ -34,6 +35,7 @@ export function CarGallery({
   onOpen,
   autoPlay = false,
   priority = false,
+  frozen = false,
   /*
    * Matches what the card is actually rendered at, so the browser picks the
    * right file first time. It claimed 84vw on phones where the card is nearer
@@ -125,6 +127,8 @@ export function CarGallery({
               priority={priority && i === 0}
               sizes={sizes}
               className={`object-contain p-6 transition-[opacity,transform] duration-300 ease-out [@media(hover:hover)]:group-hover/gallery:scale-[1.03] ${
+                frozen ? "[@media(hover:hover)]:scale-[1.03]" : ""
+              } ${
                 i === index ? "opacity-100" : "opacity-0"
               }`}
             />
