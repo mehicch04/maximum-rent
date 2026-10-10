@@ -13,6 +13,7 @@ type Props = {
   /** Index to open at, or null when closed. */
   openIndex: number | null;
   onClose: () => void;
+  thumbSizes?: string;
 };
 
 /**
@@ -20,21 +21,30 @@ type Props = {
  * transforms, which would otherwise trap `position: fixed`). Esc closes,
  * arrow keys + swipe navigate.
  */
-export function ImageLightbox({ images, title, openIndex, onClose }: Props) {
+export function ImageLightbox({
+  images,
+  title,
+  openIndex,
+  onClose,
+  thumbSizes = "(max-width: 639px) 92vw, (max-width: 1023px) 46vw, 31vw",
+}: Props) {
   const t = useTranslations("Common");
-  const [index, setIndex] = useState(0);
+  const count = images.length;
+  const [index, setIndex] = useState(() =>
+    openIndex === null ? 0 : Math.min(openIndex, Math.max(count - 1, 0)),
+  );
+  const [lastOpen, setLastOpen] = useState(openIndex);
+  if (openIndex !== lastOpen) {
+    setLastOpen(openIndex);
+    if (openIndex !== null) setIndex(Math.min(openIndex, Math.max(count - 1, 0)));
+  }
+  const [loaded, setLoaded] = useState<Set<number>>(() => new Set());
   const [mounted, setMounted] = useState(false);
   const touchX = useRef<number | null>(null);
 
-  const open = openIndex !== null && images.length > 0;
-  const count = images.length;
+  const open = openIndex !== null && count > 0;
 
   useEffect(() => setMounted(true), []);
-
-  // Sync to the requested start index whenever the lightbox opens.
-  useEffect(() => {
-    if (openIndex !== null) setIndex(Math.min(openIndex, count - 1));
-  }, [openIndex, count]);
 
   // Keyboard + scroll lock while open.
   useEffect(() => {
@@ -95,6 +105,16 @@ export function ImageLightbox({ images, title, openIndex, onClose }: Props) {
             onClick={(e) => e.stopPropagation()}
             className="relative h-[80vh] w-[94vw] sm:h-[85vh] sm:w-[88vw]"
           >
+            {!loaded.has(index) && (
+              <Image
+                src={images[index]}
+                alt=""
+                aria-hidden
+                fill
+                sizes={thumbSizes}
+                className="object-contain"
+              />
+            )}
             {images.map((src, i) => (
               <Image
                 key={src + i}
@@ -105,8 +125,11 @@ export function ImageLightbox({ images, title, openIndex, onClose }: Props) {
                 sizes="100vw"
                 priority={i === index}
                 loading={i === index ? undefined : "eager"}
+                onLoad={() =>
+                  setLoaded((prev) => (prev.has(i) ? prev : new Set(prev).add(i)))
+                }
                 className={`object-contain transition-opacity duration-200 ${
-                  i === index ? "opacity-100" : "opacity-0"
+                  i === index && loaded.has(i) ? "opacity-100" : "opacity-0"
                 }`}
               />
             ))}

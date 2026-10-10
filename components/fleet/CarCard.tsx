@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
   Calendar,
   Car as CarIcon,
@@ -41,6 +42,7 @@ export function CarCard({
   car,
   search,
   onSelect,
+  index = 0,
   priority = false,
   imageSizes,
 }: Props) {
@@ -75,8 +77,30 @@ export function CarCard({
   ];
 
   return (
-    <article
-      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-brand/50 hover:shadow-card-hover"
+    <motion.article
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      /*
+       * Starts a screenful early, and only staggers the first row.
+       *
+       * The card used to wait until it was 60px inside the viewport and then
+       * carried a stagger of up to 0.3s. On a phone that is one card per row,
+       * so scrolling meant: empty slot, pause, card fades in, image arrives.
+       * People read that as the card loading twice.
+       *
+       * Beginning 200px before the card is reached gives it time to finish
+       * before it is actually looked at, and the stagger is kept only for the
+       * first row, where it is a deliberate effect on page load rather than
+       * something felt mid-scroll.
+       */
+      viewport={{ once: true, margin: "200px 0px" }}
+      transition={{
+        duration: 0.35,
+        delay: index < 3 ? index * 0.06 : 0,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      whileHover={{ y: -4 }}
+      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-all duration-300 hover:border-brand/50 hover:shadow-card-hover"
     >
       <span className="absolute left-4 top-4 z-10 rounded-full bg-brand px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-foreground">
         {label(CLASS_LABELS[car.carClass], locale)}
@@ -98,6 +122,7 @@ export function CarCard({
         title={car.title}
         openIndex={lightbox}
         onClose={() => setLightbox(null)}
+        thumbSizes={imageSizes}
       />
 
       <div className="flex flex-1 flex-col gap-4 p-5">
@@ -161,6 +186,6 @@ export function CarCard({
           </a>
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 }
