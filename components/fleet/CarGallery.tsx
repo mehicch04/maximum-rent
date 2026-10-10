@@ -126,6 +126,7 @@ export function CarGallery({
               fill
               priority={priority && i === 0}
               sizes={sizes}
+              quality={90}
               className={`object-contain p-6 transition-[opacity,transform] duration-300 ease-out [@media(hover:hover)]:group-hover/gallery:scale-[1.03] ${
                 frozen ? "[@media(hover:hover)]:scale-[1.03]" : ""
               } ${

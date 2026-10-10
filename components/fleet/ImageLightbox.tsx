@@ -116,6 +116,7 @@ export function ImageLightbox({
             aria-hidden
             fill
             sizes={thumbSizes}
+            quality={90}
             className="object-contain"
           />
         )}
@@ -128,6 +129,7 @@ export function ImageLightbox({
               aria-hidden={i !== index}
               fill
               sizes="100vw"
+              quality={90}
               priority={i === index}
               loading={i === index ? undefined : "eager"}
               className={`object-contain ${i === index ? "visible" : "invisible"}`}
