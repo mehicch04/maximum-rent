@@ -2,21 +2,22 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Car, ChevronLeft, ChevronRight, Expand, Heart } from "lucide-react";
+import {
+  ArrowRight,
+  Car,
+  ChevronLeft,
+  ChevronRight,
+  Expand,
+  Heart,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ImageLightbox } from "@/components/fleet/ImageLightbox";
 
-const ease = [0.22, 1, 0.36, 1] as const;
 const COUNT = 10;
 const IDS = Array.from({ length: COUNT }, (_, i) => i + 1);
 const SRC = IDS.map((id) => `/wed-${id}.webp`);
 
-/**
- * Tiny inline previews (12px wide). They render instantly from the HTML, so a
- * photo fades in from its own colours instead of popping out of an empty box.
- */
 const BLUR: Record<number, string> = {
   1: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAIAAwDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDQvH1C5tmi86MBhhinyk0lu9/DCsZlU7RjLDJ/PNFFQVY//9k=",
   2: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAIAAwDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDS87Uc4jkhxjHzL+vAqUSXpHzTw59ov/r0UVJVj//Z",
@@ -43,18 +44,37 @@ export function WeddingCarsSection() {
   const [active, setActive] = useState(0);
   const [broken, setBroken] = useState<Record<number, boolean>>({});
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const [ready, setReady] = useState<Set<number>>(
+    () => new Set([0, 1, COUNT - 1]),
+  );
   const stripRef = useRef<HTMLDivElement | null>(null);
+  const touchX = useRef<number | null>(null);
+
+  const warmAll = useCallback(
+    () =>
+      setReady((r) => (r.size === COUNT ? r : new Set(IDS.map((_, i) => i)))),
+    [],
+  );
+
+  useEffect(() => {
+    setReady((r) => {
+      const n = [
+        (active + 1) % COUNT,
+        (active - 1 + COUNT) % COUNT,
+        active,
+      ].filter((i) => !r.has(i));
+      if (n.length === 0) return r;
+      const s = new Set(r);
+      n.forEach((i) => s.add(i));
+      return s;
+    });
+  }, [active]);
 
   const go = useCallback(
     (dir: 1 | -1) => setActive((i) => (i + dir + COUNT) % COUNT),
     [],
   );
 
-  // Keep the filmstrip scrolled to whichever photo is showing.
-  //
-  // We set scrollLeft on the strip itself instead of calling scrollIntoView:
-  // that method also scrolls the PAGE to reveal the element, which on first
-  // render would jump the visitor straight down to this section.
   const firstRun = useRef(true);
   useEffect(() => {
     const strip = stripRef.current;
@@ -72,14 +92,7 @@ export function WeddingCarsSection() {
   return (
     <section className="border-y border-border bg-surface-muted/40">
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16 lg:py-28">
-        {/* ── Copy ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.55, ease }}
-          className="flex flex-col"
-        >
+        <div className="flex flex-col">
           <p className="mb-3 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-brand-strong">
             <span className="h-px w-7 bg-brand" />
             {t("eyebrow")}
@@ -90,7 +103,9 @@ export function WeddingCarsSection() {
           </h2>
 
           <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-muted-foreground sm:text-base">
-            <p className="border-l-2 border-brand/40 pl-4 text-foreground">{t("p1")}</p>
+            <p className="border-l-2 border-brand/40 pl-4 text-foreground">
+              {t("p1")}
+            </p>
             <p>{t("p2")}</p>
             <p>{t("p3")}</p>
           </div>
@@ -105,47 +120,55 @@ export function WeddingCarsSection() {
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
-        </motion.div>
+        </div>
 
-        {/* ── Gallery ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.55, delay: 0.1, ease }}
+        <div
+          onPointerEnter={warmAll}
+          onFocus={warmAll}
           onKeyDown={(e) => {
             if (e.key === "ArrowRight") go(1);
             if (e.key === "ArrowLeft") go(-1);
           }}
         >
-          <div className="group/gal relative aspect-[3/2] w-full overflow-hidden rounded-2xl border border-border bg-surface-muted shadow-card">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={active}
-                initial={{ opacity: 0, scale: 1.03 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.4, ease }}
-                className="absolute inset-0"
-              >
-                {broken[active] ? (
-                  <Placeholder />
-                ) : (
-                  <Image
-                    src={SRC[active]}
-                    alt={t("imageAlt", { n: active + 1 })}
-                    fill
-                    sizes="(max-width: 1023px) 100vw, 58vw"
-                    placeholder="blur"
-                    blurDataURL={BLUR[active + 1]}
-                    className="object-cover"
-                    onError={() => setBroken((b) => ({ ...b, [active]: true }))}
-                  />
-                )}
-              </motion.div>
-            </AnimatePresence>
+          <div
+            onTouchStart={(e) => {
+              warmAll();
+              touchX.current = e.touches[0].clientX;
+            }}
+            onTouchEnd={(e) => {
+              if (touchX.current === null) return;
+              const dx = e.changedTouches[0].clientX - touchX.current;
+              touchX.current = null;
+              if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+            }}
+            className="group/gal relative aspect-[3/2] w-full overflow-hidden rounded-2xl border border-border bg-surface-muted shadow-card"
+          >
+            {IDS.map((id, i) =>
+              ready.has(i) ? (
+                <div
+                  key={id}
+                  aria-hidden={i !== active}
+                  className={`absolute inset-0 ${i === active ? "visible" : "invisible"}`}
+                >
+                  {broken[i] ? (
+                    <Placeholder />
+                  ) : (
+                    <Image
+                      src={SRC[i]}
+                      alt={i === active ? t("imageAlt", { n: id }) : ""}
+                      fill
+                      sizes="(max-width: 1023px) 100vw, 58vw"
+                      quality={90}
+                      placeholder="blur"
+                      blurDataURL={BLUR[id]}
+                      className="object-cover"
+                      onError={() => setBroken((b) => ({ ...b, [i]: true }))}
+                    />
+                  )}
+                </div>
+              ) : null,
+            )}
 
-            {/* Gradient only where the controls sit, so photos stay clean. */}
             <div
               aria-hidden
               className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent"
@@ -184,7 +207,6 @@ export function WeddingCarsSection() {
             </div>
           </div>
 
-          {/* Filmstrip — scrolls instead of stacking into a second row. */}
           <div
             ref={stripRef}
             className="mt-3 flex snap-x snap-mandatory gap-2.5 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -219,18 +241,15 @@ export function WeddingCarsSection() {
                       onError={() => setBroken((b) => ({ ...b, [i]: true }))}
                     />
                   )}
-                  <motion.span
+                  <span
                     aria-hidden
-                    className="absolute inset-0 bg-background"
-                    initial={false}
-                    animate={{ opacity: on ? 0 : 0.35 }}
-                    transition={{ duration: 0.3, ease }}
+                    className={`absolute inset-0 bg-background transition-opacity ${on ? "opacity-0" : "opacity-[0.35]"}`}
                   />
                 </button>
               );
             })}
           </div>
-        </motion.div>
+        </div>
       </div>
 
       <ImageLightbox
@@ -238,6 +257,7 @@ export function WeddingCarsSection() {
         title={t("heading")}
         openIndex={lightbox}
         onClose={() => setLightbox(null)}
+        thumbSizes="(max-width: 1023px) 100vw, 58vw"
       />
     </section>
   );
