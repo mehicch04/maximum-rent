@@ -17,7 +17,7 @@ type Props = { params: { locale: string; slug: string } };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const car = await getCarBySlug(params.slug);
-  if (!car) return { title: "Vozilo nije pronađeno" };
+  if (!car) return { title: { absolute: "Maximum Rent a Car" } };
 
   const en = params.locale === "en";
   const description =
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const url = `${SITE_URL}/${params.locale}/vozila/${car.slug}`;
 
   return {
-    title: en ? `${car.title} · Rent a Car` : `${car.title} · Rent a Car`,
+    title: car.title,
     description: description.slice(0, 160),
     alternates: {
       canonical: url,

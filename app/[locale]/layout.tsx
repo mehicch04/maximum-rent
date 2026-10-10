@@ -54,8 +54,8 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL ?? `https://${SITE.domain}`,
   ),
   title: {
-    default: `${SITE.name} — Rent a Car Hercegovina`,
-    template: `%s · ${SITE.name}`,
+    default: SITE.name,
+    template: `%s | ${SITE.name}`,
   },
   description:
     "Premium najam vozila u Hercegovini — preuzimanje na 6 lokacija, od gradskih automobila do luksuznih limuzina.",

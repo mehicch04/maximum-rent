@@ -38,7 +38,7 @@ export function buildPageMetadata({
 }): Metadata {
   const url = `${SITE_URL}/${locale}${path === "/" ? "" : path}`;
   return {
-    title,
+    title: { absolute: SITE.name },
     description,
     alternates: buildAlternates(locale, path),
     openGraph: {
