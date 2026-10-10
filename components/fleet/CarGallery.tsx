@@ -112,7 +112,7 @@ export function CarGallery({
         type="button"
         onClick={() => onOpen?.(index)}
         aria-label={title}
-        className="absolute inset-0 cursor-zoom-in"
+        className="absolute inset-0 cursor-zoom-in outline-none [-webkit-tap-highlight-color:transparent] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
       >
         {images.map((src, i) =>
           ready.has(i) ? (
@@ -123,9 +123,8 @@ export function CarGallery({
               aria-hidden={i !== index}
               fill
               priority={priority && i === 0}
-              fetchPriority={i === index ? undefined : "low"}
               sizes={sizes}
-              className={`object-contain p-6 transition-[opacity,transform] duration-300 ease-out group-hover/gallery:scale-[1.03] ${
+              className={`object-contain p-6 transition-[opacity,transform] duration-300 ease-out [@media(hover:hover)]:group-hover/gallery:scale-[1.03] ${
                 i === index ? "opacity-100" : "opacity-0"
               }`}
             />

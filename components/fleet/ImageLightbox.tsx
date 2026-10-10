@@ -55,11 +55,12 @@ export function ImageLightbox({
       if (e.key === "ArrowLeft") setIndex((i) => (i - 1 + count) % count);
     };
     document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const root = document.documentElement;
+    const prev = root.style.overflow;
+    root.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
+      root.style.overflow = prev;
     };
   }, [open, count, onClose]);
 
@@ -74,7 +75,8 @@ export function ImageLightbox({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+          transition={{ duration: 0.18, ease: "easeOut" }}
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/90"
           onTouchStart={(e) => {
             touchX.current = e.touches[0].clientX;
           }}
