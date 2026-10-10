@@ -1,8 +1,24 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { ChevronDown, X } from "lucide-react";
+import {
+  ArrowUpDown,
+  Briefcase,
+  Bus,
+  Car,
+  CarFront,
+  ChevronDown,
+  Crown,
+  Gauge,
+  LayoutGrid,
+  Mountain,
+  Sun,
+  Truck,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { CarCard } from "./CarCard";
 import { InquiryModal } from "@/components/reservation/InquiryModal";
 import {
@@ -30,37 +46,108 @@ type Props = {
   bookedExtras?: Booked[];
 };
 
-/** Compact labelled dropdown used by the fleet toolbar. */
-function Select({
-  id,
+const CATEGORY_ICONS: Record<CarCategory, LucideIcon> = {
+  LIMUZINA: Car,
+  LUXURY: Crown,
+  SUV: Mountain,
+  COUPE: Gauge,
+  COMPACT: CarFront,
+  KARAVAN: Briefcase,
+  CABRIO: Sun,
+  TRANSPORT: Truck,
+  MINIBUS: Bus,
+};
+
+const RAIL =
+  "-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden";
+
+function Chip({
+  active,
+  onClick,
+  icon: Icon,
   label,
-  value,
-  onChange,
-  children,
-  className = "",
+  count,
 }: {
-  id: string;
+  active: boolean;
+  onClick: () => void;
+  icon: LucideIcon;
   label: string;
-  value: string;
-  onChange: (v: string) => void;
-  children: React.ReactNode;
-  className?: string;
+  count?: number;
 }) {
   return (
-    <div className={`relative ${className}`}>
-      <label htmlFor={id} className="sr-only">
-        {label}
-      </label>
-      <select
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-11 w-full appearance-none truncate rounded-xl border border-border bg-surface pl-3.5 pr-9 text-sm font-medium text-foreground outline-none transition-colors hover:border-brand/50 focus:border-brand focus:ring-2 focus:ring-ring/30"
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-full border pl-3.5 pr-3 text-sm font-medium transition-colors ${
+        active
+          ? "border-brand bg-brand text-brand-foreground shadow-brand"
+          : "border-border bg-surface text-foreground hover:border-brand/50"
+      }`}
+    >
+      <Icon className={`h-4 w-4 ${active ? "" : "text-brand"}`} />
+      {label}
+      {count != null && (
+        <span
+          className={`min-w-[22px] rounded-full px-1.5 py-0.5 text-center text-[11px] font-semibold tabular-nums ${
+            active ? "bg-white/20" : "bg-surface-muted text-muted-foreground"
+          }`}
+        >
+          {count}
+        </span>
+      )}
+    </button>
+  );
+}
+
+function BrandTile({
+  active,
+  onClick,
+  name,
+  count,
+  image,
+}: {
+  active: boolean;
+  onClick: () => void;
+  name: string;
+  count: number;
+  image?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`group flex w-[104px] shrink-0 flex-col items-center gap-1 rounded-2xl border p-2 pb-2.5 transition-all sm:w-[112px] ${
+        active
+          ? "border-brand bg-brand/[0.06] ring-2 ring-brand/25"
+          : "border-border bg-surface hover:border-brand/50"
+      }`}
+    >
+      <span className="relative flex h-12 w-full items-center justify-center overflow-hidden rounded-xl bg-surface-muted">
+        {image ? (
+          <Image
+            src={image}
+            alt=""
+            fill
+            sizes="112px"
+            className="object-contain p-1 transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <LayoutGrid className="h-5 w-5 text-brand" />
+        )}
+      </span>
+      <span
+        className={`w-full truncate text-center text-[13px] font-semibold ${
+          active ? "text-brand-strong" : "text-foreground"
+        }`}
       >
-        {children}
-      </select>
-      <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-    </div>
+        {name}
+      </span>
+      <span className="text-[11px] tabular-nums text-muted-foreground">
+        {count}
+      </span>
+    </button>
   );
 }
 
@@ -145,6 +232,20 @@ export function FleetGrid({
     return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0], "hr"));
   }, [cars, carCats, active]);
 
+  const brandImage = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const c of cars) {
+      const b = c.brand?.trim();
+      if (b && !m.has(b) && c.images?.[0]) m.set(b, c.images[0]);
+    }
+    return m;
+  }, [cars]);
+
+  const totalForBrands = useMemo(
+    () => brands.reduce((a, [, n]) => a + n, 0),
+    [brands],
+  );
+
   /**
    * Clears a selection that the other filter has just made impossible.
    *
@@ -212,74 +313,90 @@ export function FleetGrid({
   return (
     <>
       {showFilters && (
-        <div className="mb-8">
-          {/* Filters and sort are the same control, so they look the same.
-              A native <select> also opens the phone's own picker, which shows
-              every option at once — no horizontal swiping to discover them. */}
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex flex-1 gap-2 sm:flex-none">
-              <Select
-                id="fleet-type"
-                label={t("typeLabel")}
-                value={active}
-                onChange={(v) => setActive(v as CarCategory | "ALL")}
-                className="flex-1 sm:w-44"
-              >
-                <option value="ALL">{t("allTypes")}</option>
-                {typeOptions.map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {o.label} ({o.count})
-                  </option>
-                ))}
-              </Select>
-
-              {brands.length > 1 && (
-                <Select
-                  id="fleet-brand"
-                  label={t("brandLabel")}
-                  value={brand}
-                  onChange={setBrand}
-                  className="flex-1 sm:w-44"
-                >
-                  <option value="ALL">{t("allBrands")}</option>
-                  {brands.map(([name, count]) => (
-                    <option key={name} value={name}>
-                      {name} ({count})
-                    </option>
-                  ))}
-                </Select>
-              )}
-            </div>
-
-            <Select
-              id="fleet-sort"
-              label={t("sort.label")}
-              value={sort}
-              onChange={(v) => setSort(v as SortKey)}
-              className="w-full sm:ml-auto sm:w-52"
-            >
-              {SORT_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
+        <div className="mb-8 space-y-5">
+          <div>
+            <p className="mb-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("typeLabel")}
+            </p>
+            <div className={RAIL}>
+              <Chip
+                active={active === "ALL"}
+                onClick={() => setActive("ALL")}
+                icon={LayoutGrid}
+                label={t("allTypes")}
+              />
+              {typeOptions.map((o) => (
+                <Chip
+                  key={o.id}
+                  active={active === o.id}
+                  onClick={() => setActive(active === o.id ? "ALL" : o.id)}
+                  icon={CATEGORY_ICONS[o.id]}
+                  label={o.label}
+                  count={o.count}
+                />
               ))}
-            </Select>
+            </div>
           </div>
 
-          <div className="mt-3 flex items-center gap-3 text-sm">
-            <span className="text-muted-foreground">
+          {brands.length > 1 && (
+            <div>
+              <p className="mb-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t("brandLabel")}
+              </p>
+              <div className={RAIL}>
+                <BrandTile
+                  active={brand === "ALL"}
+                  onClick={() => setBrand("ALL")}
+                  name={t("allBrands")}
+                  count={totalForBrands}
+                />
+                {brands.map(([name, count]) => (
+                  <BrandTile
+                    key={name}
+                    active={brand === name}
+                    onClick={() => setBrand(brand === name ? "ALL" : name)}
+                    name={name}
+                    count={count}
+                    image={brandImage.get(name)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
+            <span className="text-sm font-semibold text-foreground">
               {t("resultsCount", { count: visibleCars.length })}
             </span>
             {filtersActive && (
               <button
                 type="button"
                 onClick={clearFilters}
-                className="inline-flex items-center gap-1 text-muted-foreground underline-offset-4 transition-colors hover:text-brand-strong hover:underline"
+                className="inline-flex h-8 items-center gap-1 rounded-full bg-surface-muted px-3 text-xs font-medium text-muted-foreground transition-colors hover:text-brand-strong"
               >
                 <X className="h-3.5 w-3.5" />
                 {t("clearFilters")}
               </button>
             )}
+            <div className="relative ml-auto w-full sm:w-56">
+              <ArrowUpDown className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand" />
+              <label htmlFor="fleet-sort" className="sr-only">
+                {t("sort.label")}
+              </label>
+              <select
+                id="fleet-sort"
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortKey)}
+                className="h-11 w-full appearance-none truncate rounded-xl border border-border bg-surface pl-9 pr-9 text-sm font-medium text-foreground outline-none transition-colors hover:border-brand/50 focus:border-brand focus:ring-2 focus:ring-ring/30"
+              >
+                {SORT_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            </div>
           </div>
         </div>
       )}
