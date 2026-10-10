@@ -457,7 +457,6 @@ export function FleetGrid({
               key={car.id}
               car={car}
               search={search}
-              index={i}
               priority={eagerFirstImages && i < 3}
               imageSizes={imageSizes}
               onSelect={setSelected}

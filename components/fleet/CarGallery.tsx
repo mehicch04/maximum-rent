@@ -8,27 +8,13 @@ import { useTranslations } from "next-intl";
 type Props = {
   images: string[];
   title: string;
-  /** Called when the visitor taps/clicks the photo (opens the lightbox). */
   onOpen?: (index: number) => void;
-  /** Load the first shown image eagerly + high priority (above-the-fold cards). */
-  /**
-   * Advance on its own every few seconds.
-   *
-   * Off by default: a dozen cards in a grid all cycling at once is noise, and
-   * it makes the page feel unstable. On a single vehicle page there is one
-   * gallery and it reads as a slideshow.
-   */
   autoPlay?: boolean;
   priority?: boolean;
-  /** Override the responsive `sizes` (e.g. smaller on the homepage teaser). */
   sizes?: string;
   frozen?: boolean;
 };
 
-/**
- * Compact gallery for car cards: arrows + dots + touch swipe, no separate
- * page needed. Falls back to the car icon when there are no photos.
- */
 export function CarGallery({
   images,
   title,
@@ -36,17 +22,10 @@ export function CarGallery({
   autoPlay = false,
   priority = false,
   frozen = false,
-  /*
-   * Matches what the card is actually rendered at, so the browser picks the
-   * right file first time. It claimed 84vw on phones where the card is nearer
-   * 92vw, which meant fetching an image too small for the slot.
-   */
   sizes = "(max-width: 639px) 92vw, (max-width: 1023px) 46vw, 31vw",
 }: Props) {
   const t = useTranslations("Common");
   const [index, setIndex] = useState(0);
-  // Any manual move stops the slideshow for good: once somebody is browsing
-  // themselves, having the picture change under their hand is infuriating.
   const [paused, setPaused] = useState(false);
 
   const touchX = useRef<number | null>(null);
@@ -76,12 +55,11 @@ export function CarGallery({
 
   useEffect(() => {
     if (!autoPlay || paused || count < 2) return;
-    const t = setInterval(() => setIndex((i) => (i + 1) % count), 3500);
-    return () => clearInterval(t);
+    const id = setInterval(() => setIndex((i) => (i + 1) % count), 3500);
+    return () => clearInterval(id);
   }, [autoPlay, paused, count]);
+
   const go = (dir: 1 | -1) => {
-    // Any deliberate move ends the slideshow: once somebody is browsing on
-    // their own, having the picture change under their hand is infuriating.
     setPaused(true);
     setIndex((i) => (i + dir + count) % count);
   };

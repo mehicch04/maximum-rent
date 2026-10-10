@@ -9,17 +9,11 @@ import { useTranslations } from "next-intl";
 type Props = {
   images: string[];
   title: string;
-  /** Index to open at, or null when closed. */
   openIndex: number | null;
   onClose: () => void;
   thumbSizes?: string;
 };
 
-/**
- * Fullscreen photo viewer. Rendered through a portal (the card uses Framer
- * transforms, which would otherwise trap `position: fixed`). Esc closes,
- * arrow keys + swipe navigate.
- */
 export function ImageLightbox({
   images,
   title,
@@ -47,7 +41,6 @@ export function ImageLightbox({
   useEffect(() => setMounted(true), []);
   if (open && !used) setUsed(true);
 
-  // Keyboard + scroll lock while open.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {

@@ -191,6 +191,7 @@ export function CarDetail({
         title={car.title}
         openIndex={lightbox}
         onClose={() => setLightbox(null)}
+        thumbSizes="(max-width: 1023px) 92vw, 52vw"
       />
 
       {booking && (

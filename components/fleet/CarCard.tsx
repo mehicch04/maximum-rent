@@ -30,7 +30,6 @@ type Props = {
   car: CarListItem;
   search?: SearchContext;
   onSelect?: (car: CarListItem) => void;
-  index?: number;
   /** Eagerly load this card's photo (first above-the-fold cards on the fleet page). */
   priority?: boolean;
   /** Override the image `sizes` (smaller on the homepage teaser). */
