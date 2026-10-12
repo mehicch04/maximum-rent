@@ -4,12 +4,6 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Plus, X } from "lucide-react";
 
-/**
- * Opens the manual reservation form.
- *
- * Unlike the edit button this asks nothing first: creating a booking touches
- * no existing record, so a confirmation step would only be in the way.
- */
 export function NewReservationButton({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);

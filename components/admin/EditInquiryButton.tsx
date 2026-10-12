@@ -4,13 +4,6 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AlertTriangle, Pencil, X } from "lucide-react";
 
-/**
- * Opens the edit form, but asks first.
- *
- * Editing a confirmed reservation moves a vehicle that is already promised to
- * someone, so the click is deliberately made a two-step action rather than a
- * stray tap next to Confirm and Cancel.
- */
 export function EditInquiryButton({
   reference,
   status,
@@ -18,13 +11,6 @@ export function EditInquiryButton({
 }: {
   reference: string;
   status: string;
-  /**
-   * The form itself.
-   *
-   * Passed as a plain element rather than a render function: a function
-   * cannot cross from a server component into a client one, and doing so
-   * throws before the page ever renders.
-   */
   children: React.ReactNode;
 }) {
   const [asking, setAsking] = useState(false);

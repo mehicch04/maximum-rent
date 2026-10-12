@@ -26,14 +26,6 @@ import { SimilarCars } from "@/components/fleet/SimilarCars";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { buildWhatsAppUrl, type InquiryContext } from "@/lib/whatsapp";
 
-/**
- * One vehicle, in full.
- *
- * The list can only show a thumbnail and four figures. Here there is room for
- * every photo, the whole spec and the description, which is also what makes
- * the page worth indexing: thirty-five near-identical cards rank for nothing,
- * thirty-five pages about specific cars rank for their own model.
- */
 export function CarDetail({
   car,
   similar,
@@ -56,8 +48,6 @@ export function CarDetail({
 
   const en = locale === "en";
 
-  // The message opens with the car already named, so a guest who will never
-  // fill in a form still arrives with something the owner can act on.
   const whatsappUrl = buildWhatsAppUrl({
     car: { title: car.title },
     locale,
@@ -121,8 +111,6 @@ export function CarDetail({
             </p>
           )}
 
-          {/* A car pulled from the offer still has a page, because the link may
-              be shared or indexed; it just cannot be booked. */}
           {!car.isAvailable ? (
             <p className="mt-4 rounded-xl border border-border bg-surface-muted px-4 py-3 text-sm text-muted-foreground">
               {t("notOffered")}
@@ -137,9 +125,6 @@ export function CarDetail({
                 {t("bookNow")}
               </button>
 
-              {/* Side by side with the form, not instead of it: some people
-                  will never fill anything in, and a message is the only way
-                  they get in touch. */}
               <a
                 href={whatsappUrl}
                 target="_blank"

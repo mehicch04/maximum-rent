@@ -42,8 +42,6 @@ export async function POST(req: Request) {
   const ok = await passwordMatches(password);
   if (!ok) {
     await recordFailure(ip);
-    // A short delay makes automated guessing far slower without being
-    // noticeable to someone who simply mistyped.
     await new Promise((r) => setTimeout(r, 400));
     // Uniform error; no hint whether ADMIN_PASSWORD is unset or wrong input.
     return NextResponse.json({ ok: false }, { status: 401 });

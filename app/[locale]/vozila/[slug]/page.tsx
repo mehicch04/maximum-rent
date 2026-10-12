@@ -60,11 +60,6 @@ export default async function CarPage({ params }: Props) {
     getTranslations("Fleet"),
   ]);
 
-  /**
-   * Structured data, so a search result can show the price and the vehicle
-   * type rather than just a blue link. This is the whole reason a page per
-   * car is worth having.
-   */
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",

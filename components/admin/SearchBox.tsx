@@ -4,13 +4,6 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, X } from "lucide-react";
 
-/**
- * Free-text search that keeps the current filters intact.
- *
- * Typed into the URL rather than held in component state, so a result can be
- * bookmarked or reopened, and so the existing status filter and date range
- * still apply. Debounced, because otherwise every keystroke is a round trip.
- */
 export function SearchBox({
   placeholder = "Traži po imenu, telefonu ili broju…",
 }: {

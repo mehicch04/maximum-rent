@@ -7,10 +7,6 @@ export const SITE_URL =
 
 const OG_LOCALE: Record<string, string> = { hr: "hr_HR", en: "en_US" };
 
-/**
- * Canonical URL + hreflang alternates for a page.
- * `path` is the locale-less pathname, e.g. "/vozila" (use "/" for home).
- */
 export function buildAlternates(locale: string, path: string) {
   const clean = path === "/" ? "" : path;
   const languages: Record<string, string> = {};
@@ -20,11 +16,6 @@ export function buildAlternates(locale: string, path: string) {
   return { canonical: `${SITE_URL}/${locale}${clean}`, languages };
 }
 
-/**
- * Per-page metadata helper. Keeps title/description, canonical, hreflang and
- * Open Graph consistent across every page. The social image is inherited from
- * the root layout, so it isn't repeated here.
- */
 export function buildPageMetadata({
   locale,
   path,

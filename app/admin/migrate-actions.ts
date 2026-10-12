@@ -8,18 +8,6 @@ import { ADMIN_COOKIE, tokenValid } from "@/lib/admin-auth";
 import { REF_PREFIX, withUniqueReference } from "@/lib/reference";
 import { rentalDays } from "@/lib/extras";
 
-/**
- * One-off move of phone bookings out of the blocks table.
- *
- * They were originally recorded as blocks, before manual reservations had a
- * screen of their own. That left revenue in two places: the reports read both,
- * the Excel export read only one, and the two totals disagreed. After this the
- * reservations table is the single record of what was earned.
- *
- * Safe to run more than once: once a block is converted it is deleted, so a
- * second run simply finds nothing left to do.
- */
-
 type MigrationResult = {
   moved: number;
   extras: number;
@@ -50,9 +38,6 @@ export async function migrateOldManualBlocks(): Promise<void> {
 
   for (const block of blocks) {
     try {
-      // Equipment needs a price and an English name, which the block never
-      // stored. They are read from the catalogue; an item deleted since keeps
-      // its recorded name and moves across at zero, rather than being dropped.
       const ids = block.extras.map((e) => e.extraId).filter(Boolean) as string[];
       const catalogue = ids.length
         ? await prisma.extra.findMany({
@@ -82,8 +67,6 @@ export async function migrateOldManualBlocks(): Promise<void> {
 
       const { firstName, lastName } = splitName(block.clientName);
 
-      // Creating the reservation and removing the block go together: a failure
-      // half way would either duplicate the income or lose it.
       await prisma.$transaction(async (tx) => {
         await withUniqueReference(REF_PREFIX.inquiry, (reference) =>
           tx.inquiry.create({
@@ -95,8 +78,6 @@ export async function migrateOldManualBlocks(): Promise<void> {
               returnAt: block.endAt,
               firstName,
               lastName,
-              // The block never held these; empty is honest, a made-up address
-              // would not be.
               email: "",
               phone: "",
               flightNumber: null,
@@ -106,8 +87,6 @@ export async function migrateOldManualBlocks(): Promise<void> {
               locale: "HR",
               rentalDays: rentalDays(block.startAt, block.endAt),
               totalPrice: block.totalPrice,
-              // The original date is kept, so reports for past months do not
-              // suddenly gain income they never had.
               createdAt: block.createdAt,
               extras: extraRows.length ? { create: extraRows } : undefined,
             },

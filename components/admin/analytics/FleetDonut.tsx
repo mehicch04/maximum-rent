@@ -6,17 +6,6 @@ import { motion, useInView, useReducedMotion } from "framer-motion";
 import { X } from "lucide-react";
 import type { FleetSlice } from "@/lib/analytics";
 
-/**
- * Current fleet status.
- *
- * A donut suits three parts of one whole: the split reads at a glance and the
- * middle carries the fleet size, which is the number asked for first. Exact
- * counts sit in the legend, because arcs are poor at precision.
- *
- * Every slice is clickable. "Four cars in service" is not actionable on its
- * own — the owner needs to know which four, so a click opens that list.
- */
-
 const SIZE = 200;
 const R = 78;
 const STROKE = 26;
@@ -26,8 +15,6 @@ export function FleetDonut({ data }: { data: FleetSlice[] }) {
   const reduce = useReducedMotion();
   const [open, setOpen] = useState<FleetSlice | null>(null);
 
-  // Watched on the wrapper, not on the arcs: iOS Safari does not observe SVG
-  // children, so the slices stayed at opacity 0 and only the grey ring showed.
   const wrapRef = useRef<HTMLDivElement>(null);
   const inView = useInView(wrapRef, { once: true, margin: "-40px" });
   const show = reduce || inView;

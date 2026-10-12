@@ -8,15 +8,6 @@ import {
   companyHeaderLines,
 } from "./contract-data";
 
-/**
- * A4 rental contract.
- *
- * The font is loaded from /public rather than bundled: jsPDF's built-in fonts
- * silently DROP č, ć and đ, so "Čitluk" prints as "itluk" and a guest's name
- * comes out mangled on a document they are about to sign. Loading it only when
- * a contract is generated keeps it out of every other page's payload.
- */
-
 const A4 = { w: 210, h: 297 };
 const M = 18; // margin
 const LINE = 5.6;
@@ -61,9 +52,6 @@ export async function generateContractPdf(data: ContractData): Promise<void> {
     }
   };
 
-  // ── Issuer ──
-  // The agency block goes above the title: the first thing a signed document
-  // must say is who issued it.
   const header = companyHeaderLines(data.company);
   if (data.company?.name) {
     doc.setFont("Contract", "bold");

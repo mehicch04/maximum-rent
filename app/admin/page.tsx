@@ -177,13 +177,6 @@ const MESSAGES: Record<string, { text: string; tone: "ok" | "warn" | "err" }> =
     },
   };
 
-/**
- * Digits from a query, but only when it actually looks like a phone number.
- *
- * Stripping non-digits from anything at all turns a reference like "MR-4TQ"
- * into "4", which then matches every phone number containing a four. A term is
- * treated as a number only when digits are what it is mostly made of.
- */
 function phoneTerm(q: string): string | null {
   const digits = q.replace(/[^0-9]/g, "");
   if (digits.length < 3) return null;
@@ -231,11 +224,6 @@ export default async function AdminPage({
             }
           : {};
 
-  /**
-   * Free-text search over the fields somebody actually remembers: a name, the
-   * number they were called from, the reference on the contract, or the car.
-   * Case-insensitive, because nobody types names the way they were entered.
-   */
   const q = (one(searchParams.q) ?? "").trim();
   const searchWhere = q
     ? {
@@ -251,8 +239,6 @@ export default async function AdminPage({
       }
     : {};
 
-  // A search looks across everything; narrowing it by tab as well would hide
-  // the very reservation somebody is trying to find.
   const where = q
     ? { ...searchWhere, ...createdAtWhere }
     : { ...statusWhere, ...createdAtWhere };
@@ -269,9 +255,6 @@ export default async function AdminPage({
   ] = await Promise.all([
     prisma.inquiry.findMany({
       where,
-      // Active rentals are sorted by when they are due back, so whoever is
-      // closest to running over sits at the top. Everywhere else the newest
-      // enquiry is what matters.
       orderBy:
         filter === "active"
           ? { returnAt: "asc" }
@@ -296,14 +279,6 @@ export default async function AdminPage({
       include: { car: { select: { title: true } } },
     }),
     prisma.car.findMany({
-      /*
-       * Withdrawn vehicles are included, marked rather than hidden.
-       *
-       * A reservation may already point at one, and a dropdown that does not
-       * contain its current value silently replaces it on save. The new
-       * reservation form filters them out for itself; here they have to be
-       * listed so nothing gets reassigned behind the owner's back.
-       */
       orderBy: { sortOrder: "asc" },
       select: {
         id: true,
@@ -319,8 +294,6 @@ export default async function AdminPage({
       where: createdAtWhere,
     }),
     getActiveExtras().catch(() => []),
-    // Availability must never take the panel down; an empty list just means
-    // the form shows full stock and the server still re-checks on submit.
     getBookedExtras().catch(() => []),
     getCarOccupancy().catch(() => []),
     prisma.location.findMany({
@@ -344,9 +317,6 @@ export default async function AdminPage({
     all: counts.reduce((s, c) => s + c._count, 0),
   };
 
-  // Prisma returns Decimal, which cannot cross into a client component.
-  // The rate in force today, so the live calculation in the forms matches the
-  // figure the server will actually store.
   const { seasonalPricing } = await getCompany().catch(() => ({
     seasonalPricing: false,
   }));
@@ -472,9 +442,6 @@ export default async function AdminPage({
         )}
 
         {inquiries.map((q) => {
-          // An expiry and a cancellation both end as "Otkazano", but they mean
-          // different things: one is a decision, the other is a missed one.
-          // Telling them apart used to mean opening the record.
           const badge =
             q.status === "CANCELLED" && q.expiredAt
               ? {
@@ -486,8 +453,6 @@ export default async function AdminPage({
           return (
             <div
               key={q.id}
-              // A rental that is out and past its hour gets a tinted card, so
-              // it stands out while scrolling without shouting over the rest.
               className={`rounded-2xl border p-5 shadow-card ${
                 q.status === "IN_PROGRESS" && q.returnAt < new Date()
                   ? "border-brand/50 bg-brand/[0.04]"
@@ -569,8 +534,6 @@ export default async function AdminPage({
                       continuedBy: q.continuedBy.map((c) => c.reference),
                     }}
                   />
-                  {/* Editing stays available whatever the status: plans change
-                      after a booking is confirmed just as often as before. */}
                   <EditInquiryButton reference={q.reference} status={q.status}>
                     <EditInquiryForm
                       action={updateInquiry}
@@ -657,8 +620,6 @@ export default async function AdminPage({
                     </form>
                   </div>
                 )}
-                {/* Only for enquiries still awaiting a decision: once a
-                    booking is confirmed it holds the car itself. */}
                 {canAct && (
                   <ConflictNotice
                     carId={q.carId}
@@ -684,13 +645,6 @@ export default async function AdminPage({
                   </div>
                 )}
 
-                {/*
-                  * The car was pulled from the offer, most often because it is
-                  * being sold. The booking can still be honoured if it is still
-                  * on the lot, so this warns rather than blocks; nothing said
-                  * anything at all before, and the owner found out when the
-                  * guest arrived.
-                  */}
                 {canAct && q.car && !q.car.isAvailable && (
                   <p className="rounded-xl border border-amber-500/50 bg-amber-500/[0.07] px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
                     <strong className="font-semibold">
@@ -701,11 +655,6 @@ export default async function AdminPage({
                   </p>
                 )}
 
-                {/*
-                  * A missing button reads as a bug unless something says why.
-                  * Shown only once the enquiry is approved, since before that
-                  * a general question without a car is perfectly normal.
-                  */}
                 {!q.carId &&
                   (q.status === "CONFIRMED" || q.status === "IN_PROGRESS") && (
                     <p className="rounded-xl border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
@@ -714,8 +663,6 @@ export default async function AdminPage({
                     </p>
                   )}
 
-                {/* Both actions need a vehicle to act on, so neither is
-                    offered until one is assigned. */}
                 {q.status === "CONFIRMED" && q.carId && (
                   <div className="flex flex-wrap gap-2">
                     <StartRentalButton

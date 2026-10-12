@@ -1,9 +1,6 @@
 import { SITE_URL } from "@/lib/seo";
 import { SITE } from "@/lib/site-config";
 
-// Served at /llms.txt — a concise, machine-readable summary of the site for
-// LLMs / AI agents (llmstxt.org convention). Uses SITE_URL so links always
-// match the active canonical domain.
 export function GET() {
   const u = (p: string) => `${SITE_URL}${p}`;
 

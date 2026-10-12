@@ -1,13 +1,6 @@
 import { Minus, TrendingDown, TrendingUp } from "lucide-react";
 import type { Kpi } from "@/lib/analytics";
 
-/**
- * One measurement.
- *
- * The arrow is coloured by whether the movement is good, not by its sign: a
- * falling cancellation rate is a win, so it gets the same green as rising
- * revenue. Colouring purely by direction would quietly mislead.
- */
 export function KpiCard({ kpi, note }: { kpi: Kpi; note: string }) {
   const { change, lowerIsBetter } = kpi;
   const flat = change === null || change === 0;

@@ -21,17 +21,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Counts have to be fresh: a badge that lags behind is worse than none, since
-// it teaches the owner to stop trusting it.
 export const dynamic = "force-dynamic";
 
-/**
- * How many items are waiting to be looked at.
- *
- * Counted only for a signed-in session, so the login page does not touch the
- * database, and never allowed to fail: a badge is a convenience and must not
- * be able to take the panel down.
- */
 async function pendingCounts() {
   if (!(await tokenValid(cookies().get(ADMIN_COOKIE)?.value))) {
     return { inquiries: 0, messages: 0 };
@@ -47,8 +38,6 @@ async function pendingCounts() {
   }
 }
 
-// /admin is intentionally outside [locale]: single-language (HR, for staff),
-// not indexed, with its own minimal chrome.
 export default async function AdminLayout({
   children,
 }: {

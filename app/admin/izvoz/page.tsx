@@ -5,8 +5,6 @@ import { ExportForm } from "@/components/admin/ExportForm";
 export const dynamic = "force-dynamic";
 
 export default async function AdminExportPage() {
-  // Counts are shown up front so the owner knows what he is about to download
-  // instead of opening the file to find out.
   let counts = { inquiries: 0, cars: 0, messages: 0 };
   try {
     const [inquiries, cars, messages] = await Promise.all([

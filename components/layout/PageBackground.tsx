@@ -2,20 +2,17 @@
 
 import { usePathname } from "@/i18n/navigation";
 
-// Route → mesh position. Logic: calm pages get corner glows, the fleet page
-// stays whisper-subtle (cards are the star), contact gets a livelier diagonal.
 const VARIANTS: { match: string; cls: string }[] = [
-  { match: "/o-nama", cls: "page-bg--tl" }, // about — top-left, calm
-  { match: "/poslovna-ponuda", cls: "page-bg--tr" }, // business — top-right, dynamic
-  { match: "/vozila", cls: "page-bg--top" }, // fleet — single faint top glow
-  { match: "/uvjeti-najma", cls: "page-bg--bottom" }, // terms — bottom
-  { match: "/kontakt", cls: "page-bg--center" }, // contact — diagonal
+  { match: "/o-nama", cls: "page-bg--tl" },
+  { match: "/poslovna-ponuda", cls: "page-bg--tr" },
+  { match: "/vozila", cls: "page-bg--top" },
+  { match: "/uvjeti-najma", cls: "page-bg--bottom" },
+  { match: "/kontakt", cls: "page-bg--center" },
 ];
 
 export function PageBackground() {
   const pathname = usePathname();
 
-  // Homepage has its own hero backdrop — no page background there.
   if (pathname === "/") return null;
 
   const variant =

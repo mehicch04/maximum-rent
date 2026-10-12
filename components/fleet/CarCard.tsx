@@ -105,9 +105,6 @@ export function CarCard({
       <div className="flex flex-1 flex-col gap-4 p-5">
         <div>
           <h3 className="font-display text-lg font-semibold leading-tight tracking-tight">
-            {/* The title is the link: a card in a grid is where people
-                expect to click through, and it gives the page a crawlable
-                route in from the fleet listing. */}
             <Link
               href={`/${locale}/vozila/${car.slug}`}
               className="transition-colors before:absolute before:inset-0 before:z-0 before:content-[''] hover:text-brand-strong"

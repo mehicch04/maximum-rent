@@ -4,7 +4,6 @@
 
 @layer base {
   :root {
-    /* Light theme — clean white + light-gray surfaces, near-black text */
     --background: 0 0% 100%;
     --foreground: 0 0% 7%;
     --surface: 0 0% 100%;
@@ -13,9 +12,7 @@
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 40%;
     --ring: 356 95% 46%;
-    /* Brand red used as small TEXT. Light theme keeps the logo red (passes AA on white). */
     --brand-strong: #e30613;
-    /* Chart colours. Status hues stay meaningful in both themes. */
     --chart-rented: #e30613;
     --chart-available: #12793f;
     --chart-service: #b45309;
@@ -23,7 +20,6 @@
   }
 
   .dark {
-    /* Dark theme — deep blacks + charcoal */
     --background: 0 0% 5%;
     --foreground: 0 0% 96%;
     --surface: 0 0% 9%;
@@ -32,7 +28,6 @@
     --muted: 0 0% 13%;
     --muted-foreground: 0 0% 64%;
     --ring: 356 95% 52%;
-    /* Lighter red so brand-colored TEXT clears WCAG AA (4.5:1) on dark surfaces. */
     --brand-strong: #ff4b54;
     --chart-rented: #ff4b54;
     --chart-available: #4ade80;
@@ -56,26 +51,10 @@
     @apply bg-background text-foreground font-sans antialiased;
   }
 
-  /* Smoothly cross-fade theme colors when switching dark/light.
-     Only color-ish properties transition — transform & opacity are left
-     alone so Framer Motion animations stay snappy. Elements that already
-     carry a Tailwind transition utility (buttons, cards) keep their own
-     timing because a class selector outranks the universal selector. */
-  /* Cross-fade colors ONLY during an explicit theme switch. The toggle adds
-     `.theme-transition` to <html> for ~320ms. This removes any transition on
-     first paint / route changes — which previously made icons and text look
-     like they "loaded twice" as they faded from a default to the themed color.
-     Transform & opacity are never transitioned so Framer Motion stays snappy. */
   html.theme-transition,
   html.theme-transition *,
   html.theme-transition *::before,
   html.theme-transition *::after {
-    /* !important so this overrides per-element Tailwind `transition-colors`
-       (which lives in the higher-priority `utilities` layer). Without it,
-       cards/buttons cross-fade at their own 150ms while the rest of the page
-       uses 300ms — producing a staggered, glitchy switch where cards change
-       first and the background follows. Forcing one duration makes the whole
-       page change together. */
     transition-property: background-color, border-color, color, fill, stroke !important;
     transition-duration: 300ms !important;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
@@ -87,10 +66,6 @@
     color-scheme: dark;
   }
 
-  /* ---------- Page background: two opposing brand meshes (no grain) ----------
-     Used on every page EXCEPT the homepage (see PageBackground.tsx).
-     Each page shows two soft glows on opposite ends; only the axis and which
-     end is stronger changes per page. Alpha is theme-aware and kept low. */
   :root {
     --mesh: 227 6 19; /* brand red */
     --mesh-a: 0.12; /* stronger glow (visible on white) */
@@ -108,33 +83,27 @@
     pointer-events: none;
   }
 
-  /* Each variant = two meshes on opposite ends of the viewport */
   .page-bg--tl {
-    /* about — main diagonal, top-left stronger */
     background-image:
       radial-gradient(40% 40% at 6% 4%, rgb(var(--mesh) / var(--mesh-a)), transparent 72%),
       radial-gradient(40% 40% at 94% 96%, rgb(var(--mesh) / var(--mesh-b)), transparent 72%);
   }
   .page-bg--tr {
-    /* business — anti-diagonal, top-right stronger */
     background-image:
       radial-gradient(40% 40% at 94% 4%, rgb(var(--mesh) / var(--mesh-a)), transparent 72%),
       radial-gradient(40% 40% at 6% 96%, rgb(var(--mesh) / var(--mesh-b)), transparent 72%);
   }
   .page-bg--top {
-    /* fleet — vertical, both soft (cars stay the focus) */
     background-image:
       radial-gradient(55% 32% at 50% -2%, rgb(var(--mesh) / var(--mesh-b)), transparent 72%),
       radial-gradient(55% 32% at 50% 102%, rgb(var(--mesh) / var(--mesh-b)), transparent 72%);
   }
   .page-bg--bottom {
-    /* terms — anti-diagonal, bottom-left stronger (opposite of business) */
     background-image:
       radial-gradient(40% 40% at 6% 96%, rgb(var(--mesh) / var(--mesh-a)), transparent 72%),
       radial-gradient(40% 40% at 94% 4%, rgb(var(--mesh) / var(--mesh-b)), transparent 72%);
   }
   .page-bg--center {
-    /* contact — main diagonal, bottom-right stronger (opposite of about) */
     background-image:
       radial-gradient(40% 40% at 94% 96%, rgb(var(--mesh) / var(--mesh-a)), transparent 72%),
       radial-gradient(40% 40% at 6% 4%, rgb(var(--mesh) / var(--mesh-b)), transparent 72%);
@@ -152,14 +121,10 @@
 }
 
 @layer components {
-  /* Mobitel/tablet: puna (neprozirna) pozadina BEZ backdrop-filtera.
-     Jak backdrop-blur na sticky traci izaziva stalni repaint tokom skrola
-     (treptanje, posebno na iOS Safariju), pa ga tu izbjegavamo. */
   .glass {
     background: hsl(var(--background));
     border-bottom: 1px solid hsl(var(--border) / 0.6);
   }
-  /* Desktop: vraćamo stakleni (blur) izgled — tamo nema scroll flickera. */
   @media (min-width: 1024px) {
     .glass {
       background: hsl(var(--background) / 0.72);

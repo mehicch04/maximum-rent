@@ -22,14 +22,6 @@ const fromISO = (s?: string) => (s ? new Date(`${s}T12:00:00`) : null);
 const startOfDay = (d: Date) =>
   new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-/**
- * Friendly calendar picker that replaces the native <input type="date">.
- * Easier to navigate on desktop (a real month grid instead of the tiny native
- * dropdown), and works the same on touch. Month/weekday names come from Intl,
- * so it's automatically localized (HR/EN). The popover renders in a portal and
- * is positioned with fixed coordinates, so it never gets clipped inside modals
- * or scroll containers.
- */
 /** True when `d` is the final day of its month. */
 function isLastDayOfMonth(d: Date): boolean {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate() === d.getDate();
@@ -56,22 +48,10 @@ export function DateField({
 
   const selected = fromISO(value);
   const minDate = fromISO(min);
-  /**
-   * Which month the grid opens on.
-   *
-   * It follows the selected date, but never opens on a month where every day
-   * is disabled: if the selection is earlier than `min` (typical for a return
-   * date after the pickup was moved), we jump to the month of `min` so the
-   * visitor doesn't have to click forward to reach a selectable day.
-   */
   const startView = () => {
     let base = selected ?? minDate ?? new Date();
     if (minDate && startOfDay(base) < startOfDay(minDate)) base = minDate;
 
-    // If the earliest selectable day is the last day of its month, that month
-    // has nothing else to offer — opening it would show a grid of disabled
-    // days and force the visitor to page forward. Typical case: the car is
-    // picked up on the 31st, so the return almost always falls next month.
     if (minDate && isLastDayOfMonth(base) && startOfDay(base) <= startOfDay(minDate)) {
       return new Date(base.getFullYear(), base.getMonth() + 1, 1);
     }
@@ -86,8 +66,6 @@ export function DateField({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, min]);
 
-  // Re-anchor every time the popover opens, so it is right even when the
-  // visitor changed the pickup date after last looking at this calendar.
   useEffect(() => {
     if (open) setView(startView());
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -193,15 +171,6 @@ export function DateField({
               top: pos.top,
               transform: pos.up ? "translateY(-100%)" : "none",
             }}
-            /*
-             * Above every dialog in the app.
-             *
-             * At z-90 the calendar sat underneath the modals, which all use
-             * z-95, so inside one it was drawn behind the overlay: clicks
-             * landed on the overlay and it looked like the field was dead.
-             * The popover is portalled to <body>, so nothing here can clip it
-             * once it is on top.
-             */
             className="z-[110] w-[304px] rounded-2xl border border-border bg-surface p-3 shadow-card-hover"
           >
             <div className="mb-2 flex items-center justify-between">

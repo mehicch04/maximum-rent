@@ -59,7 +59,6 @@ function split(iso: string) {
   };
 }
 
-/** "12.09. u 10:00" — enough to place a booking without a full timestamp. */
 function dayTime(d: Date): string {
   return new Intl.DateTimeFormat("hr-HR", {
     timeZone: "Europe/Sarajevo",
@@ -114,11 +113,6 @@ export function EditInquiryForm({
   const from = new Date(`${pickupDate}T${pickupTime}`);
   const to = new Date(`${returnDate}T${returnTime}`);
 
-  /**
-   * What this reservation already holds is added back before working out what
-   * is free. Without that, its own two child seats would count against it and
-   * the form would refuse to keep a booking exactly as it already is.
-   */
   const free = useMemo(() => {
     const base = availabilityFor(extras, booked, from, to);
     for (const e of inquiry.extras) {
@@ -130,29 +124,12 @@ export function EditInquiryForm({
 
   const invalidPeriod = !(to.getTime() > from.getTime());
 
-  /**
-   * Bringing a cancelled booking back is the risky move: the vehicle was let
-   * go when it was cancelled, so somebody else may hold it now.
-   */
   const isRestoring = inquiry.status === "CANCELLED" && status === "CONFIRMED";
 
-  /**
-   * Taking a rental that is already out and putting it back a step.
-   *
-   * The car is physically with the guest, so this only makes sense if the
-   * handover was recorded by mistake. Worth saying out loud rather than
-   * letting it happen with one click of a dropdown.
-   */
   const undoingHandover =
     inquiry.status === "IN_PROGRESS" &&
     (status === "CONFIRMED" || status === "CONTACTED" || status === "NEW");
 
-  /**
-   * Vehicles taken for these dates.
-   *
-   * This reservation is skipped: while it is confirmed it holds the car
-   * itself, and counting that would make every edit look like a clash.
-   */
   const busy = useMemo(() => {
     const others = occupancy.filter((o) => o.inquiryId !== inquiry.id);
     return busyCarsFor(others, from, to);
@@ -161,13 +138,6 @@ export function EditInquiryForm({
 
   const carTaken = Boolean(carId && busy.has(carId));
 
-  /**
-   * Extending a rental that is already out.
-   *
-   * The usual answer to a clash — swap the vehicle — makes no sense here: the
-   * car is with the guest and cannot be swapped remotely. What can move is the
-   * booking standing in the way, so that is what gets shown.
-   */
   const extending =
     inquiry.status === "IN_PROGRESS" &&
     new Date(inquiry.returnAt).getTime() < to.getTime();
@@ -187,21 +157,6 @@ export function EditInquiryForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [occupancy, carId, pickupDate, pickupTime, returnDate, returnTime]);
 
-  /**
-   * Vehicles free for the blocking booking's own dates.
-   *
-   * Deliberately measured against that booking's period, not this one: the
-   * point is to find somewhere to move the guest who is waiting, and their
-   * dates are the ones that have to be covered.
-   */
-  /**
-   * Vehicles the guest could move into for the extra days.
-   *
-   * Measured over the extension window — from when the current rental ends to
-   * the new date — and not over the blocking booking's dates. Those are two
-   * different questions, and answering the wrong one hands over a car that is
-   * taken on exactly the days needed.
-   */
   const continuationCars = useMemo(() => {
     if (!extending) return [];
     const start = new Date(inquiry.returnAt);
@@ -214,13 +169,6 @@ export function EditInquiryForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [extending, occupancy, cars, carId, returnDate, returnTime]);
 
-  /**
-   * The latest this rental can run to.
-   *
-   * This is the whole answer in most calls: the guest asks for a few more
-   * days, and the owner needs one date to say yes or no. Everything else is
-   * for the rarer case where that date is not enough.
-   */
   const maxUntil = blockers.length > 0 ? blockers[0].from : null;
 
   const [contCar, setContCar] = useState("");
@@ -251,8 +199,6 @@ export function EditInquiryForm({
     })
     .filter(Boolean) as { name: string; want: number; cap: number }[];
 
-  // Quantities are trimmed to what is genuinely free, and the shortage is
-  // reported above rather than silently swallowed.
   useEffect(() => {
     let changed = false;
     const next: Record<string, number> = {};
@@ -287,8 +233,6 @@ export function EditInquiryForm({
     inquiry.totalPrice != null ? String(inquiry.totalPrice) : "",
   );
 
-  // The figure follows the form until it is typed into by hand; after that it
-  // is left alone, because a negotiated price should not be overwritten.
   useEffect(() => {
     if (!priceTouched && !invalidPeriod) setPrice(String(computed));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -304,12 +248,6 @@ export function EditInquiryForm({
     <form action={action} className="space-y-4">
       <input type="hidden" name="id" value={inquiry.id} />
 
-      {/*
-        * A swap has two halves, and changing one without the other leaves the
-        * guest with a gap or an overlap. Shown before anything else in the
-        * form, because by the time somebody has scrolled past it they are
-        * already typing.
-        */}
       {(inquiry.continuesFrom || (inquiry.continuedBy?.length ?? 0) > 0) && (
         <div className="rounded-xl border border-sky-500/50 bg-sky-500/[0.07] p-4">
           <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -346,11 +284,6 @@ export function EditInquiryForm({
             ))}
           </ul>
 
-          {/*
-            * Checked while typing rather than left as advice. Moving this
-            * rental's end without moving the follow-on either leaves the guest
-            * without a car for a while, or hands them two at once.
-            */}
           {(() => {
             const next = inquiry.continuedBy?.[0];
             if (!next) return null;
@@ -406,8 +339,6 @@ export function EditInquiryForm({
         </div>
       </div>
 
-      {/* Restoring a cancelled booking needs a reason on the record: one that
-          reappears without explanation cannot be accounted for later. */}
       {isRestoring && (
         <div className="rounded-xl border border-amber-500/50 bg-amber-500/[0.07] p-4">
           <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -449,13 +380,6 @@ export function EditInquiryForm({
         </div>
       )}
 
-      {/*
-        * Extending an active rental into somebody else's booking.
-        *
-        * Shown instead of the ordinary clash box, because the useful move is
-        * the opposite one: keep this guest in the car they are sitting in and
-        * find another vehicle for whoever is waiting.
-        */}
       {extending && blockers.length > 0 && (
         <div className="rounded-xl border border-brand/50 bg-brand/[0.06] p-4">
           <p className="flex items-center gap-2 text-sm font-semibold text-brand-strong">
@@ -532,14 +456,6 @@ export function EditInquiryForm({
             preko dugmeta Uredi na njoj.
           </p>
 
-          {/*
-            * Two ways out, and they answer different questions.
-            *
-            * First: keep the guest, change the car. Second: keep the car,
-            * move the booking that is in the way. Which one is right depends
-            * on who is easier to reach, so both are offered rather than
-            * guessed at.
-            */}
           <div className="mt-3 rounded-lg border border-border bg-surface p-3">
             <p className="text-xs font-semibold text-foreground">
               1. Nastavite najam na drugom vozilu
@@ -572,8 +488,6 @@ export function EditInquiryForm({
                   ))}
                 </select>
 
-                {/* Checked here too, so the owner sees it before the guest
-                    is told they can keep everything. */}
                 {(() => {
                   const start = new Date(inquiry.returnAt);
                   const freeThen = availabilityFor(
@@ -711,8 +625,6 @@ export function EditInquiryForm({
         </div>
       )}
 
-      {/* Same calendar and time picker as the public booking form, so the two
-          look and behave identically. */}
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="min-w-0">
           <label className={lbl}>Preuzimanje</label>

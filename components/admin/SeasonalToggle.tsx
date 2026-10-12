@@ -4,13 +4,6 @@ import { useState } from "react";
 import { Sun, Snowflake, AlertTriangle } from "lucide-react";
 import { toggleSeasonal } from "@/app/admin/firma/actions";
 
-/**
- * Switches the whole fleet between regular and seasonal rates.
- *
- * The state is shown loudly on purpose: leaving seasonal prices on after the
- * season ends would quietly overcharge every guest, and that mistake is easy
- * to make with a small, tidy toggle.
- */
 export function SeasonalToggle({
   active,
   carsWithSeasonal,

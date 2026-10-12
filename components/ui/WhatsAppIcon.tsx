@@ -1,9 +1,5 @@
 import type { SVGProps } from "react";
 
-/**
- * Zvanični WhatsApp glif (filled, slušalica kao negativni prostor).
- * Boja se nasljeđuje preko `currentColor`, veličina preko `className`.
- */
 export function WhatsAppIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg

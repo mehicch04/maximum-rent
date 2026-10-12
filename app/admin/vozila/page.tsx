@@ -23,13 +23,6 @@ export default async function VehiclesPage({
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
   });
 
-  /**
-   * What each vehicle is doing at this moment.
-   *
-   * Read straight from the database rather than the cached fleet list: a
-   * status that is five minutes stale would send the owner to fetch keys for
-   * a car that left an hour ago.
-   */
   const live: Record<string, LiveStatus> = {};
   try {
     const now = new Date();

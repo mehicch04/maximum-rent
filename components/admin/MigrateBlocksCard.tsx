@@ -4,13 +4,6 @@ import { useState } from "react";
 import { ArrowRightLeft, Loader2 } from "lucide-react";
 import { migrateOldManualBlocks } from "@/app/admin/migrate-actions";
 
-/**
- * One-off tool for moving phone bookings out of the blocks table.
- *
- * Shown only while there is something left to move, so once it has been run
- * the panel goes back to normal instead of carrying a button nobody will ever
- * press again.
- */
 export function MigrateBlocksCard({ count }: { count: number }) {
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);

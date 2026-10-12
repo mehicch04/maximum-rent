@@ -14,14 +14,6 @@ import {
 
 export type ExtraSelection = Record<string, number>;
 
-/**
- * Optional equipment picked with a booking.
- *
- * Availability is worked out against the chosen dates: an item already out
- * with other guests for that period cannot be picked again. Without this the
- * same child seat gets promised to several people and someone is turned away
- * at the desk.
- */
 export function ExtrasPicker({
   extras,
   value,
@@ -36,11 +28,6 @@ export function ExtrasPicker({
   /** Selected rental period; availability is recalculated whenever it changes. */
   pickupAt: Date | null;
   returnAt: Date | null;
-  /**
-   * Everything already promised, from the website and from manual bookings
-   * alike. Fetched on the server and passed down, since a client component
-   * cannot read the database itself.
-   */
   booked: Booked[];
 }) {
   const locale = useLocale();
@@ -53,11 +40,6 @@ export function ExtrasPicker({
     [extras, booked, pickupAt, returnAt],
   );
 
-  /**
-   * Dates can change after a choice was made. If the new period has fewer
-   * pieces free, the selection is trimmed to fit rather than silently sending
-   * an order that cannot be honoured.
-   */
   useEffect(() => {
     let changed = false;
     const next: ExtraSelection = {};

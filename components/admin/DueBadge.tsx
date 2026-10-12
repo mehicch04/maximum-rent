@@ -3,13 +3,6 @@
 import { useEffect, useState } from "react";
 import { Clock } from "lucide-react";
 
-/**
- * How long until a rental is due back, or how far past it already is.
- *
- * Counted on the client and refreshed every half minute: this is the one
- * figure on the screen that goes stale while somebody is looking at it, and a
- * badge that says "due in 5 min" an hour after the fact is worse than none.
- */
 export function DueBadge({ returnAt }: { returnAt: string }) {
   const [now, setNow] = useState<number | null>(null);
 
@@ -25,7 +18,6 @@ export function DueBadge({ returnAt }: { returnAt: string }) {
   const diff = new Date(returnAt).getTime() - now;
   const mins = Math.round(Math.abs(diff) / 60_000);
 
-  /** "45 min", "3 h", "2 dana" — whichever unit reads naturally. */
   const span = (m: number) => {
     if (m < 60) return `${m} min`;
     const h = Math.round(m / 60);

@@ -14,14 +14,6 @@ import {
   maxSelectable,
 } from "@/lib/extras-availability";
 
-/**
- * Continuing a rental on a different vehicle.
- *
- * When a guest wants more days but their car is promised to somebody else, the
- * workable answer is usually a swap: they bring this one back as agreed and
- * leave in another. That is a second rental, not an edit of the first — the
- * two cars, and the two periods, have to stay separate in the records.
- */
 export async function createContinuation(formData: FormData) {
   if (!(await tokenValid(cookies().get(ADMIN_COOKIE)?.value))) {
     redirect("/admin/login");
@@ -44,8 +36,6 @@ export async function createContinuation(formData: FormData) {
   });
   if (!source) redirect("/admin?msg=error");
 
-  // The continuation starts exactly where the current rental ends: the guest
-  // hands one car over and takes the other in the same visit.
   const pickupAt = source.returnAt;
   const returnAt = new Date(until);
 
@@ -53,8 +43,6 @@ export async function createContinuation(formData: FormData) {
     redirect("/admin?msg=error");
   }
 
-  // Checked again here. The list in the form was correct when it was drawn,
-  // but somebody may have taken the car in the meantime.
   const [clashes, blocks] = await Promise.all([
     prisma.inquiry.count({
       where: {
@@ -75,14 +63,6 @@ export async function createContinuation(formData: FormData) {
     select: { title: true, pricePerDay: true, seasonalPrice: true },
   });
 
-  /**
-   * Equipment travels with the guest, not with the car, so the child seats
-   * move into the new vehicle. But holding them for longer is a fresh claim on
-   * stock: the original booking releases them when it ends, and somebody else
-   * may already be promised them for the days that follow. Each item is
-   * checked against the continuation period and only carried over if it is
-   * genuinely free.
-   */
   const wanted = source.extras.filter((e) => e.extraId);
   const carriedExtras: {
     extraId: string;
@@ -103,8 +83,6 @@ export async function createContinuation(formData: FormData) {
       getBookedExtras().catch(() => []),
     ]);
 
-    // The source rental ends where this one begins, so its own hold never
-    // counts against it here.
     const free = availabilityFor(stock, booked, pickupAt, returnAt);
 
     for (const e of wanted) {
@@ -145,8 +123,6 @@ export async function createContinuation(formData: FormData) {
         email: source.email,
         phone: source.phone,
         flightNumber: source.flightNumber,
-        // Linked both ways: opening either reservation shows the other, so
-        // nobody edits one half of a swap without seeing the rest of it.
         continuesFromId: sourceId,
         message: `Nastavak najma ${source.reference}, zamjena vozila.`,
         channel: "MANUAL",
@@ -162,8 +138,6 @@ export async function createContinuation(formData: FormData) {
   revalidateTag("fleet");
   revalidateTag("extras");
   revalidatePath("/admin", "layout");
-  // The owner has to know what did not come across, so they can tell the guest
-  // before they drive off expecting a seat that is not there.
   if (droppedExtras.length > 0) {
     redirect(
       `/admin?msg=continuedpartial&missing=${encodeURIComponent(droppedExtras.join(", "))}`,

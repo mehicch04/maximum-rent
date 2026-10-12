@@ -28,9 +28,6 @@ export function AdminNav({
 
   return (
     <nav className="border-b border-border bg-background">
-      {/* Seven tabs are about 710px wide, well past a phone screen. Without a
-          scroller here the whole admin page stretches and the browser zooms
-          out, which is why every screen looked shrunken on mobile. */}
       <div className="mx-auto flex w-full max-w-6xl gap-1 overflow-x-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] sm:px-6 [&::-webkit-scrollbar]:hidden">
         {TABS.map(({ href, label, icon: Icon, exact, badge }) => {
           const active = exact ? pathname === href : pathname.startsWith(href);
@@ -48,8 +45,6 @@ export function AdminNav({
               <Icon className="h-4 w-4" />
               {label}
 
-              {/* Only shown when there is something to act on. A badge sitting
-                  at zero is noise, and it stops meaning anything. */}
               {pending > 0 && (
                 <span
                   aria-label={`${pending} novih`}

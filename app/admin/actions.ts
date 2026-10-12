@@ -8,8 +8,6 @@ import { busyCarsFor, getCarOccupancy } from "@/lib/extras-availability";
 import { ADMIN_COOKIE, tokenValid } from "@/lib/admin-auth";
 import { sendReservationDecisionEmail } from "@/lib/email";
 
-// Defense in depth: middleware already guards /admin, but server actions are
-// HTTP endpoints of their own — re-check the session cookie in each one.
 async function requireAdmin() {
   const ok = await tokenValid(cookies().get(ADMIN_COOKIE)?.value);
   if (!ok) redirect("/admin/login");
@@ -61,9 +59,6 @@ function toDecisionRow(q: {
   };
 }
 
-/** PENDING/CONTACTED → CONFIRMED, with an overlap re-check inside a
- *  transaction so two admins can't double-book the same car. Sends the
- *  client a confirmation email afterwards (failures logged, never fatal). */
 export async function confirmInquiry(formData: FormData) {
   await requireAdmin();
   const { status, range } = filtersFrom(formData);
@@ -126,17 +121,12 @@ export async function confirmInquiry(formData: FormData) {
     }
   }
 
-  // Confirming, cancelling or blocking changes what the public site may offer,
-  // and the fleet and extras lists are cached for five minutes. Without these
-  // the site keeps advertising a vehicle that was just taken.
   revalidateTag("fleet");
   revalidateTag("extras");
   revalidatePath("/admin", "layout");
   backTo({ status, range, msg: outcome.msg });
 }
 
-/** → CANCELLED. Sends the client a "not confirmed" email when the status
- *  actually changed (no duplicate emails on re-click). */
 export async function cancelInquiry(formData: FormData) {
   await requireAdmin();
   const { status, range } = filtersFrom(formData);
@@ -165,17 +155,12 @@ export async function cancelInquiry(formData: FormData) {
     }
   }
 
-  // Confirming, cancelling or blocking changes what the public site may offer,
-  // and the fleet and extras lists are cached for five minutes. Without these
-  // the site keeps advertising a vehicle that was just taken.
   revalidateTag("fleet");
   revalidateTag("extras");
   revalidatePath("/admin", "layout");
   backTo({ status, range, msg: "cancelled" });
 }
 
-/** Manual unavailability window (service etc.). Day-granularity, inclusive:
- *  [from 00:00 UTC, to+1d 00:00 UTC). */
 export async function addBlock(formData: FormData) {
   await requireAdmin();
   const carId = String(formData.get("carId") ?? "");
@@ -183,9 +168,6 @@ export async function addBlock(formData: FormData) {
   const to = String(formData.get("to") ?? "");
   const reason = String(formData.get("reason") ?? "").trim().slice(0, 200);
 
-  // MANUAL_BOOKING stays in the database for records created before manual
-  // reservations moved to their own screen, but this form no longer offers or
-  // accepts it.
   const KINDS = ["MAINTENANCE", "DAMAGE", "PRIVATE"] as const;
   const rawKind = String(formData.get("kind") ?? "MAINTENANCE");
   const kind = (KINDS as readonly string[]).includes(rawKind)
@@ -204,8 +186,6 @@ export async function addBlock(formData: FormData) {
 
   if (!valid) backTo({ msg: "error" });
 
-  // The greyed-out options in the browser are a convenience, not a guarantee:
-  // the posted car id can be anything, so the clash is checked again here.
   const busy = busyCarsFor(
     await getCarOccupancy().catch(() => []),
     startAt,
@@ -223,9 +203,6 @@ export async function addBlock(formData: FormData) {
     },
   });
 
-  // Confirming, cancelling or blocking changes what the public site may offer,
-  // and the fleet and extras lists are cached for five minutes. Without these
-  // the site keeps advertising a vehicle that was just taken.
   revalidateTag("fleet");
   revalidateTag("extras");
   revalidatePath("/admin", "layout");
@@ -238,9 +215,6 @@ export async function removeBlock(formData: FormData) {
   if (id) {
     await prisma.carBlock.deleteMany({ where: { id } });
   }
-  // Confirming, cancelling or blocking changes what the public site may offer,
-  // and the fleet and extras lists are cached for five minutes. Without these
-  // the site keeps advertising a vehicle that was just taken.
   revalidateTag("fleet");
   revalidateTag("extras");
   revalidatePath("/admin", "layout");

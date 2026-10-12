@@ -27,7 +27,6 @@ function formatDateTime(value?: Date | string | null): string {
   }).format(d);
 }
 
-/** Prefilled inquiry text — reused for both WhatsApp and email. */
 export function buildInquiryMessage(ctx: InquiryContext): string {
   const car = ctx.car.title;
   const start = formatDateTime(ctx.pickupAt);
@@ -56,10 +55,6 @@ export function buildWhatsAppUrl(
   return `https://wa.me/${phone}?text=${encodeURIComponent(buildInquiryMessage(ctx))}`;
 }
 
-
-// ---------------------------------------------------------------------------
-// Owner notification (admin → WhatsApp forward of a new inquiry)
-// ---------------------------------------------------------------------------
 
 type OwnerSummary = {
   reference: string;

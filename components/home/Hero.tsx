@@ -14,8 +14,6 @@ const OPEN_MIN = 7 * 60 + 30;
 const CLOSE_MIN = 20 * 60 + 30;
 const TZ = "Europe/Sarajevo";
 
-/** Live local time + open/closed badge (shows the agency's local time, so
- *  visitors in other time zones know whether it's worth calling now). */
 function OpenStatus({
   openLabel,
   closedLabel,
@@ -75,13 +73,6 @@ export function Hero() {
   const company = useCompany();
   const locale = useLocale();
 
-  // The background video plays on every screen size, with a lighter file on
-  // phones so it doesn't eat mobile data. It mounts only after hydration, so
-  // the server-rendered HTML ships the poster alone — the poster is the LCP
-  // and paints immediately, then the video fades in over it.
-  //
-  // A single <source> (H.264, universally supported) is chosen on purpose:
-  // listing several makes some browsers fetch more than one file.
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
 
   useEffect(() => {
@@ -105,8 +96,6 @@ export function Hero() {
 
   return (
     <section className="relative flex min-h-[92vh] items-center overflow-hidden">
-      {/* Background: the poster paints first (it is the LCP), then the
-          autoplay video fades in over it — on phones too, with a lighter file. */}
       <div className="absolute inset-0 -z-10 bg-black">
         <img
           src="/hero-poster.webp"

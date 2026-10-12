@@ -1,11 +1,3 @@
-// =============================================================================
-//  Seed — real branches (from footer) + a representative fleet.
-//  Run: npx prisma db seed
-//
-//  IMAGES: add real photos to /public/cars/<slug>.png and set them here, or
-//  leave images: [] and the card shows a clean fallback icon until you do.
-// =============================================================================
-
 import { PrismaClient, LocationType, CarClass, Transmission, FuelType } from "@prisma/client";
 
 const prisma = new PrismaClient();

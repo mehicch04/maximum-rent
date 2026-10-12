@@ -26,8 +26,6 @@ type Props = {
   onClose: () => void;
 };
 
-// 24-hour, 30-minute slots (00:00 → 23:30). A native <select> keeps a
-// predictable width on every browser, unlike iOS <input type="time">.
 const pad = (n: number) => String(n).padStart(2, "0");
 const TIME_SLOTS = Array.from(
   { length: 48 },
@@ -41,8 +39,6 @@ function splitISO(iso?: string | null, fallbackOffsetDays = 1) {
   return { date, time };
 }
 
-// Snap any "HH:MM" to the nearest valid 30-minute slot so it matches a
-// dropdown option (00:00 → 23:30).
 function snapTime(t: string) {
   const [h, m] = t.split(":").map(Number);
   const total = Math.min(Math.round((h * 60 + m) / 30) * 30, 23 * 60 + 30);
@@ -169,8 +165,6 @@ export function InquiryModal({
     }
   }
 
-  // text-base (16px) on mobile prevents iOS Safari from auto-zooming into
-  // focused fields; sm:text-sm restores the compact look on larger screens.
   const input =
     "h-11 w-full min-w-0 rounded-xl border border-border bg-background px-3 text-base outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-ring/30 sm:text-sm";
   const lbl = "mb-1 block text-xs font-medium text-muted-foreground";

@@ -1,11 +1,5 @@
 import type { SVGProps } from "react";
 
-/**
- * Car side-door glyph, drawn in the same stroke style as the lucide icons used
- * on the card (fill none, currentColor stroke, width 2, round caps) so it sits
- * consistently next to them. Size via className (e.g. h-4 w-4), color via
- * text-* (currentColor).
- */
 export function CarDoorIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg

@@ -1,15 +1,5 @@
 import ExcelJS from "exceljs";
 
-/**
- * Builds a real .xlsx workbook instead of a CSV.
- *
- * CSV looked broken on the owner's machine: Excel only splits on the separator
- * its own regional settings expect, so a semicolon file lands entirely in
- * column A. A workbook has no separator, no encoding guesswork and no locale
- * dependency — it opens the same everywhere, and it can carry column widths,
- * a frozen header and real date and number cells.
- */
-
 export type Column = {
   header: string;
   /** Rough width in characters; the sheet auto-fits within sensible bounds. */
@@ -97,10 +87,6 @@ export function workbookFilename(kind: string): string {
   return `${kind}-${iso}.xlsx`;
 }
 
-/**
- * Values typed into a spreadsheet cell can be executed as formulas when they
- * start with =, +, - or @. Guests write free text, so those are neutralised.
- */
 export function safeText(v: unknown): string {
   const s = v === null || v === undefined ? "" : String(v);
   return /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;

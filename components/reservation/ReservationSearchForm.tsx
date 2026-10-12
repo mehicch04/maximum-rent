@@ -76,11 +76,6 @@ export function ReservationSearchForm({ locations }: { locations: SimpleLocation
 
   useReturnAfterPickup(pickupDate, returnDate, setReturnDate);
 
-  // Default dates and the min date are relative to the visitor's LOCAL calendar
-  // day, which only the browser knows. Compute them after mount so the
-  // server-rendered HTML (UTC clock) matches the first client render — otherwise
-  // the differing <input> values cause a hydration mismatch (React #418/#423/#425
-  // logged to the console, which drops the PageSpeed "Best Practices" score).
   useEffect(() => {
     setToday(dateOffset(0));
     setPickupDate((v) => v || dateOffset(1));
@@ -182,11 +177,6 @@ export function ReservationSearchForm({ locations }: { locations: SimpleLocation
                 value={pickupDate}
                 min={today}
                 locale={locale}
-                // The return date is kept valid by useReturnAfterPickup, which
-                // also preserves how many days the visitor wanted the car.
-                // Setting it to the pickup day here would briefly make the
-                // rental zero days long and anchor the return calendar on the
-                // wrong month.
                 onChange={setPickupDate}
                 className={DATE_CONTROL}
               />

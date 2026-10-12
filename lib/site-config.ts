@@ -22,7 +22,6 @@ export const SITE = {
   },
 } as const;
 
-// Navigation — labels come from the `Nav` namespace in messages/*.json
 export const NAV_LINKS = [
   { href: "/", key: "home" },
   { href: "/poslovna-ponuda", key: "business" },

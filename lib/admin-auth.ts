@@ -1,10 +1,3 @@
-// Minimal single-password admin auth.
-// - ADMIN_PASSWORD lives in env (.env locally, Vercel env in production).
-// - Session cookie holds SHA-256(`${password}::${SALT}`) hex; middleware and
-//   server actions recompute and compare. Uses Web Crypto so the same code
-//   runs in the Edge runtime (middleware) and Node (routes/actions).
-// - Rotating the password invalidates all sessions.
-
 export const ADMIN_COOKIE = "mrac_admin";
 const SALT = "maximum-admin-v1";
 
@@ -31,7 +24,6 @@ export function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-/** Validate a submitted password (login) — compares hashes, constant-time. */
 export async function passwordMatches(submitted: string): Promise<boolean> {
   const expected = await expectedAdminToken();
   if (!expected) return false;

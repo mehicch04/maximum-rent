@@ -22,8 +22,6 @@ import { FinalCta } from "@/components/home/FinalCta";
 import { ReservationSearchForm } from "@/components/reservation/ReservationSearchForm";
 import { FleetGrid } from "@/components/fleet/FleetGrid";
 
-// Re-fetch featured fleet at most every 5 minutes (ISR) so new cars added in
-// Prisma Studio appear without a redeploy, while keeping the page static-fast.
 export const revalidate = 300;
 
 export async function generateMetadata({
@@ -47,8 +45,6 @@ export default async function HomePage({
 }) {
   setRequestLocale(locale);
 
-  // Preload the hero poster (LCP image) early and at high priority so the
-  // above-the-fold paint doesn't wait for the video element to be parsed.
   ReactDOM.preload("/hero-poster.webp", {
     as: "image",
     fetchPriority: "high",
@@ -80,7 +76,6 @@ export default async function HomePage({
     <>
       <Hero />
 
-      {/* Search — pulled up to overlap the hero edge */}
       <section
         id="rezervacija"
         className="relative z-10 mx-auto -mt-20 w-full max-w-6xl scroll-mt-24 px-4 sm:-mt-24 sm:px-6"

@@ -1,21 +1,7 @@
-/**
- * HTML email templates (table-based, inline CSS — safe in Outlook/Gmail).
- *
- * Generated from the approved designs. Keep the table markup as-is: Outlook
- * renders through the Word engine and breaks div/flex layouts.
- */
-
-/**
- * Builds a dialable tel: value. Numbers here are written like
- * "+387 (0) 63 660 444" — the bracketed 0 is the national trunk prefix and must
- * be dropped when the country code is used, otherwise the call fails.
- */
 function telHref(phone: string): string {
   const digits = String(phone ?? "")
     .replace(/\([^)]*\)/g, "") // drop "(0)" and anything else in brackets
     .replace(/[^\d+]/g, "");
-  // If the visitor typed a local number ("063 660 444") we leave it as-is:
-  // guessing a country code would produce an unreachable number.
   return digits;
 }
 
@@ -30,13 +16,6 @@ export type ExtraLine = {
   lineTotal: number;
 };
 
-/**
- * Price breakdown for the emails: the rental, then one line per chosen extra,
- * then the estimated total. Always labelled as an estimate — the agency
- * confirms the final figure, so the email must not read like an invoice.
- *
- * Returns "" when there is nothing to show at all.
- */
 function priceBlock(
   extras: ExtraLine[],
   days: number,
@@ -84,8 +63,6 @@ function priceBlock(
 
   const grand = rentalTotal + extras.reduce((a, e) => a + e.lineTotal, 0);
 
-  // The owner prices everything in BAM, so when the guest browsed in euros we
-  // add the BAM figure next to the total — no mental conversion at the desk.
   const equivalent =
     showBamEquivalent && currency !== "BAM"
       ? `<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#6b7280;font-weight:normal;padding-top:2px;">≈ ${formatPrice(grand, "BAM")}</div>`
@@ -119,12 +96,10 @@ export type OwnerInquiryVars = {
   guestPhone: string;
   flightNumber: string;
   note: string;
-  /** "HR" | "EN" — the language the guest browsed the site in. */
   guestLocale: "HR" | "EN";
   extras?: ExtraLine[];
   days?: number;
   pricePerDay?: number | null;
-  /** Currency the guest was browsing in — the email must match what they saw. */
   currency?: Currency;
 };
 
@@ -132,7 +107,6 @@ export type GuestConfirmationVars = {
   extras?: ExtraLine[];
   days?: number;
   pricePerDay?: number | null;
-  /** Currency the guest was browsing in — the email must match what they saw. */
   currency?: Currency;
   ref: string;
   vehicle: string;
@@ -144,7 +118,6 @@ export type GuestConfirmationVars = {
   agencyAddress: string;
 };
 
-/** Owner notification — always in Croatian, with a badge showing the guest's language. */
 export type ContactRequestVars = {
   ref: string;
   kind: string;
@@ -156,10 +129,6 @@ export type ContactRequestVars = {
   guestLocale: "HR" | "EN";
 };
 
-/**
- * Message from the contact page or the business-offer page, sent to the owner.
- * Same shell as the inquiry email so the inbox looks consistent.
- */
 export function contactRequestHtml(v: ContactRequestVars): string {
   const isEn = v.guestLocale === "EN";
   const langColor = isEn ? "#E30613" : "#111111";
@@ -254,8 +223,6 @@ export function contactRequestHtml(v: ContactRequestVars): string {
 export function ownerInquiryHtml(v: OwnerInquiryVars): string {
   const isEn = v.guestLocale === "EN";
 
-  // The badge makes English inquiries stand out at a glance (brand red),
-  // while routine Croatian ones stay neutral.
   const langColor = isEn ? "#E30613" : "#111111";
   const langBadge = isEn ? "EN &middot; ENGLISH" : "HR &middot; HRVATSKI";
   const langPrefix = isEn ? "EN" : "HR";
@@ -440,7 +407,6 @@ ${extrasHtml}${noteBlock}
 `;
 }
 
-/** Guest confirmation ("inquiry received") — Croatian version. */
 export function guestConfirmationHtmlHr(v: GuestConfirmationVars): string {
   const extrasHtml = priceBlock(v.extras ?? [], v.days ?? 1, v.pricePerDay ?? null, "HR", v.currency ?? "BAM");
   return `<!DOCTYPE html>
@@ -556,7 +522,6 @@ td {mso-line-height-rule:exactly;}
 `;
 }
 
-/** Guest confirmation ("inquiry received") — English version. */
 export function guestConfirmationHtmlEn(v: GuestConfirmationVars): string {
   const extrasHtml = priceBlock(v.extras ?? [], v.days ?? 1, v.pricePerDay ?? null, "EN", v.currency ?? "BAM");
   return `<!DOCTYPE html>
@@ -680,10 +645,6 @@ export function guestConfirmationHtml(
   return locale === "EN" ? guestConfirmationHtmlEn(v) : guestConfirmationHtmlHr(v);
 }
 
-
-// ---------------------------------------------------------------------------
-// Reservation decision (confirmed / cancelled) → guest
-// ---------------------------------------------------------------------------
 
 export type DecisionVars = {
   ref: string;

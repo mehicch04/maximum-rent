@@ -10,10 +10,6 @@ const OPTIONS: { value: Currency; symbol: string; name: string }[] = [
   { value: "EUR", symbol: "€", name: "Euro" },
 ];
 
-/**
- * Clean currency picker for the navbar: a quiet trigger that shows the active
- * currency, opening a small dropdown with the options. Visible but not loud.
- */
 export function CurrencySwitch() {
   const { currency, setCurrency } = useCurrency();
   const [open, setOpen] = useState(false);

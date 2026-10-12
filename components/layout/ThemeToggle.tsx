@@ -15,8 +15,6 @@ export function ThemeToggle() {
   const isDark = resolvedTheme === "dark";
 
   function toggle() {
-    // Enable color transitions only for the duration of the switch, then
-    // remove the class so nothing transitions on load or navigation.
     const html = document.documentElement;
     html.classList.add("theme-transition");
     setTheme(isDark ? "light" : "dark");

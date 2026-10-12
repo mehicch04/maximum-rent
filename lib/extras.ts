@@ -16,10 +16,6 @@ export type ExtraItem = {
   totalStock: number;
 };
 
-/**
- * Extras offered with a booking. Cached like the fleet — the list changes only
- * when the owner edits it in the admin, and it is read on every inquiry modal.
- */
 export const getActiveExtras = unstable_cache(
   async (): Promise<ExtraItem[]> => {
     try {
@@ -47,7 +43,6 @@ export const getActiveExtras = unstable_cache(
   { revalidate: 300, tags: ["extras"] },
 );
 
-/** Whole rental days, minimum 1 — used to price PER_DAY extras. */
 export function rentalDays(pickupAt: Date, returnAt: Date): number {
   const ms = returnAt.getTime() - pickupAt.getTime();
   if (!Number.isFinite(ms) || ms <= 0) return 1;

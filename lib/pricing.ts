@@ -1,15 +1,6 @@
 import { getCompany } from "@/lib/company";
 import { effectivePrice } from "@/lib/company";
 
-/**
- * The daily rate a car is actually being offered at right now.
- *
- * The public listings already resolve the seasonal rate before showing it, but
- * every place that *saved* a price read the raw column instead. During a season
- * that meant the guest was quoted one figure and charged another, and the
- * reports carried the lower one. One function, called everywhere, so the two
- * can no longer drift apart.
- */
 export async function dailyRate(car: {
   pricePerDay?: unknown;
   seasonalPrice?: unknown;

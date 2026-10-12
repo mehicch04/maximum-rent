@@ -25,11 +25,6 @@ const inter = Inter({
   display: "swap",
 });
 
-/**
- * Namespaces used by client components. Add one here when a new "use client"
- * component calls useTranslations("Something") — otherwise its text goes
- * missing in the browser.
- */
 const CLIENT_NAMESPACES = [
   "BusinessTeaser",
   "Common",
@@ -112,10 +107,6 @@ export default async function LocaleLayout({
 
   const all = await getMessages();
 
-  // Only the namespaces that client components actually read are sent to the
-  // browser. Server components (About, Business, Terms, Seo) resolve their own
-  // translations on the server, so shipping them here was dead payload on
-  // every single page view.
   const company = await getCompany();
   const footerLocations = await getActiveLocations();
 

@@ -8,13 +8,6 @@ import {
   companyHeaderLines,
 } from "./contract-data";
 
-/**
- * The same contract as a Word document.
- *
- * Built from paragraphs and a light table rather than a fixed layout, so the
- * owner can open it and change wording, add a clause or adjust a figure. That
- * is the whole reason for offering Word next to the PDF.
- */
 export async function generateContractDocx(data: ContractData): Promise<void> {
   const {
     AlignmentType,
@@ -59,8 +52,6 @@ export async function generateContractDocx(data: ContractData): Promise<void> {
       ],
     });
 
-  // The agency block, above the title for the same reason as in the PDF: the
-  // document has to say who issued it before it says anything else.
   const issuer: InstanceType<typeof Paragraph>[] = data.company?.name
     ? [
         new Paragraph({

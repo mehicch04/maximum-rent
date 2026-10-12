@@ -10,12 +10,6 @@ const input =
   "h-10 w-full min-w-0 rounded-xl border border-border bg-background px-3 text-base outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-ring/30 sm:text-sm";
 const lbl = "mb-1 block text-xs font-medium text-muted-foreground";
 
-/**
- * Closing a rental: what came back, in what state, and what it cost.
- *
- * Pulled out of the menu and onto the card, because for a vehicle that is out
- * this is the only action anyone reaches for.
- */
 export function FinishRentalButton({
   id,
   reference,

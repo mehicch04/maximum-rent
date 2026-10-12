@@ -48,12 +48,6 @@ function parse(formData: FormData) {
   };
 }
 
-/**
- * Create or update a vehicle. Handles image uploads to Supabase Storage:
- * `existingImages` (already-hosted URLs kept by the user) are merged with any
- * freshly uploaded `newImages` files. Returns a result object so the client
- * form can show inline success/error states.
- */
 export async function saveVehicle(formData: FormData): Promise<SaveResult> {
   await requireAdmin();
 
@@ -120,14 +114,6 @@ export async function deleteVehicle(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id") ?? "");
   if (id) {
-    /**
-     * Deleting a vehicle that is still promised to someone.
-     *
-     * The reservations survive but lose their car, so they stop holding the
-     * dates while still counting as income, and the panel goes on offering to
-     * hand over a vehicle that no longer exists. Nothing warned about any of
-     * that, so the check happens here instead.
-     */
     const live = await prisma.inquiry.count({
       where: {
         carId: id,
@@ -143,7 +129,6 @@ export async function deleteVehicle(formData: FormData) {
     try {
       await prisma.car.delete({ where: { id } });
     } catch {
-      // ignore — already gone or blocked by relation
     }
   }
   revalidatePath("/admin/vozila");

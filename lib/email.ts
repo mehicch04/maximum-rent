@@ -17,8 +17,6 @@ export type ExtraLine = {
   lineTotal: number;
 };
 
-// `extras` is replaced, not extended: the request carries { id, qty } while the
-// emails need resolved names and prices, so the two shapes must not intersect.
 type InquiryEmailData = Omit<InquiryInput, "extras"> & {
   reference: string;
   extras?: ExtraLine[];
@@ -50,11 +48,6 @@ function esc(v?: string | null): string {
     .replace(/"/g, "&quot;");
 }
 
-/**
- * Sends the inquiry notification to the business inbox.
- * Returns { sent:false } (instead of throwing) when RESEND_API_KEY is absent,
- * so local development works without email configured.
- */
 export async function sendInquiryEmail(
   data: InquiryEmailData,
 ): Promise<{ sent: boolean; error?: string }> {
@@ -111,16 +104,6 @@ export async function sendInquiryEmail(
   }
 }
 
-// ---------------------------------------------------------------------------
-// Confirmation email → GUEST (sent right after they submit an inquiry)
-// ---------------------------------------------------------------------------
-
-/**
- * Tells the guest we received their inquiry, in the language they browsed in.
- *
- * This is NOT a booking confirmation — the copy makes clear the agency still
- * has to confirm. Non-fatal: a failure here never blocks storing the inquiry.
- */
 export async function sendGuestConfirmationEmail(
   data: InquiryEmailData,
 ): Promise<{ sent: boolean; error?: string }> {
@@ -185,10 +168,6 @@ export async function sendGuestConfirmationEmail(
   }
 }
 
-// ---------------------------------------------------------------------------
-// Contact / business enquiry -> OWNER
-// ---------------------------------------------------------------------------
-
 export type ContactEmailData = {
   reference: string;
   type: "CONTACT" | "BUSINESS";
@@ -201,12 +180,6 @@ export type ContactEmailData = {
   locale?: "hr" | "en" | string;
 };
 
-/**
- * Notifies the owner about a message from the contact page or the business
- * offer page. These used to be stored silently, so nobody ever saw them.
- *
- * Non-fatal: a failure here never blocks storing the message.
- */
 export async function sendContactEmail(
   data: ContactEmailData,
 ): Promise<{ sent: boolean; error?: string }> {
@@ -257,10 +230,6 @@ export async function sendContactEmail(
     return { sent: false, error: "send_failed" };
   }
 }
-
-// ---------------------------------------------------------------------------
-// Reservation decision email → CLIENT (sent when the agency confirms/cancels)
-// ---------------------------------------------------------------------------
 
 type DecisionInquiry = {
   reference: string;
@@ -332,11 +301,6 @@ const DECISION_COPY = {
   },
 } as const;
 
-/**
- * Notifies the client that the agency confirmed or cancelled their
- * reservation. Never throws — returns { sent:false } on any failure so the
- * admin action (status change) always succeeds regardless of email state.
- */
 export async function sendReservationDecisionEmail({
   inquiry,
   decision,

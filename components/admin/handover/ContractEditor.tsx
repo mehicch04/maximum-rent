@@ -59,13 +59,6 @@ const dt = (iso: string) =>
     minute: "2-digit",
   }).format(new Date(iso));
 
-/**
- * The contract, pre-filled from the reservation and editable before printing.
- *
- * Everything the system already knows is filled in but left open: a guest may
- * arrive an hour late or swap a car at the desk, and a contract that cannot be
- * corrected on the spot gets rewritten by hand anyway.
- */
 export function ContractEditor({
   item,
   company,
@@ -78,8 +71,6 @@ export function ContractEditor({
   const [email, setEmail] = useState(item.email);
   const [carTitle, setCarTitle] = useState(item.carTitle);
   const [plate, setPlate] = useState(item.plate);
-  // Split into date and time so the same pickers as the rest of the panel can
-  // be used; a native datetime field renders differently in every browser.
   const [pickupDate, setPickupDate] = useState(() => split(item.pickupAt).date);
   const [pickupTime, setPickupTime] = useState(() => split(item.pickupAt).time);
   const [returnDate, setReturnDate] = useState(() => split(item.returnAt).date);
@@ -89,8 +80,6 @@ export function ContractEditor({
   );
   const [h, setH] = useState<Handover>(EMPTY);
 
-  // Switching to another reservation must not carry the previous guest's
-  // licence number into the new contract.
   useEffect(() => {
     setGuest(item.guest);
     setPhone(item.phone);

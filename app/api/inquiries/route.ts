@@ -12,8 +12,6 @@ import { dailyRate, rentalTotal as rentalTotalFor } from "@/lib/pricing";
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
-  // At most 8 submissions per hour from one address. A real guest never
-  // needs more; a script does.
   if (await tooManyRequests(req, "inq", 8, 60 * 60 * 1000)) {
     return NextResponse.json(
       { ok: false, error: "too_many_requests" },
@@ -48,8 +46,6 @@ export async function POST(req: Request) {
       : null,
   ]);
 
-  // Re-read the chosen extras from the database: the browser only sends ids
-  // and quantities, so prices cannot be tampered with.
   const wanted = d.extras ?? [];
   const chosen = wanted.length
     ? await prisma.extra.findMany({
@@ -87,9 +83,6 @@ export async function POST(req: Request) {
     ),
   }));
 
-  // Rental plus extras, locked in now. Reports read this figure, so it must
-  // not shift when the owner edits prices later.
-    // Seasonal rate included, so the stored figure matches what was quoted.
     const rentalTotal = await rentalTotalFor(car, days);
   const extrasTotal = extrasForEmail.reduce((a, e) => a + e.lineTotal, 0);
   const totalPrice = rentalTotal + extrasTotal;
@@ -132,12 +125,8 @@ export async function POST(req: Request) {
 
     const email = await sendInquiryEmail(emailData);
 
-    // Confirmation to the guest, in the language they browsed in.
-    // Non-fatal — the inquiry is already stored either way.
     await sendGuestConfirmationEmail(emailData);
 
-    // Automatic Telegram summary to the owner. Non-fatal — the inquiry
-    // is already stored either way.
     await sendOwnerNotification(
       buildOwnerSummaryText({
         reference: inquiry.reference,

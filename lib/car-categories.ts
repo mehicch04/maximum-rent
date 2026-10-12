@@ -1,6 +1,3 @@
-// Filterable vehicle categories. Mirrors the Prisma `CarCategory` enum.
-// A car can have several (e.g. a luxury sedan = ["LIMUZINA", "LUXURY"]).
-
 export const CAR_CATEGORIES = [
   "LIMUZINA",
   "LUXURY",
@@ -15,9 +12,6 @@ export const CAR_CATEGORIES = [
 
 export type CarCategory = (typeof CAR_CATEGORIES)[number];
 
-// Fallback: map a car's single `carClass` to a sensible category so filters
-// work out of the box for cars that haven't been tagged with explicit
-// `categories` yet. Explicit categories always take precedence.
 const CLASS_TO_CATEGORY: Record<string, CarCategory> = {
   CITY_CAR: "COMPACT",
   ECONOMY: "COMPACT",
@@ -30,8 +24,6 @@ const CLASS_TO_CATEGORY: Record<string, CarCategory> = {
   MINIBUS: "MINIBUS",
 };
 
-/** Effective categories for a car: explicit `categories` if present,
- *  otherwise a single derived one from `carClass`. */
 export function carCategories(car: {
   categories?: string[] | null;
   carClass: string;

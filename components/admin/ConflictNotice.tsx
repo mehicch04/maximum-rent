@@ -10,14 +10,6 @@ const fmt = (d: Date) =>
     month: "2-digit",
   }).format(d);
 
-/**
- * Warns that a pending enquiry can no longer be approved as it stands.
- *
- * Two guests often ask for the same car on the same days. The moment one is
- * confirmed the other becomes impossible, but nothing said so: the enquiry sat
- * in the list looking ordinary until somebody pressed confirm and got a bare
- * error. This says it up front, and says what can be offered instead.
- */
 export function ConflictNotice({
   carId,
   pickupAt,

@@ -100,10 +100,6 @@ export async function toggleSeasonal(formData: FormData) {
   refresh();
 }
 
-// ---------------------------------------------------------------------------
-// Locations
-// ---------------------------------------------------------------------------
-
 /** URL-safe slug, keeping our diacritics readable. */
 function slugify(v: string): string {
   return v
@@ -161,7 +157,6 @@ export async function deleteLocation(formData: FormData) {
   try {
     await prisma.location.delete({ where: { id } });
   } catch (err) {
-    // Most likely still referenced by past reservations — hide it instead.
     console.error("[location] delete failed, hiding instead:", err);
     try {
       await prisma.location.update({ where: { id }, data: { isActive: false } });

@@ -12,12 +12,6 @@ const fmt = (iso: string) =>
     minute: "2-digit",
   }).format(new Date(iso));
 
-/**
- * Upcoming handovers, ordered by pickup time.
- *
- * The time is the largest thing on each card: at the desk the question is
- * always "who is next", not "who booked what".
- */
 export function ReservationList({
   items,
   selectedId,
@@ -37,13 +31,6 @@ export function ReservationList({
     );
   }
 
-  /**
-   * Split in two, because they answer different questions.
-   *
-   * The first group is work waiting to be done. The second is already out on
-   * the road and is here only so a lost contract can be printed again; mixing
-   * them would bury today's handovers under rentals that need nothing.
-   */
   const upcoming = items.filter((r) => !r.active);
   const out = items.filter((r) => r.active);
 

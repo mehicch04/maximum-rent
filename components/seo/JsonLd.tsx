@@ -26,20 +26,6 @@ function realSocials(): string[] {
   return out;
 }
 
-/**
- * Structured data (schema.org AutoRental). Helps Google understand this is a
- * car-rental business with locations, hours and a rating — enabling richer
- * local results. Injected once per page via the locale layout.
- */
-/**
- * Serialises structured data for a <script type="application/ld+json"> tag.
- *
- * Every value here comes from our own config, so nothing hostile can reach it
- * today. The escaping is still done because a raw `</script>` inside any string
- * would end the tag early and drop the rest of the page into the document —
- * and this file should stay safe if a database field is ever added to it.
- * Escaping to \u003c keeps the JSON valid.
- */
 function toJsonLd(data: unknown): string {
   return JSON.stringify(data)
     .replace(/</g, "\\u003c")

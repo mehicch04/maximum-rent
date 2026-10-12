@@ -1,18 +1,5 @@
 import type { TopCar } from "@/lib/analytics";
 
-/**
- * The five vehicles that earned the most.
- *
- * Each row carries a bar scaled against the best performer. Numbers alone make
- * the reader compare figures in their head; the bar shows the gap instantly,
- * and the gap is the point of the table.
- *
- * The bar is drawn at its final width straight away, with a CSS transition as
- * the only flourish. It used to grow from zero once it scrolled into view, but
- * that made a plain data readout depend on an in-view check firing — and when
- * it did not, every bar sat there empty and grey. A figure this simple should
- * never be able to disappear.
- */
 export function TopCarsTable({ data }: { data: TopCar[] }) {
   if (data.length === 0) {
     return (

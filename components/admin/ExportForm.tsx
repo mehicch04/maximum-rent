@@ -118,8 +118,6 @@ export function ExportForm() {
                 placeholder="Odaberite…"
                 onChange={(v) => {
                   setFrom(v);
-                  // DateField has no upper bound, so the pair is kept in order
-                  // here instead.
                   if (to && to < v) setTo(v);
                 }}
                 className={field}

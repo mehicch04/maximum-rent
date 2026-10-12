@@ -2,14 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { toCarListItem, type CarListItem } from "@/lib/types";
 import { getCompany } from "@/lib/company";
 
-/**
- * Availability rules (Model A — "client asks, agency confirms"):
- * - Only CONFIRMED inquiries block a car. NEW/CONTACTED (pending) do not.
- * - Manual CarBlock windows (service etc.) block exactly like CONFIRMED.
- * - Overlap of [pickupAt, returnAt) with [existing.pickupAt, existing.returnAt):
- *   existing.pickupAt < requested.returnAt AND existing.returnAt > requested.pickupAt
- */
-
 export function isValidPeriod(pickupAt: Date, returnAt: Date): boolean {
   return (
     !Number.isNaN(pickupAt.getTime()) &&

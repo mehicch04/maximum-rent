@@ -5,12 +5,6 @@ import { createPortal } from "react-dom";
 import { KeyRound, Loader2 } from "lucide-react";
 import { startRental } from "@/app/admin/checkout-actions";
 
-/**
- * Marks a reservation as handed over.
- *
- * Asks first: the click records a real-world event and there is no undo, so it
- * should not be one stray tap next to the other actions on the card.
- */
 export function StartRentalButton({
   id,
   reference,

@@ -14,12 +14,6 @@ type Props = {
   tone?: "danger" | "confirm";
 };
 
-/**
- * A submit button that asks "are you sure?" before actually submitting its
- * parent <form>. Prevents accidental confirm/cancel taps in the admin panel
- * (especially easy to mis-tap on mobile). On confirm it calls
- * form.requestSubmit() so the existing server action still runs normally.
- */
 export function ConfirmSubmit({
   children,
   className = "",

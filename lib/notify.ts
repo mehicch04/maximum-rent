@@ -1,19 +1,3 @@
-/**
- * Automatic owner notification via Telegram Bot API (free, official,
- * reliable). Sends a short message to the owner's Telegram when a new
- * inquiry arrives. Replaces the earlier CallMeBot/WhatsApp attempt.
- *
- * Setup (one-time, ~2 min):
- *  1. In Telegram, open @BotFather → /newbot → pick a name → you get a
- *     BOT TOKEN (looks like 123456789:AA...).
- *  2. Open your new bot's chat and press START (send /start).
- *  3. Visit https://api.telegram.org/bot<TOKEN>/getUpdates in a browser —
- *     read "chat":{"id": <number>} from the JSON. That number is the CHAT ID.
- *  4. Set env: TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID.
- *
- * If env vars are missing, sending is skipped silently (logged) — the
- * inquiry flow never depends on this.
- */
 export async function sendOwnerNotification(
   text: string,
 ): Promise<{ sent: boolean; error?: string }> {

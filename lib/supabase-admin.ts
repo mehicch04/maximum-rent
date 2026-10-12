@@ -1,16 +1,6 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 
-/**
- * Server-only Supabase client using the SERVICE ROLE key. It bypasses RLS, so
- * it must NEVER be imported into a client component. It's only used inside
- * admin server actions (which already re-check the admin session), for
- * uploading fleet images to Storage.
- *
- * Required env vars:
- *   SUPABASE_URL                — e.g. https://<ref>.supabase.co
- *   SUPABASE_SERVICE_ROLE_KEY   — Project Settings → API → service_role key
- */
 export const STORAGE_BUCKET = "cars";
 const IMAGE_PREFIX = "fleet";
 

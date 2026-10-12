@@ -4,10 +4,35 @@ A production booking system for a car rental agency in Herzegovina. Guests searc
 
 **Live:** [maximum-rent.com](https://maximum-rent.com)
 
+<p align="center">
+  <img src="docs/screenshots/home.webp" alt="Home page" width="100%">
+</p>
+
+---
+
+## Screenshots
+
+| Fleet with type and brand filters | Vehicle page |
+|---|---|
+| ![Fleet](docs/screenshots/fleet.webp) | ![Vehicle](docs/screenshots/vehicle.webp) |
+
+| Booking request with extras | Admin panel, reservations |
+|---|---|
+| ![Booking](docs/screenshots/booking.webp) | ![Admin](docs/screenshots/admin.webp) |
+
+### Lighthouse
+
+100 on all four Lighthouse categories on desktop. On mobile: 90 Performance, 100 on the rest.
+
+| Desktop | Mobile |
+|---|---|
+| ![PageSpeed desktop](docs/screenshots/pagespeed-desktop.webp) | ![PageSpeed mobile](docs/screenshots/pagespeed-mobile.webp) |
+
 ---
 
 ## Contents
 
+- [Screenshots](#screenshots)
 - [What it does](#what-it-does)
 - [Tech stack](#tech-stack)
 - [Running locally](#running-locally)
@@ -74,7 +99,7 @@ Handover records the actual pickup time. Return records fuel level, deposit outc
 Requires Node.js 18+ and access to a PostgreSQL database.
 
 ```bash
-git clone https://github.com/Bakeee99/maximum-rent.git
+git clone https://github.com/mehicch04/maximum-rent.git
 cd maximum-rent
 npm install
 

@@ -2,16 +2,6 @@ import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { SITE } from "@/lib/site-config";
 
-/**
- * Company details, editable by the owner in the admin panel.
- *
- * Everything used to be hard-coded, so every phone number or opening-hours
- * change meant a code change. It now lives in the database, with the old
- * values kept as the fallback: if the row is missing — before the first save,
- * or during a database hiccup — the site still renders exactly as before
- * instead of showing blanks.
- */
-
 export type Phone = { label: string; value: string; href: string };
 
 export type Company = {
@@ -88,13 +78,6 @@ export const getCompany = unstable_cache(
   { revalidate: 300, tags: ["company"] },
 );
 
-/**
- * The rate a car is offered at right now.
- *
- * Seasonal pricing is a single switch the owner flips when the season starts.
- * A car without a seasonal rate keeps its regular one, so switching seasons on
- * can never leave a vehicle without a price.
- */
 export function effectivePrice(
   car: { pricePerDay?: unknown; seasonalPrice?: unknown },
   seasonalActive: boolean,

@@ -66,10 +66,6 @@ export function slugify(input: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-/**
- * Plain, client-safe vehicle shape (Prisma `Decimal`/`Date` converted to
- * primitives so it can cross the server→client boundary).
- */
 export type AdminVehicle = Omit<
   Car,
   "pricePerDay" | "seasonalPrice" | "deposit" | "createdAt" | "updatedAt"

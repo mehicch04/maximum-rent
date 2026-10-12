@@ -1,17 +1,6 @@
 import { AlertTriangle } from "lucide-react";
 import type { ExtraStat } from "@/lib/analytics";
 
-/**
- * How much of each extra is out with guests.
- *
- * The useful signal is not the count but what is left: an item that is almost
- * all rented out is about to be promised to someone who cannot get it. Rows at
- * or above 80% are marked so that shows up without reading the numbers.
- *
- * As in the vehicles table, the bar is drawn at its final width immediately.
- * Growing it from zero on scroll meant the whole column vanished whenever that
- * in-view check failed to fire.
- */
 const TIGHT = 0.8;
 
 export function ExtrasTable({ data }: { data: ExtraStat[] }) {

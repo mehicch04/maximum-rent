@@ -9,13 +9,6 @@ const input =
   "h-10 w-full min-w-0 rounded-xl border border-border bg-background px-3 text-base outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-ring/30 sm:text-sm";
 const lbl = "mb-1 block text-xs font-medium text-muted-foreground";
 
-/**
- * Why a car is off the road.
- *
- * Bookings taken by phone used to live here too, which meant this form also
- * had to collect a client, a price and equipment. They now have their own
- * screen, so this one is back to what it is for: taking a car out of service.
- */
 const KINDS = [
   { value: "MAINTENANCE", label: "Servis / Održavanje", icon: Wrench },
   { value: "DAMAGE", label: "Oštećenje / Sudar", icon: AlertTriangle },
@@ -51,15 +44,11 @@ export function BlockForm({
     [occupancy, from, to],
   );
 
-  // Free vehicles first, so what can actually be blocked is not buried among
-  // greyed-out entries.
   const sortedCars = useMemo(() => {
     if (!datesReady) return cars;
     return [...cars].sort((a, b) => Number(busy.has(a.id)) - Number(busy.has(b.id)));
   }, [cars, busy, datesReady]);
 
-  // A car picked before the dates moved may now clash; clearing it beats
-  // leaving a greyed-out option selected.
   useEffect(() => {
     if (carId && busy.has(carId)) setCarId("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -165,8 +154,6 @@ export function BlockForm({
         Vozilo se vodi kao nedostupno i ne nudi se gostima u tom periodu.
       </p>
 
-      {/* Kept because it is part of the reason, not operational data: it shows
-          up as the note beside the vehicle in the fleet status list. */}
       {isDamage && (
         <div className="mt-4 border-t border-border pt-4">
           <label className={lbl}>Opis štete</label>

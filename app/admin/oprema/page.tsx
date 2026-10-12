@@ -27,8 +27,6 @@ export default async function AdminExtrasPage({
   const saved = one(searchParams.saved) === "1";
   const failed = one(searchParams.error) === "1";
 
-  // The table only exists after `prisma db push`. Until then, show a clear
-  // instruction instead of crashing the whole admin page.
   let extras: Awaited<ReturnType<typeof prisma.extra.findMany>> = [];
   let tableMissing = false;
   try {
@@ -38,12 +36,6 @@ export default async function AdminExtrasPage({
   } catch {
     tableMissing = true;
   }
-  /**
-   * How many pieces of each item are out with guests at this moment.
-   *
-   * Counted live rather than from the cached list: the number is only useful
-   * if it matches what is actually missing from the shelf.
-   */
   const outNow: Record<string, number> = {};
   try {
     const now = new Date();
@@ -316,8 +308,6 @@ npx prisma generate{"\n"}npx prisma db push
                     {!e.isActive && " · skriveno"}
                   </p>
 
-                  {/* Stock on its own says little; what matters is how much of
-                      it is still on the shelf today. */}
                   <p className="mt-1 flex items-center gap-1.5 text-xs">
                     <span
                       className={`h-2 w-2 shrink-0 rounded-full ${

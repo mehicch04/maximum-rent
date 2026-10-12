@@ -1,13 +1,5 @@
 import { prisma } from "@/lib/prisma";
 
-/**
- * Brute-force protection for the admin login.
- *
- * A note on identity: the internet does not carry MAC addresses — they never
- * leave the visitor's local network. The only stable handle a server gets is
- * the IP address, which is what we throttle on here.
- */
-
 const MAX_ATTEMPTS = 5; // failures allowed inside one window
 const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const BASE_LOCK_MS = 15 * 60 * 1000; // first lockout, doubles on repeat
@@ -21,10 +13,6 @@ export function clientIp(req: Request): string {
 
 export type LockState = { locked: boolean; retryAfterSec: number };
 
-/**
- * Is this IP currently locked out? Fails open on database trouble — a broken
- * database must not lock the owner out of his own panel.
- */
 export async function checkLock(ip: string): Promise<LockState> {
   try {
     const row = await prisma.adminLoginAttempt.findUnique({ where: { ip } });

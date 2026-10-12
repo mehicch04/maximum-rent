@@ -5,11 +5,6 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  /**
-   * Baseline security headers. They cost nothing and close off the common
-   * cheap attacks: framing the site to trick clicks, MIME sniffing, and
-   * leaking the full URL to other sites through the referrer.
-   */
   async headers() {
     return [
       {

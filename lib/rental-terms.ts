@@ -1,8 +1,3 @@
-// General rental terms (Opći uvjeti najma) — 13 articles.
-// HR is transcribed verbatim from the client's existing site; EN is a faithful
-// translation. This is legally relevant content — keep the wording intact.
-// `topic` labels are navigational summaries only (not part of the legal text).
-
 export type TermsBlock =
   | { type: "p"; text: string }
   | { type: "ul"; items: string[] }

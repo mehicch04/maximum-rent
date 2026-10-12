@@ -217,12 +217,6 @@ export type SortKey =
   | "NAME_ASC"
   | "NAME_DESC";
 
-/**
- * Client wrapper: owns the selected-car state (for the inquiry modal), the
- * active type filter and the sort order. Filtering/sorting is done client-side
- * because the fleet is small — instant, no extra requests. Cars can match
- * several categories at once.
- */
 export function FleetGrid({
   cars,
   search,
@@ -245,18 +239,6 @@ export function FleetGrid({
     [cars],
   );
 
-  /**
-   * Each filter's options are counted against what the *other* filters allow,
-   * not against the whole fleet.
-   *
-   * Listing every brand regardless of the chosen category meant picking
-   * "Transport" and then "BMW" landed on an empty page, with nothing to
-   * suggest the combination was impossible before clicking it.
-   *
-   * A filter never narrows its own list: if categories were counted after the
-   * category filter had been applied, choosing one would leave a dropdown with
-   * a single entry and no way back.
-   */
   const counts = useMemo(() => {
     const m = new Map<CarCategory, number>();
     for (const c of cars) {
@@ -295,14 +277,6 @@ export function FleetGrid({
     [brands],
   );
 
-  /**
-   * Clears a selection that the other filter has just made impossible.
-   *
-   * Picking BMW and then switching to Transport leaves a combination with no
-   * cars in it. Rather than showing an empty page and letting the visitor work
-   * out which of the two choices to undo, the one that no longer exists is
-   * dropped and the other is honoured, since it is the one just chosen.
-   */
   useEffect(() => {
     if (brand !== "ALL" && !brands.some(([b]) => b === brand)) {
       setBrand("ALL");

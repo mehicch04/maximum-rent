@@ -2,18 +2,6 @@
 
 import { ChevronDown } from "lucide-react";
 
-/**
- * Time picker used across the site.
- *
- * A native <input type="time"> looks different in every browser and shows
- * AM/PM on some systems, which is wrong for us. A plain select with fixed
- * half-hour slots renders identically everywhere, follows the theme, and is
- * quicker to use than typing a time.
- *
- * The chevron is drawn rather than left to the browser, because the built-in
- * one sits in a different place in each of them.
- */
-
 const pad = (n: number) => String(n).padStart(2, "0");
 
 /** 00:00 → 23:30 in half-hour steps. Always 24h, never AM/PM. */

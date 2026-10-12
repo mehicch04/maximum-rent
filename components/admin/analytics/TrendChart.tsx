@@ -4,16 +4,6 @@ import { useId, useRef, useState } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import type { TrendPoint } from "@/lib/analytics";
 
-/**
- * Bookings and revenue over time.
- *
- * The two are drawn differently on purpose: bookings are counts, revenue is
- * money, and they share no scale. Bars carry the counts, a line carries the
- * money. Two lines on one axis would suggest a relationship that is not there.
- *
- * Plain SVG, so no charting library enters the bundle.
- */
-
 const W = 660;
 const H = 260;
 // Left padding fits a three-digit label without clipping.
@@ -21,26 +11,11 @@ const PAD = { top: 16, right: 46, bottom: 28, left: 46 };
 const PLOT_W = W - PAD.left - PAD.right;
 const PLOT_H = H - PAD.top - PAD.bottom;
 
-/**
- * Rounds an axis up to a readable maximum and returns its tick values.
- *
- * Scaling straight off the data gave ticks like 4, 7, 11, 15 and 980, 2.9k —
- * technically correct but hard to read at a glance. Rounding to familiar steps
- * makes both axes legible while still filling most of the chart height.
- */
 const NICE_STEPS = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
 
 function niceScale(
   max: number,
   ticks = 5,
-  /**
-   * Whole numbers only.
-   *
-   * Bookings are counted, not measured: an axis reading 7.5 is nonsense, and
-   * the 2.5 step produced exactly that for small totals. Multiplying decimal
-   * factors also left values like 0.8000000000000001, which printed in full
-   * and ran off the edge of the chart.
-   */
   integer = false,
 ): { max: number; values: number[] } {
   if (!(max > 0)) return { max: 1, values: [1, 0] };
@@ -60,8 +35,6 @@ function niceScale(
 
   return {
     max: top,
-    // Rounded even in the decimal case: the axis shows whole units either way,
-    // and this is the last place a floating point remainder can slip through.
     values: values.map((v) => (integer ? v : Math.round(v * 100) / 100)),
   };
 }
@@ -74,10 +47,6 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
   const gradientId = useId();
   const [hover, setHover] = useState<number | null>(null);
 
-  // The observer watches this plain <div>, not the SVG shapes inside it.
-  // Safari on iOS does not reliably report SVG children to IntersectionObserver,
-  // so "whileInView" never fired there and the bars and line stayed at their
-  // starting values — an empty chart with only the dots showing.
   const wrapRef = useRef<HTMLDivElement>(null);
   const inView = useInView(wrapRef, { once: true, margin: "-40px" });
   const show = reduce || inView;
@@ -90,8 +59,6 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
     );
   }
 
-  // Each axis is scaled on its own: bookings are counts, revenue is money, and
-  // forcing them onto a shared scale would distort both.
   const left = niceScale(Math.max(...data.map((d) => d.bookings), 1), 5, true);
   const right = niceScale(Math.max(...data.map((d) => d.revenue), 1));
   const maxBookings = left.max;

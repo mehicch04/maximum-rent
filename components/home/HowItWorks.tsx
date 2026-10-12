@@ -23,8 +23,6 @@ export function HowItWorks() {
   const [inView, setInView] = useState(false);
   const [paused, setPaused] = useState(false);
 
-  // Only run the sequence while the section is on screen — no work (or battery
-  // drain) while the visitor is reading somewhere else on the page.
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
@@ -36,8 +34,6 @@ export function HowItWorks() {
     return () => io.disconnect();
   }, []);
 
-  // Auto-advance 1 -> 2 -> 3 -> 1. Stops when the visitor takes over
-  // (hover/focus/tap) and when they prefer reduced motion.
   useEffect(() => {
     if (reduceMotion || !inView || paused) return;
     const id = window.setInterval(
@@ -53,7 +49,6 @@ export function HowItWorks() {
   }, []);
   const release = useCallback(() => setPaused(false), []);
 
-  // With reduced motion every step reads as active — nothing dims, nothing moves.
   const isActive = (i: number) => reduceMotion || i === active;
 
   // Fill spans from the first icon centre to the last: 0, half, full.
@@ -112,7 +107,6 @@ export function HowItWorks() {
                   aria-label={`${i + 1}. ${step.title}`}
                   className="relative z-10 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
-                  {/* Halo behind the active icon — opacity/scale only, no layout cost. */}
                   <motion.span
                     aria-hidden
                     className="absolute -inset-2 rounded-[1.35rem] bg-brand/10"

@@ -1,13 +1,5 @@
 import { prisma } from "@/lib/prisma";
 
-/**
- * Analytics computed from real bookings.
- *
- * Everything is derived from confirmed inquiries, manual car blocks and the
- * extras inventory. What leaves this file has the same shape as the earlier
- * placeholder version, so the page and its components did not need changing.
- */
-
 export type Range = "today" | "7d" | "month" | "year" | "custom";
 
 export const RANGES: { value: Range; label: string }[] = [
@@ -66,30 +58,13 @@ export function isRange(v: unknown): v is Range {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Periods
-// ---------------------------------------------------------------------------
-
 const DAY = 86_400_000;
 
-/**
- * Start and end of the selected period, plus the one directly before it of the
- * same length, so the percentage beside each figure compares like with like.
- */
-/**
- * The window a report covers, and the one before it of equal length.
- *
- * Presets are shorthand: each simply resolves to a pair of dates, the same
- * pair a custom range supplies directly. Keeping one representation means the
- * charts and tables never need to know which of the two they were given.
- */
 function bounds(range: Range, custom?: { from?: string; to?: string }) {
   const now = new Date();
 
   if (range === "custom") {
     const start = custom?.from ? new Date(`${custom.from}T00:00:00`) : null;
-    // Through the end of the closing day, not its first second, or a
-    // single-day report would cover nothing at all.
     const end = custom?.to ? new Date(`${custom.to}T23:59:59.999`) : null;
 
     if (start && end && !Number.isNaN(start.getTime()) && end > start) {
@@ -102,8 +77,6 @@ function bounds(range: Range, custom?: { from?: string; to?: string }) {
         now,
       };
     }
-    // An incomplete or backwards pair falls back to the current month rather
-    // than showing an empty report with no explanation.
     range = "month";
   }
 
@@ -151,15 +124,6 @@ const EARNING = ["CONFIRMED", "IN_PROGRESS", "COMPLETED"] as const;
 /** Statuses that keep a vehicle tied up. */
 const HOLDING = ["CONFIRMED", "IN_PROGRESS"] as const;
 
-/**
- * Which vehicles count as the fleet for reporting.
- *
- * Cars in the offer, plus any withdrawn car that still has a rental running or
- * booked. A car being sold is off the website, but while a guest is driving it
- * it is still part of what the business has on the road: dropping it made the
- * utilisation figure jump on its own and hid the car from the fleet chart
- * while it was physically out.
- */
 function fleetWhere(now: Date) {
   return {
     OR: [
@@ -168,8 +132,6 @@ function fleetWhere(now: Date) {
         isAvailable: false,
         inquiries: {
           some: {
-            // Spread rather than the const tuple itself: Prisma expects a
-            // mutable array and rejects a readonly one outright.
             status: { in: [...HOLDING] },
             returnAt: { gte: now },
           },
@@ -178,10 +140,6 @@ function fleetWhere(now: Date) {
     ],
   };
 }
-
-// ---------------------------------------------------------------------------
-// KPIs
-// ---------------------------------------------------------------------------
 
 async function windowTotals(from: Date, to: Date) {
   const [agg, cancelled, total] = await Promise.all([
@@ -197,9 +155,6 @@ async function windowTotals(from: Date, to: Date) {
     prisma.inquiry.count({ where: { createdAt: { gte: from, lte: to } } }),
   ]);
 
-  // Revenue comes from reservations alone. Phone bookings used to be stored as
-  // blocks and were added in here, which meant the reports and the export never
-  // matched; they are reservations now, so there is one place to read.
   return {
     revenue: num(agg._sum.totalPrice),
     avgDays: num(agg._avg.rentalDays),
@@ -209,11 +164,6 @@ async function windowTotals(from: Date, to: Date) {
   };
 }
 
-/**
- * Share of the fleet actually out on rent across the period, measured in
- * car-days: each booking contributes the days it overlaps the window, against
- * what the whole fleet could have delivered.
- */
 async function utilisation(from: Date, to: Date): Promise<number> {
   const [fleet, rentals, manual] = await Promise.all([
     prisma.car.count({ where: fleetWhere(new Date()) }),
@@ -326,21 +276,8 @@ export async function getAnalytics(range: Range, custom?: CustomRange): Promise<
   return { range, kpis };
 }
 
-// ---------------------------------------------------------------------------
-// Trend
-// ---------------------------------------------------------------------------
-
 /** Buckets differ per period so the axis never turns into a wall of labels. */
 function buckets(range: Range, from: Date, to: Date) {
-  /*
-   * A custom window can be any length, so its columns are built from the span
-   * itself rather than borrowed from a preset: the preset branches assume a
-   * fixed number of days or the current month, and would silently truncate
-   * anything longer.
-   *
-   * Days up to a fortnight, weeks up to a quarter, months beyond that. Around
-   * a dozen columns reads well at any width.
-   */
   if (range === "custom") {
     const out: { label: string; start: Date; end: Date }[] = [];
     const totalDays = Math.max(
@@ -438,10 +375,6 @@ export async function getTrend(range: Range, custom?: CustomRange): Promise<Tren
   });
 }
 
-// ---------------------------------------------------------------------------
-// Fleet status
-// ---------------------------------------------------------------------------
-
 const fmtDay = (d: Date) =>
   new Intl.DateTimeFormat("hr-HR", {
     timeZone: "Europe/Sarajevo",
@@ -489,8 +422,6 @@ export async function getFleetStatus(): Promise<FleetSlice[]> {
   for (const c of cars) {
     const block = blockedBy.get(c.id);
 
-    // A booking taken by phone is a rental, not downtime: it belongs with the
-    // cars that are out earning, otherwise the chart understates the fleet.
     if (block?.kind === "MANUAL_BOOKING") {
       rented.push({
         id: c.id,
@@ -530,10 +461,6 @@ export async function getFleetStatus(): Promise<FleetSlice[]> {
   ];
 }
 
-// ---------------------------------------------------------------------------
-// Top vehicles and extras
-// ---------------------------------------------------------------------------
-
 export async function getTopCars(range: Range, custom?: CustomRange): Promise<TopCar[]> {
   const { from, to } = bounds(range, custom);
 
@@ -546,15 +473,6 @@ export async function getTopCars(range: Range, custom?: CustomRange): Promise<To
     },
     _sum: { totalPrice: true },
     _count: true,
-    /*
-     * Deliberately unsorted and untrimmed here.
-     *
-     * Sorting by the sum in the database put reservations with no recorded
-     * price at the top, because an empty sum counts as unknown and unknown
-     * sorts first in descending order. Combined with taking only five rows,
-     * that meant the five best earners could be cut off before they were ever
-     * read. Ordering happens below, where an empty sum is simply zero.
-     */
   });
 
   const ids = grouped.map((g) => g.carId as string);
@@ -575,9 +493,6 @@ export async function getTopCars(range: Range, custom?: CustomRange): Promise<To
         revenue: num(g._sum.totalPrice),
       };
     })
-    // Highest earner first. Where two are level, usually at zero, the one that
-    // went out more often ranks higher: it earned nothing only because the
-    // price was never recorded, not because nobody rented it.
     .sort((a, b) => b.revenue - a.revenue || b.rentals - a.rentals)
     .slice(0, 5);
 }

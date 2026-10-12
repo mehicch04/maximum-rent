@@ -4,12 +4,6 @@ import { motion, useReducedMotion } from "framer-motion";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-/**
- * Shared shell for every analytics block.
- *
- * Keeping the card, heading and entrance animation in one place means a
- * section can be moved, reordered or removed without touching its contents.
- */
 export function Section({
   title,
   subtitle,

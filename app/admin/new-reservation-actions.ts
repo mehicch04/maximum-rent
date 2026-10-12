@@ -14,15 +14,6 @@ import {
   maxSelectable,
 } from "@/lib/extras-availability";
 
-/**
- * A booking agreed by phone or at the desk.
- *
- * Stored as an ordinary reservation rather than a block, so it gets its own
- * reference, sits in the same list as bookings from the website, counts in the
- * reports and can be edited with the same form. Recording it any other way
- * would mean maintaining two half-versions of the same thing.
- */
-
 const str = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
 
 export async function createManualInquiry(formData: FormData) {
@@ -50,8 +41,6 @@ export async function createManualInquiry(formData: FormData) {
     redirect("/admin?msg=error");
   }
 
-  // The vehicle is held the moment this is saved, so the clash check runs
-  // against confirmed reservations and blocks alike.
   if (carId) {
     const [clashes, blocks] = await Promise.all([
       prisma.inquiry.count({
@@ -71,8 +60,6 @@ export async function createManualInquiry(formData: FormData) {
 
   const days = rentalDays(pickupAt, returnAt);
 
-  // Equipment is re-checked here; the list posted by the browser is only a
-  // request, never a reservation in itself.
   let requested: { id: string; qty: number }[] = [];
   try {
     const parsed: unknown = JSON.parse(str(formData, "extras") || "[]");
@@ -142,8 +129,6 @@ export async function createManualInquiry(formData: FormData) {
     0,
   );
 
-  // A price typed by hand wins: a discount given at the desk is the real
-  // figure, and the reports should carry what was actually agreed.
   const typed = str(formData, "totalPrice").replace(",", ".");
   const totalPrice =
     typed !== "" && Number.isFinite(Number(typed))
@@ -167,8 +152,6 @@ export async function createManualInquiry(formData: FormData) {
         flightNumber: str(formData, "flightNumber").slice(0, 20) || null,
         message: str(formData, "message").slice(0, 1000) || null,
         channel: "MANUAL",
-        // Agreed in person, so it is confirmed from the start; nobody needs to
-        // approve a booking they just took themselves.
         status: "CONFIRMED",
         locale: "HR",
         rentalDays: days,

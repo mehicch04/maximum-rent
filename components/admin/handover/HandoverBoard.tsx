@@ -7,12 +7,6 @@ import { ContractEditor } from "./ContractEditor";
 import type { HandoverItem } from "./types";
 import type { ContractCompany } from "./contract-data";
 
-/**
- * Split view: who is coming on the left, their contract on the right.
- *
- * The selection lives here rather than in either half, so the list and the
- * editor stay independent and can be moved or replaced on their own.
- */
 export function HandoverBoard({
   items,
   company,
@@ -29,8 +23,6 @@ export function HandoverBoard({
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Nadolazeća preuzimanja ({items.filter((i) => !i.active).length})
         </p>
-        {/* Capped height with its own scroll, so a long queue never pushes the
-            contract off the screen. */}
         <div className="max-h-[calc(100dvh-14rem)] overflow-y-auto pr-1">
           <ReservationList
             items={items}

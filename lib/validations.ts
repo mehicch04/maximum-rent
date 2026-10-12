@@ -16,10 +16,6 @@ export const inquirySchema = z.object({
   locale: z.enum(["hr", "en"]).default("hr"),
   /** Currency shown to the guest, so the emails can match what they saw. */
   currency: z.enum(["BAM", "EUR"]).default("BAM"),
-  /**
-   * Optional equipment picked by the guest. Only ids and quantities travel —
-   * prices are re-read from the database so they cannot be tampered with.
-   */
   extras: z
     .array(
       z.object({
@@ -33,9 +29,6 @@ export const inquirySchema = z.object({
   .refine(
     (d) => new Date(d.returnAt).getTime() > new Date(d.pickupAt).getTime(),
     {
-      // Without this the browser could post a return date before the pickup:
-      // the rental would read as one day, and the overlap check that guards
-      // against double-booking would compare an inverted period.
       message: "returnAt must be after pickupAt",
       path: ["returnAt"],
     },

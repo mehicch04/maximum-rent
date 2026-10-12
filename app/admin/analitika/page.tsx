@@ -38,8 +38,6 @@ export default async function AdminAnalyticsPage({
     to: one(searchParams.to),
   };
 
-  // A reporting screen must never take the panel down with it, so a failed
-  // query falls back to empty sections that say so.
   let kpis: Awaited<ReturnType<typeof getAnalytics>>["kpis"] = [];
   let trend: Awaited<ReturnType<typeof getTrend>> = [];
   let topCars: Awaited<ReturnType<typeof getTopCars>> = [];

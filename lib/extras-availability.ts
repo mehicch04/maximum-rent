@@ -1,12 +1,3 @@
-/**
- * Works out how many pieces of each extra are still free for a given period.
- *
- * Without this the same child seat can be promised to three guests for the
- * same week: the booking form has no idea what is already committed. The rule
- * mirrors the one used for vehicles — two periods clash when one starts before
- * the other ends and ends after the other starts.
- */
-
 export type Booked = {
   /** Extra the pieces belong to. */
   extraId: string;
@@ -19,12 +10,6 @@ export type Booked = {
 /** Free pieces per extra id, for one requested period. */
 export type Availability = Record<string, number>;
 
-/**
- * True when the two periods touch at all.
- *
- * Ends that merely meet — one returns at 10:00, the next picks up at 10:00 —
- * do not clash, which is why the comparison is strict.
- */
 export function overlaps(
   aFrom: Date,
   aTo: Date,
@@ -34,12 +19,6 @@ export function overlaps(
   return aFrom < bTo && aTo > bFrom;
 }
 
-/**
- * Pieces still free for [from, to], per extra.
- *
- * One pass over the bookings, so the cost stays linear no matter how many
- * extras are on offer.
- */
 export function availabilityFor(
   extras: { id: string; totalStock: number }[],
   booked: Booked[],
@@ -62,10 +41,6 @@ export function availabilityFor(
   return free;
 }
 
-/**
- * The highest quantity a guest may pick: never more than allowed per booking,
- * and never more than is physically free.
- */
 export function maxSelectable(
   perBookingLimit: number,
   freePieces: number,
@@ -73,21 +48,6 @@ export function maxSelectable(
   return Math.max(0, Math.min(perBookingLimit, freePieces));
 }
 
-// ---------------------------------------------------------------------------
-// What is already committed
-// ---------------------------------------------------------------------------
-
-/**
- * Every piece of equipment currently promised to someone, from both places it
- * can be promised: the website and a booking taken by phone.
- *
- * Reading only one source is what would let the same child seat go out twice —
- * a clerk filling the manual form would never see what the website already
- * gave away, and vice versa.
- *
- * Only current and future periods are returned; finished rentals free their
- * equipment and would only bloat the payload.
- */
 export async function getBookedExtras(): Promise<Booked[]> {
   const { prisma } = await import("@/lib/prisma");
   const now = new Date();
@@ -136,16 +96,10 @@ export async function getBookedExtras(): Promise<Booked[]> {
       })),
     ];
   } catch (err) {
-    // Failing open would let double bookings through, so an empty list is the
-    // wrong fallback here; the caller decides how to handle it.
     console.error("[extras] availability lookup failed:", err);
     throw err;
   }
 }
-
-// ---------------------------------------------------------------------------
-// Vehicle occupancy
-// ---------------------------------------------------------------------------
 
 /** One period a car is spoken for, whatever the reason. */
 export type CarBusy = {
@@ -160,13 +114,6 @@ export type CarBusy = {
   reference?: string;
 };
 
-/**
- * Every period a car is already taken, from confirmed bookings and from
- * blocks alike. Used to grey out vehicles that cannot be given for the dates
- * being entered, so the block form doubles as an availability check.
- *
- * Past periods are skipped: they free the car and would only bloat the list.
- */
 export async function getCarOccupancy(): Promise<CarBusy[]> {
   const { prisma } = await import("@/lib/prisma");
   const now = new Date();

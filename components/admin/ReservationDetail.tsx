@@ -70,7 +70,6 @@ const dt = (v: string | null) =>
       }).format(new Date(v))
     : null;
 
-/** "2 h ranije", "45 min kasnije" — the gap between plan and reality. */
 function drift(planned: string, actual: string | null): string | null {
   if (!actual) return null;
   const diff = new Date(actual).getTime() - new Date(planned).getTime();
@@ -95,14 +94,6 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-/**
- * Everything that happened to one reservation, on one screen.
- *
- * Once a rental is closed the card in the list shows almost nothing, yet the
- * questions come later: was the guest late, what was charged, why is there a
- * second booking under the same name. All of it was already recorded, just
- * spread across fields nobody could see.
- */
 export function ReservationDetail({ data }: { data: ReservationDetailData }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);

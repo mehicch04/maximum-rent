@@ -117,7 +117,6 @@ export function CarGallery({
 
       {count > 1 && (
         <>
-          {/* Arrows — always visible on touch, fade in on desktop hover */}
           <button
             type="button"
             aria-label={t("prevImage")}
@@ -142,10 +141,6 @@ export function CarGallery({
           </button>
 
           {/* Dots */}
-          {/* The dots sit on the photo, not on the page, so the theme is not
-              what decides whether they show: a white car against a bright sky
-              swallowed them either way. A dark pill behind the row fixes it
-              everywhere, and matches the arrows, which already work. */}
           <div className="absolute bottom-2.5 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-black/40 px-2 py-1.5 backdrop-blur-sm">
             {images.map((_, i) => (
               <button

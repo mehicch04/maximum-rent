@@ -3,13 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { getCompany } from "@/lib/company";
 import { toCarListItem, type CarListItem } from "@/lib/types";
 
-/**
- * One vehicle, by its slug.
- *
- * Withdrawn cars are still served: a link may be in somebody's messages or in
- * Google's index, and a page saying the car is no longer offered is a better
- * answer than a dead end. The page itself decides how to present that.
- */
 export const getCarBySlug = unstable_cache(
   async (slug: string): Promise<CarListItem | null> => {
     const car = await prisma.car.findUnique({ where: { slug } });
@@ -23,12 +16,6 @@ export const getCarBySlug = unstable_cache(
   { tags: ["fleet"], revalidate: 300 },
 );
 
-/**
- * A few alternatives from the same class, for when this one does not fit.
- *
- * Same class rather than same price: somebody looking at a seven-seater needs
- * another seven-seater, and a cheaper saloon is no help at all.
- */
 export const getSimilarCars = unstable_cache(
   async (slug: string, carClass: string): Promise<CarListItem[]> => {
     const rows = await prisma.car.findMany({

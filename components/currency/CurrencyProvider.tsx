@@ -14,11 +14,6 @@ type Ctx = { currency: Currency; setCurrency: (c: Currency) => void };
 const CurrencyContext = createContext<Ctx | null>(null);
 const STORAGE_KEY = "mr-currency";
 
-/**
- * Holds the currently displayed currency. Starts from `defaultCurrency` (the
- * owner's primary-currency admin setting) so the first paint matches on server
- * and client, then restores the visitor's own choice (if any) after mount.
- */
 export function CurrencyProvider({
   defaultCurrency = "BAM",
   children,

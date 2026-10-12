@@ -3,8 +3,6 @@ import { routing } from "@/i18n/routing";
 import { SITE_URL } from "@/lib/seo";
 import { getAllCarSlugs } from "@/lib/car-detail";
 
-// Public, indexable pages (locale-less). /admin and /api are intentionally
-// excluded (also blocked in robots).
 const PATHS = [
   "",
   "/vozila",
@@ -34,14 +32,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  /*
-   * One entry per vehicle, in both languages.
-   *
-   * These are the pages that can rank for a model name, which is the whole
-   * point of having them; leaving them out of the sitemap would waste the
-   * work. A failure here must not take the sitemap down, so it falls back to
-   * the static pages alone.
-   */
   const cars = await getAllCarSlugs().catch(() => []);
   for (const car of cars) {
     const languages: Record<string, string> = {};

@@ -7,14 +7,6 @@ import { Check, ChevronDown } from "lucide-react";
 import { RANGES, type Range } from "@/lib/analytics";
 import { DateField } from "@/components/ui/DateField";
 
-/**
- * Global period filter.
- *
- * The choice lives in the URL rather than in component state, so a view can be
- * bookmarked or sent to someone, and a refresh keeps what was selected. That
- * matters more for a custom window than for a preset: "the report I looked at"
- * is otherwise impossible to hand over.
- */
 export function RangeFilter({
   value,
   from = "",
@@ -47,8 +39,6 @@ export function RangeFilter({
     if (next === "month") p.delete("period");
     else p.set("period", next);
 
-    // Dates only mean anything for a custom window; leaving them behind would
-    // reappear as stale values the next time custom is picked.
     if (next !== "custom") {
       p.delete("from");
       p.delete("to");
@@ -56,12 +46,6 @@ export function RangeFilter({
     push(p);
   };
 
-  /**
-   * Applied on a button, not while typing.
-   *
-   * Each date change would otherwise be a fresh round of queries, and the
-   * first half of a pair is almost always an incomplete range.
-   */
   const applyCustom = () => {
     const p = new URLSearchParams(params.toString());
     p.set("period", "custom");
@@ -97,8 +81,6 @@ export function RangeFilter({
 
       {isCustom && (
         <div className="flex flex-wrap items-end gap-2">
-          {/* The panel's own calendar, not the browser's: it is what every
-              other date field here uses, and it looks the same in every one. */}
           <div className="w-36">
             <label className="mb-1 block text-xs font-medium text-muted-foreground">
               Od

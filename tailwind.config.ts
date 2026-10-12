@@ -15,7 +15,6 @@ const config: Config = {
     },
     extend: {
       colors: {
-        // Semantic tokens — driven by CSS variables so light/dark swap is instant.
         background: "hsl(var(--background) / <alpha-value>)",
         foreground: "hsl(var(--foreground) / <alpha-value>)",
         border: "hsl(var(--border) / <alpha-value>)",
@@ -28,7 +27,6 @@ const config: Config = {
           DEFAULT: "hsl(var(--muted) / <alpha-value>)",
           foreground: "hsl(var(--muted-foreground) / <alpha-value>)",
         },
-        // Brand red — extracted from the Maximum logo. DEFAULT = #E30613.
         brand: {
           50: "#FFF1F1",
           100: "#FFE0E1",
@@ -56,10 +54,6 @@ const config: Config = {
         card: "0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -12px rgb(0 0 0 / 0.18)",
         "card-hover":
           "0 2px 4px rgb(0 0 0 / 0.06), 0 24px 48px -16px rgb(0 0 0 / 0.32)",
-        // Soft lift, not a glow. The previous value (30px blur at 45%) spread
-        // red well past the button edge and read as the colour bleeding out.
-        // Barely-there lift for primary buttons only. Anything stronger reads
-        // as the red bleeding out past the edge.
         brand: "0 4px 12px -4px rgb(227 6 19 / 0.20)",
       },
       backgroundImage: {

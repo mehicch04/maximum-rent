@@ -68,15 +68,11 @@ export function NewReservationForm({
     [extras, booked, pickupDate, pickupTime, returnDate, returnTime],
   );
 
-  // Free vehicles first, so what can actually be given is not buried among
-  // greyed-out entries.
   const sortedCars = useMemo(() => {
     if (!datesReady) return cars;
     return [...cars].sort((a, b) => Number(busy.has(a.id)) - Number(busy.has(b.id)));
   }, [cars, busy, datesReady]);
 
-  // Moving the dates can invalidate an earlier choice, so it is cleared or
-  // trimmed rather than left to fail on save.
   useEffect(() => {
     if (carId && busy.has(carId)) setCarId("");
     // eslint-disable-next-line react-hooks/exhaustive-deps

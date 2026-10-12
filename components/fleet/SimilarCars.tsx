@@ -9,13 +9,6 @@ import type { CarListItem } from "@/lib/types";
 import { formatPrice } from "@/lib/currency";
 import { useCurrency } from "@/components/currency/CurrencyProvider";
 
-/**
- * Other vehicles from the same class.
- *
- * With one or two there is nothing to scroll, so they sit in a plain row.
- * From three up it becomes a carousel that wraps around, which is what makes
- * it feel endless without duplicating any cards in the markup.
- */
 export function SimilarCars({
   cars,
   locale,
@@ -34,13 +27,6 @@ export function SimilarCars({
 
   const scrollable = cars.length >= 3;
 
-  /**
-   * Moves by one card, and wraps at either end.
-   *
-   * Wrapping by scrolling to the opposite side rather than cloning cards: a
-   * cloned list means duplicate links on the page, which is bad for search and
-   * confusing for screen readers.
-   */
   const move = (dir: 1 | -1) => {
     const el = trackRef.current;
     if (!el) return;

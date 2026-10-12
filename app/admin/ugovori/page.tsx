@@ -7,19 +7,11 @@ import type { HandoverItem } from "@/components/admin/handover/types";
 export const dynamic = "force-dynamic";
 
 export default async function AdminHandoverPage() {
-  // Only what can actually be handed over: confirmed, and not already gone.
-  // Today counts from midnight, so a pickup earlier this morning that has not
-  // happened yet does not vanish from the desk.
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
 
-  // A week back as well, because a guest who was due yesterday and turned up
-  // today still needs a contract. Cutting the list off at midnight made those
-  // disappear with no way to reach them from this screen.
   const weekAgo = new Date(startOfToday.getTime() - 7 * 86_400_000);
 
-  // Issuer details for the contract header, with the same fallback the rest of
-  // the site uses so a contract is never printed without them.
   const company = await getCompany();
   const issuer = {
     name: company.name,
@@ -34,13 +26,6 @@ export default async function AdminHandoverPage() {
 
   try {
     const rows = await prisma.inquiry.findMany({
-      /*
-       * Rentals already out are included too.
-       *
-       * The contract is signed at handover, but paper gets lost and guests ask
-       * for a second copy. Leaving them off meant a rental vanished from this
-       * screen the moment the keys moved, with nowhere left to reprint it.
-       */
       where: {
         status: { in: ["CONFIRMED", "IN_PROGRESS"] },
         pickupAt: { gte: weekAgo },
@@ -68,8 +53,6 @@ export default async function AdminHandoverPage() {
       pickupLocation: r.pickupLocation?.name ?? "",
       returnLocation: r.returnLocation?.name ?? "",
       rentalDays: r.rentalDays ?? 1,
-      // Flags a pickup whose hour has already passed, so it reads as something
-      // outstanding rather than as tomorrow's work.
       overdue: r.status === "CONFIRMED" && r.pickupAt < new Date(),
       // Already handed over; kept only so the contract can be printed again.
       active: r.status === "IN_PROGRESS",

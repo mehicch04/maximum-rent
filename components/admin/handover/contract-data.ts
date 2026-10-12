@@ -36,19 +36,6 @@ const dash = (v: string | null | undefined) => (v && v.trim() ? v.trim() : "—"
 /** Section title with the rows beneath it, shared by both exports. */
 export type Section = { title: string; rows: [string, string][] };
 
-/**
- * The contract laid out once, used by the PDF and the Word file alike.
- *
- * Writing it twice would guarantee the two drift apart, and a contract that
- * says different things depending on which button was pressed is worse than
- * having only one format.
- */
-/**
- * "2026-09-12T10:00" written the way it is read here.
- *
- * The raw value is what the form fields hold; printing it unchanged on a
- * contract looks like a system error rather than a date.
- */
 function human(v: string): string {
   const m = String(v ?? "").trim().match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}:\d{2})/);
   return m ? `${m[3]}.${m[2]}.${m[1]}. u ${m[4]}` : dash(v);
@@ -113,13 +100,6 @@ export const SIGN_LEFT = "Potpis klijenta";
 export const SIGN_RIGHT = "Za agenciju";
 
 
-/**
- * The issuer block.
- *
- * Without it the contract names only the guest, so the document says who
- * rented but not from whom. Empty lines are dropped rather than printed as
- * dashes: a header full of placeholders looks unfinished.
- */
 export function companyHeaderLines(c?: ContractCompany): string[] {
   if (!c) return [];
   const parts = [

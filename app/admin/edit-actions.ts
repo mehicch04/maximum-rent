@@ -9,15 +9,6 @@ import { availabilityFor, getBookedExtras, maxSelectable } from "@/lib/extras-av
 import { extraLineTotal, rentalDays } from "@/lib/extras";
 import { rentalTotal } from "@/lib/pricing";
 
-/**
- * Editing an existing reservation.
- *
- * Plans change after a booking is made: a guest calls to move the dates, swap
- * the car or add a seat. Without this the only options were cancelling and
- * starting over, which loses the reference number and sends the guest a
- * cancellation for something that was never actually cancelled.
- */
-
 async function requireAdmin() {
   if (!(await tokenValid(cookies().get(ADMIN_COOKIE)?.value))) {
     redirect("/admin/login");
@@ -38,9 +29,6 @@ export async function updateInquiry(formData: FormData) {
   });
   if (!existing) redirect("/admin?msg=error");
 
-  // IN_PROGRESS belongs here too. While it was missing, editing a rental that
-  // was already handed over sent a status the server did not recognise, and the
-  // reservation quietly dropped back to confirmed — with the car still out.
   const STATUSES = [
     "NEW",
     "CONTACTED",
@@ -54,9 +42,6 @@ export async function updateInquiry(formData: FormData) {
     ? (rawStatus as (typeof STATUSES)[number])
     : existing.status;
 
-  // Bringing a cancelled booking back must be explained. The field is required
-  // in the form too, but that can be bypassed, and a reservation that returns
-  // without a reason cannot be accounted for afterwards.
   const restoring = existing.status === "CANCELLED" && status === "CONFIRMED";
   const statusNote = str(formData, "statusNote").slice(0, 300);
   if (restoring && !statusNote) redirect(`/admin?msg=reason&edit=${id}`);
@@ -73,11 +58,6 @@ export async function updateInquiry(formData: FormData) {
     redirect(`/admin?msg=error&edit=${id}`);
   }
 
-  // The vehicle is only held once a reservation is confirmed, so the clash
-  // check applies to confirmed ones. It must skip this very reservation —
-  // otherwise a booking would always report a clash with itself.
-  // The clash check runs whenever the reservation will hold a vehicle: either
-  // it already does, or it is about to because it is being confirmed now.
   if (carId && (status === "CONFIRMED" || status === "IN_PROGRESS")) {
     const [clashes, blocks] = await Promise.all([
       prisma.inquiry.count({
@@ -98,8 +78,6 @@ export async function updateInquiry(formData: FormData) {
 
   const days = rentalDays(pickupAt, returnAt);
 
-  // Extras are re-checked the same way, ignoring what this reservation itself
-  // is currently holding so its own pieces are not counted against it.
   let requested: { id: string; qty: number }[] = [];
   try {
     const parsed: unknown = JSON.parse(str(formData, "extras") || "[]");
@@ -178,8 +156,6 @@ export async function updateInquiry(formData: FormData) {
     0,
   );
 
-  // A price typed by hand wins: a discount agreed on the phone is a real
-  // figure and the reports should carry it, not the list price.
   const manual = str(formData, "totalPrice").replace(",", ".");
   const totalPrice =
     manual !== "" && Number.isFinite(Number(manual))
@@ -204,8 +180,6 @@ export async function updateInquiry(formData: FormData) {
         flightNumber: str(formData, "flightNumber").slice(0, 20) || null,
         message: str(formData, "message").slice(0, 1000) || null,
         status,
-        // Only written when something was actually restored, so an ordinary
-        // edit does not overwrite an earlier explanation.
         ...(restoring ? { statusNote } : {}),
         rentalDays: days,
         totalPrice,

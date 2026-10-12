@@ -21,7 +21,6 @@ export async function setMessageStatus(formData: FormData) {
   try {
     await prisma.contactRequest.update({ where: { id }, data: { status } });
   } catch {
-    // already gone — nothing to do
   }
   revalidatePath("/admin/poruke", "layout");
 }

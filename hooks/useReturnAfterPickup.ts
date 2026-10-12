@@ -9,14 +9,6 @@ function toISODate(d: Date): string {
   ).padStart(2, "0")}`;
 }
 
-/**
- * Keeps the return date after the pickup date.
- *
- * When the pickup moves past the return — typically when the visitor jumps to
- * the end of a month — the return is carried along and the rental keeps the
- * same number of days. Without this the return silently becomes invalid and
- * the visitor has to page through the calendar to repair it.
- */
 export function useReturnAfterPickup(
   pickupDate: string,
   returnDate: string,

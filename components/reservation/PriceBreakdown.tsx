@@ -7,14 +7,6 @@ import { formatPrice } from "@/lib/currency";
 import { useCurrency } from "@/components/currency/CurrencyProvider";
 import type { ExtraSelection } from "./ExtrasPicker";
 
-/**
- * Plain price breakdown shown under the extras: the rental itself, then one
- * line per chosen extra, then the total.
- *
- * Everything is labelled as an estimate on purpose — this is an inquiry, not a
- * payment, and the agency confirms the final figure. Showing a hard total here
- * would set an expectation the owner then has to argue with at the desk.
- */
 export function PriceBreakdown({
   pricePerDay,
   days,
