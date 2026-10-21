@@ -1,13 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { ArrowRight, ChevronDown, Star } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCompany } from "@/components/company/CompanyProvider";
-
-const ease = [0.22, 1, 0.36, 1] as const;
 
 // Agency opening window in minutes from midnight (07:30 – 20:30, local).
 const OPEN_MIN = 7 * 60 + 30;
@@ -78,17 +75,36 @@ export function Hero() {
   useEffect(() => {
     const wide = window.matchMedia("(min-width: 768px)");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let started = false;
+    let idleId: number | undefined;
+    let timerId: number | undefined;
     const update = () => {
+      if (!started) return;
       if (reduce.matches) {
-        setVideoSrc(null); // respect the visitor's motion preference
+        setVideoSrc(null);
         return;
       }
       setVideoSrc(wide.matches ? "/hero.mp4" : "/hero-mobile.mp4");
     };
-    update();
+    const start = () => {
+      started = true;
+      update();
+    };
+    const schedule = () => {
+      if (typeof window.requestIdleCallback === "function") {
+        idleId = window.requestIdleCallback(start, { timeout: 2500 });
+      } else {
+        timerId = window.setTimeout(start, 1200);
+      }
+    };
+    if (document.readyState === "complete") schedule();
+    else window.addEventListener("load", schedule, { once: true });
     wide.addEventListener("change", update);
     reduce.addEventListener("change", update);
     return () => {
+      window.removeEventListener("load", schedule);
+      if (idleId !== undefined) window.cancelIdleCallback(idleId);
+      if (timerId !== undefined) window.clearTimeout(timerId);
       wide.removeEventListener("change", update);
       reduce.removeEventListener("change", update);
     };
@@ -129,39 +145,30 @@ export function Hero() {
       <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-background to-transparent" />
 
       <div className="container relative">
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease }}
-          className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-white/90 backdrop-blur"
+        <p
+          className="animate-fade-up mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-white/90 backdrop-blur"
         >
           <span className="h-1.5 w-1.5 rounded-full bg-brand" />
           {t("eyebrow")}
-        </motion.p>
+        </p>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.05, ease }}
-          className="max-w-3xl font-display text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl"
+        <h1
+          style={{ animationDelay: "50ms" }}
+          className="animate-fade-up max-w-3xl font-display text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl"
         >
           {t("title")}
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.12, ease }}
-          className="mt-6 max-w-xl text-base text-white/80 sm:text-lg"
+        <p
+          style={{ animationDelay: "120ms" }}
+          className="animate-fade-up mt-6 max-w-xl text-base text-white/80 sm:text-lg"
         >
           {t("subtitle")}
-        </motion.p>
+        </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2, ease }}
-          className="mt-9 flex flex-wrap items-center gap-3"
+        <div
+          style={{ animationDelay: "200ms" }}
+          className="animate-fade-up mt-9 flex flex-wrap items-center gap-3"
         >
           <a
             href="#rezervacija"
@@ -176,14 +183,12 @@ export function Hero() {
           >
             {t("ctaFleet")}
           </Link>
-        </motion.div>
+        </div>
 
         {/* Trust row: Google rating + live open/closed status */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.28, ease }}
-          className="mt-7 flex flex-wrap items-center gap-3 text-sm"
+        <div
+          style={{ animationDelay: "280ms" }}
+          className="animate-fade-up mt-7 flex flex-wrap items-center gap-3 text-sm"
         >
           <a
             href={(company.map.link ?? "#")}
@@ -210,7 +215,7 @@ export function Hero() {
             closedLabel={t("closed")}
             localLabel={t("localTime")}
           />
-        </motion.div>
+        </div>
       </div>
 
       <a

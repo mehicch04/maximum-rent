@@ -64,9 +64,8 @@ export default async function HomePage({
       orderBy: { sortOrder: "asc" },
       take: 3,
     }),
-      getActiveExtras(),
+    getActiveExtras(),
     getBookedExtras().catch(() => []),
-      getBookedExtras().catch(() => []),
   ]);
 
   const { seasonalPricing } = await getCompany();

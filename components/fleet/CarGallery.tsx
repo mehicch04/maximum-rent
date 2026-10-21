@@ -140,24 +140,28 @@ export function CarGallery({
             <ChevronRight className="h-5 w-5" />
           </button>
 
-          {/* Dots */}
-          <div className="absolute bottom-2.5 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-black/40 px-2 py-1.5 backdrop-blur-sm">
+          <div className="absolute bottom-1.5 left-1/2 z-10 flex -translate-x-1/2 items-center rounded-full bg-black/40 px-1 backdrop-blur-sm">
             {images.map((_, i) => (
               <button
                 key={i}
                 type="button"
                 aria-label={`${i + 1}/${count}`}
+                aria-current={i === index || undefined}
                 onClick={(e) => {
                   e.stopPropagation();
                   setPaused(true);
                   setIndex(i);
                 }}
-                className={`h-1.5 rounded-full transition-all ${
-                  i === index
-                    ? "w-5 bg-brand-foreground"
-                    : "w-1.5 bg-white/60 hover:bg-white"
-                }`}
-              />
+                className="group/dot flex h-6 min-w-[24px] items-center justify-center rounded-full px-[3px] outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <span
+                  className={`block h-1.5 rounded-full transition-all ${
+                    i === index
+                      ? "w-5 bg-brand-foreground"
+                      : "w-1.5 bg-white/60 group-hover/dot:bg-white"
+                  }`}
+                />
+              </button>
             ))}
           </div>
         </>
