@@ -283,7 +283,7 @@
   },
   "Reviews": {
     "eyebrow": "Povjerenje gostiju",
-    "title": "Ocijenjeni 4.8 na Googleu",
+    "title": "Ocijenjeni {rating} na Googleu",
     "subtitle": "Prosječna ocjena na osnovu {count} recenzija zadovoljnih korisnika.",
     "cta": "Pročitajte recenzije"
   },

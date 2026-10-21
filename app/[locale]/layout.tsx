@@ -11,6 +11,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { CurrencyProvider } from "@/components/currency/CurrencyProvider";
 import { CompanyProvider } from "@/components/company/CompanyProvider";
 import { getCompany } from "@/lib/company";
+import { getGooglePlace } from "@/lib/google-reviews";
 import { getActiveLocations } from "@/lib/fleet-data";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -107,7 +108,20 @@ export default async function LocaleLayout({
 
   const all = await getMessages();
 
-  const company = await getCompany();
+  const [baseCompany, google] = await Promise.all([
+    getCompany(),
+    getGooglePlace(locale),
+  ]);
+  const company =
+    google?.rating != null
+      ? {
+          ...baseCompany,
+          rating: {
+            score: google.rating,
+            count: google.count ?? baseCompany.rating.count,
+          },
+        }
+      : baseCompany;
   const footerLocations = await getActiveLocations();
 
   const messages = Object.fromEntries(

@@ -283,7 +283,7 @@
   },
   "Reviews": {
     "eyebrow": "Guest trust",
-    "title": "Rated 4.8 on Google",
+    "title": "Rated {rating} on Google",
     "subtitle": "Average rating based on {count} reviews from satisfied customers.",
     "cta": "Read the reviews"
   },

@@ -50,10 +50,19 @@ export const getCompany = unstable_cache(
       const row = await prisma.companyInfo.findUnique({ where: { id: "main" } });
       if (!row) return COMPANY_FALLBACK;
 
+      const extra = row.phone2 || row.phone3
+        ? [
+            ...(row.phone2 ? [{ label: row.phone2Label, value: row.phone2 }] : []),
+            ...(row.phone3 ? [{ label: row.phone3Label, value: row.phone3 }] : []),
+          ]
+        : COMPANY_FALLBACK.phones
+            .slice(1)
+            .filter((p) => p.value !== row.phone1)
+            .map(({ label, value }) => ({ label, value }));
+
       const phones: Phone[] = [
         { label: row.phone1Label, value: row.phone1 },
-        ...(row.phone2 ? [{ label: row.phone2Label, value: row.phone2 }] : []),
-        ...(row.phone3 ? [{ label: row.phone3Label, value: row.phone3 }] : []),
+        ...extra,
       ].map((p) => ({ ...p, href: `tel:${telHref(p.value)}` }));
 
       return {

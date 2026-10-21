@@ -10,6 +10,7 @@ import { getActiveExtras } from "@/lib/extras";
 import { getBookedExtras } from "@/lib/extras-availability";
 import { toCarListItem } from "@/lib/types";
 import { getCompany } from "@/lib/company";
+import { getGooglePlace } from "@/lib/google-reviews";
 import { Hero } from "@/components/home/Hero";
 import { WhyChoose } from "@/components/home/WhyChoose";
 import { HowItWorks } from "@/components/home/HowItWorks";
@@ -52,7 +53,7 @@ export default async function HomePage({
 
   const t = await getTranslations("Fleet");
 
-  const [locations, featured, extras, bookedExtras] = await Promise.all([
+  const [locations, featured, extras, bookedExtras, google] = await Promise.all([
     // street is needed by the Locations section further down the page.
     prisma.location.findMany({
       where: { isActive: true },
@@ -66,6 +67,7 @@ export default async function HomePage({
     }),
     getActiveExtras(),
     getBookedExtras().catch(() => []),
+    getGooglePlace(locale),
   ]);
 
   const { seasonalPricing } = await getCompany();
@@ -121,7 +123,7 @@ export default async function HomePage({
 
       <Locations locations={locations} />
 
-      <Reviews />
+      <Reviews reviews={google?.reviews ?? []} />
 
       <BusinessTeaser />
 
