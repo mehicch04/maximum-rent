@@ -54,7 +54,7 @@ const config: Config = {
         card: "0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -12px rgb(0 0 0 / 0.18)",
         "card-hover":
           "0 2px 4px rgb(0 0 0 / 0.06), 0 24px 48px -16px rgb(0 0 0 / 0.32)",
-        brand: "0 4px 12px -4px rgb(227 6 19 / 0.20)",
+        brand: "0 1px 2px rgb(227 6 19 / 0.08)",
       },
       backgroundImage: {
         "brand-gradient": "linear-gradient(135deg, #ED1822 0%, #A40007 100%)",

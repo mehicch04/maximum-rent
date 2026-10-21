@@ -44,7 +44,15 @@ export function Navbar() {
             width={800}
             height={239}
             priority
-            className="h-9 w-auto lg:h-10"
+            className="h-9 w-auto dark:hidden lg:h-10"
+          />
+          <Image
+            src="/logo-dark.png"
+            alt="Maximum Rent a Car"
+            width={800}
+            height={239}
+            loading="eager"
+            className="hidden h-9 w-auto dark:block lg:h-10"
           />
         </Link>
 

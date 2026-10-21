@@ -25,7 +25,14 @@ export function Footer({ company, locations }: Props) {
             alt="Maximum Rent a Car"
             width={800}
             height={239}
-            className="h-11 w-auto"
+            className="h-11 w-auto dark:hidden"
+          />
+          <Image
+            src="/logo-dark.png"
+            alt="Maximum Rent a Car"
+            width={800}
+            height={239}
+            className="hidden h-11 w-auto dark:block"
           />
           <p className="max-w-xs text-sm text-muted-foreground">{t("tagline")}</p>
           <ul className="flex flex-col gap-1.5 pt-2">
