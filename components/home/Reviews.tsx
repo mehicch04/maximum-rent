@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { PillLink } from "@/components/ui/PillLink";
 import { Heading } from "./Heading";
+import { intlLocale } from "@/i18n/routing";
 
 export type Review = { author: string; rating: number; text: string; time?: string; url?: string };
 export type ReviewsData = { score: number; count: number; url: string; reviews: Review[] };
@@ -290,7 +291,7 @@ function ScoreCard({ data, faces }: { data: ReviewsData; faces: Review[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const run = useInView(ref, { once: true, margin: "-80px" });
   const v = useCount(data.score, run);
-  const nf = locale === "en" ? "en-GB" : "hr-HR";
+  const nf = intlLocale(locale);
 
   return (
     <motion.div
@@ -380,7 +381,7 @@ function Proof() {
   return (
     <ul ref={ref} className="mt-10 grid grid-cols-3 gap-2 sm:gap-3">
       {values.map((s, i) => (
-        <ProofTile key={i} to={s.to} suffix={s.suffix} label={labels[i] ?? ""} run={run} delay={i * 0.08} nf={locale === "en" ? "en-GB" : "hr-HR"} />
+        <ProofTile key={i} to={s.to} suffix={s.suffix} label={labels[i] ?? ""} run={run} delay={i * 0.08} nf={intlLocale(locale)} />
       ))}
     </ul>
   );
@@ -449,7 +450,7 @@ export function Reviews({ data }: { data: ReviewsData }) {
     [pool.length],
   );
 
-  const score = data.score.toLocaleString(locale === "en" ? "en-GB" : "hr-HR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const score = data.score.toLocaleString(intlLocale(locale), { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
   return (
     <section ref={root} className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">

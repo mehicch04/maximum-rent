@@ -21,7 +21,7 @@ export function SimilarCars({
   const { currency } = useCurrency();
   const trackRef = useRef<HTMLUListElement>(null);
   const [atEnd, setAtEnd] = useState(false);
-  const en = locale === "en";
+  const en = locale !== "hr";
 
   if (cars.length === 0) return null;
 

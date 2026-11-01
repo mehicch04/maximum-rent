@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Send, MessageCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { useCompany } from "@/components/company/CompanyProvider";
+import { PhoneField } from "@/components/forms/PhoneField";
+import { phoneValid } from "@/lib/phone";
 
 type FormType = "contact" | "business";
 
@@ -25,6 +27,7 @@ export function InquiryForm({ type = "contact" }: { type?: FormType }) {
     "idle",
   );
   const [reference, setReference] = useState<string | null>(null);
+  const [phoneErr, setPhoneErr] = useState(false);
 
   const set = (k: keyof typeof EMPTY) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -41,6 +44,11 @@ export function InquiryForm({ type = "contact" }: { type?: FormType }) {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!phoneValid(form.phone)) {
+      setPhoneErr(true);
+      document.getElementById("phone")?.focus();
+      return;
+    }
     setStatus("submitting");
     try {
       const res = await fetch("/api/contact", {
@@ -148,14 +156,14 @@ export function InquiryForm({ type = "contact" }: { type?: FormType }) {
           <label className={labelCls} htmlFor="phone">
             {t("phone")} {req}
           </label>
-          <input
+          <PhoneField
             id="phone"
-            type="tel"
-            required
             value={form.phone}
-            onChange={set("phone")}
-            className={inputCls}
-            placeholder={t("phonePh")}
+            onChange={(v) => {
+              setForm((f) => ({ ...f, phone: v }));
+              if (phoneErr) setPhoneErr(false);
+            }}
+            invalid={phoneErr}
           />
         </div>
       </div>

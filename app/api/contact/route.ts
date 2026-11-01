@@ -44,7 +44,7 @@ export async function POST(req: Request) {
         phone: d.phone,
         company: d.company || null,
         message: d.message || null,
-        locale: d.locale === "en" ? "EN" : "HR",
+        locale: d.locale === "hr" ? "HR" : "EN",
       },
       }),
     );

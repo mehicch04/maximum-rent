@@ -34,7 +34,7 @@ export function buildInquiryMessage(ctx: InquiryContext): string {
   const pickup = ctx.pickupLocation?.name ?? "—";
   const ret = ctx.returnLocation?.name ?? pickup;
 
-  if (ctx.locale === "en") {
+  if (ctx.locale && ctx.locale !== "hr") {
     return (
       `Hello, I'm interested in renting the ${car} ` +
       `from ${start} to ${end}. ` +

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowUpRight, Check, Clock3, Info } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { routing } from "@/i18n/routing";
+import { intlLocale, routing } from "@/i18n/routing";
 import { buildPageMetadata, SITE_URL } from "@/lib/seo";
 import { GUIDE_SLUGS, getGuide, getGuides, type GuideBlock } from "@/lib/guides";
 import { getBrowseCars } from "@/lib/fleet-data";
@@ -88,7 +88,7 @@ export default async function GuidePage({ params }: Props) {
   const others = getGuides(params.locale).filter((g) => g.slug !== guide.slug);
   const perks = (tFleet.raw("included") as { title: string }[]).slice(0, 2);
   const picked = [...cars.filter((c) => c.isFeatured), ...cars.filter((c) => !c.isFeatured)].slice(0, 3);
-  const date = new Intl.DateTimeFormat(params.locale === "en" ? "en-GB" : "hr-HR", { day: "numeric", month: "long", year: "numeric" }).format(new Date(guide.updated));
+  const date = new Intl.DateTimeFormat(intlLocale(params.locale), { day: "numeric", month: "long", year: "numeric" }).format(new Date(guide.updated));
 
   const jsonLd = {
     "@context": "https://schema.org",

@@ -5,7 +5,7 @@ import { routing } from "@/i18n/routing";
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? `https://${SITE.domain}`;
 
-const OG_LOCALE: Record<string, string> = { hr: "hr_HR", en: "en_US" };
+const OG_LOCALE: Record<string, string> = { hr: "hr_HR", en: "en_US", de: "de_DE", es: "es_ES" };
 
 export function buildAlternates(locale: string, path: string) {
   const clean = path === "/" ? "" : path;

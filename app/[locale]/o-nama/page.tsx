@@ -15,6 +15,7 @@ import { StoryCollage } from "@/components/about/StoryCollage";
 import { CountStats, type Stat } from "@/components/about/CountStats";
 import { Journey } from "@/components/about/Journey";
 import { FleetMarquee } from "@/components/about/FleetMarquee";
+import { intlLocale } from "@/i18n/routing";
 
 export async function generateMetadata({
   params: { locale },
@@ -44,7 +45,7 @@ export default async function AboutPage({
     getCompany(),
     getActiveLocations().catch(() => []),
   ]);
-  const nf = locale === "en" ? "en-GB" : "hr-HR";
+  const nf = intlLocale(locale);
   const score = company.rating.score ?? 5;
   const count = company.rating.count ?? 0;
   const head = locations[0];

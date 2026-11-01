@@ -17,7 +17,7 @@ export type Guide = {
   blocks: GuideBlock[];
 };
 
-type Loc = "hr" | "en";
+type Loc = "hr" | "en" | "de" | "es";
 type Copy = Pick<Guide, "title" | "lead" | "blocks">;
 
 const META = [
@@ -30,6 +30,8 @@ const UPDATED = "2026-11-01";
 const W: Record<Loc, { to: string; about: string; nf: string }> = {
   hr: { to: "do", about: "oko", nf: "hr-HR" },
   en: { to: "to", about: "about", nf: "en-GB" },
+  de: { to: "bis", about: "ca.", nf: "de-DE" },
+  es: { to: "a", about: "aprox.", nf: "es-ES" },
 };
 
 function amount(l: Loc, km: [number, number?], eur: [number, number?]): string {
@@ -88,11 +90,45 @@ const FINE_LABELS: Record<Loc, string[]> = {
     "No winter equipment (1 Nov to 1 Apr)",
     "Reckless driving (e.g. 40 km/h over in town, 60 outside)",
   ],
+  de: [
+    "10 bis 20 km/h zu schnell",
+    "20 bis 30 km/h zu schnell",
+    "Mehr als 30 km/h zu schnell",
+    "Handy am Steuer ohne Freisprechanlage",
+    "Nicht angeschnallt",
+    "Rote Ampel überfahren",
+    "Alkohol 0,3 bis 0,8 g/kg",
+    "Alkohol 0,8 bis 1,5 g/kg",
+    "Alkohol über 1,5 g/kg",
+    "Kind unter 12 auf dem Beifahrersitz",
+    "Kind ohne vorgeschriebenen Kindersitz",
+    "Tagsüber ohne Abblend- oder Tagfahrlicht",
+    "Ohne Winterausrüstung (1.11. bis 1.4.)",
+    "Rücksichtsloses Fahren (z. B. 40 km/h zu schnell innerorts, 60 außerorts)",
+  ],
+  es: [
+    "Exceso de velocidad de 10 a 20 km/h",
+    "Exceso de velocidad de 20 a 30 km/h",
+    "Exceso de velocidad de más de 30 km/h",
+    "Móvil al volante sin manos libres",
+    "Sin cinturón de seguridad",
+    "Saltarse un semáforo en rojo",
+    "Alcohol de 0,3 a 0,8 g/kg",
+    "Alcohol de 0,8 a 1,5 g/kg",
+    "Alcohol por encima de 1,5 g/kg",
+    "Menor de 12 años en el asiento delantero",
+    "Niño sin la silla infantil obligatoria",
+    "Circular de día sin luces de cruce o diurnas",
+    "Sin equipamiento de invierno (1.11. a 1.4.)",
+    "Conducción temeraria (p. ej. 40 km/h de más en ciudad, 60 fuera)",
+  ],
 };
 
 const SPEED: Record<Loc, { head: [string, string]; rows: string[] }> = {
   hr: { head: ["Cesta", "Ograničenje"], rows: ["U naselju", "Izvan naselja", "Brze ceste", "Autocesta"] },
   en: { head: ["Road", "Limit"], rows: ["In towns and villages", "Outside towns", "Expressways", "Motorways"] },
+  de: { head: ["Straße", "Limit"], rows: ["Innerorts", "Außerorts", "Schnellstraßen", "Autobahn"] },
+  es: { head: ["Vía", "Límite"], rows: ["En poblado", "Fuera de poblado", "Vías rápidas", "Autopistas"] },
 };
 
 function speedTable(l: Loc): GuideBlock {
@@ -109,6 +145,84 @@ function finesTable(l: Loc, head: [string, string]): GuideBlock {
 }
 
 function copy(l: Loc): Copy[] {
+  if (l === "de")
+    return [
+      {
+        title: "Bußgelder in Bosnien und Herzegowina (2026): Tempo, Handy, Gurt",
+        lead: "Was Rasen, Handy am Steuer, fehlender Gurt, Alkohol und Rotlicht kosten, in KM und Euro.",
+        blocks: [
+          { type: "p", text: "Bußgelder in Bosnien und Herzegowina regelt ein einheitliches Staatsgesetz, die Beträge sind also in Mostar, Međugorje und im ganzen Land gleich. Sie werden in Konvertiblen Mark angegeben, fest an den Euro gekoppelt: 1 € = 1,95583 KM. Die Tabelle folgt dem Gesetz mit den Änderungen, die seit dem 27. Mai 2026 gelten." },
+          finesTable(l, ["Verstoß", "Bußgeld"]),
+          { type: "h2", text: "Was sich im Mai 2026 geändert hat" },
+          { type: "ul", items: ["Handy am Steuer und fehlender Gurt kosten jetzt 200 bis 400 KM statt 100 bis 300 KM.", "Neu ist das rücksichtslose Fahren: mehr als 40 km/h zu schnell innerorts oder 60 km/h außerorts sowie wiederholtes Überfahren roter Ampeln. Dafür drohen 2.000 bis 3.000 KM und sechs Monate Fahrverbot."] },
+          { type: "h2", text: "Tempolimits" },
+          speedTable(l),
+          { type: "h2", text: "Wenn Sie im Mietwagen angehalten werden" },
+          { type: "ul", items: ["Das Bußgeld geht an den Fahrer. Laut unseren Mietbedingungen trägt der Mieter Bußgelder für Verkehrsverstöße.", "Haben Sie Führerschein, Personalausweis oder Reisepass und den Mietvertrag dabei, den Sie mit dem Fahrzeug erhalten.", "Der Tempomat ist die günstigste Versicherung gegen Blitzer."] },
+          { type: "note", text: "Eine Zusammenfassung für Besucher, keine Rechtsberatung. Beträge können sich ändern, maßgeblich ist das Gesetz." },
+        ],
+      },
+      {
+        title: "Autofahren in Bosnien und Herzegowina: Regeln für Besucher",
+        lead: "Tempolimits, Licht am Tag, Alkohol, Kinder und Winterausrüstung auf einen Blick.",
+        blocks: [
+          { type: "p", text: "In Bosnien und Herzegowina fährt man rechts, und die Regeln ähneln denen im übrigen Europa. Fünf Punkte überraschen Besucher am häufigsten." },
+          { type: "h2", text: "1. Tempolimits" },
+          speedTable(l),
+          { type: "p", text: "Verkehrszeichen gehen den allgemeinen Limits vor, und Ortschaften beginnen oft direkt hinter einer Kurve. Bremsen Sie, sobald Sie das Ortsschild sehen." },
+          { type: "h2", text: "2. Licht bei Tag und Nacht" },
+          { type: "p", text: "Abblend- oder Tagfahrlicht muss immer eingeschaltet sein, wenn das Fahrzeug fährt, auch mittags im Juli." },
+          { type: "h2", text: "3. Alkohol: 0,3 g/kg" },
+          { type: "p", text: "Die allgemeine Grenze liegt bei 0,3 g/kg. Für Fahrer unter 21, Fahranfänger mit weniger als drei Jahren Erfahrung und Berufsfahrer gilt null." },
+          { type: "h2", text: "4. Kinder" },
+          { type: "ul", items: ["Kinder unter 12 Jahren dürfen nicht vorne sitzen.", "Kinder bis 5 Jahre fahren im Kindersitz, von 5 bis 12 Jahren auf einer Sitzerhöhung."] },
+          { type: "h2", text: "5. Winterausrüstung vom 1. November bis 1. April" },
+          { type: "p", text: "In diesem Zeitraum sind Winterreifen Pflicht, oder Sommerreifen mit Schneeketten im Fahrzeug." },
+          { type: "h2", text: "Gurt und Handy" },
+          { type: "p", text: "Auf allen Sitzen herrscht Gurtpflicht, und das Handy darf nur mit Freisprechanlage benutzt werden. Beide Bußgelder wurden im Mai 2026 erhöht." },
+          { type: "note", text: "Eine Zusammenfassung für Besucher, keine Rechtsberatung. Maßgeblich ist das Gesetz." },
+        ],
+      },
+    ];
+  if (l === "es")
+    return [
+      {
+        title: "Multas de tráfico en Bosnia y Herzegovina (2026): velocidad, móvil, cinturón",
+        lead: "Cuánto cuestan el exceso de velocidad, el móvil, el cinturón, el alcohol y los semáforos en rojo, en KM y euros.",
+        blocks: [
+          { type: "p", text: "Las multas en Bosnia y Herzegovina las fija una única ley estatal, así que los importes son los mismos en Mostar, Međugorje y el resto del país. Se expresan en marcos convertibles, con un cambio fijo con el euro: 1 € = 1,95583 KM. La tabla sigue la ley con los cambios vigentes desde el 27 de mayo de 2026." },
+          finesTable(l, ["Infracción", "Multa"]),
+          { type: "h2", text: "Qué cambió en mayo de 2026" },
+          { type: "ul", items: ["Usar el móvil al volante y no llevar el cinturón cuesta ahora de 200 a 400 KM, antes de 100 a 300 KM.", "Se introdujo la conducción temeraria: superar el límite en más de 40 km/h en poblado o 60 km/h fuera, y saltarse semáforos en rojo de forma repetida. La multa es de 2.000 a 3.000 KM y seis meses sin carné."] },
+          { type: "h2", text: "Límites de velocidad" },
+          speedTable(l),
+          { type: "h2", text: "Si te paran con un coche de alquiler" },
+          { type: "ul", items: ["La multa se pone al conductor. Según nuestras condiciones de alquiler, las multas de tráfico corren a cargo del arrendatario.", "Lleva contigo el carné de conducir, el DNI o pasaporte y el contrato de alquiler que recibes con el vehículo.", "El control de crucero es el seguro más barato contra los radares."] },
+          { type: "note", text: "Resumen para visitantes, no asesoramiento legal. Los importes pueden cambiar y lo que cuenta es la ley." },
+        ],
+      },
+      {
+        title: "Conducir en Bosnia y Herzegovina: normas que todo visitante debe conocer",
+        lead: "Límites de velocidad, luces todo el día, alcohol, niños y equipamiento de invierno en un solo lugar.",
+        blocks: [
+          { type: "p", text: "En Bosnia y Herzegovina se conduce por la derecha y las normas se parecen a las del resto de Europa. Cinco puntos son los que más sorprenden a los visitantes." },
+          { type: "h2", text: "1. Límites de velocidad" },
+          speedTable(l),
+          { type: "p", text: "Las señales prevalecen sobre los límites generales, y los pueblos suelen empezar justo después de una curva. Reduce la velocidad en cuanto veas el cartel con el nombre del lugar." },
+          { type: "h2", text: "2. Luces de día y de noche" },
+          { type: "p", text: "Las luces de cruce o diurnas deben ir encendidas siempre que el vehículo esté en marcha, incluso a mediodía en julio." },
+          { type: "h2", text: "3. Alcohol: 0,3 g/kg" },
+          { type: "p", text: "El límite general es de 0,3 g/kg. Para menores de 21 años, conductores con menos de tres años de experiencia y profesionales el límite es cero." },
+          { type: "h2", text: "4. Niños" },
+          { type: "ul", items: ["Los menores de 12 años no pueden ir en el asiento delantero.", "Hasta los 5 años viajan en silla infantil y de 5 a 12 años en un alzador."] },
+          { type: "h2", text: "5. Equipamiento de invierno del 1 de noviembre al 1 de abril" },
+          { type: "p", text: "En este periodo son obligatorios los neumáticos de invierno, o neumáticos de verano con cadenas en el coche." },
+          { type: "h2", text: "Cinturón y móvil" },
+          { type: "p", text: "El cinturón es obligatorio en todos los asientos y el móvil solo puede usarse con manos libres. Ambas multas subieron en mayo de 2026." },
+          { type: "note", text: "Resumen para visitantes, no asesoramiento legal. Lo que cuenta es la ley." },
+        ],
+      },
+    ];
   if (l === "en")
     return [
       {
@@ -189,7 +303,7 @@ function copy(l: Loc): Copy[] {
 }
 
 export function getGuides(locale: string): Guide[] {
-  const l: Loc = locale === "en" ? "en" : "hr";
+  const l: Loc = (["hr", "en", "de", "es"] as const).includes(locale as Loc) ? (locale as Loc) : "hr";
   return copy(l).map((c, i) => ({ ...META[i], updated: UPDATED, ...c }));
 }
 

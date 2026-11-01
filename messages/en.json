@@ -11,7 +11,8 @@
     "rating": "{count, plural, one {# review} other {# reviews}} on Google",
     "airport": "Pick-up at Mostar Airport too",
     "book": "Book now",
-    "call": "Call"
+    "call": "Call",
+    "copy": "Copy"
   },
   "Hero": {
     "eyebrow": "Rent a Car · Herzegovina",
@@ -133,7 +134,9 @@
     "follow": "Follow us",
     "tagline": "Reliable car rental across Herzegovina since 2009.",
     "rights": "All rights reserved.",
-    "hours": "Working hours"
+    "hours": "Working hours",
+    "navTitle": "Menu",
+    "chat": "Message us"
   },
   "About": {
     "eyebrow": "About us",
@@ -604,21 +607,18 @@
     "imageAlt": "Luxury wedding vehicle {n}",
     "title": "Cars for your",
     "accent": "wedding",
-    "plate": "Just married",
-    "convoyTitle": "Wedding convoy",
-    "convoyLead": "How many cars do you need?",
-    "less": "One car less",
-    "more": "One car more",
-    "convoyRoles": [
-      "A car for the couple",
-      "The couple and the best man",
-      "The couple, best man and parents"
-    ],
-    "convoyMany": "The couple, best man, parents and {extra, plural, one {# more car} other {# more cars}} for family and friends",
-    "ctaCount": "{count, plural, one {Quote for # car} other {Quote for # cars}}",
-    "waText": "Hi, I'm interested in wedding cars. Number of cars in the convoy: {count}.",
+    "waText": "Hi, I'm interested in wedding cars. Cars for: {roles}.",
     "call": "Call us",
-    "open": "Open gallery"
+    "open": "Open gallery",
+    "cta": "Request a quote",
+    "rolesTitle": "Who needs a car?",
+    "rolesHint": "Pick one or more and we send one quote for all.",
+    "roles": [
+      "The couple",
+      "Best man",
+      "Parents",
+      "Family and friends"
+    ]
   },
   "Extras": {
     "title": "Optional extras",

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, Clock, Menu, Phone, Plane, Star, X } from "lucide-react";
+import { ArrowUpRight, Check, ChevronDown, Clock, Copy, Menu, Phone, Plane, Star, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { NAV_LINKS, SITE } from "@/lib/site-config";
@@ -11,6 +11,7 @@ import { useCompany } from "@/components/company/CompanyProvider";
 import { CurrencySwitch } from "@/components/currency/CurrencySwitch";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { LanguageToggle } from "./LanguageToggle";
+import { intlLocale } from "@/i18n/routing";
 
 const useIso = typeof window === "undefined" ? useEffect : useLayoutEffect;
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -29,10 +30,107 @@ function Rating() {
         ))}
       </span>
       <span className="font-semibold text-white">
-        {score.toLocaleString(locale === "en" ? "en-GB" : "hr-HR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+        {score.toLocaleString(intlLocale(locale), { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
       </span>
       <span>{t("rating", { count })}</span>
     </>
+  );
+}
+
+function PhoneMenu() {
+  const t = useTranslations("Nav");
+  const company = useCompany();
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const main = company.phones[0];
+
+  useEffect(() => {
+    if (!open) return;
+    const away = (e: PointerEvent) => !ref.current?.contains(e.target as Node) && setOpen(false);
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("pointerdown", away);
+    document.addEventListener("keydown", esc);
+    return () => {
+      document.removeEventListener("pointerdown", away);
+      document.removeEventListener("keydown", esc);
+    };
+  }, [open]);
+
+  const copy = async (v: string) => {
+    try {
+      await navigator.clipboard.writeText(v);
+      setCopied(v);
+      window.setTimeout(() => setCopied((c) => (c === v ? null : c)), 1500);
+    } catch {}
+  };
+
+  if (!main) return null;
+
+  return (
+    <div ref={ref} className="relative" onMouseLeave={() => setOpen(false)}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        onMouseEnter={() => setOpen(true)}
+        aria-haspopup="true"
+        aria-expanded={open}
+        className="inline-flex h-7 items-center gap-2 rounded-full bg-white/[0.06] pl-1 pr-2.5 font-medium text-white ring-1 ring-white/10 transition-colors hover:bg-white/[0.1] aria-expanded:bg-white/[0.12]"
+      >
+        <span className="grid h-5 w-5 place-items-center rounded-full bg-brand text-white">
+          <Phone className="h-3 w-3" />
+        </span>
+        {main.value}
+        {company.phones.length > 1 && (
+          <span className="rounded-full bg-white/10 px-1.5 py-px text-[10px] font-semibold text-white/70">+{company.phones.length - 1}</span>
+        )}
+        <ChevronDown className={`h-3.5 w-3.5 text-white/50 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -6, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.97 }}
+            transition={{ duration: 0.18, ease: EASE }}
+            className="absolute right-0 top-full w-72 origin-top-right pt-2"
+          >
+            <div className="overflow-hidden rounded-2xl bg-ink p-1.5 text-white shadow-[0_30px_60px_-24px_rgba(0,0,0,0.7)] ring-1 ring-white/10">
+              {company.phones.map((p) => (
+                <div key={p.value} className="group flex items-center gap-1 rounded-xl transition-colors hover:bg-white/[0.06]">
+                  <a href={p.href} className="flex min-w-0 flex-1 items-center gap-3 px-2.5 py-2.5">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/[0.07] text-brand-400 transition-colors group-hover:bg-brand group-hover:text-white">
+                      <Phone className="h-3.5 w-3.5" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-[11px] font-medium uppercase tracking-[0.12em] text-white/45">{p.label}</span>
+                      <span className="block truncate text-sm font-semibold">{p.value}</span>
+                    </span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => copy(p.value)}
+                    aria-label={`${t("copy")}: ${p.value}`}
+                    className="mr-1.5 grid h-8 w-8 shrink-0 place-items-center rounded-full text-white/50 transition-colors hover:bg-white/10 hover:text-white"
+                  >
+                    {copied === p.value ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                  </button>
+                </div>
+              ))}
+              <a
+                href={`https://wa.me/${company.whatsapp}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-[#25D366] py-2.5 text-sm font-semibold text-[#06301A] transition-[filter] hover:brightness-105"
+              >
+                <WhatsAppIcon className="h-4 w-4" />
+                WhatsApp
+              </a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -40,7 +138,7 @@ function TopBar() {
   const t = useTranslations("Nav");
   const company = useCompany();
   return (
-    <div className="bg-ink text-white/70">
+    <div className="relative z-[60] bg-ink text-white/70">
       <div className="mx-auto flex h-9 max-w-[1320px] items-center justify-between gap-6 px-6 text-xs">
         <a href={company.map.link ?? SITE.map.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 transition-colors hover:text-white">
           <Rating />
@@ -54,25 +152,7 @@ function TopBar() {
             <Clock className="h-3.5 w-3.5 text-brand-400" />
             {company.hours}
           </span>
-          {company.phones.map((p, i) => (
-            <a
-              key={p.value}
-              href={p.href}
-              className={`items-center gap-1.5 font-medium text-white transition-colors hover:text-brand-300 ${i === 0 ? "inline-flex" : "hidden xl:inline-flex"}`}
-            >
-              <Phone className="h-3.5 w-3.5" />
-              {p.value}
-            </a>
-          ))}
-          <a
-            href={`https://wa.me/${company.whatsapp}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="WhatsApp"
-            className="grid h-6 w-6 place-items-center rounded-full bg-[#25D366]/15 text-[#25D366] transition-colors hover:bg-[#25D366]/25"
-          >
-            <WhatsAppIcon className="h-3.5 w-3.5" />
-          </a>
+          <PhoneMenu />
         </div>
       </div>
     </div>

@@ -123,7 +123,7 @@ export function CarDetail({
     };
   }, [bar]);
 
-  const description = (lang === "en" ? car.descriptionEn : car.descriptionHr)?.trim();
+  const description = (lang !== "hr" ? car.descriptionEn : car.descriptionHr)?.trim();
   const cats = carCategories(car);
 
   const specs = [

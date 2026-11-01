@@ -3,10 +3,11 @@ import { useTranslations } from "next-intl";
 import type { Company } from "@/lib/company";
 import { PillLink } from "@/components/ui/PillLink";
 import { Heading } from "./Heading";
+import { intlLocale } from "@/i18n/routing";
 
 export function Visit({ company, address, locale }: { company: Company; address: string; locale: string }) {
   const t = useTranslations("Visit");
-  const score = (company.rating.score ?? 5).toLocaleString(locale === "en" ? "en-GB" : "hr-HR", { minimumFractionDigits: 1 });
+  const score = (company.rating.score ?? 5).toLocaleString(intlLocale(locale), { minimumFractionDigits: 1 });
   const count = company.rating.count ?? 0;
   const { lat, lng } = company.map;
   const mapSrc = `https://maps.google.com/maps?q=${lat},${lng}&z=16&hl=${locale}&output=embed`;

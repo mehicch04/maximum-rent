@@ -120,7 +120,7 @@ export async function POST(req: Request) {
         flightNumber: d.flightNumber || null,
         message: d.message || null,
         channel: "EMAIL",
-        locale: d.locale === "en" ? "EN" : "HR",
+        locale: d.locale === "hr" ? "HR" : "EN",
         totalPrice,
         rentalDays: days,
         extras: extraRows.length ? { create: extraRows } : undefined,

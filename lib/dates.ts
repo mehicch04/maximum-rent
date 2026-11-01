@@ -1,6 +1,6 @@
 const pad = (n: number) => String(n).padStart(2, "0");
 
-const intl = (locale: string) => (locale === "en" ? "en-GB" : "hr-HR");
+import { intlLocale as intl } from "@/i18n/routing";
 
 export const toISODate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 

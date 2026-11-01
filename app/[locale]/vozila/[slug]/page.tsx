@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const car = await getCarBySlug(params.slug);
   if (!car) return { title: { absolute: "Maximum Rent a Car" } };
 
-  const en = params.locale === "en";
+  const en = params.locale !== "hr";
   const description =
     (en ? car.descriptionEn : car.descriptionHr) ??
     (en
@@ -66,7 +66,7 @@ export default async function CarPage({ params }: Props) {
     name: car.title,
     image: car.images ?? [],
     description:
-      (params.locale === "en" ? car.descriptionEn : car.descriptionHr) ?? car.title,
+      (params.locale !== "hr" ? car.descriptionEn : car.descriptionHr) ?? car.title,
     brand: { "@type": "Brand", name: car.brand },
     offers: car.pricePerDay
       ? {

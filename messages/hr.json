@@ -11,7 +11,8 @@
     "rating": "{count, plural, one {# recenzija} few {# recenzije} other {# recenzija}} na Googleu",
     "airport": "Preuzimanje i na Zračnoj luci Mostar",
     "book": "Rezervirajte",
-    "call": "Nazovite"
+    "call": "Nazovite",
+    "copy": "Kopiraj"
   },
   "Hero": {
     "eyebrow": "Rent a Car · Hercegovina",
@@ -133,7 +134,9 @@
     "follow": "Pratite nas",
     "tagline": "Pouzdan najam vozila u Hercegovini od 2009. godine.",
     "rights": "Sva prava pridržana.",
-    "hours": "Radno vrijeme"
+    "hours": "Radno vrijeme",
+    "navTitle": "Izbornik",
+    "chat": "Pišite nam"
   },
   "About": {
     "eyebrow": "O nama",
@@ -604,21 +607,18 @@
     "imageAlt": "Luksuzno vozilo za vjenčanje {n}",
     "title": "Automobili za Vaše",
     "accent": "vjenčanje",
-    "plate": "Sretni mladenci",
-    "convoyTitle": "Svadbena kolona",
-    "convoyLead": "Koliko vozila vam treba?",
-    "less": "Jedno vozilo manje",
-    "more": "Jedno vozilo više",
-    "convoyRoles": [
-      "Vozilo za mladence",
-      "Mladenci i kumovi",
-      "Mladenci, kumovi i roditelji"
-    ],
-    "convoyMany": "Mladenci, kumovi, roditelji i još {extra, plural, one {# vozilo} few {# vozila} other {# vozila}} za rodbinu i prijatelje",
-    "ctaCount": "{count, plural, one {Ponuda za # vozilo} few {Ponuda za # vozila} other {Ponuda za # vozila}}",
-    "waText": "Pozdrav, zanima me ponuda vozila za vjenčanje. Broj vozila u koloni: {count}.",
+    "waText": "Pozdrav, zanima me ponuda vozila za vjenčanje. Vozila za: {roles}.",
     "call": "Nazovite nas",
-    "open": "Otvori galeriju"
+    "open": "Otvori galeriju",
+    "cta": "Zatražite ponudu",
+    "rolesTitle": "Za koga trebate vozilo?",
+    "rolesHint": "Odaberite jedno ili više, ponudu šaljemo za sve.",
+    "roles": [
+      "Mladenci",
+      "Kumovi",
+      "Roditelji",
+      "Rodbina i prijatelji"
+    ]
   },
   "Extras": {
     "title": "Dodatna oprema",

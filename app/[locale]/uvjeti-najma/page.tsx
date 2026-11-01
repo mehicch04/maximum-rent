@@ -33,7 +33,7 @@ export default async function TermsPage({
   params: { locale: string };
 }) {
   setRequestLocale(locale);
-  const c = RENTAL_TERMS[locale === "en" ? "en" : "hr"];
+  const c = RENTAL_TERMS[(locale in RENTAL_TERMS ? locale : "hr") as keyof typeof RENTAL_TERMS];
   const [tFaq, company] = await Promise.all([getTranslations("Faq"), getCompany()]);
   const facts = tFaq.raw("facts") as { v: string; l: string }[];
   const phone = company.phones[0];

@@ -3,14 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Search } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { COUNTRIES, LOCALE_COUNTRY, countryOf, flagEmoji, joinPhone, matchDial, splitPhone } from "@/lib/phone";
+import { COUNTRIES, LOCALE_COUNTRY, countryOf, joinPhone, matchDial, splitPhone } from "@/lib/phone";
+import { FlagIcon } from "@/components/ui/FlagIcon";
 
-function Flag({ iso, plain }: { iso: string; plain: boolean }) {
-  return plain ? (
-    <span className="grid h-5 w-7 place-items-center rounded-[4px] bg-foreground/[0.07] text-[9px] font-bold tracking-wide text-foreground/70">{iso}</span>
-  ) : (
-    <span className="text-lg leading-none">{flagEmoji(iso)}</span>
-  );
+function Flag({ iso }: { iso: string }) {
+  return <FlagIcon iso={iso} width={24} />;
 }
 
 export function PhoneField({
@@ -39,14 +36,12 @@ export function PhoneField({
   const [national, setNational] = useState(() => splitPhone(value, fallback).national);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
-  const [plain, setPlain] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const search = useRef<HTMLInputElement>(null);
   const last = useRef(value);
 
   useEffect(() => {
-    setPlain(/Windows/i.test(navigator.userAgent));
     if (value) return;
     if (locale === "hr") return;
     const region = (navigator.languages?.[0] ?? navigator.language ?? "").split("-")[1]?.toUpperCase();
@@ -152,7 +147,7 @@ export function PhoneField({
           aria-label={`${t("country")}: ${names.get(iso) ?? iso} +${c.dial}`}
           className="flex shrink-0 items-center gap-1.5 border-e border-border bg-surface-muted/60 ps-3 pe-2 text-sm font-semibold tabular-nums text-foreground transition-colors hover:bg-surface-muted"
         >
-          <Flag iso={iso} plain={plain} />
+          <Flag iso={iso} />
           <span>+{c.dial}</span>
           <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
         </button>
@@ -205,7 +200,7 @@ export function PhoneField({
                     x.iso === iso ? "bg-brand/10 font-semibold text-foreground" : "text-foreground/85 hover:bg-surface-muted"
                   }`}
                 >
-                  <Flag iso={x.iso} plain={plain} />
+                  <Flag iso={x.iso} />
                   <span dir="auto" className="min-w-0 flex-1 truncate">
                     {names.get(x.iso)}
                   </span>

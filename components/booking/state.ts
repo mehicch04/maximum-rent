@@ -16,7 +16,7 @@ export type BookingState = {
 export type Loc = { id: string; name: string; slug: string };
 
 export function extraText(e: Pick<ExtraItem, "nameHr" | "nameEn" | "noteHr" | "noteEn">, locale: string) {
-  return locale === "en" ? { name: e.nameEn, note: e.noteEn } : { name: e.nameHr, note: e.noteHr };
+  return locale === "hr" ? { name: e.nameHr, note: e.noteHr } : { name: e.nameEn, note: e.noteEn };
 }
 
 export function quote(car: CarListItem, b: BookingState, busy: BusyRange[]) {

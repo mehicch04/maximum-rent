@@ -17,7 +17,7 @@ export type TermsContent = {
   articles: TermsArticle[];
 };
 
-export const RENTAL_TERMS: Record<"hr" | "en", TermsContent> = {
+export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
   hr: {
     heading: "Uvjeti najma",
     intro:
@@ -583,6 +583,398 @@ export const RENTAL_TERMS: Record<"hr" | "en", TermsContent> = {
             type: "p",
             text: `In the event of a dispute under this Agreement, the parties agree to the local jurisdiction of the materially competent court in Široki Brijeg.`,
           },
+        ],
+      },
+    ],
+  },
+  de: {
+    heading: "Mietbedingungen",
+    intro: "Allgemeine Mietbedingungen von Maximum Rent a Car. Bitte lesen Sie alle Artikel sorgfältig, bevor Sie das Fahrzeug abholen.",
+    articleLabel: "Artikel",
+    indexLabel: "Inhalt",
+    articles: [
+      {
+        n: 1,
+        topic: "Begriffe",
+        blocks: [
+          {
+            type: "ul",
+            items: [
+              `„Vermieter": die Firma MAXIMUM RENT A CAR d.o.o. mit Sitz in Potpolje bb, 88260 Čitluk, Bosnien und Herzegowina, Registernummer: 4227631720004.`,
+              `„Mieter": die natürliche oder juristische Person, in deren Namen das Fahrzeug gemietet wird. Sie ist im Mietvertrag als „Mieter" angegeben und für die Einhaltung aller Punkte dieser Allgemeinen Mietbedingungen und des Mietvertrags verantwortlich.`,
+              `„Vertrag": der einzelne Mietvertrag, der bei der Abholung des Fahrzeugs unterzeichnet wird. Er erlaubt die Nutzung des Fahrzeugs und regelt Abholung und Rückgabe, Versicherungsschutz, die im Mietpreis enthaltene Ausstattung und Leistungen sowie die Zahlungsweise. Der Vertrag enthält außerdem Angaben zum Kilometerstand, zur Kraftstoffmenge, zu Schäden und etwaigen Mängeln am Mietfahrzeug sowie weitere Rechte und Pflichten, die beide Vertragsparteien mit ihrer Unterschrift vollständig anerkennen.`,
+              `Der Zustand des Fahrzeugs bei der Übergabe und die Allgemeinen Mietbedingungen gelten als Bestandteil des Mietvertrags.`,
+              `„Fahrer oder Zusatzfahrer": die im Mietvertrag als „Nutzer" genannte natürliche Person, die den Mietvertrag unterzeichnet und das Fahrzeug übernimmt und für die Einhaltung aller Bestimmungen des Mietvertrags verantwortlich ist.`,
+              `„Nutzer": Mieter, Fahrer und Zusatzfahrer werden im weiteren Text dieser Allgemeinen Mietbedingungen einheitlich als „Nutzer" bezeichnet.`,
+              `„Fahrzeug" ist der Gegenstand der Miete nach dem Vertrag, dessen Daten im Vertrag angegeben sind.`,
+            ],
+          },
+        ],
+      },
+      {
+        n: 2,
+        topic: "Fahrzeugübergabe",
+        blocks: [
+          { type: "p", text: `Mit der Unterzeichnung dieses Vertrags bestätigt der Mieter, dass er das Fahrzeug in ordnungsgemäßem und unbeschädigtem Zustand und vollgetankt übernommen hat, sofern im Vertrag nicht ausdrücklich schriftlich etwas anderes vermerkt ist. Der Mieter bestätigt, dass er mit dem Fahrzeug die Fahrzeugpapiere, die Schlüssel, die gesamte Pflichtausstattung und das Fahrzeugzubehör sowie die im Vertrag aufgeführte Zusatzausstattung erhalten hat.` },
+          { type: "p", text: `Mit der Unterzeichnung des Vertrags sichert der Mieter dem Vermieter zu, dass er das gesetzliche Mindestalter für das Führen eines Kraftfahrzeugs erreicht hat und die nach den geltenden Vorschriften von Bosnien und Herzegowina erforderlichen Dokumente besitzt. Diese muss er dem Vermieter im Original vorlegen, eine Kopie verbleibt als Anlage zum Vertrag beim Vermieter.` },
+        ],
+      },
+      {
+        n: 3,
+        topic: "Pflichten bei der Rückgabe",
+        blocks: [
+          { type: "p", text: `Der Mieter verpflichtet sich:` },
+          {
+            type: "ul",
+            items: [
+              `das Fahrzeug am Ort der Abholung zurückzugeben, spätestens innerhalb der in diesem Vertrag festgelegten Frist;`,
+              `das Fahrzeug auf Verlangen des Vermieters auch vor Ablauf der vereinbarten Frist zurückzugeben;`,
+              `das Fahrzeug in ordnungsgemäßem und unbeschädigtem Zustand zurückzugeben, mit allen Papieren, Schlüsseln, Reifen, Werkzeugen, der Pflicht-, Standard- und Zusatzausstattung und vollem Tank, so wie er es übernommen hat;`,
+              `Geldforderungen aus diesem Vertrag sofort bei der Übernahme des Fahrzeugs zu begleichen, soweit sie nicht als Anzahlung oder Kaution geleistet wurden;`,
+              `dass der Vermieter alle nach der Rückgabe festgestellten Reparaturkosten, Mängel oder Verluste, die der Mieter nicht gemäß dem Rückgabeverfahren gemeldet hat, von seiner Kreditkarte oder auf andere Weise abbuchen darf;`,
+              `anzuerkennen, dass der Vermieter berechtigt ist, alle ihm aus dem Vertrag entstehenden Kosten von seiner Kreditkarte abzubuchen;`,
+              `eine Verlängerung der Mietdauer sowie alle sonstigen Änderungen rechtzeitig beim Vermieter zu beantragen;`,
+              `überschreitet der Mieter ohne Zustimmung des Vermieters die vereinbarte Rückgabefrist, darf der Vermieter das Fahrzeug als gestohlen betrachten und bei der Polizei anzeigen. In diesem Fall trägt der Mieter den gesamten daraus entstehenden Schaden;`,
+              `bei Überschreitung der Rückgabefrist übernimmt der Mieter alle Pflichten und Haftungen aus diesem Vertrag, die ansonsten für die Mietdauer vereinbart sind.`,
+            ],
+          },
+          { type: "p", text: `Alle Mitarbeiter der MAXIMUM RENT A CAR d.o.o. dürfen jedes Fahrzeug jederzeit überprüfen. Wird festgestellt, dass der Mieter gegen Bedingungen dieses Vertrags verstoßen hat, sind die Mitarbeiter berechtigt, das Fahrzeug einzuziehen.` },
+          { type: "p", text: `Der Vermieter behält sich ausdrücklich das Recht vor, den Mietvertrag jederzeit, an jedem Ort und vor Ablauf des Mietvertrags zu beenden, ohne zum Ersatz eines Schadens des Mieters verpflichtet zu sein.` },
+        ],
+      },
+      {
+        n: 4,
+        topic: "Pflichten des Mieters",
+        blocks: [
+          { type: "p", text: `Pflichten des Mieters:` },
+          {
+            type: "ul",
+            items: [
+              `das Mietfahrzeug gemäß dem Gesetz über die Grundlagen der Straßenverkehrssicherheit in BiH bzw. den im Ausland geltenden Verkehrsgesetzen und sonstigen geltenden Vorschriften zu übernehmen und zu nutzen;`,
+              `bei einem Defekt des Kilometerzählers die Fahrt sofort zu beenden und den Vermieter unverzüglich zu informieren;`,
+              `das Fahrzeug nur für eigene Zwecke zu nutzen;`,
+              `dass das Fahrzeug nur vom Mieter oder von einer im Vertrag als Fahrer oder Zusatzfahrer genannten Person geführt wird, sofern diese die erforderlichen Berechtigungen und Dokumente besitzt;`,
+              `mit dem Fahrzeug Bosnien und Herzegowina nicht zu verlassen, sofern dies nicht im Vertrag vorgesehen ist, und nicht in Länder zu fahren, in die die Einreise nicht erlaubt ist;`,
+              `das Fahrzeug nicht für unerlaubte Zwecke zu nutzen, etwa für Straftaten, Zoll- oder Devisenvergehen oder sonstige unerlaubte Handlungen;`,
+              `das Fahrzeug nicht mit Ladung oder Personen zu überladen;`,
+              `das Fahrzeug nicht unter Einfluss von Alkohol oder Betäubungsmitteln zu führen;`,
+              `auf den technisch einwandfreien Zustand des Fahrzeugs und die vorgeschriebenen regelmäßigen Wartungen zu achten;`,
+              `Kühlflüssigkeit, Öl und Reifendruck regelmäßig zu prüfen und bei Bedarf nachzufüllen;`,
+              `das Fahrzeug bei Nichtbenutzung stets abzuschließen, Schlüssel und Papiere mitzunehmen und vorhandene Sicherungseinrichtungen zu aktivieren;`,
+              `das Fahrzeug nicht zu nutzen für die gewerbliche Beförderung von Waren, Ladung oder Personen, zum Abschleppen oder Transportieren anderer Fahrzeuge oder Anhänger, für den Transport von Stoffen oder Gegenständen, die das Fahrzeug beschädigen oder verschmutzen können (z. B. Tiere, leicht entzündliche Stoffe, stark verschmutzte oder übel riechende Gegenstände), für Rennen, Motorsport oder ähnliche Wettbewerbe sowie für Fahrschulzwecke.`,
+              `das Fahrzeug mit der Sorgfalt eines ordentlichen Kaufmanns gemäß dem Obligationengesetz der Föderation BiH zu nutzen.`,
+            ],
+          },
+        ],
+      },
+      {
+        n: 5,
+        topic: "Kosten und Kraftstoff",
+        blocks: [
+          { type: "p", text: `Die Kosten für den während der Miete verbrauchten Kraftstoff trägt der Mieter.` },
+          { type: "p", text: `Kosten, die der Mieter zu begleichen hat, unabhängig davon, ob sie dem Vermieter als Halter, dem Mieter oder dem Fahrer in Rechnung gestellt werden (sofern sie nicht ausschließlich vom Vermieter verschuldet sind), und die entstehen aus:` },
+          {
+            type: "ul",
+            items: [
+              `dem Transport des Fahrzeugs;`,
+              `Garagen, Parken, Straßen- und Brückenmaut und Ähnlichem;`,
+              `allen Bußgeldern wegen Verstößen gegen Verkehrs- oder sonstige Vorschriften;`,
+              `Gerichts-, Ordnungswidrigkeiten- oder sonstigen Verfahren;`,
+              `Verzugszinsen auf die genannten Forderungen;`,
+              `Kosten, die während der Mietdauer entstehen oder verursacht werden, unabhängig davon, wann sie festgestellt oder fällig werden.`,
+            ],
+          },
+          { type: "p", text: `Der Vermieter erstattet dem Mieter notwendige Kosten für Öl, Schmierstoffe, vorgeschriebene regelmäßige Wartungen und andere kleinere Reparaturen während der Mietdauer. Dazu muss der Mieter eine gültige Rechnung des ausführenden Betriebs vorlegen. Stellt sich heraus, dass der Mieter unnötig ein Bauteil oder Gerät ersetzt oder gewartet hat, kann der Vermieter die Erstattung dieser Kosten verweigern. Kosten für die Fahrzeugwäsche werden nicht erstattet.` },
+        ],
+      },
+      {
+        n: 6,
+        topic: "Schäden und Schadenersatz",
+        blocks: [
+          { type: "p", text: `Bei Fehlen oder Beschädigung von Fahrzeug, Ausstattung oder Zubehör, gleich wie es dazu kam, zahlt der Mieter dem Vermieter den vollen Wert zu Marktpreisen für neue, identische Teile, gültig am vereinbarten Rückgabetag.` },
+          { type: "p", text: `Entsteht durch Fahrlässigkeit des Mieters oder Fahrers ein Schaden an Motor oder Antrieb (z. B. durch Öl- oder Kühlmittelmangel), an der Ölwanne, der Kupplung, dem Unterboden oder ein anderer Defekt durch Fahrlässigkeit (z. B. unvorsichtiges Fahren oder Fahren abseits befestigter Straßen), erstattet der Mieter dem Vermieter die gesamten Reparaturkosten und zusätzlich die entgangene Tagesmiete nach geltender Preisliste für die Dauer der Reparatur, höchstens jedoch 30 Tage, sowie alle Folgeschäden wie Abschleppkosten oder Wertminderung. Ist aus irgendeinem Grund eine Sonderreinigung nötig, trägt der Vermieter die Kosten der erforderlichen Reinigung. Der Vermieter behält sich vor, das Nachtanken in Rechnung zu stellen.` },
+        ],
+      },
+      {
+        n: 7,
+        topic: "Versicherung",
+        blocks: [
+          { type: "p", text: `Alle Fahrzeuge sind gegen die Haftung für Schäden gegenüber Dritten versichert.` },
+          { type: "p", text: `Die Selbstbeteiligung hängt von der Fahrzeuggruppe ab, richtet sich nach dem geltenden Tarif des Vermieters und ist im Vertrag angegeben.` },
+          { type: "p", text: `CDW: tägliche Kaskoversicherung, mit der der Mieter seine Haftung für Schäden auf die Höhe der Selbstbeteiligung begrenzt, die von der Fahrzeuggruppe abhängt. Ist der Schaden geringer als die Selbstbeteiligung, wird der niedrigere Betrag berechnet.` },
+          { type: "p", text: `TP: Diebstahlschutz, mit dem der Nutzer seine Haftung für diese Schadenart auf die Höhe seiner Selbstbeteiligung begrenzt.` },
+          { type: "p", text: `CDW+: Abdeckung, mit der ein Teil der Haftung für Schäden an der Karosserie zu einem reduzierten Betrag abgelöst wird.` },
+          { type: "p", text: `SCDW: Abdeckung, mit der die finanzielle Haftung für Schäden an der Karosserie vollständig abgelöst wird.` },
+          { type: "p", text: `Die Versicherung deckt in keinem Fall:` },
+          {
+            type: "ol",
+            items: [
+              `Schäden an Reifen, Felgen und Radkappen;`,
+              `Schäden am Unterboden, im Innenraum, an der Windschutzscheibe und an anderen Scheiben;`,
+              `eine verbrannte Kupplung;`,
+              `Motorschäden durch Ölmangel, falschen Kraftstoff oder fahrlässige Nutzung;`,
+              `Schäden durch Verlust von Papieren, Schlüsseln oder Kennzeichen;`,
+              `Schäden, die ein Fahrer unter Einfluss von Alkohol, Drogen oder anderen Rauschmitteln verursacht;`,
+              `Schäden, die ein nicht berechtigter Fahrer verursacht;`,
+              `Schäden im Ausland, wenn der Grenzübertritt nicht vom Vermieter genehmigt wurde;`,
+              `Schäden am Fahrzeug, die nicht der zuständigen Polizeidienststelle bzw. dem Vermieter gemeldet wurden;`,
+            ],
+          },
+          { type: "p", text: `Tritt einer der genannten Schadensfälle ein, haftet der Mieter für den vollen Schadensbetrag.` },
+          { type: "p", text: `Der Vermieter haftet nicht für Schäden an oder den Verlust von Eigentum des Mieters.` },
+        ],
+      },
+      {
+        n: 8,
+        topic: "Unfall, Diebstahl und Schaden",
+        blocks: [
+          { type: "p", text: `Bei Verkehrsunfall, Beschädigung, Panne, Unterschlagung, Diebstahl, technischem Defekt und ähnlichen Umständen ist der Mieter verpflichtet:` },
+          {
+            type: "ul",
+            items: [
+              `das Fahrzeug zu sichern, bis der Vermieter es übernimmt;`,
+              `Namen und Adressen der Beteiligten und Zeugen zu notieren;`,
+              `die zuständige Polizei zu rufen und deren Protokoll zu sichern, außer bei einem technischen Defekt;`,
+              `unverzüglich in der nächsten Filiale des Vermieters eine Erklärung zum Ereignis abzugeben.`,
+            ],
+          },
+          { type: "p", text: `Sichert der Mieter kein Polizeiprotokoll, gehen alle Kosten des Schadenersatzes im Zusammenhang mit Beschädigung oder Verlust des Fahrzeugs vollständig zu seinen Lasten, unabhängig von seinem Verschulden. Der Mieter erkennt an, dass er bei fahrlässigem Umgang mit Fahrzeug, Papieren oder Schlüsseln sowie in anderen in den Versicherungsbedingungen oder im Gesetz vorgesehenen Fällen vom Versicherer in Regress genommen werden kann.` },
+          { type: "p", text: `Die Versicherung deckt keine Schäden, die vorsätzlich, unter Einfluss von Alkohol oder Drogen, ohne vorgeschriebene Fahrerlaubnis oder bei entzogenem Führerschein verursacht wurden, Fälle, in denen mehr Personen befördert werden als zugelassene Sitzplätze vorhanden sind, Schäden durch Krieg oder Aufruhr sowie andere in den Bedingungen des Versicherers oder in Rechtsvorschriften vorgesehene Fälle.` },
+          { type: "p", text: `Die Versicherung deckt nicht das Risiko der Zerstörung oder Beschädigung von Reifen, Felgen oder Radkappen sowie des Unterbodens.` },
+        ],
+      },
+      {
+        n: 9,
+        topic: "Beschädigung und Diebstahl des Fahrzeugs",
+        blocks: [
+          { type: "p", text: `Bei Beschädigung des Fahrzeugs zahlt der Mieter auf Verlangen des Vermieters die gesamten Reparaturkosten und sonstige Verluste des Vermieters, einschließlich des entgangenen Gewinns in Höhe der Tagesmiete für die Dauer der Reparatur nach geltender Preisliste, höchstens jedoch 30 Tage.` },
+          { type: "p", text: `Bei Diebstahl des Fahrzeugs oder anderen Umständen, durch die der Mieter das Fahrzeug am Ende der Miete nicht zurückgeben kann, zahlt der Mieter auf Verlangen des Vermieters den vollen Wert des Fahrzeugs, nämlich den Kaufpreis eines Neufahrzeugs laut Angebot des Lieferanten des Vermieters, sowie sonstige Verluste, einschließlich des entgangenen Gewinns in Höhe der Tagesmiete nach geltender Preisliste, höchstens jedoch 30 Tage.` },
+          { type: "p", text: `Bei Schäden gegenüber Dritten trägt der Mieter alle Kosten, die dem Vermieter daraus entstehen können.` },
+        ],
+      },
+      {
+        n: 10,
+        topic: "Haftung des Vermieters",
+        blocks: [
+          { type: "p", text: `Der Vermieter haftet nicht für Schäden, die dem Mieter durch eine verspätete Übergabe des Fahrzeugs entstehen, und nicht für Schäden durch einen Defekt des Fahrzeugs während der Mietdauer.` },
+          { type: "p", text: `Der Vermieter haftet nicht für Schäden an Personen oder Sachen, die im Fahrzeug befördert werden.` },
+        ],
+      },
+      {
+        n: 11,
+        topic: "Übertragung von Rechten und Änderungen",
+        blocks: [
+          { type: "p", text: `Der Mieter darf Rechte oder Pflichten aus diesem Vertrag nicht auf Dritte übertragen, das Fahrzeug, seine Teile oder Ausstattung nicht veräußern und keine Änderungen am Fahrzeug vornehmen.` },
+        ],
+      },
+      {
+        n: 12,
+        topic: "Anwendbares Recht",
+        blocks: [
+          { type: "p", text: `Für alle in diesen Bedingungen nicht geregelten Rechte und Pflichten gelten die Bestimmungen des am Sitz des Vermieters geltenden Obligationengesetzes.` },
+        ],
+      },
+      {
+        n: 13,
+        topic: "Gerichtsstand",
+        blocks: [
+          { type: "p", text: `Bei Streitigkeiten aus diesem Vertrag vereinbaren die Parteien die örtliche Zuständigkeit des sachlich zuständigen Gerichts in Široki Brijeg.` },
+        ],
+      },
+    ],
+  },
+  es: {
+    heading: "Condiciones de alquiler",
+    intro: "Condiciones generales de alquiler de vehículos de Maximum Rent a Car. Lee con atención todos los artículos antes de recoger el vehículo.",
+    articleLabel: "Artículo",
+    indexLabel: "Contenido",
+    articles: [
+      {
+        n: 1,
+        topic: "Definiciones",
+        blocks: [
+          {
+            type: "ul",
+            items: [
+              `«Arrendador»: la empresa MAXIMUM RENT A CAR d.o.o., con domicilio social en Potpolje bb, 88260 Čitluk, Bosnia y Herzegovina, número de registro: 4227631720004.`,
+              `«Arrendatario»: la persona física o jurídica a cuyo nombre se alquila el vehículo. En el Contrato de alquiler figura como «Arrendatario» y es responsable de cumplir todos los puntos de estas Condiciones generales y del Contrato de alquiler.`,
+              `«Contrato»: el contrato de alquiler individual que se firma al recoger el vehículo, que autoriza su uso y define la recogida y la devolución, la cobertura, el equipamiento y los servicios incluidos en el precio y la forma de pago. El Contrato recoge también el kilometraje, el nivel de combustible, los daños y posibles defectos del vehículo, así como otros derechos y obligaciones que ambas partes aceptan íntegramente con su firma.`,
+              `El estado del vehículo en el momento de la entrega y las Condiciones generales de alquiler forman parte del Contrato de alquiler.`,
+              `«Conductor o conductor adicional»: la persona física indicada en el Contrato como «Usuario», que firma el Contrato y recoge el vehículo, y que es responsable de cumplir todas sus disposiciones.`,
+              `«Usuario»: el Arrendatario, el conductor y el conductor adicional se denominan en adelante, en estas Condiciones generales, con el término único de «Usuario».`,
+              `«Vehículo» es el objeto del alquiler según el Contrato, cuyos datos figuran en el mismo.`,
+            ],
+          },
+        ],
+      },
+      {
+        n: 2,
+        topic: "Entrega del vehículo",
+        blocks: [
+          { type: "p", text: `Al firmar este Contrato, el Arrendatario confirma que ha recibido el vehículo en buen estado, sin daños y con el depósito lleno, salvo que el Contrato indique expresamente lo contrario por escrito. El Arrendatario confirma que, junto con el vehículo, ha recibido la documentación, las llaves, todo el equipamiento obligatorio y los accesorios, así como el equipamiento adicional indicado en el Contrato.` },
+          { type: "p", text: `Al firmar el Contrato, el Arrendatario garantiza al Arrendador que cumple la edad mínima para conducir un vehículo de motor y que posee los documentos necesarios según la normativa vigente de Bosnia y Herzegovina, que debe presentar al Arrendador en original. Una copia queda en poder del Arrendador como anexo al Contrato.` },
+        ],
+      },
+      {
+        n: 3,
+        topic: "Obligaciones en la devolución",
+        blocks: [
+          { type: "p", text: `El Arrendatario se compromete a:` },
+          {
+            type: "ul",
+            items: [
+              `devolver el vehículo en el lugar de recogida, a más tardar dentro del plazo fijado en este Contrato;`,
+              `devolver el vehículo antes del plazo acordado si el Arrendador lo solicita;`,
+              `devolver el vehículo en buen estado y sin daños, con toda la documentación, llaves, neumáticos, herramientas, equipamiento obligatorio, estándar y adicional y con el depósito lleno, tal como lo recibió;`,
+              `pagar las obligaciones económicas de este Contrato en el momento de recoger el vehículo, si no se abonan como anticipo o fianza;`,
+              `aceptar que el Arrendador pueda cargar en su tarjeta de crédito, o por otro medio de pago, todos los costes de reparación, defectos o pérdidas detectados tras la devolución que el Arrendatario no haya comunicado según el procedimiento de devolución;`,
+              `reconocer que el Arrendador está autorizado a cargar en su tarjeta de crédito cualquier coste que le genere el Contrato;`,
+              `solicitar con antelación al Arrendador cualquier ampliación del periodo de alquiler y cualquier otro cambio;`,
+              `si el Arrendatario supera el plazo de devolución acordado sin el consentimiento del Arrendador, este puede considerar el vehículo robado y denunciarlo a la policía. En ese caso, el Arrendatario asume todos los daños resultantes;`,
+              `si se supera el plazo de devolución, el Arrendatario asume todas las obligaciones y responsabilidades de este Contrato acordadas para la duración del alquiler.`,
+            ],
+          },
+          { type: "p", text: `Todos los empleados de MAXIMUM RENT A CAR d.o.o. pueden inspeccionar cualquier vehículo en cualquier momento. Si se comprueba que el Arrendatario ha incumplido alguna condición de este Contrato, los empleados están autorizados a retirar el vehículo.` },
+          { type: "p", text: `El Arrendador se reserva incondicionalmente el derecho a rescindir el Contrato de alquiler en cualquier momento y lugar antes de su vencimiento, sin obligación de indemnizar al Arrendatario.` },
+        ],
+      },
+      {
+        n: 4,
+        topic: "Obligaciones del Arrendatario",
+        blocks: [
+          { type: "p", text: `Obligaciones del Arrendatario:` },
+          {
+            type: "ul",
+            items: [
+              `recoger y usar el vehículo de acuerdo con la Ley de bases de seguridad vial de BiH, o con cualquier otra ley que regule el tráfico en otros países, y demás normativa aplicable;`,
+              `dejar de conducir inmediatamente si falla el cuentakilómetros e informar de ello al Arrendador sin demora;`,
+              `usar el vehículo solo para necesidades propias;`,
+              `que el vehículo lo conduzca solo el Arrendatario o una persona indicada en el Contrato como conductor o conductor adicional, siempre que tenga los permisos y documentos necesarios;`,
+              `no salir con el vehículo de Bosnia y Herzegovina salvo que el Contrato lo prevea, y no entrar en países donde no esté permitida la entrada;`,
+              `no usar el vehículo con fines ilícitos, por ejemplo para cometer delitos, infracciones aduaneras, de divisas u otras, o actos ilegales;`,
+              `no sobrecargar el vehículo con carga o pasajeros;`,
+              `no conducir bajo los efectos del alcohol o de estupefacientes;`,
+              `cuidar del buen estado técnico del vehículo y de sus revisiones periódicas obligatorias;`,
+              `revisar con regularidad y, si es necesario, reponer el refrigerante, el aceite y la presión de los neumáticos;`,
+              `cuando no use el vehículo, cerrarlo siempre, llevarse las llaves y la documentación y activar los dispositivos de seguridad que tenga;`,
+              `no usar el vehículo para el transporte comercial de mercancías, carga o pasajeros; para remolcar o transportar otros vehículos o remolques; para transportar materiales u objetos que puedan dañarlo o ensuciarlo (por ejemplo, animales, materiales inflamables, objetos muy sucios o con mal olor); para carreras, competiciones de motor o similares; ni para clases de conducción.`,
+              `usar el vehículo con la diligencia de un buen administrador, de acuerdo con la Ley de obligaciones de la Federación de BiH.`,
+            ],
+          },
+        ],
+      },
+      {
+        n: 5,
+        topic: "Costes y combustible",
+        blocks: [
+          { type: "p", text: `El coste del combustible consumido durante el alquiler corre a cargo del Arrendatario.` },
+          { type: "p", text: `Costes que el Arrendatario se compromete a pagar, independientemente de que se carguen al Arrendador como propietario, al Arrendatario o al conductor (salvo que se deban a culpa exclusiva del Arrendador), y que se deriven de:` },
+          {
+            type: "ul",
+            items: [
+              `el transporte del vehículo;`,
+              `garajes, aparcamiento, peajes de carreteras y puentes y similares;`,
+              `todas las multas por infracciones de tráfico u otras normas;`,
+              `procedimientos judiciales, sancionadores u otros;`,
+              `intereses de demora sobre dichas deudas;`,
+              `costes surgidos o causados durante el alquiler, independientemente de cuándo se determinen o venzan.`,
+            ],
+          },
+          { type: "p", text: `El Arrendador reembolsa al Arrendatario los gastos necesarios de aceite, lubricante, revisiones periódicas obligatorias y otras reparaciones menores durante el alquiler. Para ello, el Arrendatario debe presentar una factura válida emitida por la empresa que realizó el servicio. Si se comprueba que el Arrendatario cambió o reparó sin necesidad un conjunto, pieza o dispositivo, el Arrendador puede negarse a reembolsar ese coste. Los gastos de lavado no se reembolsan.` },
+        ],
+      },
+      {
+        n: 6,
+        topic: "Daños e indemnización",
+        blocks: [
+          { type: "p", text: `En caso de falta o daño del vehículo, del equipamiento o de los accesorios, sea cual sea la causa, el Arrendatario pagará al Arrendador su valor íntegro a precio de mercado de piezas nuevas idénticas, vigente en la fecha de devolución acordada.` },
+          { type: "p", text: `Si por negligencia del Arrendatario o del conductor se daña el motor o la transmisión (por ejemplo, por falta de aceite o refrigerante), el cárter, el embrague, los bajos del vehículo u otros elementos por un uso negligente (por ejemplo, conducción descuidada o fuera de carretera), el Arrendatario reembolsará al Arrendador el importe total de la reparación y, además, el alquiler diario perdido según la tarifa vigente durante la reparación, con un máximo de 30 días, así como todos los daños derivados, como el remolque o la pérdida de valor del vehículo. Si por cualquier motivo se necesita una limpieza especial, el Arrendador cubrirá el coste de la limpieza necesaria. El Arrendador se reserva el derecho a cobrar el servicio de repostaje.` },
+        ],
+      },
+      {
+        n: 7,
+        topic: "Seguro",
+        blocks: [
+          { type: "p", text: `Todos los vehículos están asegurados frente a la responsabilidad por daños a terceros.` },
+          { type: "p", text: `La franquicia depende del grupo del vehículo, se fija según la tarifa vigente del Arrendador y figura en el Contrato.` },
+          { type: "p", text: `CDW: seguro diario a todo riesgo con el que el Arrendatario limita su responsabilidad por daños al importe de la franquicia, que depende del grupo del vehículo. Si el daño es menor que la franquicia, se cobra el importe menor.` },
+          { type: "p", text: `TP: protección contra robo, con la que el usuario limita su responsabilidad por este tipo de daño al importe de su franquicia.` },
+          { type: "p", text: `CDW+: cobertura con la que se reduce, por un importe menor, parte de la responsabilidad por daños en la carrocería.` },
+          { type: "p", text: `SCDW: cobertura con la que se elimina por completo la responsabilidad económica por daños en la carrocería.` },
+          { type: "p", text: `El seguro no cubre en ningún caso:` },
+          {
+            type: "ol",
+            items: [
+              `daños en neumáticos, llantas y tapacubos;`,
+              `daños en los bajos del vehículo, el interior, el parabrisas y otros cristales;`,
+              `un embrague quemado;`,
+              `daños en el motor por falta de aceite, por repostar el combustible equivocado o por uso negligente;`,
+              `daños por la pérdida de documentos, llaves o matrículas;`,
+              `daños causados por un conductor bajo los efectos del alcohol, drogas u otras sustancias;`,
+              `daños causados por un conductor no autorizado;`,
+              `daños en el extranjero cuando el Arrendador no autorizó el paso de la frontera;`,
+              `cualquier daño del vehículo no comunicado a la policía competente o al Arrendador;`,
+            ],
+          },
+          { type: "p", text: `Si se produce cualquiera de estos supuestos, el Arrendatario responde por el importe total del daño.` },
+          { type: "p", text: `El Arrendador no responde por daños o pérdidas de los bienes del Arrendatario.` },
+        ],
+      },
+      {
+        n: 8,
+        topic: "Accidentes, robo y daños",
+        blocks: [
+          { type: "p", text: `En caso de accidente de tráfico, daño, avería, apropiación indebida, robo, fallo mecánico u otras circunstancias similares, el Arrendatario está obligado a:` },
+          {
+            type: "ul",
+            items: [
+              `proteger el vehículo hasta que el Arrendador se haga cargo de él;`,
+              `anotar los nombres y direcciones de los implicados y de los testigos;`,
+              `llamar a la policía competente y obtener su atestado, salvo en caso de fallo mecánico;`,
+              `declarar sin demora lo sucedido en la oficina más cercana del Arrendador.`,
+            ],
+          },
+          { type: "p", text: `Si el Arrendatario no obtiene el atestado policial, todos los costes de indemnización por daño o pérdida del vehículo corren íntegramente a su cargo, con independencia de su culpa. El Arrendatario reconoce que, en caso de trato negligente del vehículo, los documentos o las llaves, y en otros casos previstos por las normas del seguro o por la ley, la aseguradora puede reclamarle el importe.` },
+          { type: "p", text: `El seguro no cubre daños causados de forma intencionada, bajo los efectos del alcohol o drogas, sin el permiso de conducir exigido o con el permiso retirado, los casos en que el vehículo lleva más personas que plazas homologadas, los daños por actos de guerra o rebelión, ni otras circunstancias previstas por las normas de la aseguradora o por la ley.` },
+          { type: "p", text: `El seguro no cubre la destrucción o el daño de neumáticos, llantas o tapacubos, ni de los bajos del vehículo.` },
+        ],
+      },
+      {
+        n: 9,
+        topic: "Daños y robo del vehículo",
+        blocks: [
+          { type: "p", text: `En caso de daño del vehículo, el Arrendatario pagará, a petición del Arrendador, el importe total de la reparación y otras pérdidas que sufra el Arrendador, incluido el lucro cesante equivalente al alquiler diario durante la reparación según la tarifa vigente, con un máximo de 30 días.` },
+          { type: "p", text: `En caso de robo del vehículo u otras circunstancias por las que el Arrendatario no pueda devolverlo al final del alquiler, pagará, a petición del Arrendador, el valor íntegro del vehículo, es decir, el precio de compra de un vehículo nuevo según la oferta del proveedor del Arrendador, así como otras pérdidas, incluido el lucro cesante equivalente al alquiler diario según la tarifa vigente, con un máximo de 30 días.` },
+          { type: "p", text: `En caso de daños a terceros, el Arrendatario asumirá todos los costes que el Arrendador pudiera tener por ese motivo.` },
+        ],
+      },
+      {
+        n: 10,
+        topic: "Responsabilidad del Arrendador",
+        blocks: [
+          { type: "p", text: `El Arrendador no responde por los daños que pueda sufrir el Arrendatario por un retraso en la entrega del vehículo, ni por los daños derivados de una avería durante el alquiler.` },
+          { type: "p", text: `El Arrendador no responde por los daños a personas u objetos transportados en el vehículo.` },
+        ],
+      },
+      {
+        n: 11,
+        topic: "Cesión de derechos y modificaciones",
+        blocks: [
+          { type: "p", text: `El Arrendatario no puede ceder a terceros los derechos u obligaciones de este Contrato, ni enajenar el vehículo, sus piezas o equipamiento, ni realizar modificaciones en él.` },
+        ],
+      },
+      {
+        n: 12,
+        topic: "Ley aplicable",
+        blocks: [
+          { type: "p", text: `Todos los derechos y obligaciones no regulados en estas condiciones se rigen por la Ley de obligaciones vigente en el domicilio del Arrendador.` },
+        ],
+      },
+      {
+        n: 13,
+        topic: "Jurisdicción",
+        blocks: [
+          { type: "p", text: `En caso de litigio derivado de este Contrato, las partes aceptan la competencia territorial del tribunal competente por razón de la materia en Široki Brijeg.` },
         ],
       },
     ],

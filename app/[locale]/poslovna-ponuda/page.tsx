@@ -11,6 +11,7 @@ import { Heading } from "@/components/home/Heading";
 import { InquiryForm } from "@/components/forms/InquiryForm";
 import { CountStats, type Stat } from "@/components/about/CountStats";
 import { LeaseCompare } from "@/components/business/LeaseCompare";
+import { intlLocale } from "@/i18n/routing";
 
 const SERVICE_ICONS = [Wrench, ClipboardCheck, ShieldCheck, ArrowLeftRight, Disc3, Wand2];
 
@@ -40,7 +41,7 @@ export default async function BusinessPage({
   const services = t.raw("services") as string[];
   const rows = t.raw("compareRows") as string[];
   const wa = `https://wa.me/${company.whatsapp}?text=${encodeURIComponent(t("waText"))}`;
-  const nf = locale === "en" ? "en-GB" : "hr-HR";
+  const nf = intlLocale(locale);
 
   const stats: Stat[] = [
     { icon: "car", to: 3, label: t("avgAgeLabel") },

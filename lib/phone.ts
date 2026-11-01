@@ -15,7 +15,7 @@ export const COUNTRIES: Country[] = RAW.split(" ").map((c) => ({ iso: c.slice(0,
 const BY_ISO = new Map(COUNTRIES.map((c) => [c.iso, c]));
 const DIALS = [...new Set(COUNTRIES.map((c) => c.dial))].sort((a, b) => b.length - a.length);
 
-export const LOCALE_COUNTRY: Record<string, string> = { hr: "BA", en: "GB" };
+export const LOCALE_COUNTRY: Record<string, string> = { hr: "BA", en: "GB", de: "DE", es: "ES" };
 
 export const countryOf = (iso: string) => BY_ISO.get(iso) ?? BY_ISO.get("BA")!;
 
