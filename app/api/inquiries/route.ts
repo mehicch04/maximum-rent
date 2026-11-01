@@ -8,6 +8,9 @@ import { rentalDays, extraLineTotal } from "@/lib/extras";
 import { withUniqueReference, REF_PREFIX } from "@/lib/reference";
 import { sendOwnerNotification } from "@/lib/notify";
 import { dailyRate, rentalTotal as rentalTotalFor } from "@/lib/pricing";
+import { getCarBusy } from "@/lib/car-busy";
+import { overlapsBusy } from "@/lib/booking";
+import { availabilityFor, getBookedExtras } from "@/lib/extras-availability";
 
 export const runtime = "nodejs";
 
@@ -46,6 +49,10 @@ export async function POST(req: Request) {
       : null,
   ]);
 
+  if (car && overlapsBusy(await getCarBusy(car.id), new Date(d.pickupAt), new Date(d.returnAt))) {
+    return NextResponse.json({ ok: false, error: "booked" }, { status: 409 });
+  }
+
   const wanted = d.extras ?? [];
   const chosen = wanted.length
     ? await prisma.extra.findMany({
@@ -69,6 +76,14 @@ export async function POST(req: Request) {
     };
   });
 
+  if (extraRows.length) {
+    const booked = await getBookedExtras().catch(() => []);
+    const free = availabilityFor(chosen, booked, new Date(d.pickupAt), new Date(d.returnAt));
+    if (extraRows.some((r) => r.qty > (free[r.extraId] ?? 0))) {
+      return NextResponse.json({ ok: false, error: "extras", free }, { status: 409 });
+    }
+  }
+
   const extrasForEmail = extraRows.map((r) => ({
     nameHr: r.nameHr,
     nameEn: r.nameEn,
@@ -83,7 +98,7 @@ export async function POST(req: Request) {
     ),
   }));
 
-    const rentalTotal = await rentalTotalFor(car, days);
+  const rentalTotal = await rentalTotalFor(car, days);
   const extrasTotal = extrasForEmail.reduce((a, e) => a + e.lineTotal, 0);
   const totalPrice = rentalTotal + extrasTotal;
 

@@ -27,6 +27,7 @@ const inter = Inter({
 });
 
 const CLIENT_NAMESPACES = [
+  "Booking",
   "BusinessTeaser",
   "Common",
   "Extras",
@@ -36,9 +37,9 @@ const CLIENT_NAMESPACES = [
   "Form",
   "Hero",
   "HowItWorks",
-  "Inquiry",
   "Locations",
   "Nav",
+  "Phone",
   "Reviews",
   "Search",
   "WeddingCars",

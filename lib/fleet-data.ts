@@ -25,6 +25,7 @@ export const getActiveLocations = unstable_cache(
       orderBy: { sortOrder: "asc" },
       select: {
         id: true,
+        slug: true,
         name: true,
         street: true,
         city: true,

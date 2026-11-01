@@ -6,8 +6,6 @@ import { ArrowRight } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
-import { getActiveExtras } from "@/lib/extras";
-import { getBookedExtras } from "@/lib/extras-availability";
 import { toCarListItem } from "@/lib/types";
 import { getCompany } from "@/lib/company";
 import { getGooglePlace } from "@/lib/google-reviews";
@@ -53,7 +51,7 @@ export default async function HomePage({
 
   const t = await getTranslations("Fleet");
 
-  const [locations, featured, extras, bookedExtras, google] = await Promise.all([
+  const [locations, featured, google] = await Promise.all([
     // street is needed by the Locations section further down the page.
     prisma.location.findMany({
       where: { isActive: true },
@@ -65,8 +63,6 @@ export default async function HomePage({
       orderBy: { sortOrder: "asc" },
       take: 3,
     }),
-    getActiveExtras(),
-    getBookedExtras().catch(() => []),
     getGooglePlace(locale),
   ]);
 
@@ -103,10 +99,7 @@ export default async function HomePage({
           <FleetGrid
             cars={cars}
             showFilters={false}
-            locations={locations.map((l) => ({ id: l.id, name: l.name }))}
             imageSizes="(max-width: 639px) 45vw, (max-width: 1023px) 30vw, 20vw"
-            extras={extras}
-            bookedExtras={bookedExtras}
           />
 
           <div className="mt-10 flex justify-center">

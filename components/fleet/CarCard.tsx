@@ -19,6 +19,7 @@ import {
   label,
 } from "@/lib/car-labels";
 import { buildWhatsAppUrl, type InquiryContext } from "@/lib/whatsapp";
+import { bookingHref } from "@/lib/booking";
 import type { CarListItem, SearchContext } from "@/lib/types";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { CarDoorIcon } from "@/components/ui/CarDoorIcon";
@@ -29,7 +30,6 @@ import { ImageLightbox } from "./ImageLightbox";
 type Props = {
   car: CarListItem;
   search?: SearchContext;
-  onSelect?: (car: CarListItem) => void;
   /** Eagerly load this card's photo (first above-the-fold cards on the fleet page). */
   priority?: boolean;
   /** Override the image `sizes` (smaller on the homepage teaser). */
@@ -39,7 +39,6 @@ type Props = {
 export function CarCard({
   car,
   search,
-  onSelect,
   priority = false,
   imageSizes,
 }: Props) {
@@ -58,6 +57,16 @@ export function CarCard({
     locale,
   };
   const whatsappUrl = buildWhatsAppUrl(inquiry);
+  const detailHref = `/${locale}/vozila/${car.slug}`;
+  const bookHref =
+    search?.pickupAt && search?.returnAt
+      ? `/${locale}${bookingHref(car.slug, {
+          pickupLocationId: search.pickupLocationId,
+          returnLocationId: search.returnLocationId,
+          pickupAt: search.pickupAt,
+          returnAt: search.returnAt,
+        })}`
+      : `${detailHref}#rezervacija`;
 
   const specs = [
     { icon: CarIcon, value: label(CLASS_LABELS[car.carClass], locale) },
@@ -106,7 +115,7 @@ export function CarCard({
         <div>
           <h3 className="font-display text-lg font-semibold leading-tight tracking-tight">
             <Link
-              href={`/${locale}/vozila/${car.slug}`}
+              href={detailHref}
               className="transition-colors before:absolute before:inset-0 before:z-0 before:content-[''] hover:text-brand-strong"
             >
               {car.title}
@@ -140,14 +149,13 @@ export function CarCard({
         )}
 
         <div className="relative z-10 mt-auto flex items-center gap-2 pt-2">
-          <button
-            type="button"
-            onClick={() => onSelect?.(car)}
+          <Link
+            href={bookHref}
             className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-brand-foreground shadow-brand transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            {t("select")}
+            {t("book")}
             <ChevronRight className="h-4 w-4" />
-          </button>
+          </Link>
 
           <a
             href={whatsappUrl}

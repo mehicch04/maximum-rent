@@ -7,11 +7,11 @@ import { ArrowLeft } from "lucide-react";
 import { getCarBySlug, getSimilarCars } from "@/lib/car-detail";
 import { getActiveLocations } from "@/lib/fleet-data";
 import { getActiveExtras } from "@/lib/extras";
-import { getBookedExtras } from "@/lib/extras-availability";
+import { getCarBusy } from "@/lib/car-busy";
 import { SITE_URL } from "@/lib/seo";
 import { CarDetail } from "@/components/fleet/CarDetail";
 
-export const revalidate = 300;
+export const revalidate = 60;
 
 type Props = { params: { locale: string; slug: string } };
 
@@ -52,11 +52,11 @@ export default async function CarPage({ params }: Props) {
   const car = await getCarBySlug(params.slug);
   if (!car) notFound();
 
-  const [similar, locations, extras, booked, t] = await Promise.all([
+  const [similar, locations, extras, busy, t] = await Promise.all([
     getSimilarCars(car.slug, car.carClass),
     getActiveLocations(),
     getActiveExtras(),
-    getBookedExtras().catch(() => []),
+    getCarBusy(car.id),
     getTranslations("Fleet"),
   ]);
 
@@ -102,9 +102,9 @@ export default async function CarPage({ params }: Props) {
       <CarDetail
         car={car}
         similar={similar}
-        locations={locations.map((l) => ({ id: l.id, name: l.name }))}
+        locations={locations.map((l) => ({ id: l.id, name: l.name, slug: l.slug }))}
         extras={extras}
-        bookedExtras={booked}
+        busy={busy}
         locale={params.locale}
       />
     </main>
