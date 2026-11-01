@@ -12,15 +12,15 @@ export function CtaBand() {
   const phone = company.phones[0];
 
   return (
-    <section className="px-3 pb-3 sm:px-4">
+    <section className="px-3 py-5 sm:px-4 sm:py-8">
       <div className="relative isolate overflow-hidden rounded-[28px] bg-ink">
         <Image
-          src="/hero-poster.webp"
+          src="/fleet-premium.webp"
           alt=""
           aria-hidden
           fill
           sizes="100vw"
-          className="-z-10 object-cover object-[70%_60%]"
+          className="-z-10 object-cover object-[center_40%]"
         />
         <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/95 via-ink/75 via-45% to-ink/20" />
         <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-1/3 bg-gradient-to-t from-ink/60 to-transparent" />

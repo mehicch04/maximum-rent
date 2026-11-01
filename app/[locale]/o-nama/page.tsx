@@ -81,7 +81,7 @@ export default async function AboutPage({
           </div>
           <StoryCollage
             main="/wed-1.webp"
-            side="/hero-poster.webp"
+            side="/fleet-aerial.webp"
             mainAlt={t("collageMainAlt")}
             sideAlt={t("collageSideAlt")}
             score={score.toLocaleString(nf, { minimumFractionDigits: 1 })}

@@ -26,7 +26,7 @@ export function GuidesTeaser({ guides }: { guides: Guide[] }) {
       : [];
 
   return (
-    <Band id="vodici" className="scroll-mt-24 py-3">
+    <Band id="vodici" className="scroll-mt-24">
       <PoliceLights />
       <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:items-end lg:gap-12">

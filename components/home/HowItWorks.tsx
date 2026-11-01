@@ -48,7 +48,7 @@ export function HowItWorks() {
   const caps = "uppercase tracking-[0.2em]";
 
   return (
-    <section className="px-3 sm:px-4">
+    <section className="px-3 py-5 sm:px-4 sm:py-8">
       <div className="relative overflow-hidden rounded-[28px] bg-ink py-20 dark:ring-1 dark:ring-white/10 sm:py-24">
         <span
           aria-hidden

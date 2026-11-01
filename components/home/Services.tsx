@@ -34,7 +34,7 @@ export function Services({ images, locations }: { images: string[]; locations: L
   const wa = `https://wa.me/${company.whatsapp}`;
 
   return (
-    <section id="usluge" className="scroll-mt-24 px-3 py-3 sm:px-4">
+    <section id="usluge" className="scroll-mt-24 px-3 py-5 sm:px-4 sm:py-8">
       <div className="rounded-[28px] bg-background">
         <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
           <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">

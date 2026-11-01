@@ -51,7 +51,7 @@ export function WeddingCarsSection() {
   const phone = company.phones[0];
 
   return (
-    <section id="vjencanja" className="scroll-mt-24 px-3 py-3 sm:px-4">
+    <section id="vjencanja" className="scroll-mt-24 px-3 py-5 sm:px-4 sm:py-8">
       <div className="relative isolate overflow-hidden rounded-[28px] bg-[#F6F2EC]">
         <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[520px] w-[900px] -translate-x-1/2 -translate-y-1/3 rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.95),transparent)]" />
 

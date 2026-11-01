@@ -5,8 +5,8 @@ export function PageHeader({
   eyebrow,
   title,
   lead,
-  image = "/hero-poster.webp",
-  position = "object-[70%_center]",
+  image = "/fleet-aerial.webp",
+  position = "object-center",
   children,
 }: {
   eyebrow?: string;
