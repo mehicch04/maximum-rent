@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/seo";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, CalendarX } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import { getCompany } from "@/lib/company";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 
 import { type SearchContext } from "@/lib/types";
 import { getAvailableCars, isValidPeriod } from "@/lib/availability";
@@ -64,9 +68,10 @@ export default async function VehiclesPage({
     !!pickupDate && !!returnDate && isValidPeriod(pickupDate, returnDate);
   const periodInvalid = hasDates && !periodValid;
 
-  const [cars, locations] = await Promise.all([
+  const [cars, locations, company] = await Promise.all([
     periodValid ? getAvailableCars(pickupDate!, returnDate!) : getBrowseCars(),
     getActiveLocations(),
+    getCompany(),
   ]);
 
   const byId = new Map(locations.map((l) => [l.id, l]));
@@ -86,47 +91,68 @@ export default async function VehiclesPage({
   const heading = periodValid ? t("resultsTitle") : t("allVehicles");
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      <ReservationSearchForm locations={locations} />
+    <>
+      <PageHeader eyebrow={t("eyebrow")} title={heading} lead={t("subtitle")} image="/fleet-aerial.webp" position="object-[center_60%]" />
 
-      {periodValid && (
-        <div className="mt-8">
-          <ReservationSummary
-            pickupAt={pickupAtRaw!}
-            returnAt={returnAtRaw!}
-            pickupName={pickupLocation?.name}
-            returnName={returnLocation?.name}
-          />
+      <div className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 sm:pb-24">
+        <div className="relative z-10 -mt-14 sm:-mt-16">
+          <ReservationSearchForm locations={locations} />
         </div>
-      )}
 
-      {periodInvalid && (
-        <div className="mt-8 flex items-start gap-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-300">
-          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
-          <p>{t("invalidPeriod")}</p>
-        </div>
-      )}
+        {periodValid && (
+          <div className="mt-8">
+            <ReservationSummary
+              pickupAt={pickupAtRaw!}
+              returnAt={returnAtRaw!}
+              pickupName={pickupLocation?.name}
+              returnName={returnLocation?.name}
+            />
+          </div>
+        )}
 
-      <div className="mb-8 mt-12">
-        <h1 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          {heading}
-        </h1>
-        <p className="mt-3 text-muted-foreground">{t("subtitle")}</p>
+        {periodInvalid && (
+          <div className="mt-8 flex items-start gap-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-700">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+            <p>{t("invalidPeriod")}</p>
+          </div>
+        )}
+
+        {items.length > 0 ? (
+          <div className="mt-10 sm:mt-12">
+            <FleetGrid
+              cars={items}
+              search={search}
+              eagerFirstImages
+              initialType={initialType}
+              imageSizes="(max-width: 639px) 92vw, (max-width: 1023px) 46vw, 31vw"
+            />
+          </div>
+        ) : (
+          <div className="mt-10 rounded-[28px] bg-surface p-8 text-center ring-1 ring-border sm:mt-12 sm:p-12">
+            <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand/10 text-brand-strong">
+              <CalendarX className="h-6 w-6" />
+            </span>
+            <h2 className="mt-5 font-display text-xl font-bold text-foreground sm:text-2xl">{t("noResultsTitle")}</h2>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-[15px]">{t("noResults")}</p>
+            <div className="mt-7 flex flex-wrap justify-center gap-3">
+              <Link href="/vozila" className="inline-flex h-11 items-center rounded-full bg-ink px-5 text-sm font-semibold text-white transition-colors hover:bg-ink/90">
+                {t("showAll")}
+              </Link>
+              {company.whatsapp && (
+                <a
+                  href={`https://wa.me/${company.whatsapp}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-11 items-center gap-2 rounded-full bg-[#25D366] px-5 text-sm font-semibold text-ink transition-[filter] hover:brightness-105"
+                >
+                  <WhatsAppIcon className="h-4 w-4" />
+                  {t("askUs")}
+                </a>
+              )}
+            </div>
+          </div>
+        )}
       </div>
-
-      {items.length > 0 ? (
-        <FleetGrid
-          cars={items}
-          search={search}
-          eagerFirstImages
-          initialType={initialType}
-          imageSizes="(max-width: 639px) 92vw, (max-width: 1023px) 46vw, 31vw"
-        />
-      ) : (
-        <p className="rounded-2xl border border-border bg-surface p-8 text-center text-muted-foreground">
-          {t("noResults")}
-        </p>
-      )}
-    </div>
+    </>
   );
 }

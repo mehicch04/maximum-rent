@@ -71,7 +71,7 @@
       "TRANSPORT": "Transport",
       "MINIBUS": "Minibus"
     },
-    "invalidPeriod": "Odabrani period nije ispravan — datum povrata mora biti nakon preuzimanja. Prikazujemo sva vozila.",
+    "invalidPeriod": "Odabrani period nije ispravan, datum povrata mora biti nakon preuzimanja. Prikazujemo sva vozila.",
     "viewAll": "Pogledajte sva vozila",
     "sort": {
       "label": "Sortiraj:",
@@ -79,8 +79,8 @@
       "priceAsc": "Cijena: od najniže",
       "priceDesc": "Cijena: od najviše",
       "yearDesc": "Godište: najnovije",
-      "nameAsc": "Naziv: A–Z",
-      "nameDesc": "Naziv: Z–A"
+      "nameAsc": "Naziv: od A do Ž",
+      "nameDesc": "Naziv: od Ž do A"
     },
     "brandLabel": "Marka",
     "allBrands": "Sve marke",
@@ -127,7 +127,11 @@
       "class": "Klasa",
       "yes": "Da",
       "no": "Ne"
-    }
+    },
+    "eyebrow": "Vozni park",
+    "noResultsTitle": "Za ove datume nema slobodnih vozila",
+    "showAll": "Prikaži sva vozila",
+    "askUs": "Pitajte nas na WhatsApp"
   },
   "Footer": {
     "contact": "Kontakt",
@@ -137,7 +141,9 @@
     "rights": "Sva prava pridržana.",
     "hours": "Radno vrijeme",
     "navTitle": "Izbornik",
-    "chat": "Pišite nam"
+    "chat": "Pišite nam",
+    "privacy": "Politika privatnosti",
+    "cookies": "Postavke kolačića"
   },
   "About": {
     "eyebrow": "O nama",
@@ -320,23 +326,10 @@
     "backToTop": "Nazad na vrh",
     "prevImage": "Prethodna slika",
     "nextImage": "Sljedeća slika",
-    "closeGallery": "Zatvori galeriju"
-  },
-  "Features": {
-    "items": [
-      {
-        "title": "6 lokacija",
-        "body": "Preuzimanje i povrat u Čitluku, Mostaru, Međugorju, Čapljini, Ljubuškom i na Zračnoj luci Mostar."
-      },
-      {
-        "title": "Sve uključeno",
-        "body": "Osiguranje, vinjete za BiH i neograničena kilometraža, bez skrivenih troškova."
-      },
-      {
-        "title": "Podrška 0 do 24",
-        "body": "Tu smo u svakom trenutku vašeg putovanja, i noću i vikendom."
-      }
-    ]
+    "closeGallery": "Zatvori galeriju",
+    "waText": "Pozdrav, zanima me najam vozila.",
+    "waLabel": "Pišite nam na WhatsApp",
+    "waShort": "Pišite nam"
   },
   "HomeFleet": {
     "eyebrow": "Izdvojena vozila",
@@ -368,7 +361,7 @@
     "eyebrow": "Kako funkcioniše",
     "title": "Do vozila u",
     "accent": "tri koraka",
-    "lead": "Bez online plaćanja i bez otvaranja računa. Pošaljete upit, potvrdu dobijete na email, a mi se javljamo za sve ostalo.",
+    "lead": "Bez otvaranja računa i bez komplikacija. Pošaljete upit, potvrdu dobijete na email, a mi se javljamo za sve ostalo.",
     "cta": "Pogledajte vozila",
     "steps": [
       {
@@ -385,13 +378,13 @@
       }
     ],
     "pass": {
-      "code": "OMO",
+      "code": "Mostar",
       "label": "Ukrcajna karta",
       "from": "Od",
       "to": "Do",
       "you": "Vi",
       "youSub": "Gdje god da ste",
-      "destSub": "Zračna luka Mostar",
+      "destSub": "Zračna luka (OMO)",
       "step": "Korak",
       "payLabel": "Plaćanje",
       "pay": "Bez plaćanja online",
@@ -442,7 +435,16 @@
         ],
         "badge": "Predvidiv mjesečni trošak",
         "cta": "Zatražite ponudu",
-        "imageAlt": "Poslovno vozilo iz ponude Maximum Rent a Car"
+        "imageAlt": "Poslovno vozilo iz ponude Maximum Rent a Car",
+        "includedTitle": "Uključeno u mjesečnu cijenu",
+        "included": [
+          "Održavanje",
+          "Registracija",
+          "Osiguranje vozila",
+          "Zamjensko vozilo",
+          "Skladištenje guma",
+          "Upravljanje štetama"
+        ]
       },
       {
         "label": "Lokacije",
@@ -464,16 +466,8 @@
         "body": "Od gradskih automobila do luksuznih limuzina, SUV vozila i kombija."
       },
       {
-        "title": "Vozila za vjenčanja",
-        "body": "Luksuzna vozila za mladence, kumove i goste na vaš poseban dan."
-      },
-      {
         "title": "Putovanja izvan BiH",
         "body": "Vozilom možete i van granica BiH, uz prethodnu najavu i odgovarajuću dokumentaciju."
-      },
-      {
-        "title": "Jasni uvjeti najma",
-        "body": "Minimalna dob 21 godina, vozačka dozvola starija od 2 godine i polog koji se vraća u cijelosti."
       }
     ],
     "route": {
@@ -527,8 +521,8 @@
         "l": "neograničena kilometraža"
       },
       {
-        "v": "6",
-        "l": "lokacija za preuzimanje"
+        "v": "2+",
+        "l": "godine vozačke dozvole"
       }
     ],
     "search": "Pretraži pitanja",
@@ -572,32 +566,36 @@
   },
   "Seo": {
     "home": {
-      "title": "Najam vozila u Hercegovini — Mostar, Međugorje, Čitluk",
-      "description": "Premium najam vozila u Hercegovini s preuzimanjem na 6 lokacija — Mostar, Međugorje, Čitluk, Čapljina i Ljubuški. Od gradskih automobila do luksuznih limuzina i SUV-ova. Provjerite dostupnost i rezervirajte."
+      "title": "Najam vozila u Hercegovini: Mostar, Međugorje, Čitluk",
+      "description": "Premium najam vozila u Hercegovini s preuzimanjem na 6 lokacija: Mostar, Međugorje, Čitluk, Čapljina i Ljubuški. Od gradskih automobila do luksuznih limuzina i SUV vozila. Provjerite dostupnost i rezervirajte."
     },
     "fleet": {
-      "title": "Vozni park — iznajmite automobil",
-      "description": "Pregledajte vozni park Maximum Rent a Car — limuzine, SUV-ovi, luksuzna i gradska vozila. Provjerite dostupnost za svoje datume i pošaljite upit za rezervaciju."
+      "title": "Vozni park: iznajmite automobil",
+      "description": "Pregledajte vozni park Maximum Rent a Car: limuzine, SUV vozila, luksuzna i gradska vozila. Provjerite dostupnost za svoje datume i pošaljite upit za rezervaciju."
     },
     "about": {
       "title": "O nama",
-      "description": "Upoznajte Maximum Rent a Car — pouzdan najam vozila u Hercegovini od 2009. godine, preuzimanje na 6 lokacija i vozni park za svaku potrebu i budžet."
+      "description": "Upoznajte Maximum Rent a Car, pouzdan najam vozila u Hercegovini od 2009. godine, s preuzimanjem na 6 lokacija i voznim parkom za svaku potrebu i budžet."
     },
     "business": {
       "title": "Poslovni i dugoročni najam vozila",
-      "description": "Dugoročni i poslovni najam vozila za firme — fleksibilni uvjeti, povoljnije od klasičnog leasinga. Zatražite ponudu prilagođenu vašem poslovanju."
+      "description": "Dugoročni i poslovni najam vozila za tvrtke uz fleksibilne uvjete, povoljnije od klasičnog leasinga. Zatražite ponudu prilagođenu vašem poslovanju."
     },
     "terms": {
       "title": "Uvjeti najma",
-      "description": "Uvjeti najma vozila u Maximum Rent a Car — rezervacija, preuzimanje i povrat vozila, osiguranje i plaćanje, jasno i pregledno objašnjeni."
+      "description": "Uvjeti najma vozila u Maximum Rent a Car: rezervacija, preuzimanje i povrat vozila, osiguranje i plaćanje, jasno i pregledno objašnjeni."
     },
     "contact": {
       "title": "Kontakt i lokacije",
-      "description": "Kontaktirajte Maximum Rent a Car — telefon, email, WhatsApp i sve lokacije u Hercegovini (Mostar, Međugorje, Čitluk, Čapljina, Ljubuški). Radno vrijeme 07:30–20:30h."
+      "description": "Kontaktirajte Maximum Rent a Car putem telefona, emaila ili WhatsAppa. Sve lokacije u Hercegovini: Mostar, Međugorje, Čitluk, Čapljina i Ljubuški. Radno vrijeme od 07:30 do 20:30h."
     },
     "guides": {
-      "title": "Vodiči za vožnju po BiH: kazne i pravila",
-      "description": "Prometne kazne u BiH u KM i eurima, ograničenja brzine i pravila vožnje koja trebate znati prije najma vozila u Hercegovini."
+      "title": "Vodiči za vožnju po BiH: kazne, pravila i izleti",
+      "description": "Prometne kazne u BiH u KM i eurima, ograničenja brzine, pravila vožnje i izleti autom iz Mostara i Međugorja s okvirnim udaljenostima."
+    },
+    "privacy": {
+      "title": "Politika privatnosti",
+      "description": "Kako Maximum Rent a Car prikuplja, koristi i štiti vaše osobne podatke, koje kolačiće koristimo i kako ostvariti svoja prava."
     }
   },
   "WeddingCars": {
@@ -623,7 +621,7 @@
   },
   "Extras": {
     "title": "Dodatna oprema",
-    "subtitle": "Nije obavezno — javite nam šta vam treba, potvrđujemo uz rezervaciju.",
+    "subtitle": "Nije obavezno. Javite nam šta vam treba, potvrđujemo uz rezervaciju.",
     "perDay": "dan",
     "included": "Uključeno",
     "increase": "Dodaj: {name}",
@@ -742,13 +740,13 @@
     "eyebrow": "Vodiči",
     "title": "Prije nego",
     "accent": "krenete na put.",
-    "lead": "Kratki vodiči za vožnju po BiH: prometne kazne i pravila koja posjetitelje najčešće iznenade.",
+    "lead": "Kratki vodiči za vožnju po BiH: prometne kazne, pravila koja posjetitelje najčešće iznenade i izleti autom.",
     "all": "Svi vodiči",
     "read": "Pročitajte vodič",
     "minutes": "{n} min čitanja",
     "updated": "Ažurirano {date}",
     "pageTitle": "Vodiči za vožnju po BiH",
-    "pageLead": "Što trebate znati prije nego sjednete za volan: propisi, ograničenja brzine i iznosi kazni.",
+    "pageLead": "Što trebate znati prije nego sjednete za volan: propisi, iznosi kazni i najljepši izleti u okolici.",
     "ctaTitle": "Spremni za put?",
     "ctaBody": "Odaberite vozilo i termin. Potvrdu upita dobivate na email.",
     "ctaButton": "Pogledajte vozila",
@@ -766,5 +764,24 @@
     "accent": "u Čitluku.",
     "reviews": "{count, plural, one {# recenzija na Googleu} few {# recenzije na Googleu} other {# recenzija na Googleu}}",
     "directions": "Upute do nas"
+  },
+  "Consent": {
+    "title": "Kolačići i privatnost",
+    "body": "Koristimo samo nužne kolačiće i lokalnu pohranu za jezik, valutu i vaše postavke. Google karte učitavamo tek uz vašu privolu.",
+    "policy": "Politika privatnosti",
+    "necessaryT": "Nužni",
+    "necessaryB": "Jezik, valuta i postavke privatnosti. Bez njih stranica ne radi ispravno.",
+    "always": "Uvijek",
+    "mapsT": "Google karte",
+    "mapsB": "Prikaz ugrađenih karata. Google pritom može postaviti vlastite kolačiće.",
+    "save": "Spremi odabir",
+    "necessary": "Samo nužni",
+    "acceptAll": "Prihvati sve",
+    "settings": "Postavke",
+    "close": "Zatvori",
+    "mapTitle": "Karta je isključena",
+    "mapBody": "Google karta se prikazuje tek uz vašu privolu jer Google pritom postavlja vlastite kolačiće.",
+    "mapShow": "Prikaži kartu",
+    "mapOpen": "Otvori u Google kartama"
   }
 }

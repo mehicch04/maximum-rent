@@ -27,7 +27,7 @@ export default async function GuidesPage({ params: { locale } }: { params: { loc
     <>
       <PageHeader eyebrow={t("eyebrow")} title={t("pageTitle")} lead={t("pageLead")} image="/wed-4.webp" position="object-center" />
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-        <ul className="grid gap-4 sm:grid-cols-2">
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {guides.map((g) => (
             <li key={g.slug}>
               <GuideCard guide={g} level={2} readLabel={t("read")} minutesLabel={t("minutes", { n: g.minutes })} />

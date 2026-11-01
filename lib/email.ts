@@ -5,7 +5,9 @@ import {
   contactRequestHtml,
   ownerInquiryHtml,
   guestConfirmationHtml,
+  guestSubject,
   decisionHtml,
+  type GuestLang,
 } from "@/lib/email-templates";
 
 export type ExtraLine = {
@@ -26,13 +28,15 @@ type InquiryEmailData = Omit<InquiryInput, "extras"> & {
   returnLocationName?: string | null;
 };
 
-function fmt(iso: string, locale: "HR" | "EN" = "HR"): string {
+const FMT_LOCALE = { HR: "hr-HR", EN: "en-GB", DE: "de-DE", ES: "es-ES" } as const;
+
+function fmt(iso: string, locale: GuestLang = "HR"): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  return new Intl.DateTimeFormat(locale === "EN" ? "en-GB" : "hr-HR", {
+  return new Intl.DateTimeFormat(FMT_LOCALE[locale], {
     timeZone: "Europe/Sarajevo",
     day: "2-digit",
-    month: locale === "EN" ? "short" : "2-digit",
+    month: locale === "HR" ? "2-digit" : "short",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
@@ -118,7 +122,7 @@ export async function sendGuestConfirmationEmail(
     return { sent: false, error: "missing_api_key" };
   }
 
-  const locale: "HR" | "EN" = data.locale === "hr" ? "HR" : "EN";
+  const locale: GuestLang = data.locale === "de" ? "DE" : data.locale === "es" ? "ES" : data.locale === "hr" ? "HR" : "EN";
   const resend = new Resend(apiKey);
 
   const dot = " &middot; ";
@@ -144,10 +148,7 @@ export async function sendGuestConfirmationEmail(
     locale,
   );
 
-  const subject =
-    locale === "EN"
-      ? `We received your inquiry · ${data.reference}`
-      : `Zaprimili smo vaš upit · ${data.reference}`;
+  const subject = guestSubject(locale, data.reference);
 
   try {
     const { error } = await resend.emails.send({
@@ -261,7 +262,7 @@ const DECISION_COPY = {
     confirmedTitle: "Vaša rezervacija je potvrđena!",
     cancelledTitle: "Vaša rezervacija nažalost nije potvrđena",
     confirmedIntro:
-      "s zadovoljstvom potvrđujemo vašu rezervaciju. Detalji su ispod — vidimo se!",
+      "s zadovoljstvom potvrđujemo vašu rezervaciju. Detalji su ispod, vidimo se!",
     cancelledIntro:
       "nažalost nismo u mogućnosti potvrditi vašu rezervaciju za traženi period.",
     car: "Vozilo",
@@ -273,7 +274,7 @@ const DECISION_COPY = {
     confirmedNotice:
       '<strong style="color:#111111;">Vozilo je rezervisano</strong> za navedeni period. Molimo ponesite važeću vozačku dozvolu i osobni dokument pri preuzimanju.',
     cancelledNotice:
-      '<strong style="color:#111111;">Rezervacija nije potvrđena.</strong> Slobodno nas kontaktirajte — rado ćemo pronaći alternativni termin ili vozilo.',
+      '<strong style="color:#111111;">Rezervacija nije potvrđena.</strong> Slobodno nas kontaktirajte, rado ćemo pronaći alternativni termin ili vozilo.',
     confirmedPre: (ref: string) => `Rezervacija ${ref} je potvrđena.`,
     cancelledPre: (ref: string) => `Rezervacija ${ref} nije potvrđena.`,
   },
@@ -283,7 +284,7 @@ const DECISION_COPY = {
     confirmedTitle: "Your reservation is confirmed!",
     cancelledTitle: "Unfortunately, your reservation was not confirmed",
     confirmedIntro:
-      "we're happy to confirm your reservation. Details below — see you soon!",
+      "we're happy to confirm your reservation. Details are below, see you soon!",
     cancelledIntro:
       "unfortunately we are unable to confirm your reservation for the requested period.",
     car: "Vehicle",
@@ -295,7 +296,7 @@ const DECISION_COPY = {
     confirmedNotice:
       '<strong style="color:#111111;">Your vehicle is reserved</strong> for the selected period. Please bring a valid driving licence and ID at pick-up.',
     cancelledNotice:
-      '<strong style="color:#111111;">The reservation was not confirmed.</strong> Feel free to contact us — we will gladly find an alternative date or vehicle.',
+      '<strong style="color:#111111;">The reservation was not confirmed.</strong> Feel free to contact us and we will gladly find an alternative date or vehicle.',
     confirmedPre: (ref: string) => `Reservation ${ref} is confirmed.`,
     cancelledPre: (ref: string) => `Reservation ${ref} was not confirmed.`,
   },

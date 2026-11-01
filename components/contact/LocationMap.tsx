@@ -3,11 +3,14 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ExternalLink, MapPin, Navigation } from "lucide-react";
+import { useMapsConsent } from "@/lib/consent";
+import { MapPlaceholder } from "@/components/consent/MapConsent";
 
 export type MapSpot = { slug: string; name: string; street: string; query: string; link: string };
 
 export function LocationMap({ spots, locale, openLabel, routeLabel }: { spots: MapSpot[]; locale: string; openLabel: string; routeLabel: string }) {
   const [active, setActive] = useState(0);
+  const [ok, allow] = useMapsConsent();
   const spot = spots[active] ?? spots[0];
   if (!spot) return null;
   const src = `https://maps.google.com/maps?q=${encodeURIComponent(spot.query)}&z=15&hl=${locale}&output=embed`;
@@ -48,7 +51,9 @@ export function LocationMap({ spots, locale, openLabel, routeLabel }: { spots: M
       </ul>
 
       <div className="relative h-[380px] overflow-hidden rounded-[28px] bg-surface-muted ring-1 ring-border sm:h-[460px]">
+        {ok === false && <MapPlaceholder link={spot.link} onAllow={() => allow(true)} />}
         <AnimatePresence initial={false}>
+          {ok && (
           <motion.iframe
             key={spot.slug}
             src={src}
@@ -62,8 +67,9 @@ export function LocationMap({ spots, locale, openLabel, routeLabel }: { spots: M
             transition={{ duration: 0.4 }}
             className="absolute inset-0 h-full w-full grayscale-[20%] dark:hue-rotate-180 dark:invert-[0.9]"
           />
+          )}
         </AnimatePresence>
-        <div className="pointer-events-none absolute inset-x-3 bottom-3 flex flex-wrap items-end justify-between gap-2 sm:inset-x-4 sm:bottom-4">
+        <div className={`pointer-events-none absolute inset-x-3 bottom-3 flex flex-wrap items-end justify-between gap-2 sm:inset-x-4 sm:bottom-4 ${ok ? "" : "hidden"}`}>
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={spot.slug}

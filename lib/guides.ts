@@ -5,7 +5,7 @@ export type GuideBlock =
   | { type: "table"; head: [string, string]; rows: [string, string][] }
   | { type: "note"; text: string };
 
-export type GuideIcon = "fines" | "rules";
+export type GuideIcon = "fines" | "rules" | "trips";
 
 export type Guide = {
   slug: string;
@@ -23,6 +23,7 @@ type Copy = Pick<Guide, "title" | "lead" | "blocks">;
 const META = [
   { slug: "prometne-kazne-bih", icon: "fines", minutes: 2 },
   { slug: "pravila-voznje-bih", icon: "rules", minutes: 2 },
+  { slug: "izleti-mostar-medugorje", icon: "trips", minutes: 3 },
 ] as const;
 
 const UPDATED = "2026-11-01";
@@ -302,9 +303,105 @@ function copy(l: Loc): Copy[] {
   ];
 }
 
+const SHORT_TRIPS: [number, number, string][] = [
+  [0, 25, "30 min"],
+  [1, 20, "25 min"],
+  [2, 12, "15 min"],
+  [3, 30, "30 min"],
+  [4, 50, "45 min"],
+];
+
+const LONG_TRIPS: [number, number, string][] = [
+  [5, 130, "2 h"],
+  [6, 140, "2 h 30 min"],
+  [7, 165, "2 h 30 min"],
+];
+
+const PLACES: Record<Loc, string[]> = {
+  hr: ["Mostar, iz Međugorja", "Vodopad Kravica, iz Međugorja", "Blagaj i vrelo Bune, iz Mostara", "Počitelj, iz Mostara", "Jablanica i kanjon Neretve, iz Mostara", "Sarajevo, iz Mostara", "Dubrovnik, iz Mostara", "Split, iz Mostara"],
+  en: ["Mostar, from Međugorje", "Kravica Waterfall, from Međugorje", "Blagaj and the Buna spring, from Mostar", "Počitelj, from Mostar", "Jablanica and the Neretva canyon, from Mostar", "Sarajevo, from Mostar", "Dubrovnik, from Mostar", "Split, from Mostar"],
+  de: ["Mostar, ab Međugorje", "Wasserfall Kravica, ab Međugorje", "Blagaj und die Quelle der Buna, ab Mostar", "Počitelj, ab Mostar", "Jablanica und die Schlucht der Neretva, ab Mostar", "Sarajevo, ab Mostar", "Dubrovnik, ab Mostar", "Split, ab Mostar"],
+  es: ["Mostar, desde Međugorje", "Cascada de Kravica, desde Međugorje", "Blagaj y el manantial del Buna, desde Mostar", "Počitelj, desde Mostar", "Jablanica y el cañón del Neretva, desde Mostar", "Sarajevo, desde Mostar", "Dubrovnik, desde Mostar", "Split, desde Mostar"],
+};
+
+function tripTable(l: Loc, list: [number, number, string][], head: [string, string]): GuideBlock {
+  return { type: "table", head, rows: list.map(([i, km, time]) => [PLACES[l][i], `${W[l].about} ${km} km · ${time}`] as [string, string]) };
+}
+
+const TRIPS: Record<Loc, () => Copy> = {
+  hr: () => ({
+    title: "Izleti autom iz Mostara i Međugorja",
+    lead: "Najljepša mjesta Hercegovine i okolice na sat ili dva vožnje, s okvirnim udaljenostima.",
+    blocks: [
+      { type: "p", text: "Hercegovina je kompaktna: većina znamenitosti udaljena je manje od sat vremena vožnje od Mostara i Međugorja. S vlastitim vozilom vidite više nego na organiziranom izletu i sami birate ritam." },
+      { type: "h2", text: "Kratki izleti, do sat vremena" },
+      tripTable("hr", SHORT_TRIPS, ["Odredište", "Vožnja"]),
+      { type: "p", text: "Kravica i Blagaj najljepši su ujutro, prije nego što se ljeti napune parkirališta. Počitelj je na putu prema moru, pa ga lako spojite s povratkom s plaže." },
+      { type: "h2", text: "Cjelodnevni izleti" },
+      tripTable("hr", LONG_TRIPS, ["Odredište", "Vožnja"]),
+      { type: "h2", text: "Prije izlaska iz BiH" },
+      { type: "ul", items: ["Putovanje izvan BiH najavite pri rezervaciji kako bismo pripremili dokumentaciju za vozilo.", "Na granici trebate osobnu iskaznicu ili putovnicu te dokumente vozila koje dobivate uz ugovor o najmu.", "Ljeti, osobito vikendom, računajte na čekanje na graničnim prijelazima prema Hrvatskoj."] },
+      { type: "h2", text: "Savjeti za put" },
+      { type: "ul", items: ["Ceste kroz kanjon Neretve su slikovite, ali uske i zavojite. Planirajte malo više vremena nego što pokazuje navigacija.", "Ne ostavljajte vrijedne stvari na vidljivom mjestu u vozilu dok obilazite znamenitosti.", "U ljetnim mjesecima ponesite vodu i krenite rano, prije najveće vrućine."] },
+      { type: "note", text: "Udaljenosti i vremena vožnje su okvirni i ovise o prometu, granici i godišnjem dobu." },
+    ],
+  }),
+  en: () => ({
+    title: "Day trips by car from Mostar and Međugorje",
+    lead: "The best places in Herzegovina and nearby, one or two hours away, with approximate distances.",
+    blocks: [
+      { type: "p", text: "Herzegovina is compact: most sights are less than an hour's drive from Mostar and Međugorje. With your own car you see more than on an organised tour and set your own pace." },
+      { type: "h2", text: "Short trips, up to an hour" },
+      tripTable("en", SHORT_TRIPS, ["Destination", "Drive"]),
+      { type: "p", text: "Kravica and Blagaj are at their best in the morning, before the car parks fill up in summer. Počitelj lies on the way to the coast, so it is easy to add on your way back from the beach." },
+      { type: "h2", text: "Full day trips" },
+      tripTable("en", LONG_TRIPS, ["Destination", "Drive"]),
+      { type: "h2", text: "Before you leave BiH" },
+      { type: "ul", items: ["Tell us about travel outside BiH when you book so we can prepare the vehicle documents.", "At the border you need an ID card or passport and the vehicle documents you receive with the rental agreement.", "In summer, especially at weekends, expect queues at the border crossings into Croatia."] },
+      { type: "h2", text: "Tips for the road" },
+      { type: "ul", items: ["Roads through the Neretva canyon are scenic but narrow and winding. Allow a little more time than the navigation shows.", "Do not leave valuables in sight inside the car while you are sightseeing.", "In the summer months take water with you and set off early, before the worst of the heat."] },
+      { type: "note", text: "Distances and driving times are approximate and depend on traffic, the border and the season." },
+    ],
+  }),
+  de: () => ({
+    title: "Ausflüge mit dem Auto ab Mostar und Međugorje",
+    lead: "Die schönsten Orte der Herzegowina und Umgebung, ein bis zwei Stunden entfernt, mit ungefähren Entfernungen.",
+    blocks: [
+      { type: "p", text: "Die Herzegowina ist kompakt: Die meisten Sehenswürdigkeiten liegen weniger als eine Autostunde von Mostar und Međugorje entfernt. Mit dem eigenen Wagen sehen Sie mehr als bei einer organisierten Tour und bestimmen das Tempo selbst." },
+      { type: "h2", text: "Kurze Ausflüge, bis zu einer Stunde" },
+      tripTable("de", SHORT_TRIPS, ["Ziel", "Fahrt"]),
+      { type: "p", text: "Kravica und Blagaj sind am Morgen am schönsten, bevor sich im Sommer die Parkplätze füllen. Počitelj liegt auf dem Weg zur Küste und lässt sich gut mit der Rückfahrt vom Strand verbinden." },
+      { type: "h2", text: "Tagesausflüge" },
+      tripTable("de", LONG_TRIPS, ["Ziel", "Fahrt"]),
+      { type: "h2", text: "Bevor Sie BiH verlassen" },
+      { type: "ul", items: ["Melden Sie Fahrten außerhalb von BiH bei der Buchung an, damit wir die Fahrzeugunterlagen vorbereiten.", "An der Grenze brauchen Sie Personalausweis oder Reisepass sowie die Fahrzeugpapiere, die Sie mit dem Mietvertrag erhalten.", "Im Sommer, vor allem am Wochenende, ist an den Grenzübergängen nach Kroatien mit Wartezeiten zu rechnen."] },
+      { type: "h2", text: "Tipps für unterwegs" },
+      { type: "ul", items: ["Die Straßen durch die Schlucht der Neretva sind malerisch, aber schmal und kurvig. Planen Sie etwas mehr Zeit ein, als das Navi anzeigt.", "Lassen Sie keine Wertsachen sichtbar im Auto, während Sie Sehenswürdigkeiten besichtigen.", "Nehmen Sie im Sommer Wasser mit und fahren Sie früh los, vor der größten Hitze."] },
+      { type: "note", text: "Entfernungen und Fahrzeiten sind Richtwerte und hängen von Verkehr, Grenze und Jahreszeit ab." },
+    ],
+  }),
+  es: () => ({
+    title: "Excursiones en coche desde Mostar y Međugorje",
+    lead: "Los lugares más bonitos de Herzegovina y alrededores, a una o dos horas, con distancias aproximadas.",
+    blocks: [
+      { type: "p", text: "Herzegovina es compacta: la mayoría de los lugares de interés están a menos de una hora en coche de Mostar y Međugorje. Con tu propio coche ves más que en una excursión organizada y eliges tu ritmo." },
+      { type: "h2", text: "Excursiones cortas, hasta una hora" },
+      tripTable("es", SHORT_TRIPS, ["Destino", "Trayecto"]),
+      { type: "p", text: "Kravica y Blagaj lucen mejor por la mañana, antes de que en verano se llenen los aparcamientos. Počitelj está de camino a la costa, así que es fácil sumarlo a la vuelta de la playa." },
+      { type: "h2", text: "Excursiones de un día" },
+      tripTable("es", LONG_TRIPS, ["Destino", "Trayecto"]),
+      { type: "h2", text: "Antes de salir de BiH" },
+      { type: "ul", items: ["Avísanos al reservar si vas a salir de BiH para preparar la documentación del vehículo.", "En la frontera necesitas el DNI o el pasaporte y los documentos del vehículo que recibes con el contrato de alquiler.", "En verano, sobre todo los fines de semana, cuenta con esperas en los pasos fronterizos hacia Croacia."] },
+      { type: "h2", text: "Consejos para el camino" },
+      { type: "ul", items: ["Las carreteras del cañón del Neretva son preciosas, pero estrechas y con muchas curvas. Calcula algo más de tiempo del que indica el navegador.", "No dejes objetos de valor a la vista dentro del coche mientras visitas los lugares.", "En los meses de verano lleva agua y sal temprano, antes del calor más fuerte."] },
+      { type: "note", text: "Las distancias y los tiempos de trayecto son aproximados y dependen del tráfico, la frontera y la época del año." },
+    ],
+  }),
+};
+
 export function getGuides(locale: string): Guide[] {
   const l: Loc = (["hr", "en", "de", "es"] as const).includes(locale as Loc) ? (locale as Loc) : "hr";
-  return copy(l).map((c, i) => ({ ...META[i], updated: UPDATED, ...c }));
+  return [...copy(l), TRIPS[l]()].map((c, i) => ({ ...META[i], updated: UPDATED, ...c }));
 }
 
 export function getGuide(locale: string, slug: string): Guide | null {

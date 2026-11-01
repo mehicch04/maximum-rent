@@ -111,7 +111,7 @@ const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
 const MESSAGES: Record<string, { text: string; tone: "ok" | "warn" | "err" }> =
   {
     confirmed: {
-      text: "Rezervacija je potvrđena — vozilo je zauzeto za taj period.",
+      text: "Rezervacija je potvrđena, vozilo je zauzeto za taj period.",
       tone: "ok",
     },
     cancelled: { text: "Upit je otkazan.", tone: "ok" },
@@ -120,7 +120,7 @@ const MESSAGES: Record<string, { text: string; tone: "ok" | "warn" | "err" }> =
       tone: "err",
     },
     blocked: {
-      text: "Blokada je dodana — vozilo je nedostupno u tom periodu.",
+      text: "Blokada je dodana, vozilo je nedostupno u tom periodu.",
       tone: "ok",
     },
     unblocked: { text: "Blokada je uklonjena.", tone: "ok" },

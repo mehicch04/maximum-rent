@@ -127,7 +127,11 @@
       "class": "Klasse",
       "yes": "Ja",
       "no": "Nein"
-    }
+    },
+    "eyebrow": "Unsere Flotte",
+    "noResultsTitle": "Für diese Daten ist kein Fahrzeug frei",
+    "showAll": "Alle Fahrzeuge zeigen",
+    "askUs": "Fragen Sie uns auf WhatsApp"
   },
   "Footer": {
     "contact": "Kontakt",
@@ -137,7 +141,9 @@
     "rights": "Alle Rechte vorbehalten.",
     "hours": "Öffnungszeiten",
     "navTitle": "Menü",
-    "chat": "Schreiben Sie uns"
+    "chat": "Schreiben Sie uns",
+    "privacy": "Datenschutz",
+    "cookies": "Cookies verwalten"
   },
   "About": {
     "eyebrow": "Über uns",
@@ -320,23 +326,10 @@
     "backToTop": "Nach oben",
     "prevImage": "Vorheriges Foto",
     "nextImage": "Nächstes Foto",
-    "closeGallery": "Galerie schließen"
-  },
-  "Features": {
-    "items": [
-      {
-        "title": "6 Standorte",
-        "body": "Abholung und Rückgabe in Čitluk, Mostar, Međugorje, Čapljina, Ljubuški und am Flughafen Mostar."
-      },
-      {
-        "title": "Alles inklusive",
-        "body": "Versicherung, Vignetten für BiH und unbegrenzte Kilometer, ohne versteckte Kosten."
-      },
-      {
-        "title": "Rund um die Uhr",
-        "body": "Wir sind in jedem Moment Ihrer Reise für Sie da, auch nachts und am Wochenende."
-      }
-    ]
+    "closeGallery": "Galerie schließen",
+    "waText": "Hallo, ich interessiere mich für eine Autovermietung.",
+    "waLabel": "Schreiben Sie uns auf WhatsApp",
+    "waShort": "Schreiben Sie uns"
   },
   "HomeFleet": {
     "eyebrow": "Ausgewählte Fahrzeuge",
@@ -368,7 +361,7 @@
     "eyebrow": "So funktioniert es",
     "title": "Ihr Auto in",
     "accent": "drei Schritten",
-    "lead": "Keine Online-Zahlung und kein Konto nötig. Senden Sie eine Anfrage, erhalten Sie eine Bestätigung per E-Mail und wir kümmern uns um den Rest.",
+    "lead": "Kein Konto und kein Aufwand. Senden Sie eine Anfrage, erhalten Sie eine Bestätigung per E-Mail und wir kümmern uns um den Rest.",
     "cta": "Fahrzeuge ansehen",
     "steps": [
       {
@@ -385,13 +378,13 @@
       }
     ],
     "pass": {
-      "code": "OMO",
+      "code": "Mostar",
       "label": "Bordkarte",
       "from": "Von",
       "to": "Nach",
       "you": "Sie",
       "youSub": "Wo immer Sie sind",
-      "destSub": "Flughafen Mostar",
+      "destSub": "Flughafen (OMO)",
       "step": "Schritt",
       "payLabel": "Zahlung",
       "pay": "Keine Online-Zahlung",
@@ -442,7 +435,16 @@
         ],
         "badge": "Planbare Monatskosten",
         "cta": "Angebot anfordern",
-        "imageAlt": "Firmenfahrzeug aus der Flotte von Maximum Rent a Car"
+        "imageAlt": "Firmenfahrzeug aus der Flotte von Maximum Rent a Car",
+        "includedTitle": "Im Monatspreis enthalten",
+        "included": [
+          "Wartung",
+          "Zulassung",
+          "Fahrzeugversicherung",
+          "Ersatzfahrzeug",
+          "Reifeneinlagerung",
+          "Schadenmanagement"
+        ]
       },
       {
         "label": "Standorte",
@@ -464,16 +466,8 @@
         "body": "Vom Stadtauto bis zur Luxuslimousine, SUV und Transporter."
       },
       {
-        "title": "Hochzeitsautos",
-        "body": "Luxusfahrzeuge für das Brautpaar, die Trauzeugen und die Gäste an Ihrem großen Tag."
-      },
-      {
         "title": "Fahrten außerhalb von BiH",
         "body": "Nach vorheriger Anmeldung und mit den passenden Unterlagen auch über die Grenzen von BiH hinaus."
-      },
-      {
-        "title": "Klare Mietbedingungen",
-        "body": "Mindestalter 21 Jahre, Führerschein seit mehr als 2 Jahren und eine Kaution, die vollständig erstattet wird."
       }
     ],
     "route": {
@@ -527,8 +521,8 @@
         "l": "unbegrenzte Kilometer"
       },
       {
-        "v": "6",
-        "l": "Abholstandorte"
+        "v": "2+",
+        "l": "Jahre Führerschein"
       }
     ],
     "search": "Fragen durchsuchen",
@@ -596,8 +590,12 @@
       "description": "Kontaktieren Sie Maximum Rent a Car: Telefon, E-Mail, WhatsApp und alle Standorte in der Herzegowina (Mostar, Međugorje, Čitluk, Čapljina, Ljubuški)."
     },
     "guides": {
-      "title": "Ratgeber für das Autofahren in Bosnien und Herzegowina: Bußgelder und Regeln",
-      "description": "Bußgelder in Bosnien und Herzegowina in KM und Euro, Tempolimits und Verkehrsregeln, die Sie vor der Anmietung eines Autos in der Herzegowina kennen sollten."
+      "title": "Ratgeber für das Autofahren in Bosnien und Herzegowina: Bußgelder, Regeln, Ausflüge",
+      "description": "Bußgelder in Bosnien und Herzegowina in KM und Euro, Tempolimits, Verkehrsregeln und Ausflüge mit dem Auto ab Mostar und Međugorje mit ungefähren Entfernungen."
+    },
+    "privacy": {
+      "title": "Datenschutzerklärung",
+      "description": "Wie Maximum Rent a Car Ihre personenbezogenen Daten erhebt, nutzt und schützt, welche Cookies wir verwenden und wie Sie Ihre Rechte wahrnehmen."
     }
   },
   "WeddingCars": {
@@ -742,13 +740,13 @@
     "eyebrow": "Ratgeber",
     "title": "Bevor Sie",
     "accent": "losfahren.",
-    "lead": "Kurze Ratgeber für das Autofahren in Bosnien und Herzegowina: Bußgelder und die Regeln, die Besucher am häufigsten überraschen.",
+    "lead": "Kurze Ratgeber zum Autofahren in Bosnien und Herzegowina: Bußgelder, Regeln, die Besucher am meisten überraschen, und Ausflüge mit dem Auto.",
     "all": "Alle Ratgeber",
     "read": "Ratgeber lesen",
     "minutes": "{n} Min. Lesezeit",
     "updated": "Aktualisiert am {date}",
     "pageTitle": "Ratgeber für das Autofahren in Bosnien und Herzegowina",
-    "pageLead": "Was Sie wissen sollten, bevor Sie sich ans Steuer setzen: Regeln, Tempolimits und Bußgelder.",
+    "pageLead": "Was Sie wissen sollten, bevor Sie losfahren: Regeln, Bußgelder und die schönsten Ausflüge in der Umgebung.",
     "ctaTitle": "Bereit zur Abfahrt?",
     "ctaBody": "Wählen Sie ein Auto und Ihre Daten. Die Bestätigung Ihrer Anfrage erhalten Sie per E-Mail.",
     "ctaButton": "Fahrzeuge ansehen",
@@ -766,5 +764,24 @@
     "accent": "in Čitluk.",
     "reviews": "{count, plural, one {# Bewertung auf Google} other {# Bewertungen auf Google}}",
     "directions": "Route planen"
+  },
+  "Consent": {
+    "title": "Cookies und Datenschutz",
+    "body": "Wir verwenden nur notwendige Cookies und lokalen Speicher für Sprache, Währung und Ihre Einstellungen. Google Maps laden wir nur mit Ihrer Zustimmung.",
+    "policy": "Datenschutzerklärung",
+    "necessaryT": "Notwendig",
+    "necessaryB": "Sprache, Währung und Datenschutzeinstellungen. Ohne sie funktioniert die Website nicht richtig.",
+    "always": "Immer",
+    "mapsT": "Google Maps",
+    "mapsB": "Zeigt eingebettete Karten. Google kann dabei eigene Cookies setzen.",
+    "save": "Auswahl speichern",
+    "necessary": "Nur notwendige",
+    "acceptAll": "Alle akzeptieren",
+    "settings": "Einstellungen",
+    "close": "Schließen",
+    "mapTitle": "Karte ist ausgeschaltet",
+    "mapBody": "Die Karte von Google wird nur mit Ihrer Zustimmung angezeigt, da Google beim Laden eigene Cookies setzt.",
+    "mapShow": "Karte anzeigen",
+    "mapOpen": "In Google Maps öffnen"
   }
 }

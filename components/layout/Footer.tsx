@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { NAV_LINKS } from "@/lib/site-config";
 import type { Company } from "@/lib/company";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
+import { ConsentLink } from "@/components/consent/CookieConsent";
 
 type Props = {
   company: Company;
@@ -194,9 +195,15 @@ export function Footer({ company, locations }: Props) {
       </div>
 
       <div className="relative border-t border-white/10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-5 text-center text-xs text-white/45 sm:flex-row sm:px-6 sm:text-left">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-5 text-center text-xs text-white/45 md:flex-row md:px-6 md:text-left">
           <span>
             © {year} {company.name}. {t("rights")}
+          </span>
+          <span className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <Link href="/privatnost" className="transition-colors hover:text-white">
+              {t("privacy")}
+            </Link>
+            <ConsentLink label={t("cookies")} className="transition-colors hover:text-white" />
           </span>
           <span>
             Powered and designed by{" "}

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight, BadgeCheck, Car, Check, Clock3, Globe, Heart, MapPin, Plane } from "lucide-react";
+import { ArrowRight, Car, Check, Clock3, Globe, MapPin, Plane } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCompany } from "@/components/company/CompanyProvider";
@@ -17,12 +17,14 @@ type Premium = {
   badge: string;
   cta: string;
   imageAlt: string;
+  includedTitle?: string;
+  included?: string[];
 };
 type Item = { title: string; body: string };
 type Loc = { id: string; name: string; city: string };
 
-const ICONS = [Car, Heart, Globe, BadgeCheck];
-const LINKS = ["/vozila", "#vjencanja", "/uvjeti-najma", "/uvjeti-najma"];
+const ICONS = [Car, Globe];
+const LINKS = ["/vozila", "/uvjeti-najma"];
 const PREMIUM_LINKS = ["/poslovna-ponuda", "/vozila"];
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -88,6 +90,19 @@ export function Services({ images, locations }: { images: string[]; locations: L
                     ))}
                   </ul>
 
+                  {p.included && p.included.length > 0 && (
+                    <div className="mt-6 rounded-2xl bg-surface-muted p-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{p.includedTitle}</p>
+                      <ul className="mt-3 flex flex-wrap gap-2">
+                        {p.included.map((s) => (
+                          <li key={s} className="rounded-full bg-surface px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border">
+                            {s}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
                   {i === 1 && locations.length > 0 && (
                     <div className="mt-6 rounded-2xl bg-surface-muted px-4">
                       <div className="flex items-center gap-2 border-b border-border py-3.5 sm:gap-3">
@@ -120,14 +135,11 @@ export function Services({ images, locations }: { images: string[]; locations: L
                           </span>
                         </span>
                       </div>
-                      <ul className="grid grid-cols-1 divide-y divide-border sm:grid-cols-2 sm:divide-y-0">
+                      <ul className="flex flex-wrap gap-2 py-3.5">
                         {locations.map((l) => (
-                          <li key={l.id} className="flex items-center gap-2.5 py-2.5 sm:py-2">
-                            <MapPin className="h-3.5 w-3.5 shrink-0 text-brand-strong" />
-                            <span className="min-w-0">
-                              <span className="block truncate text-sm font-medium text-foreground">{l.name}</span>
-                              <span className="block truncate text-xs text-muted-foreground">{l.city}</span>
-                            </span>
+                          <li key={l.id} className="inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border">
+                            <MapPin className="h-3 w-3 shrink-0 text-brand-strong" />
+                            {l.name}
                           </li>
                         ))}
                       </ul>
@@ -142,30 +154,34 @@ export function Services({ images, locations }: { images: string[]; locations: L
             ))}
           </div>
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             {items.map((item, i) => {
               const Icon = ICONS[i] ?? Car;
               const featured = i === 0;
               const href = LINKS[i] ?? "/vozila";
-              const cls = `group flex h-full flex-col rounded-2xl p-6 transition-colors ${
+              const cls = `group flex h-full items-center gap-5 rounded-2xl p-5 transition-colors sm:p-6 ${
                 featured ? "bg-brand text-white hover:bg-brand-700" : "bg-surface-muted text-foreground hover:bg-border/50"
               }`;
               const body = (
                 <>
                   <span
-                    className={`inline-flex h-11 w-11 items-center justify-center rounded-full ${
+                    className={`inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${
                       featured ? "bg-white/15 text-white" : "bg-surface text-brand-strong"
                     }`}
                   >
                     <Icon className="h-5 w-5" />
                   </span>
-                  <h3 className="mt-6 font-display text-base font-bold">{item.title}</h3>
-                  <p className={`mt-2 flex-1 text-sm leading-relaxed ${featured ? "text-white" : "text-muted-foreground"}`}>
-                    {item.body}
-                  </p>
-                  <span className={`mt-5 inline-flex items-center gap-1.5 text-sm font-semibold ${featured ? "text-white" : "text-brand-strong"}`}>
-                    {t("more")}
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  <span className="min-w-0 flex-1">
+                    <h3 className="font-display text-base font-bold">{item.title}</h3>
+                    <p className={`mt-1 text-sm leading-relaxed ${featured ? "text-white/85" : "text-muted-foreground"}`}>
+                      {item.body}
+                    </p>
+                  </span>
+                  <span
+                    aria-label={t("more")}
+                    className={`grid h-10 w-10 shrink-0 place-items-center rounded-full transition-transform group-hover:translate-x-0.5 ${featured ? "bg-white text-brand-strong" : "bg-surface text-brand-strong ring-1 ring-border"}`}
+                  >
+                    <ArrowRight className="h-4 w-4" />
                   </span>
                 </>
               );

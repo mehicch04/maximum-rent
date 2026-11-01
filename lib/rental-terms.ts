@@ -32,12 +32,12 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
           {
             type: "ul",
             items: [
-              `„Najmodavatelj" – tvrtka MAXIMUM RENT A CAR d. o. o., sa sjedištem na adresi Potpolje bb, 88260 Čitluk, Bosna i Hercegovina, matični broj: 4227631720004.`,
-              `„Najmoprimatelj" – fizička ili pravna osoba u čije ime se vozilo unajmljuje. U Ugovoru o najmu vozila navedena je kao „Najmoprimatelj" te je odgovorna za poštivanje svih točaka ovih Općih uvjeta o najmu i Ugovora o najmu.`,
-              `„Ugovor" – pojedinačni ugovor o najmu koji se potpisuje prilikom preuzimanja vozila u najam u kojem se odobrava korištenje vozila, definira preuzimanje i vraćanje vozila, pokriće, oprema i usluge uključene u cijenu najma i način plaćanja najma. Ugovor sadrži i informacije o stanju kilometraže, količini goriva, oštećenjima i eventualnim nedostacima na unajmljenom vozilu te druga prava i obveze koje obje ugovorne strane svojim potpisom u cijelosti prihvaćaju.`,
+              `„Najmodavatelj": tvrtka MAXIMUM RENT A CAR d. o. o., sa sjedištem na adresi Potpolje bb, 88260 Čitluk, Bosna i Hercegovina, matični broj: 4227631720004.`,
+              `„Najmoprimatelj": fizička ili pravna osoba u čije ime se vozilo unajmljuje. U Ugovoru o najmu vozila navedena je kao „Najmoprimatelj" te je odgovorna za poštivanje svih točaka ovih Općih uvjeta o najmu i Ugovora o najmu.`,
+              `„Ugovor": pojedinačni ugovor o najmu koji se potpisuje prilikom preuzimanja vozila u najam u kojem se odobrava korištenje vozila, definira preuzimanje i vraćanje vozila, pokriće, oprema i usluge uključene u cijenu najma i način plaćanja najma. Ugovor sadrži i informacije o stanju kilometraže, količini goriva, oštećenjima i eventualnim nedostacima na unajmljenom vozilu te druga prava i obveze koje obje ugovorne strane svojim potpisom u cijelosti prihvaćaju.`,
               `Stanje vozila prilikom izdavanja i Opći uvjeti najma smatraju se dijelom Ugovora o najmu vozila.`,
-              `„Vozač/dodatni vozač" – fizička osoba navedena u Ugovoru o najmu kao „Korisnik" koja potpisuje Ugovor o najmu i preuzima vozilo, odgovorna za poštivanje svih odredbi Ugovora o najmu.`,
-              `„Korisnik" – Najmoprimatelj, vozač i dodatni vozač u daljnjem tekstu Općih uvjeta najma označavaju se jednom riječju – Korisnik.`,
+              `„Vozač/dodatni vozač": fizička osoba navedena u Ugovoru o najmu kao „Korisnik" koja potpisuje Ugovor o najmu i preuzima vozilo, odgovorna za poštivanje svih odredbi Ugovora o najmu.`,
+              `„Korisnik": Najmoprimatelj, vozač i dodatni vozač u daljnjem tekstu Općih uvjeta najma označavaju se jednom riječju: Korisnik.`,
               `„Vozilo" je objekt najma Ugovora, a čiji podaci su navedeni u Ugovoru.`,
             ],
           },
@@ -168,19 +168,19 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
           },
           {
             type: "p",
-            text: `CDW – dnevno kasko osiguranje – njime Najmoprimatelj umanjuje svoju odgovornost za štetu na iznos franšize koja ovisi o grupi vozila te ukoliko je iznos štete manji od franšize, naplaćuje mu se taj manji iznos.`,
+            text: `CDW, dnevno kasko osiguranje: njime Najmoprimatelj umanjuje svoju odgovornost za štetu na iznos franšize koja ovisi o grupi vozila te ukoliko je iznos štete manji od franšize, naplaćuje mu se taj manji iznos.`,
           },
           {
             type: "p",
-            text: `TP – osiguranje od krađe – korisnik ograničava svoju odgovornost za tu vrstu štete do iznosa učešća u šteti (franšize).`,
+            text: `TP, osiguranje od krađe: korisnik ograničava svoju odgovornost za tu vrstu štete do iznosa učešća u šteti (franšize).`,
           },
           {
             type: "p",
-            text: `CDW+ – je pokriće za otkup dijela odgovornosti od učešća u šteti nastaloj na karoseriji vozila, na umanjen iznos.`,
+            text: `CDW+ je pokriće za otkup dijela odgovornosti od učešća u šteti nastaloj na karoseriji vozila, na umanjen iznos.`,
           },
           {
             type: "p",
-            text: `SCDW – pokriće s kojim se u potpunost otkupljuje financijska odgovornost učešća u šteti nastaloj na karoseriji vozila.`,
+            text: `SCDW je pokriće s kojim se u potpunost otkupljuje financijska odgovornost učešća u šteti nastaloj na karoseriji vozila.`,
           },
           { type: "p", text: `Osiguranje ni u kojem slučaju ne pokriva:` },
           {
@@ -317,12 +317,12 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
           {
             type: "ul",
             items: [
-              `"Lessor" – the company MAXIMUM RENT A CAR d.o.o., with its registered seat at Potpolje bb, 88260 Čitluk, Bosnia and Herzegovina, company registration number: 4227631720004.`,
-              `"Lessee" – the natural or legal person in whose name the vehicle is rented. In the Vehicle Rental Agreement they are designated as the "Lessee" and are responsible for complying with all points of these General Rental Terms and of the Rental Agreement.`,
-              `"Agreement" – the individual rental agreement signed upon collection of the vehicle, which authorises the use of the vehicle and defines the collection and return of the vehicle, the coverage, the equipment and services included in the rental price, and the method of payment. The Agreement also contains information on the odometer reading, the amount of fuel, damage and any defects on the rented vehicle, as well as other rights and obligations which both contracting parties fully accept by their signature.`,
+              `"Lessor": the company MAXIMUM RENT A CAR d.o.o., with its registered seat at Potpolje bb, 88260 Čitluk, Bosnia and Herzegovina, company registration number: 4227631720004.`,
+              `"Lessee": the natural or legal person in whose name the vehicle is rented. In the Vehicle Rental Agreement they are designated as the "Lessee" and are responsible for complying with all points of these General Rental Terms and of the Rental Agreement.`,
+              `"Agreement": the individual rental agreement signed upon collection of the vehicle, which authorises the use of the vehicle and defines the collection and return of the vehicle, the coverage, the equipment and services included in the rental price, and the method of payment. The Agreement also contains information on the odometer reading, the amount of fuel, damage and any defects on the rented vehicle, as well as other rights and obligations which both contracting parties fully accept by their signature.`,
               `The condition of the vehicle at the time of handover and the General Rental Terms are considered part of the Vehicle Rental Agreement.`,
-              `"Driver / additional driver" – the natural person named in the Rental Agreement as the "User", who signs the Rental Agreement and collects the vehicle, responsible for complying with all provisions of the Rental Agreement.`,
-              `"User" – the Lessee, the driver and the additional driver are, in the remainder of these General Rental Terms, referred to by the single term "User".`,
+              `"Driver / additional driver": the natural person named in the Rental Agreement as the "User", who signs the Rental Agreement and collects the vehicle, responsible for complying with all provisions of the Rental Agreement.`,
+              `"User": the Lessee, the driver and the additional driver are, in the remainder of these General Rental Terms, referred to by the single term "User".`,
               `"Vehicle" is the object of the rental under the Agreement, whose details are stated in the Agreement.`,
             ],
           },
@@ -453,19 +453,19 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
           },
           {
             type: "p",
-            text: `CDW – daily collision (casco) insurance – by which the Lessee reduces their liability for damage to the amount of the deductible, which depends on the vehicle group; if the amount of the damage is less than the deductible, the lower amount is charged to them.`,
+            text: `CDW, daily collision (casco) insurance, by which the Lessee reduces their liability for damage to the amount of the deductible, which depends on the vehicle group; if the amount of the damage is less than the deductible, the lower amount is charged to them.`,
           },
           {
             type: "p",
-            text: `TP – theft protection – the user limits their liability for that type of damage up to the amount of their share in the damage (the deductible).`,
+            text: `TP, theft protection: the user limits their liability for that type of damage up to the amount of their share in the damage (the deductible).`,
           },
           {
             type: "p",
-            text: `CDW+ – coverage for buying out part of the liability for the share in damage occurring on the vehicle's bodywork, for a reduced amount.`,
+            text: `CDW+ is coverage for buying out part of the liability for the share in damage occurring on the vehicle's bodywork, for a reduced amount.`,
           },
           {
             type: "p",
-            text: `SCDW – coverage by which the financial liability for the share in damage occurring on the vehicle's bodywork is fully bought out.`,
+            text: `SCDW is coverage by which the financial liability for the share in damage occurring on the vehicle's bodywork is fully bought out.`,
           },
           { type: "p", text: `The insurance does not, under any circumstances, cover:` },
           {

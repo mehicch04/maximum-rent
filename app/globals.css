@@ -178,7 +178,8 @@
     box-shadow: 0 0 0 4px rgba(227, 6, 19, 0.25);
   }
   @media (max-width: 1023px) {
-    html[data-bar] .back-to-top {
+    html[data-bar] .back-to-top,
+    html[data-bar] .wa-fab {
       display: none;
     }
   }

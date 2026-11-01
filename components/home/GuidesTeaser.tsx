@@ -40,7 +40,7 @@ export function GuidesTeaser({ guides }: { guides: Guide[] }) {
             <FineTicker fines={fines} title={t("finesTitle")} cta={t("finesAll")} href={`/vodici/${finesGuide.slug}`} slideLabel={t("fineSlide")} />
           )}
         </div>
-        <ul className="no-scrollbar -mx-4 mt-10 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 pt-2 sm:-mx-6 sm:scroll-px-6 sm:px-6 md:mx-0 md:mt-12 md:grid md:grid-cols-2 md:gap-4 md:overflow-visible md:px-0">
+        <ul className="no-scrollbar -mx-4 mt-10 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 pt-2 sm:-mx-6 sm:scroll-px-6 sm:px-6 md:mx-0 md:mt-12 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0">
           {guides.map((g) => (
             <li key={g.slug} className="w-[84%] shrink-0 snap-start md:w-auto">
               <GuideCard guide={g} readLabel={t("read")} minutesLabel={t("minutes", { n: g.minutes })} />

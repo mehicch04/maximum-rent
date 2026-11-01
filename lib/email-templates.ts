@@ -16,11 +16,18 @@ export type ExtraLine = {
   lineTotal: number;
 };
 
+const PRICE_COPY = {
+  HR: { heading: "Pregled cijene", included: "Uključeno", day: "dan", days: "dana", rental: "Najam vozila", total: "Procjena ukupno", note: "Okvirni iznos. Konačnu cijenu potvrđujemo uz rezervaciju." },
+  EN: { heading: "Price breakdown", included: "Included", day: "day", days: "days", rental: "Vehicle rental", total: "Estimated total", note: "Approximate amount. The final price is confirmed with the booking." },
+  DE: { heading: "Preisübersicht", included: "Inklusive", day: "Tag", days: "Tage", rental: "Fahrzeugmiete", total: "Geschätzter Gesamtpreis", note: "Richtwert. Den endgültigen Preis bestätigen wir mit der Buchung." },
+  ES: { heading: "Desglose del precio", included: "Incluido", day: "día", days: "días", rental: "Alquiler del vehículo", total: "Total estimado", note: "Importe aproximado. El precio final se confirma con la reserva." },
+} as const;
+
 function priceBlock(
   extras: ExtraLine[],
   days: number,
   pricePerDay: number | null,
-  locale: "HR" | "EN",
+  locale: "HR" | "EN" | "DE" | "ES",
   currency: Currency = "BAM",
   /** Owner copy only: also show the BAM figure so he doesn't have to convert. */
   showBamEquivalent = false,
@@ -28,17 +35,14 @@ function priceBlock(
   const hasRental = pricePerDay != null && pricePerDay > 0;
   if (!hasRental && !extras.length) return "";
 
-  const isEn = locale === "EN";
-  const heading = isEn ? "Price breakdown" : "Pregled cijene";
-  const included = isEn ? "Included" : "Uključeno";
-  const dayWord = days === 1 ? (isEn ? "day" : "dan") : isEn ? "days" : "dana";
-  const rentalLbl = isEn
-    ? `Vehicle rental &middot; ${days} ${dayWord}`
-    : `Najam vozila &middot; ${days} ${dayWord}`;
-  const totalLbl = isEn ? "Estimated total" : "Procjena ukupno";
-  const note = isEn
-    ? "Approximate amount. The final price is confirmed with the booking."
-    : "Okvirni iznos. Konačnu cijenu potvrđujemo uz rezervaciju.";
+  const isEn = locale !== "HR";
+  const pc = PRICE_COPY[locale];
+  const heading = pc.heading;
+  const included = pc.included;
+  const dayWord = days === 1 ? pc.day : pc.days;
+  const rentalLbl = `${pc.rental} &middot; ${days} ${dayWord}`;
+  const totalLbl = pc.total;
+  const note = pc.note;
 
   // Amounts are stored in BAM; show them in whatever the guest was browsing in.
   const money = (n: number) => formatPrice(n, currency);
@@ -382,7 +386,7 @@ ${extrasHtml}${noteBlock}
         </td>
         <td width="12" style="font-size:0;line-height:0;">&nbsp;</td>
         <td style="border:2px solid #111111;">
-          <a href="mailto:${v.guestEmail}?subject=${encodeURIComponent(`Upit ${v.ref} — Maximum Rent a Car`)}" style="display:block;padding:11px 28px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:18px;color:#111111;font-weight:bold;text-decoration:none;text-align:left;">Odgovori emailom</a>
+          <a href="mailto:${v.guestEmail}?subject=${encodeURIComponent(`Upit ${v.ref} · Maximum Rent a Car`)}" style="display:block;padding:11px 28px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:18px;color:#111111;font-weight:bold;text-decoration:none;text-align:left;">Odgovori emailom</a>
         </td>
       </tr>
       </table>
@@ -522,16 +526,80 @@ td {mso-line-height-rule:exactly;}
 `;
 }
 
-export function guestConfirmationHtmlEn(v: GuestConfirmationVars): string {
-  const extrasHtml = priceBlock(v.extras ?? [], v.days ?? 1, v.pricePerDay ?? null, "EN", v.currency ?? "BAM");
+const GUEST_COPY = {
+  EN: {
+    lang: "en",
+    title: "We received your inquiry",
+    preheader: (ref: string) => `We received your inquiry ${ref}. Our team will contact you shortly to confirm.`,
+    dear: "Dear",
+    intro: "thank you for your inquiry. It has been received successfully and our team will <strong>contact you shortly</strong> to confirm vehicle availability and arrange the details.",
+    noteLabel: "Please note:",
+    note: "this is not a confirmed booking yet. Your vehicle will be reserved once our agency confirms availability.",
+    ref: "Inquiry no.",
+    vehicle: "Vehicle",
+    pickup: "Pick-up",
+    dropoff: "Drop-off",
+    questions: "Questions? Get in touch",
+    phone: "Phone:",
+    email: "Email:",
+    footer: "You are receiving this email because you submitted an inquiry on the Maximum Rent a Car website.",
+    subject: (ref: string) => `We received your inquiry · ${ref}`,
+  },
+  DE: {
+    lang: "de",
+    title: "Wir haben Ihre Anfrage erhalten",
+    preheader: (ref: string) => `Wir haben Ihre Anfrage ${ref} erhalten. Unser Team meldet sich in Kürze zur Bestätigung.`,
+    dear: "Hallo",
+    intro: "vielen Dank für Ihre Anfrage. Sie ist bei uns eingegangen und unser Team <strong>meldet sich in Kürze</strong>, um die Verfügbarkeit des Fahrzeugs zu bestätigen und die Details abzustimmen.",
+    noteLabel: "Bitte beachten:",
+    note: "Dies ist noch keine bestätigte Buchung. Ihr Fahrzeug wird reserviert, sobald unsere Agentur die Verfügbarkeit bestätigt.",
+    ref: "Anfrage Nr.",
+    vehicle: "Fahrzeug",
+    pickup: "Abholung",
+    dropoff: "Rückgabe",
+    questions: "Fragen? Kontaktieren Sie uns",
+    phone: "Telefon:",
+    email: "E-Mail:",
+    footer: "Sie erhalten diese E-Mail, weil Sie auf der Website von Maximum Rent a Car eine Anfrage gesendet haben.",
+    subject: (ref: string) => `Wir haben Ihre Anfrage erhalten · ${ref}`,
+  },
+  ES: {
+    lang: "es",
+    title: "Hemos recibido tu solicitud",
+    preheader: (ref: string) => `Hemos recibido tu solicitud ${ref}. Nuestro equipo te contactará en breve para confirmarla.`,
+    dear: "Hola",
+    intro: "gracias por tu solicitud. La hemos recibido correctamente y nuestro equipo <strong>te contactará en breve</strong> para confirmar la disponibilidad del vehículo y acordar los detalles.",
+    noteLabel: "Ten en cuenta:",
+    note: "todavía no es una reserva confirmada. Tu vehículo quedará reservado cuando nuestra agencia confirme la disponibilidad.",
+    ref: "Solicitud n.º",
+    vehicle: "Vehículo",
+    pickup: "Recogida",
+    dropoff: "Devolución",
+    questions: "¿Preguntas? Escríbenos",
+    phone: "Teléfono:",
+    email: "Email:",
+    footer: "Recibes este email porque enviaste una solicitud en la web de Maximum Rent a Car.",
+    subject: (ref: string) => `Hemos recibido tu solicitud · ${ref}`,
+  },
+} as const;
+
+export type GuestLang = "HR" | "EN" | "DE" | "ES";
+
+export function guestSubject(lang: GuestLang, ref: string): string {
+  return lang === "HR" ? `Zaprimili smo vaš upit · ${ref}` : GUEST_COPY[lang].subject(ref);
+}
+
+function guestConfirmationHtmlIntl(v: GuestConfirmationVars, lang: "EN" | "DE" | "ES"): string {
+  const c = GUEST_COPY[lang];
+  const extrasHtml = priceBlock(v.extras ?? [], v.days ?? 1, v.pricePerDay ?? null, lang, v.currency ?? "BAM");
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${c.lang}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="supported-color-schemes" content="light dark">
-<title>We received your inquiry</title>
+<title>${c.title}</title>
 <!--[if mso]>
 <style type="text/css">
 table {border-collapse:collapse;}
@@ -547,7 +615,7 @@ td {mso-line-height-rule:exactly;}
 </head>
 <body style="margin:0;padding:0;background-color:#f4f4f5;">
 <!-- Preheader -->
-<span style="display:none;font-size:1px;color:#f4f4f5;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">We received your inquiry ${v.ref}. Our team will contact you shortly to confirm.</span>
+<span style="display:none;font-size:1px;color:#f4f4f5;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${c.preheader(v.ref)}</span>
 
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f4f4f5;">
 <tr><td align="center" style="padding:24px 12px;">
@@ -571,16 +639,16 @@ td {mso-line-height-rule:exactly;}
     <!-- Title -->
     <tr><td style="padding:32px 32px 0 32px;" class="px">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-      <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:22px;line-height:30px;color:#111111;font-weight:bold;">We received your inquiry</td></tr>
-      <tr><td style="padding-top:10px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:23px;color:#111111;">Dear ${v.guestFirstName}</td></tr>
-      <tr><td style="padding-top:8px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:23px;color:#111111;">thank you for your inquiry. It has been received successfully and our team will <strong>contact you shortly</strong> to confirm vehicle availability and arrange the details.</td></tr>
+      <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:22px;line-height:30px;color:#111111;font-weight:bold;">${c.title}</td></tr>
+      <tr><td style="padding-top:10px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:23px;color:#111111;">${c.dear} ${v.guestFirstName}</td></tr>
+      <tr><td style="padding-top:8px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:23px;color:#111111;">${c.intro}</td></tr>
       </table>
     </td></tr>
 
     <!-- Important notice -->
     <tr><td style="padding:20px 32px 0 32px;" class="px">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#fafafa;border-top:2px solid #E30613;">
-      <tr><td style="padding:14px 24px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#6b7280;"><strong style="color:#111111;">Please note:</strong> this is not a confirmed booking yet. Your vehicle will be reserved once our agency confirms availability.</td></tr>
+      <tr><td style="padding:14px 24px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#6b7280;"><strong style="color:#111111;">${c.noteLabel}</strong> ${c.note}</td></tr>
       </table>
     </td></tr>
 
@@ -589,19 +657,19 @@ td {mso-line-height-rule:exactly;}
   <tr><td style="padding:24px 32px 0 32px;" class="px">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
       <tr>
-        <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">Inquiry no.</td>
+        <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">${c.ref}</td>
         <td style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;color:#E30613;font-weight:bold;">${v.ref}</td>
       </tr>
       <tr>
-        <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">Vehicle</td>
+        <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">${c.vehicle}</td>
         <td style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;color:#111111;font-weight:bold;">${v.vehicle}</td>
       </tr>
       <tr>
-        <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">Pick-up</td>
+        <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">${c.pickup}</td>
         <td style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;color:#111111;">${v.pickupLine}</td>
       </tr>
       <tr>
-        <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">Drop-off</td>
+        <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">${c.dropoff}</td>
         <td style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;color:#111111;">${v.dropoffLine}</td>
       </tr>
       </table>
@@ -610,10 +678,10 @@ td {mso-line-height-rule:exactly;}
     <!-- Agency contact -->
     <tr><td style="padding:28px 32px 32px 32px;" class="px">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-      <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:2px;color:#6b7280;text-transform:uppercase;padding-bottom:8px;">Questions? Get in touch</td></tr>
+      <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:2px;color:#6b7280;text-transform:uppercase;padding-bottom:8px;">${c.questions}</td></tr>
       <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:24px;color:#111111;">
-        Phone: <a href="tel:${telHref(v.agencyPhone)}" style="color:#E30613;text-decoration:underline;">${v.agencyPhone}</a><br>
-        Email: <a href="mailto:${v.agencyEmail}" style="color:#E30613;text-decoration:underline;">${v.agencyEmail}</a>
+        ${c.phone} <a href="tel:${telHref(v.agencyPhone)}" style="color:#E30613;text-decoration:underline;">${v.agencyPhone}</a><br>
+        ${c.email} <a href="mailto:${v.agencyEmail}" style="color:#E30613;text-decoration:underline;">${v.agencyEmail}</a>
       </td></tr>
       </table>
     </td></tr>
@@ -624,7 +692,7 @@ td {mso-line-height-rule:exactly;}
   <!-- Footer -->
   <tr><td style="padding:20px 32px 8px 32px;" class="px">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-    <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#6b7280;">You are receiving this email because you submitted an inquiry on the Maximum Rent a Car website.</td></tr>
+    <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#6b7280;">${c.footer}</td></tr>
     <tr><td style="padding-top:8px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#9ca3af;">${v.agencyAddress}</td></tr>
     </table>
   </td></tr>
@@ -637,12 +705,13 @@ td {mso-line-height-rule:exactly;}
 `;
 }
 
+export function guestConfirmationHtmlEn(v: GuestConfirmationVars): string {
+  return guestConfirmationHtmlIntl(v, "EN");
+}
+
 /** Picks the guest template that matches the language they browsed in. */
-export function guestConfirmationHtml(
-  v: GuestConfirmationVars,
-  locale: "HR" | "EN",
-): string {
-  return locale === "EN" ? guestConfirmationHtmlEn(v) : guestConfirmationHtmlHr(v);
+export function guestConfirmationHtml(v: GuestConfirmationVars, locale: GuestLang): string {
+  return locale === "HR" ? guestConfirmationHtmlHr(v) : guestConfirmationHtmlIntl(v, locale);
 }
 
 

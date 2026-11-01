@@ -71,7 +71,7 @@
       "TRANSPORT": "Transport",
       "MINIBUS": "Minibus"
     },
-    "invalidPeriod": "The selected period isn't valid — the return date must be after pick-up. Showing all vehicles.",
+    "invalidPeriod": "The selected period isn't valid, the return date must be after pick-up. Showing all vehicles.",
     "viewAll": "View all vehicles",
     "sort": {
       "label": "Sort by:",
@@ -79,8 +79,8 @@
       "priceAsc": "Price: low to high",
       "priceDesc": "Price: high to low",
       "yearDesc": "Year: newest first",
-      "nameAsc": "Name: A–Z",
-      "nameDesc": "Name: Z–A"
+      "nameAsc": "Name: A to Z",
+      "nameDesc": "Name: Z to A"
     },
     "brandLabel": "Brand",
     "allBrands": "All brands",
@@ -127,7 +127,11 @@
       "class": "Class",
       "yes": "Yes",
       "no": "No"
-    }
+    },
+    "eyebrow": "Our fleet",
+    "noResultsTitle": "No cars free for these dates",
+    "showAll": "Show all vehicles",
+    "askUs": "Ask us on WhatsApp"
   },
   "Footer": {
     "contact": "Contact",
@@ -137,7 +141,9 @@
     "rights": "All rights reserved.",
     "hours": "Working hours",
     "navTitle": "Menu",
-    "chat": "Message us"
+    "chat": "Message us",
+    "privacy": "Privacy policy",
+    "cookies": "Cookie settings"
   },
   "About": {
     "eyebrow": "About us",
@@ -320,23 +326,10 @@
     "backToTop": "Back to top",
     "prevImage": "Previous photo",
     "nextImage": "Next photo",
-    "closeGallery": "Close gallery"
-  },
-  "Features": {
-    "items": [
-      {
-        "title": "6 locations",
-        "body": "Pick-up and return in Čitluk, Mostar, Međugorje, Čapljina, Ljubuški and at Mostar Airport."
-      },
-      {
-        "title": "All included",
-        "body": "Insurance, BiH vignettes and unlimited mileage, with no hidden costs."
-      },
-      {
-        "title": "24/7 support",
-        "body": "We're here at every moment of your journey, nights and weekends included."
-      }
-    ]
+    "closeGallery": "Close gallery",
+    "waText": "Hello, I'm interested in renting a car.",
+    "waLabel": "Message us on WhatsApp",
+    "waShort": "Message us"
   },
   "HomeFleet": {
     "eyebrow": "Featured vehicles",
@@ -368,7 +361,7 @@
     "eyebrow": "How it works",
     "title": "Your car in",
     "accent": "three steps",
-    "lead": "No online payment and no account needed. Send an inquiry, get a confirmation by email and we take care of the rest.",
+    "lead": "No account and no hassle. Send an inquiry, get a confirmation by email and we take care of the rest.",
     "cta": "View vehicles",
     "steps": [
       {
@@ -385,13 +378,13 @@
       }
     ],
     "pass": {
-      "code": "OMO",
+      "code": "Mostar",
       "label": "Boarding pass",
       "from": "From",
       "to": "To",
       "you": "You",
       "youSub": "Wherever you are",
-      "destSub": "Mostar Airport",
+      "destSub": "Airport (OMO)",
       "step": "Step",
       "payLabel": "Payment",
       "pay": "No online payment",
@@ -442,7 +435,16 @@
         ],
         "badge": "Predictable monthly cost",
         "cta": "Request a quote",
-        "imageAlt": "Business vehicle from the Maximum Rent a Car fleet"
+        "imageAlt": "Business vehicle from the Maximum Rent a Car fleet",
+        "includedTitle": "Included in the monthly price",
+        "included": [
+          "Maintenance",
+          "Registration",
+          "Vehicle insurance",
+          "Replacement vehicle",
+          "Tyre storage",
+          "Damage management"
+        ]
       },
       {
         "label": "Locations",
@@ -464,16 +466,8 @@
         "body": "From city cars to luxury sedans, SUVs and vans."
       },
       {
-        "title": "Wedding cars",
-        "body": "Luxury vehicles for the couple, best men and guests on your big day."
-      },
-      {
         "title": "Trips outside BiH",
         "body": "You can drive beyond BiH borders with prior notice and the right paperwork."
-      },
-      {
-        "title": "Clear rental terms",
-        "body": "Minimum age 21, a licence held for over 2 years and a deposit that is fully refunded."
       }
     ],
     "route": {
@@ -527,8 +521,8 @@
         "l": "unlimited mileage"
       },
       {
-        "v": "6",
-        "l": "pick-up locations"
+        "v": "2+",
+        "l": "years with a driving licence"
       }
     ],
     "search": "Search questions",
@@ -572,32 +566,36 @@
   },
   "Seo": {
     "home": {
-      "title": "Car Rental in Herzegovina — Mostar, Međugorje, Čitluk",
-      "description": "Premium car rental in Herzegovina with pickup at 6 locations — Mostar, Međugorje, Čitluk, Čapljina and Ljubuški. From city cars to luxury sedans and SUVs. Check availability and book."
+      "title": "Car Rental in Herzegovina: Mostar, Međugorje, Čitluk",
+      "description": "Premium car rental in Herzegovina with pickup at 6 locations: Mostar, Međugorje, Čitluk, Čapljina and Ljubuški. From city cars to luxury sedans and SUVs. Check availability and book."
     },
     "fleet": {
-      "title": "Our Fleet — rent a car",
-      "description": "Browse the Maximum Rent a Car fleet — sedans, SUVs, luxury and city cars. Check availability for your dates and send a reservation inquiry."
+      "title": "Our Fleet: rent a car",
+      "description": "Browse the Maximum Rent a Car fleet of sedans, SUVs, luxury and city cars. Check availability for your dates and send a reservation inquiry."
     },
     "about": {
       "title": "About Us",
-      "description": "Meet Maximum Rent a Car — reliable car rental in Herzegovina since 2009, with pickup at 6 locations and a fleet for every need and budget."
+      "description": "Meet Maximum Rent a Car, reliable car rental in Herzegovina since 2009, with pickup at 6 locations and a fleet for every need and budget."
     },
     "business": {
       "title": "Business & Long-Term Car Rental",
-      "description": "Long-term and corporate car rental for companies — flexible terms, more cost-effective than classic leasing. Request an offer tailored to your business."
+      "description": "Long term and corporate car rental for companies with flexible terms, more cost effective than classic leasing. Request an offer tailored to your business."
     },
     "terms": {
       "title": "Rental Terms",
-      "description": "Maximum Rent a Car rental terms — booking, vehicle pickup and return, insurance and payment conditions, clearly laid out."
+      "description": "Maximum Rent a Car rental terms: booking, vehicle pickup and return, insurance and payment conditions, clearly laid out."
     },
     "contact": {
       "title": "Contact & Locations",
-      "description": "Contact Maximum Rent a Car — phone, email, WhatsApp and all locations across Herzegovina (Mostar, Međugorje, Čitluk, Čapljina, Ljubuški). Open 07:30–20:30h."
+      "description": "Contact Maximum Rent a Car by phone, email or WhatsApp. All locations across Herzegovina: Mostar, Međugorje, Čitluk, Čapljina and Ljubuški. Open from 07:30 to 20:30."
     },
     "guides": {
-      "title": "Driving guides for Bosnia and Herzegovina: fines and rules",
-      "description": "Traffic fines in Bosnia and Herzegovina in KM and euros, speed limits and the driving rules to know before renting a car in Herzegovina."
+      "title": "Driving guides for Bosnia and Herzegovina: fines, rules and day trips",
+      "description": "Traffic fines in Bosnia and Herzegovina in KM and euros, speed limits, driving rules and day trips by car from Mostar and Međugorje with approximate distances."
+    },
+    "privacy": {
+      "title": "Privacy policy",
+      "description": "How Maximum Rent a Car collects, uses and protects your personal data, which cookies we use and how to exercise your rights."
     }
   },
   "WeddingCars": {
@@ -623,7 +621,7 @@
   },
   "Extras": {
     "title": "Optional extras",
-    "subtitle": "Not required — tell us what you need and we'll confirm it with your booking.",
+    "subtitle": "Not required. Tell us what you need and we'll confirm it with your booking.",
     "perDay": "day",
     "included": "Included",
     "increase": "Add: {name}",
@@ -742,13 +740,13 @@
     "eyebrow": "Guides",
     "title": "Before you",
     "accent": "hit the road.",
-    "lead": "Short guides for driving in Bosnia and Herzegovina: traffic fines and the rules that surprise visitors most.",
+    "lead": "Short guides to driving in Bosnia and Herzegovina: traffic fines, the rules that surprise visitors most and day trips by car.",
     "all": "All guides",
     "read": "Read the guide",
     "minutes": "{n} min read",
     "updated": "Updated {date}",
     "pageTitle": "Driving guides for Bosnia and Herzegovina",
-    "pageLead": "What to know before you get behind the wheel: rules, speed limits and fine amounts.",
+    "pageLead": "What to know before you get behind the wheel: rules, fine amounts and the best day trips nearby.",
     "ctaTitle": "Ready to go?",
     "ctaBody": "Choose a car and your dates. You get a confirmation of your inquiry by email.",
     "ctaButton": "Browse cars",
@@ -766,5 +764,24 @@
     "accent": "in Čitluk.",
     "reviews": "{count, plural, one {# review on Google} other {# reviews on Google}}",
     "directions": "Get directions"
+  },
+  "Consent": {
+    "title": "Cookies and privacy",
+    "body": "We only use essential cookies and local storage for language, currency and your settings. Google Maps loads only with your consent.",
+    "policy": "Privacy policy",
+    "necessaryT": "Essential",
+    "necessaryB": "Language, currency and privacy settings. The site does not work properly without them.",
+    "always": "Always",
+    "mapsT": "Google Maps",
+    "mapsB": "Shows embedded maps. Google may set its own cookies when they load.",
+    "save": "Save choice",
+    "necessary": "Essential only",
+    "acceptAll": "Accept all",
+    "settings": "Settings",
+    "close": "Close",
+    "mapTitle": "Map is turned off",
+    "mapBody": "The Google map is shown only with your consent, because Google sets its own cookies when it loads.",
+    "mapShow": "Show map",
+    "mapOpen": "Open in Google Maps"
   }
 }

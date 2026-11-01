@@ -7,7 +7,6 @@ import { getCompany } from "@/lib/company";
 import { getGooglePlace } from "@/lib/google-reviews";
 import { getActiveLocations, getBrowseCars } from "@/lib/fleet-data";
 import { Hero } from "@/components/home/Hero";
-import { Features } from "@/components/home/Features";
 import { FeaturedFleet } from "@/components/home/FeaturedFleet";
 import { Reviews, type ReviewsData } from "@/components/home/Reviews";
 import { HowItWorks } from "@/components/home/HowItWorks";
@@ -49,12 +48,23 @@ export default async function HomePage({
     fetchPriority: "high",
   });
 
-  const [locations, cars, google, company] = await Promise.all([
+  const [locations, cars, google, company, tFaq] = await Promise.all([
     getActiveLocations(),
     getBrowseCars(),
     getGooglePlace(locale),
     getCompany(),
+    getTranslations({ locale, namespace: "Faq" }),
   ]);
+
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: (tFaq.raw("items") as { q: string; a: string }[]).map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
 
   const withImage = cars.filter((c) => c.images.length > 0);
   const premium =
@@ -77,6 +87,7 @@ export default async function HomePage({
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd).replace(/</g, "\\u003c") }} />
       <Hero />
 
       <section
@@ -85,8 +96,6 @@ export default async function HomePage({
       >
         <ReservationSearchForm locations={locations} />
       </section>
-
-      <Features />
 
       <FeaturedFleet cars={cars} total={cars.length} />
 

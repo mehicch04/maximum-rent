@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { routing } from "@/i18n/routing";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { ArrowLeft } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 import { getCarBySlug, getSimilarCars } from "@/lib/car-detail";
 import { getActiveLocations } from "@/lib/fleet-data";
@@ -33,10 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: description.slice(0, 160),
     alternates: {
       canonical: url,
-      languages: {
-        hr: `${SITE_URL}/hr/vozila/${car.slug}`,
-        en: `${SITE_URL}/en/vozila/${car.slug}`,
-      },
+      languages: Object.fromEntries(routing.locales.map((l) => [l, `${SITE_URL}/${l}/vozila/${car.slug}`])),
     },
     openGraph: {
       title: car.title,
@@ -57,8 +55,19 @@ export default async function CarPage({ params }: Props) {
     getActiveLocations(),
     getActiveExtras(),
     getCarBusy(car.id),
-    getTranslations("Fleet"),
+    getTranslations("Nav"),
   ]);
+  const base = `${SITE_URL}/${params.locale}`;
+  const crumbs = [
+    { name: t("home"), url: base },
+    { name: t("vehicles"), url: `${base}/vozila` },
+    { name: car.title, url: `${base}/vozila/${car.slug}` },
+  ];
+  const crumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: crumbs.map((c, i) => ({ "@type": "ListItem", position: i + 1, name: c.name, item: c.url })),
+  };
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -82,7 +91,7 @@ export default async function CarPage({ params }: Props) {
   };
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
       <script
         type="application/ld+json"
         // Escaped so a stray closing tag in a description cannot break out.
@@ -91,13 +100,24 @@ export default async function CarPage({ params }: Props) {
         }}
       />
 
-      <Link
-        href={`/${params.locale}/vozila`}
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-brand-strong"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        {t("backToFleet")}
-      </Link>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbLd).replace(/</g, "\\u003c") }} />
+      <nav aria-label="Breadcrumb">
+        <ol className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground">
+          <li className="shrink-0">
+            <Link href="/" className="transition-colors hover:text-brand-strong">{t("home")}</Link>
+          </li>
+          <li aria-hidden className="shrink-0">
+            <ChevronRight className="h-3.5 w-3.5 opacity-60" />
+          </li>
+          <li className="shrink-0">
+            <Link href="/vozila" className="transition-colors hover:text-brand-strong">{t("vehicles")}</Link>
+          </li>
+          <li aria-hidden className="shrink-0">
+            <ChevronRight className="h-3.5 w-3.5 opacity-60" />
+          </li>
+          <li aria-current="page" className="min-w-0 truncate font-medium text-foreground">{car.title}</li>
+        </ol>
+      </nav>
 
       <CarDetail
         car={car}
@@ -107,6 +127,6 @@ export default async function CarPage({ params }: Props) {
         busy={busy}
         locale={params.locale}
       />
-    </main>
+    </div>
   );
 }

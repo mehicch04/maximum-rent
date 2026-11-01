@@ -12,6 +12,7 @@ const PATHS = [
   "/uvjeti-najma",
   "/kontakt",
   "/vodici",
+  "/privatnost",
   ...GUIDE_SLUGS.map((s) => `/vodici/${s}`),
 ];
 

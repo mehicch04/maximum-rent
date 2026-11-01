@@ -9,7 +9,7 @@ import { GUIDE_SLUGS, getGuide, getGuides, type GuideBlock } from "@/lib/guides"
 import { getBrowseCars } from "@/lib/fleet-data";
 import { getCompany } from "@/lib/company";
 import { SimilarCars } from "@/components/fleet/SimilarCars";
-import { GuideCard } from "@/components/guides/GuideCard";
+import { GuideCard, GUIDE_SIGNS } from "@/components/guides/GuideCard";
 import { RoadSign } from "@/components/guides/RoadSign";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import type { CarListItem } from "@/lib/types";
@@ -110,7 +110,7 @@ export default async function GuidePage({ params }: Props) {
       </Link>
 
       <header className="mt-8 flex max-w-3xl items-start gap-5">
-        <RoadSign kind={guide.icon === "fines" ? "speed" : "warning"} className="mt-1 hidden h-16 w-16 shrink-0 sm:block" />
+        <RoadSign kind={GUIDE_SIGNS[guide.icon] ?? "warning"} className="mt-1 hidden h-16 w-16 shrink-0 sm:block" />
         <div>
           <h1 className="text-balance font-display text-[2rem] font-bold leading-[1.12] tracking-tight text-foreground sm:text-5xl">{guide.title}</h1>
           <p className="mt-5 text-lg leading-relaxed text-muted-foreground">{guide.lead}</p>

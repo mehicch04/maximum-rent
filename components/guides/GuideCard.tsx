@@ -4,9 +4,10 @@ import type { Guide, GuideIcon } from "@/lib/guides";
 import type { SignKind } from "./RoadSign";
 import { SwingSign } from "./SwingSign";
 
-const SIGNS: Record<GuideIcon, SignKind> = {
+export const GUIDE_SIGNS: Record<GuideIcon, SignKind> = {
   fines: "speed",
   rules: "warning",
+  trips: "route",
 };
 
 export function GuideCard({
@@ -28,7 +29,7 @@ export function GuideCard({
       className="group flex h-full flex-col rounded-[22px] bg-surface p-6 ring-1 ring-border transition-[box-shadow,transform] duration-300 hover:-translate-y-1 hover:shadow-card-hover hover:ring-brand/30 sm:p-7"
     >
       <div className="flex items-center justify-between">
-        <SwingSign kind={SIGNS[guide.icon] ?? "warning"} className="h-12 w-12" />
+        <SwingSign kind={GUIDE_SIGNS[guide.icon] ?? "warning"} className="h-12 w-12" />
         <span className="text-xs text-muted-foreground">{minutesLabel}</span>
       </div>
       <H className="mt-6 text-balance font-display text-lg font-bold leading-snug text-foreground">{guide.title}</H>

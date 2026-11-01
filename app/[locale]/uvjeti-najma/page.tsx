@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { BadgeCheck, CalendarX, Gauge, MapPin, Phone } from "lucide-react";
+import { BadgeCheck, CalendarX, Gauge, IdCard, Phone } from "lucide-react";
 import { buildPageMetadata } from "@/lib/seo";
 import { getCompany } from "@/lib/company";
 import { RENTAL_TERMS } from "@/lib/rental-terms";
@@ -9,7 +9,7 @@ import { LegalDoc } from "@/components/legal/LegalDoc";
 import { CtaBand } from "@/components/home/CtaBand";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 
-const ICONS = [BadgeCheck, CalendarX, Gauge, MapPin];
+const ICONS = [BadgeCheck, CalendarX, Gauge, IdCard];
 
 export async function generateMetadata({
   params: { locale },

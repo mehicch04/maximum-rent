@@ -4,6 +4,7 @@ import type { Company } from "@/lib/company";
 import { PillLink } from "@/components/ui/PillLink";
 import { Heading } from "./Heading";
 import { intlLocale } from "@/i18n/routing";
+import { ConsentMap } from "@/components/consent/MapConsent";
 
 export function Visit({ company, address, locale }: { company: Company; address: string; locale: string }) {
   const t = useTranslations("Visit");
@@ -61,14 +62,8 @@ export function Visit({ company, address, locale }: { company: Company; address:
           </PillLink>
         </div>
 
-        <div className="relative aspect-[4/3] overflow-hidden rounded-[28px] bg-surface-muted ring-1 ring-border lg:aspect-auto lg:h-[480px]">
-          <iframe
-            src={mapSrc}
-            title={`${company.name}, ${address}`}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            className="absolute inset-0 h-full w-full grayscale-[20%]"
-          />
+        <div className="relative h-[380px] overflow-hidden rounded-[28px] bg-surface-muted ring-1 ring-border sm:h-[420px] lg:h-[480px]">
+          <ConsentMap src={mapSrc} title={`${company.name}, ${address}`} link={mapLink} className="grayscale-[20%]" />
         </div>
       </div>
     </section>

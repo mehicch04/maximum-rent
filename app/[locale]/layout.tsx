@@ -18,6 +18,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { PageBackground } from "@/components/layout/PageBackground";
 import { BackToTop } from "@/components/layout/BackToTop";
+import { WhatsAppFab } from "@/components/layout/WhatsAppFab";
+import { CookieConsent } from "@/components/consent/CookieConsent";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { IntroLoader } from "@/components/layout/IntroLoader";
 
@@ -31,6 +33,7 @@ const inter = Inter({
 const CLIENT_NAMESPACES = [
   "Booking",
   "Common",
+  "Consent",
   "Cta",
   "Extras",
   "Faq",
@@ -56,7 +59,7 @@ export const metadata: Metadata = {
     template: `%s | ${SITE.name}`,
   },
   description:
-    "Premium najam vozila u Hercegovini — preuzimanje na 6 lokacija, od gradskih automobila do luksuznih limuzina.",
+    "Premium najam vozila u Hercegovini s preuzimanjem na 6 lokacija, od gradskih automobila do luksuznih limuzina.",
   applicationName: SITE.name,
   authors: [{ name: "mehiccdev", url: "https://mehiccdev.com" }],
   creator: "mehiccdev",
@@ -69,23 +72,23 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: SITE.name,
-    title: `${SITE.name} — Rent a Car Hercegovina`,
+    title: `${SITE.name} | Rent a Car Hercegovina`,
     description:
-      "Premium najam vozila u Hercegovini — preuzimanje na 6 lokacija.",
+      "Premium najam vozila u Hercegovini s preuzimanjem na 6 lokacija.",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: `${SITE.name} — Rent a Car Hercegovina`,
+        alt: `${SITE.name} | Rent a Car Hercegovina`,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE.name} — Rent a Car Hercegovina`,
+    title: `${SITE.name} | Rent a Car Hercegovina`,
     description:
-      "Premium najam vozila u Hercegovini — preuzimanje na 6 lokacija.",
+      "Premium najam vozila u Hercegovini s preuzimanjem na 6 lokacija.",
     images: ["/og-image.jpg"],
   },
 };
@@ -138,7 +141,7 @@ export default async function LocaleLayout({
         <ThemeProvider forced="light">
           <NextIntlClientProvider messages={messages}>
             <CompanyProvider value={company}>
-            <CurrencyProvider defaultCurrency="BAM">
+            <CurrencyProvider defaultCurrency={locale === "hr" ? "BAM" : "EUR"}>
               <PageBackground />
               <div className="flex min-h-dvh flex-col">
                 <Navbar />
@@ -146,6 +149,8 @@ export default async function LocaleLayout({
                 <Footer company={company} locations={footerLocations} />
               </div>
               <BackToTop />
+              <WhatsAppFab />
+              <CookieConsent />
               <Spotlight />
             </CurrencyProvider>
             </CompanyProvider>
