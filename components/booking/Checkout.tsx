@@ -285,19 +285,21 @@ export function Checkout({ car, pickupAt, returnAt, pickup, ret, locations, extr
               className={`${INPUT} ${err ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/15" : ok ? "border-emerald-500/60" : "border-border"}`}
             />
           )}
-          <AnimatePresence>
-            {ok && (
-              <motion.span
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                transition={{ duration: 0.25, ease: EASE }}
-                className="pointer-events-none absolute end-3 top-1/2 grid h-5 w-5 -translate-y-1/2 place-items-center rounded-full bg-emerald-500 text-white"
-              >
-                <Check className="h-3 w-3" strokeWidth={3} />
-              </motion.span>
-            )}
-          </AnimatePresence>
+          <span className="pointer-events-none absolute inset-y-0 end-3 flex items-center">
+            <AnimatePresence>
+              {ok && (
+                <motion.span
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ duration: 0.25, ease: EASE }}
+                  className="grid h-5 w-5 place-items-center rounded-full bg-emerald-500 text-white"
+                >
+                  <Check className="h-3 w-3" strokeWidth={3} />
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </span>
         </div>
         <AnimatePresence initial={false} mode="wait">
           <motion.p

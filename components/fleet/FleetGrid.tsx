@@ -50,6 +50,7 @@ const ICONS: Record<CarCategory, Option["icon"]> = {
 };
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+const CAT_ORDER: CarCategory[] = ["COMPACT", "LIMUZINA", "KARAVAN", "SUV", "COUPE", "CABRIO", "LUXURY", "TRANSPORT", "MINIBUS"];
 
 export function FleetGrid({ cars, search, eagerFirstImages = false, imageSizes, initialType, showFilters = true }: Props) {
   const t = useTranslations("Fleet");
@@ -138,7 +139,7 @@ export function FleetGrid({ cars, search, eagerFirstImages = false, imageSizes, 
         id: "cat",
         kind: "list",
         title: t("fCategory"),
-        options: CAR_CATEGORIES.filter((c) => cats.has(c)).map((c) => ({ value: c, label: t(`categories.${c}`), count: count("cat", c), icon: ICONS[c] })),
+        options: [...CAR_CATEGORIES].sort((a, b) => CAT_ORDER.indexOf(a) - CAT_ORDER.indexOf(b)).filter((c) => cats.has(c)).map((c) => ({ value: c, label: t(`categories.${c}`), count: count("cat", c), icon: ICONS[c] })),
       },
       {
         id: "price",
@@ -161,18 +162,18 @@ export function FleetGrid({ cars, search, eagerFirstImages = false, imageSizes, 
         options: (["AUTOMATIC", "MANUAL"] as const).filter((g) => gears.has(g)).map((g) => ({ value: g, label: label(TRANSMISSION_LABELS[g], locale), count: count("gear", g) })),
       },
       {
+        id: "seats",
+        kind: "check",
+        title: t("fSeats"),
+        options: seats.map((n) => ({ value: n, label: t("seatsN", { n }), count: count("seats", n) })),
+      },
+      {
         id: "fuel",
         kind: "check",
         title: t("fFuel"),
         options: (Object.keys(FUEL_LABELS) as (keyof typeof FUEL_LABELS)[])
           .filter((f) => fuels.has(f))
           .map((f) => ({ value: f, label: label(FUEL_LABELS[f], locale), count: count("fuel", f) })),
-      },
-      {
-        id: "seats",
-        kind: "check",
-        title: t("fSeats"),
-        options: seats.map((n) => ({ value: n, label: t("seatsN", { n }), count: count("seats", n) })),
       },
       {
         id: "brand",

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import {
   Calendar,
@@ -25,7 +24,6 @@ import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { CarDoorIcon } from "@/components/ui/CarDoorIcon";
 import { Price } from "@/components/currency/Price";
 import { CarGallery } from "./CarGallery";
-import { ImageLightbox } from "./ImageLightbox";
 
 type Props = {
   car: CarListItem;
@@ -45,7 +43,6 @@ export function CarCard({
   const locale = useLocale() as AppLocale;
   const t = useTranslations("Fleet");
   const common = useTranslations("Common");
-  const [lightbox, setLightbox] = useState<number | null>(null);
   const images = car.images ?? [];
 
   const inquiry: InquiryContext = {
@@ -83,33 +80,14 @@ export function CarCard({
   ];
 
   return (
-    <article
-      data-frozen={lightbox !== null || undefined}
-      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-[transform,box-shadow,border-color] duration-300 [@media(hover:hover)]:hover:-translate-y-1 hover:border-brand/50 hover:shadow-card-hover [@media(hover:hover)]:data-[frozen]:-translate-y-1 [@media(hover:hover)]:data-[frozen]:border-brand/50 [@media(hover:hover)]:data-[frozen]:shadow-card-hover"
-    >
+    <article className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-[transform,box-shadow,border-color] duration-300 [@media(hover:hover)]:hover:-translate-y-1 hover:border-brand/50 hover:shadow-card-hover">
       <span className="absolute left-4 top-4 z-10 rounded-full bg-brand px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-foreground">
         {label(CLASS_LABELS[car.carClass], locale)}
       </span>
 
-      {/* Above the stretched link so zooming a photo still works. */}
       <div className="relative z-10">
-        <CarGallery
-          images={images}
-          title={car.title}
-          onOpen={setLightbox}
-          frozen={lightbox !== null}
-          priority={priority}
-          sizes={imageSizes}
-        />
+        <CarGallery images={images} title={car.title} href={detailHref} priority={priority} sizes={imageSizes} />
       </div>
-
-      <ImageLightbox
-        images={images}
-        title={car.title}
-        openIndex={lightbox}
-        onClose={() => setLightbox(null)}
-        thumbSizes={imageSizes}
-      />
 
       <div className="flex flex-1 flex-col gap-4 p-5">
         <div>

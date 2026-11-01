@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Car as CarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -9,19 +10,19 @@ type Props = {
   images: string[];
   title: string;
   onOpen?: (index: number) => void;
+  href?: string;
   autoPlay?: boolean;
   priority?: boolean;
   sizes?: string;
-  frozen?: boolean;
 };
 
 export function CarGallery({
   images,
   title,
   onOpen,
+  href,
   autoPlay = false,
   priority = false,
-  frozen = false,
   sizes = "(max-width: 639px) 92vw, (max-width: 1023px) 46vw, 31vw",
 }: Props) {
   const t = useTranslations("Common");
@@ -29,6 +30,7 @@ export function CarGallery({
   const [paused, setPaused] = useState(false);
 
   const touchX = useRef<number | null>(null);
+  const swiped = useRef(false);
 
   const count = images.length;
 
@@ -85,16 +87,15 @@ export function CarGallery({
         if (touchX.current === null || count < 2) return;
         const dx = e.changedTouches[0].clientX - touchX.current;
         touchX.current = null;
-        if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+        if (Math.abs(dx) > 40) {
+          swiped.current = true;
+          window.setTimeout(() => (swiped.current = false), 400);
+          go(dx < 0 ? 1 : -1);
+        }
       }}
     >
-      <button
-        type="button"
-        onClick={() => onOpen?.(index)}
-        aria-label={title}
-        className="absolute inset-0 cursor-zoom-in outline-none [-webkit-tap-highlight-color:transparent] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-      >
-        {images.map((src, i) =>
+      {(() => {
+        const slides = images.map((src, i) =>
           ready.has(i) ? (
             <Image
               key={src + i}
@@ -105,15 +106,31 @@ export function CarGallery({
               priority={priority && i === 0}
               sizes={sizes}
               quality={90}
-              className={`object-cover transition-[opacity,transform] duration-300 ease-out [@media(hover:hover)]:group-hover/gallery:scale-[1.03] ${
-                frozen ? "[@media(hover:hover)]:scale-[1.03]" : ""
-              } ${
-                i === index ? "opacity-100" : "opacity-0"
-              }`}
+              className={`object-cover transition-opacity duration-300 ease-out ${i === index ? "opacity-100" : "opacity-0"}`}
             />
           ) : null,
-        )}
-      </button>
+        );
+        const cls = "absolute inset-0 outline-none [-webkit-tap-highlight-color:transparent] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring";
+        if (href)
+          return (
+            <Link
+              href={href}
+              aria-label={title}
+              draggable={false}
+              onClick={(e) => swiped.current && e.preventDefault()}
+              className={`${cls} cursor-pointer`}
+            >
+              {slides}
+            </Link>
+          );
+        if (onOpen)
+          return (
+            <button type="button" onClick={() => onOpen(index)} aria-label={title} className={`${cls} cursor-zoom-in`}>
+              {slides}
+            </button>
+          );
+        return <div className="absolute inset-0">{slides}</div>;
+      })()}
 
       {count > 1 && (
         <>
