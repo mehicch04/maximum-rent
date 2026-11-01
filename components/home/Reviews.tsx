@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { AnimatePresence, motion, useAnimationControls, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useAnimationControls, useInView, useReducedMotion } from "framer-motion";
 import { MousePointer2, Pause, ShieldCheck, Star } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -18,7 +18,7 @@ const ACCENTS = [
   { a: "#52525B", b: "#27272A" },
 ];
 const BRAND = "#E30613";
-const SLOTS = 6;
+const SLOTS = 4;
 const R = 15;
 const C = 2 * Math.PI * R;
 const STAGGER = 1700;
@@ -251,10 +251,164 @@ function Slot({
   );
 }
 
+function GoogleG({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden>
+      <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.7-.4-3.9z" />
+      <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+      <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2A11.9 11.9 0 0 1 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z" />
+      <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3a12 12 0 0 1-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.7-.4-3.9z" />
+    </svg>
+  );
+}
+
+function useCount(to: number, run: boolean, ms = 1400) {
+  const reduce = useReducedMotion();
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    if (!run) return;
+    if (reduce) {
+      setV(to);
+      return;
+    }
+    let raf = 0;
+    const t0 = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - t0) / ms);
+      setV(to * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [to, run, reduce, ms]);
+  return v;
+}
+
+function ScoreCard({ data, faces }: { data: ReviewsData; faces: Review[] }) {
+  const t = useTranslations("Reviews");
+  const locale = useLocale();
+  const ref = useRef<HTMLDivElement>(null);
+  const run = useInView(ref, { once: true, margin: "-80px" });
+  const v = useCount(data.score, run);
+  const nf = locale === "en" ? "en-GB" : "hr-HR";
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6, ease: EASE }}
+      className="relative isolate overflow-hidden rounded-[28px] bg-ink p-6 text-white shadow-[0_40px_80px_-44px_rgba(17,17,19,0.8)] sm:p-8"
+    >
+      <span aria-hidden className="pointer-events-none absolute -right-24 -top-28 -z-10 h-72 w-72 rounded-full bg-[radial-gradient(closest-side,rgba(227,6,19,0.45),transparent)]" />
+      <span aria-hidden className="pointer-events-none absolute -bottom-32 -left-20 -z-10 h-64 w-64 rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.06),transparent)]" />
+
+      <span className="inline-flex items-center gap-2.5 rounded-full bg-white/[0.06] py-1.5 pl-1.5 pr-3.5 text-xs font-semibold text-white/80 ring-1 ring-white/10">
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-white">
+          <GoogleG className="h-4 w-4" />
+        </span>
+        {t("google")}
+      </span>
+
+      <div className="mt-8 flex items-end gap-2">
+        <span className="font-display text-[5.25rem] font-bold leading-[0.85] tracking-tight tabular-nums sm:text-[6rem]">
+          {v.toLocaleString(nf, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+        </span>
+        <span className="mb-1.5 text-lg font-semibold text-white/35">/ 5</span>
+      </div>
+
+      <div className="mt-5 flex gap-1.5" role="img" aria-label={`${data.score}/5`}>
+        {Array.from({ length: 5 }, (_, i) => {
+          const fill = Math.max(0, Math.min(1, data.score - i));
+          return (
+            <span key={i} className="relative h-7 w-7">
+              <Star aria-hidden className="absolute inset-0 h-7 w-7 fill-white/10 text-white/10" />
+              <span
+                className="absolute inset-y-0 left-0 overflow-hidden transition-[width] duration-700 ease-out"
+                style={{ width: run ? `${fill * 100}%` : "0%", transitionDelay: `${300 + i * 140}ms` }}
+              >
+                <Star aria-hidden className="h-7 w-7 max-w-none fill-[#F5A524] text-[#F5A524]" />
+              </span>
+            </span>
+          );
+        })}
+      </div>
+      <p className="mt-3 text-sm text-white/60">{t("count", { count: data.count })}</p>
+
+      {faces.length > 0 && (
+        <div className="mt-6 flex items-center gap-3 border-t border-white/10 pt-6">
+          <span className="flex -space-x-2.5">
+            {faces.map((f, i) => {
+              const a = ACCENTS[i % ACCENTS.length];
+              return (
+                <span
+                  key={`${f.author}${i}`}
+                  className="grid h-9 w-9 place-items-center rounded-full text-sm font-semibold text-white ring-2 ring-ink"
+                  style={{ backgroundImage: `linear-gradient(135deg, ${a.a}, ${a.b})` }}
+                >
+                  {f.author.trim().charAt(0).toUpperCase()}
+                </span>
+              );
+            })}
+          </span>
+          <span className="text-xs leading-snug text-white/55">{t("recent")}</span>
+        </div>
+      )}
+
+      <div className="mt-8 flex flex-wrap gap-2">
+        <PillLink href={data.url} variant="light">
+          {t("all")}
+        </PillLink>
+        <PillLink href="/vozila">{t("book")}</PillLink>
+      </div>
+    </motion.div>
+  );
+}
+
+function Proof() {
+  const t = useTranslations("Reviews");
+  const locale = useLocale();
+  const ref = useRef<HTMLUListElement>(null);
+  const run = useInView(ref, { once: true, margin: "-60px" });
+  const labels = t.raw("proof") as string[];
+  const values = [
+    { to: 4532, suffix: "+" },
+    { to: new Date().getFullYear() - 2009 },
+    { to: 365 },
+  ];
+  return (
+    <ul ref={ref} className="mt-10 grid grid-cols-3 gap-2 sm:gap-3">
+      {values.map((s, i) => (
+        <ProofTile key={i} to={s.to} suffix={s.suffix} label={labels[i] ?? ""} run={run} delay={i * 0.08} nf={locale === "en" ? "en-GB" : "hr-HR"} />
+      ))}
+    </ul>
+  );
+}
+
+function ProofTile({ to, suffix, label, run, delay, nf }: { to: number; suffix?: string; label: string; run: boolean; delay: number; nf: string }) {
+  const v = useCount(to, run);
+  return (
+    <motion.li
+      initial={{ opacity: 0, y: 16 }}
+      animate={run ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, delay, ease: EASE }}
+      className="rounded-[20px] bg-surface p-3.5 ring-1 ring-border transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-30px_rgba(227,6,19,0.35)] sm:rounded-[22px] sm:p-6"
+    >
+      <p className="font-display text-2xl font-bold tabular-nums tracking-tight text-foreground sm:text-4xl">
+        {Math.round(v).toLocaleString(nf)}
+        {suffix && <span className="text-brand-strong">{suffix}</span>}
+      </p>
+      <p className="mt-1.5 text-xs leading-snug text-muted-foreground sm:mt-2 sm:text-sm">{label}</p>
+    </motion.li>
+  );
+}
+
 export function Reviews({ data }: { data: ReviewsData }) {
   const t = useTranslations("Reviews");
   const locale = useLocale();
   const pool = data.reviews;
+  const has = pool.length > 0;
   const slots = Math.min(SLOTS, pool.length);
   const rotate = pool.length > slots;
   const [shown, setShown] = useState(() => Array.from({ length: slots }, (_, i) => i));
@@ -296,76 +450,34 @@ export function Reviews({ data }: { data: ReviewsData }) {
   );
 
   const score = data.score.toLocaleString(locale === "en" ? "en-GB" : "hr-HR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-  const faces = pool.slice(0, 5);
 
   return (
-    <section ref={root} className="px-3 py-3 sm:px-4">
-      <div className="relative isolate overflow-hidden rounded-[28px] bg-surface-muted/40 ring-1 ring-border/60">
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-          <span className="absolute -left-32 -top-40 h-[460px] w-[460px] rounded-full bg-brand/[0.07] blur-3xl" />
-          <span className="absolute -bottom-48 -right-24 h-[420px] w-[420px] rounded-full bg-brand/[0.06] blur-3xl" />
+    <section ref={root} className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
+      <div className={`grid gap-10 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:gap-14 ${has ? "lg:items-start" : "lg:items-center"}`}>
+        <div className={has ? "lg:sticky lg:top-28" : ""}>
+          <ScoreCard data={data} faces={pool.slice(0, 5)} />
         </div>
-
-        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24">
-          <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
-            <div>
-              <Heading eyebrow={t("eyebrow")} title={t("title")} accent={t("accent")} />
-              {rotate && (
-                <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-surface/80 px-3.5 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border backdrop-blur">
-                  <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:hidden" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-                  </span>
-                  <MousePointer2 className="h-3.5 w-3.5" />
-                  {t("hint")}
-                </p>
-              )}
-            </div>
-
-            <div className="flex flex-col items-start gap-4 lg:items-end">
-              <a
-                href={data.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex max-w-full items-center gap-3 rounded-full bg-surface/90 p-2 pr-5 sm:gap-4 sm:pr-6 shadow-[0_20px_40px_-30px_rgba(11,18,32,0.45)] ring-1 ring-border backdrop-blur transition-transform duration-300 hover:-translate-y-0.5"
-              >
-                <span className={`flex -space-x-2.5 ${faces.length ? "" : "hidden"}`}>
-                  {faces.map((f, i) => {
-                    const a = ACCENTS[i % ACCENTS.length];
-                    return (
-                      <span
-                        key={`${f.author}${i}`}
-                        className={`h-9 w-9 place-items-center rounded-full text-sm font-semibold text-white ring-2 ring-surface transition-transform duration-300 group-hover:-translate-y-0.5 sm:h-10 sm:w-10 ${i > 3 ? "hidden sm:grid" : "grid"}`}
-                        style={{ backgroundImage: `linear-gradient(135deg, ${a.a}, ${a.b})`, transitionDelay: `${i * 40}ms` }}
-                      >
-                        {f.author.trim().charAt(0).toUpperCase()}
-                      </span>
-                    );
-                  })}
-                </span>
-                <span>
-                  <span className="flex items-center gap-2">
-                    <span className="font-display text-2xl font-semibold leading-none tracking-tight text-foreground">{score}</span>
-                    <Stars value={data.score} />
-                  </span>
-                  <span className="mt-1 block text-xs text-muted-foreground">{t("count", { count: data.count })}</span>
-                </span>
-              </a>
-              <div className="flex flex-wrap gap-2">
-                <PillLink href="/vozila">{t("book")}</PillLink>
-                <PillLink href={data.url} variant="outline">
-                  {t("all")}
-                </PillLink>
-              </div>
-            </div>
-          </div>
-
-          {pool.length > 0 && (
-            <ul className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div>
+          <Heading
+            eyebrow={t("eyebrow")}
+            title={has ? t("title") : t("proofTitle")}
+            accent={has ? t("accent") : t("proofAccent")}
+            subtitle={has ? undefined : t("proofLead", { score })}
+          />
+          {rotate && (
+            <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-surface px-3.5 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border">
+              <MousePointer2 className="h-3.5 w-3.5" />
+              {t("hint")}
+            </p>
+          )}
+          {has ? (
+            <ul className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
               {shown.map((idx, slot) => (
                 <Slot key={slot} review={pool[idx]} idx={idx} slot={slot} rotate={rotate} live={live} href={data.url} onDone={advance} />
               ))}
             </ul>
+          ) : (
+            <Proof />
           )}
         </div>
       </div>

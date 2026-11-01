@@ -286,7 +286,7 @@ export function FleetGrid({ cars, search, eagerFirstImages = false, imageSizes, 
           </div>
         </div>
 
-        <div className="sticky top-[72px] z-30 mt-4 lg:top-[88px] before:pointer-events-none before:absolute before:-inset-x-3 before:-top-3 before:bottom-1/2 before:-z-10 before:bg-background before:content-[''] min-[1680px]:hidden">
+        <div className="sticky top-[80px] z-30 mt-4 before:pointer-events-none before:absolute before:-inset-x-3 before:-top-3 before:bottom-1/2 before:-z-10 before:bg-background before:content-[''] min-[1680px]:hidden">
           <div className="hidden lg:block">
             <FilterBar groups={groups} selection={sel} onToggle={toggle} onReset={reset} total={visible.length} end={sortSelect("fleet-sort-bar", true)} />
           </div>

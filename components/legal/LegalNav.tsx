@@ -70,7 +70,7 @@ export function LegalBar({ items, container }: { items: Item[]; container: strin
   }, [active]);
 
   return (
-    <div className="sticky top-16 z-30 -mx-4 mb-5 border-b border-border bg-background/90 backdrop-blur-md sm:-mx-6 lg:hidden">
+    <div className="sticky top-[68px] z-30 -mx-4 mb-5 border-b border-border bg-background/90 backdrop-blur-md sm:-mx-6 lg:hidden">
       <div ref={rail} className="no-scrollbar flex gap-2 overflow-x-auto px-4 py-2.5 sm:px-6">
         {items.map((i) => {
           const on = i.id === active;

@@ -7,8 +7,11 @@
     "terms": "Rental terms",
     "contact": "Contact",
     "menu": "Menu",
-    "theme": "Toggle theme",
-    "language": "Language"
+    "language": "Language",
+    "rating": "{count, plural, one {# review} other {# reviews}} on Google",
+    "airport": "Pick-up at Mostar Airport too",
+    "book": "Book now",
+    "call": "Call"
   },
   "Hero": {
     "eyebrow": "Rent a Car · Herzegovina",
@@ -405,7 +408,17 @@
     "verify": "Verify on Google",
     "paused": "Paused",
     "hint": "Hover or tap a review to pause it",
-    "book": "Book a vehicle"
+    "book": "Book a vehicle",
+    "google": "Google reviews",
+    "recent": "Latest reviews from our guests",
+    "proofTitle": "Trust we have",
+    "proofAccent": "built since 2009.",
+    "proofLead": "Guests rate us {score} on Google. Read their experiences and see for yourself.",
+    "proof": [
+      "happy clients",
+      "years with you",
+      "days a year we are here for you"
+    ]
   },
   "Services": {
     "eyebrow": "Services",

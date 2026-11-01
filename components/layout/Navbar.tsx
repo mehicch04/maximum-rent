@@ -1,107 +1,218 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { ArrowUpRight, Clock, Menu, Phone, Plane, Star, X } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { NAV_LINKS } from "@/lib/site-config";
+import { NAV_LINKS, SITE } from "@/lib/site-config";
+import { useCompany } from "@/components/company/CompanyProvider";
 import { CurrencySwitch } from "@/components/currency/CurrencySwitch";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { LanguageToggle } from "./LanguageToggle";
+
+const useIso = typeof window === "undefined" ? useEffect : useLayoutEffect;
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+function Rating() {
+  const t = useTranslations("Nav");
+  const locale = useLocale();
+  const company = useCompany();
+  const score = company.rating.score ?? SITE.rating.score;
+  const count = company.rating.count ?? SITE.rating.count;
+  return (
+    <>
+      <span className="flex gap-0.5" aria-hidden>
+        {Array.from({ length: 5 }, (_, i) => (
+          <Star key={i} className="h-3 w-3 fill-[#F5A524] text-[#F5A524]" />
+        ))}
+      </span>
+      <span className="font-semibold text-white">
+        {score.toLocaleString(locale === "en" ? "en-GB" : "hr-HR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+      </span>
+      <span>{t("rating", { count })}</span>
+    </>
+  );
+}
+
+function TopBar() {
+  const t = useTranslations("Nav");
+  const company = useCompany();
+  return (
+    <div className="bg-ink text-white/70">
+      <div className="mx-auto flex h-9 max-w-[1320px] items-center justify-between gap-6 px-6 text-xs">
+        <a href={company.map.link ?? SITE.map.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 transition-colors hover:text-white">
+          <Rating />
+        </a>
+        <span className="inline-flex items-center gap-2">
+          <Plane className="h-3.5 w-3.5 text-brand-400" />
+          {t("airport")}
+        </span>
+        <div className="flex items-center gap-5">
+          <span className="inline-flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5 text-brand-400" />
+            {company.hours}
+          </span>
+          {company.phones.map((p, i) => (
+            <a
+              key={p.value}
+              href={p.href}
+              className={`items-center gap-1.5 font-medium text-white transition-colors hover:text-brand-300 ${i === 0 ? "inline-flex" : "hidden xl:inline-flex"}`}
+            >
+              <Phone className="h-3.5 w-3.5" />
+              {p.value}
+            </a>
+          ))}
+          <a
+            href={`https://wa.me/${company.whatsapp}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="WhatsApp"
+            className="grid h-6 w-6 place-items-center rounded-full bg-[#25D366]/15 text-[#25D366] transition-colors hover:bg-[#25D366]/25"
+          >
+            <WhatsAppIcon className="h-3.5 w-3.5" />
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MobileTopBar() {
+  const company = useCompany();
+  return (
+    <a
+      href={company.map.link ?? SITE.map.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex h-9 items-center justify-center gap-2 bg-ink px-4 text-xs text-white/70"
+    >
+      <Rating />
+    </a>
+  );
+}
 
 export function Navbar() {
   const t = useTranslations("Nav");
   const pathname = usePathname();
+  const company = useCompany();
   const [scrolled, setScrolled] = useState(false);
+  const bar = useRef<HTMLSpanElement>(null);
   const [open, setOpen] = useState(false);
+  const [hover, setHover] = useState<number | null>(null);
+  const [pill, setPill] = useState<{ left: number; width: number } | null>(null);
+  const items = useRef<(HTMLAnchorElement | null)[]>([]);
+
+  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  const active = NAV_LINKS.findIndex((l) => isActive(l.href));
+  const target = hover ?? (active >= 0 ? active : null);
+
+  const measure = useCallback(() => {
+    const el = target != null ? items.current[target] : null;
+    setPill(el ? { left: el.offsetLeft, width: el.offsetWidth } : null);
+  }, [target]);
+
+  useIso(measure, [measure]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
-    onScroll();
+    window.addEventListener("resize", measure);
+    document.fonts?.ready.then(measure).catch(() => {});
+    return () => window.removeEventListener("resize", measure);
+  }, [measure]);
+
+  useEffect(() => {
+    let raf = 0;
+    const paint = () => {
+      raf = 0;
+      const y = window.scrollY;
+      setScrolled(y > 40);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      if (bar.current) bar.current.style.transform = `scaleX(${max > 0 ? Math.min(1, Math.max(0, y / max)) : 0})`;
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(paint);
+    };
+    paint();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   useEffect(() => setOpen(false), [pathname]);
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", esc);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", esc);
+    };
+  }, [open]);
 
   return (
-    <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled ? "glass" : "bg-transparent"
-      }`}
-    >
-      <nav className="container flex h-16 items-center justify-between gap-4 lg:h-20">
-        <Link href="/" className="relative flex items-center" aria-label="Maximum Rent a Car">
-          <Image
-            src="/logo.png"
-            alt="Maximum Rent a Car"
-            width={800}
-            height={239}
-            priority
-            className="h-9 w-auto lg:h-10"
-          />
-        </Link>
-
-        <ul className="hidden items-center gap-1 lg:flex">
-          {NAV_LINKS.map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                className={`relative px-3 py-2 text-sm font-medium uppercase tracking-wide transition-colors ${
-                  isActive(link.href)
-                    ? "text-brand-strong"
-                    : "text-foreground/75 hover:text-foreground"
-                }`}
-              >
-                {t(link.key)}
-                {isActive(link.href) && (
-                  <motion.span
-                    layoutId="nav-underline"
-                    className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-brand"
-                  />
-                )}
-              </Link>
-            </li>
-          ))}
-        </ul>
-
-        <div className="flex items-center gap-2">
-          <LanguageToggle />
-          <CurrencySwitch />
-          <button
-            type="button"
-            aria-label={t("menu")}
-            aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-foreground lg:hidden"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-        </div>
-      </nav>
-
+    <>
+      <div className="hidden lg:block">
+        <TopBar />
+      </div>
+      <div className="lg:hidden">
+        <MobileTopBar />
+      </div>
       <AnimatePresence>
         {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="glass overflow-hidden lg:hidden"
-          >
-            <ul className="container flex flex-col gap-1 py-4">
-              {NAV_LINKS.map((link) => (
+          <motion.button
+            key="scrim"
+            type="button"
+            aria-label={t("menu")}
+            tabIndex={-1}
+            onClick={() => setOpen(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-40 bg-ink/30 backdrop-blur-[2px] lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+      <header className="sticky top-0 z-50">
+        <div
+          className={`relative border-b transition-[background-color,box-shadow,border-color] duration-300 ${
+            scrolled || open
+              ? "border-border bg-surface/85 shadow-[0_14px_40px_-28px_rgba(17,17,19,0.45)] backdrop-blur-xl backdrop-saturate-150"
+              : "border-border/70 bg-surface"
+          }`}
+        >
+          <nav className="mx-auto flex h-[68px] max-w-[1320px] items-center justify-between gap-3 px-4 sm:px-6 lg:grid lg:grid-cols-[minmax(max-content,1fr)_auto_minmax(max-content,1fr)] lg:gap-4">
+            <Link href="/" className="flex shrink-0 items-center lg:justify-self-start" aria-label={SITE.name}>
+              <Image src="/logo.png" alt={SITE.name} width={800} height={239} priority className="h-9 w-auto sm:h-10" />
+            </Link>
+
+            <ul onMouseLeave={() => setHover(null)} className="relative hidden items-center rounded-full bg-surface-muted p-1 lg:flex">
+              <span
+                aria-hidden
+                className={`absolute inset-y-1 rounded-full bg-ink shadow-[0_8px_18px_-10px_rgba(17,17,19,0.8)] transition-[left,width,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${pill ? "opacity-100" : "opacity-0"}`}
+                style={pill ? { left: pill.left, width: pill.width } : undefined}
+              />
+              {NAV_LINKS.map((link, i) => (
                 <li key={link.href}>
                   <Link
+                    ref={(el) => {
+                      items.current[i] = el;
+                    }}
                     href={link.href}
-                    className={`block rounded-lg px-3 py-3 text-sm font-medium uppercase tracking-wide ${
-                      isActive(link.href)
-                        ? "bg-surface-muted text-brand-strong"
-                        : "text-foreground/80"
+                    onMouseEnter={() => setHover(i)}
+                    onFocus={() => setHover(i)}
+                    onBlur={() => setHover(null)}
+                    aria-current={i === active ? "page" : undefined}
+                    className={`relative z-10 block rounded-full px-3 py-2 text-[13px] font-medium transition-colors duration-200 xl:px-4 ${
+                      target === i ? "text-white" : "text-foreground/70 hover:text-foreground"
                     }`}
                   >
                     {t(link.key)}
@@ -109,9 +220,103 @@ export function Navbar() {
                 </li>
               ))}
             </ul>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+
+            <div className="flex items-center gap-1.5 sm:gap-2 lg:justify-self-end">
+              <div className="flex items-center rounded-full bg-surface-muted p-0.5">
+                <LanguageToggle />
+                <span aria-hidden className="h-4 w-px bg-border" />
+                <CurrencySwitch />
+              </div>
+              <Link
+                href="/vozila"
+                className="group relative hidden h-11 items-center gap-2 overflow-hidden rounded-full bg-brand pl-5 pr-1.5 text-sm font-semibold text-white shadow-[0_12px_26px_-14px_rgba(227,6,19,0.85)] transition-[transform,background-color] duration-300 hover:bg-brand-700 active:scale-[0.98] sm:inline-flex"
+              >
+                <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/3 -skew-x-12 bg-white/25 opacity-0 transition-[transform,opacity] duration-700 group-hover:translate-x-[420%] group-hover:opacity-100" />
+                {t("book")}
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-white text-brand transition-transform duration-300 group-hover:rotate-45">
+                  <ArrowUpRight className="h-4 w-4" />
+                </span>
+              </Link>
+              <button
+                type="button"
+                aria-label={t("menu")}
+                aria-expanded={open}
+                onClick={() => setOpen((v) => !v)}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-surface-muted text-foreground transition-colors hover:bg-border/70 lg:hidden"
+              >
+                {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            </div>
+          </nav>
+          <span aria-hidden className="absolute inset-x-0 -bottom-px h-[2px] overflow-hidden">
+            <span ref={bar} className="block h-full origin-left bg-brand-gradient will-change-transform" style={{ transform: "scaleX(0)" }} />
+          </span>
+
+          <AnimatePresence>
+            {open && (
+              <motion.div
+                key="panel"
+                initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                transition={{ duration: 0.25, ease: EASE }}
+                className="absolute inset-x-3 top-full mx-auto mt-2 max-h-[calc(100dvh-8.5rem)] max-w-6xl origin-top overflow-y-auto rounded-[28px] bg-surface p-3 shadow-[0_30px_60px_-30px_rgba(17,17,19,0.55)] ring-1 ring-border sm:inset-x-4 lg:hidden"
+              >
+                <ul className="grid gap-1">
+                  {NAV_LINKS.map((link, i) => (
+                    <motion.li key={link.href} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.03 * i, duration: 0.25, ease: EASE }}>
+                      <Link
+                        href={link.href}
+                        className={`flex items-center justify-between rounded-2xl px-4 py-3.5 text-base font-medium transition-colors ${
+                          isActive(link.href) ? "bg-ink text-white" : "text-foreground hover:bg-surface-muted"
+                        }`}
+                      >
+                        {t(link.key)}
+                        <ArrowUpRight className={`h-4 w-4 ${isActive(link.href) ? "text-brand-400" : "text-muted-foreground"}`} />
+                      </Link>
+                    </motion.li>
+                  ))}
+                </ul>
+                <Link
+                  href="/vozila"
+                  className="mt-3 flex h-14 items-center justify-between rounded-full bg-brand pl-6 pr-2 text-base font-semibold text-white shadow-[0_14px_30px_-16px_rgba(227,6,19,0.85)] active:scale-[0.99] sm:hidden"
+                >
+                  {t("book")}
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-brand">
+                    <ArrowUpRight className="h-4 w-4" />
+                  </span>
+                </Link>
+                <div className="mt-3 grid gap-2">
+                  <div className="grid gap-1 rounded-[22px] bg-surface-muted p-1.5">
+                    {company.phones.map((p) => (
+                      <a
+                        key={p.value}
+                        href={p.href}
+                        className="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-surface"
+                      >
+                        <span className="inline-flex items-center gap-2.5">
+                          <Phone className="h-4 w-4 text-brand-strong" />
+                          {p.value}
+                        </span>
+                        <span className="text-xs font-medium text-muted-foreground">{t("call")}</span>
+                      </a>
+                    ))}
+                  </div>
+                  <a
+                    href={`https://wa.me/${company.whatsapp}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] py-3.5 text-sm font-semibold text-[#06301A]"
+                  >
+                    <WhatsAppIcon className="h-4 w-4" />
+                    WhatsApp
+                  </a>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </header>
+    </>
   );
 }

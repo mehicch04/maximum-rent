@@ -7,8 +7,11 @@
     "terms": "Uvjeti najma",
     "contact": "Kontakt",
     "menu": "Izbornik",
-    "theme": "Promijeni temu",
-    "language": "Jezik"
+    "language": "Jezik",
+    "rating": "{count, plural, one {# recenzija} few {# recenzije} other {# recenzija}} na Googleu",
+    "airport": "Preuzimanje i na Zračnoj luci Mostar",
+    "book": "Rezervirajte",
+    "call": "Nazovite"
   },
   "Hero": {
     "eyebrow": "Rent a Car · Hercegovina",
@@ -405,7 +408,17 @@
     "verify": "Provjeri na Googleu",
     "paused": "Pauzirano",
     "hint": "Pređite mišem ili dodirnite recenziju da je zaustavite",
-    "book": "Rezervirajte vozilo"
+    "book": "Rezervirajte vozilo",
+    "google": "Google recenzije",
+    "recent": "Najnovije recenzije naših gostiju",
+    "proofTitle": "Povjerenje koje",
+    "proofAccent": "gradimo od 2009.",
+    "proofLead": "Gosti nas na Googleu ocjenjuju ocjenom {score}. Pročitajte njihova iskustva i uvjerite se sami.",
+    "proof": [
+      "zadovoljnih klijenata",
+      "godina s vama",
+      "dana u godini smo tu za vas"
+    ]
   },
   "Services": {
     "eyebrow": "Usluge",

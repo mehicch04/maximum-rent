@@ -41,7 +41,7 @@ export function CurrencySwitch() {
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`Valuta: ${current.symbol}`}
-        className="inline-flex h-8 items-center gap-1 rounded-lg border border-border px-2.5 text-xs font-semibold text-foreground/80 transition-colors hover:border-foreground/30 hover:text-foreground"
+        className="inline-flex h-9 items-center gap-1 rounded-full px-3 text-xs font-semibold text-foreground/80 transition-colors hover:bg-foreground/[0.06] hover:text-foreground aria-expanded:bg-foreground/[0.06]"
       >
         {current.symbol}
         <ChevronDown
@@ -54,7 +54,7 @@ export function CurrencySwitch() {
       {open && (
         <div
           role="listbox"
-          className="absolute right-0 z-50 mt-2 w-40 overflow-hidden rounded-xl border border-border bg-surface p-1 shadow-card"
+          className="absolute right-0 z-50 mt-2 w-40 overflow-hidden rounded-2xl border border-border bg-surface p-1.5 shadow-[0_24px_50px_-24px_rgba(17,17,19,0.45)]"
         >
           {OPTIONS.map((o) => {
             const active = o.value === currency;

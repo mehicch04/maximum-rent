@@ -20,7 +20,7 @@ export function LanguageToggle() {
 
   return (
     <div
-      className="inline-flex items-center rounded-lg border border-border p-0.5 text-xs font-semibold"
+      className="inline-flex items-center gap-0.5 text-xs font-semibold"
       data-pending={isPending}
     >
       {routing.locales.map((l) => (
@@ -31,8 +31,8 @@ export function LanguageToggle() {
           aria-current={l === locale}
           className={
             l === locale
-              ? "rounded-md bg-brand px-2.5 py-1 uppercase text-brand-foreground"
-              : "rounded-md px-2.5 py-1 uppercase text-muted-foreground transition-colors hover:text-foreground"
+              ? "h-9 rounded-full bg-surface px-3 uppercase text-foreground shadow-[0_4px_12px_-6px_rgba(17,17,19,0.35)]"
+              : "h-9 rounded-full px-3 uppercase text-muted-foreground transition-colors hover:text-foreground"
           }
         >
           {l}
