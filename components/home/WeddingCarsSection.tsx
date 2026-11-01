@@ -1,22 +1,19 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
-import { Car, Check, ChevronLeft, ChevronRight, Expand, HandHeart, Heart, Phone, Users } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useCompany } from "@/components/company/CompanyProvider";
-import { ImageLightbox } from "@/components/fleet/ImageLightbox";
+import { AnimatePresence, motion, type PanInfo } from "framer-motion";
+import { ChevronLeft, ChevronRight, Hand, Phone } from "lucide-react";
 import { PillLink } from "@/components/ui/PillLink";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
+import { useTranslations } from "next-intl";
+import { useCompany } from "@/components/company/CompanyProvider";
 import { WED_BLUR } from "./wedding-blur";
 
-const ORDER = [7, 10, 5, 8, 6, 9, 1, 2, 3, 4];
+const ORDER = [7, 10, 5, 8, 6, 9];
 const SRC = ORDER.map((id) => `/wed-${id}.webp`);
-const COUNT = ORDER.length;
-const MS = 5600;
+const BLUR = ORDER.map((id) => WED_BLUR[id]);
 const EASE = [0.22, 1, 0.36, 1] as const;
-const ROLE_ICONS = [Heart, HandHeart, Users, Car];
 
 function Rings({ className = "" }: { className?: string }) {
   return (
@@ -28,254 +25,95 @@ function Rings({ className = "" }: { className?: string }) {
   );
 }
 
+const DECK = 6;
+const TILT = [-6, 7, -9, 5, -4, 8];
+const SHIFT = [0, 26, -22, 16, -12, 8];
+
 export function WeddingCarsSection() {
   const t = useTranslations("WeddingCars");
   const tc = useTranslations("Common");
   const company = useCompany();
-  const reduce = useReducedMotion();
-  const stage = useRef<HTMLDivElement>(null);
-  const touchX = useRef<number | null>(null);
-  const inView = useInView(stage, { margin: "-120px" });
-  const [active, setActive] = useState(0);
-  const [hold, setHold] = useState(false);
-  const [lightbox, setLightbox] = useState<number | null>(null);
   const roles = t.raw("roles") as string[];
-  const [picked, setPicked] = useState<number[]>([0]);
-  const run = inView && !hold && lightbox === null && !reduce;
-
-  const go = (n: number) => setActive((n + COUNT) % COUNT);
-  const toggle = (i: number) => setPicked((p) => (p.includes(i) ? (p.length > 1 ? p.filter((x) => x !== i) : p) : [...p, i].sort()));
-
-  const text = t("waText", { roles: picked.map((i) => roles[i]).join(", ") });
-  const wa = `https://wa.me/${company.whatsapp}?text=${encodeURIComponent(text)}`;
+  const wa = `https://wa.me/${company.whatsapp}?text=${encodeURIComponent(t("waText", { roles: roles.join(", ") }))}`;
   const phone = company.phones[0];
+  const [order, setOrder] = useState(() => Array.from({ length: DECK }, (_, i) => i));
+
+  const next = () => setOrder((o) => [...o.slice(1), o[0]]);
+  const prev = () => setOrder((o) => [o[o.length - 1], ...o.slice(0, -1)]);
+  const onEnd = (_: unknown, info: PanInfo) => {
+    if (Math.abs(info.offset.x) > 90 || Math.abs(info.velocity.x) > 500) next();
+  };
 
   return (
     <section id="vjencanja" className="scroll-mt-24 px-3 py-5 sm:px-4 sm:py-8">
       <div className="relative isolate overflow-hidden rounded-[28px] bg-[#F6F2EC]">
-        <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[520px] w-[900px] -translate-x-1/2 -translate-y-1/3 rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.95),transparent)]" />
-
-        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
-          <motion.header
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.7, ease: EASE }}
-            className="mx-auto max-w-2xl text-center"
-          >
-            <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-white text-brand shadow-[0_14px_30px_-18px_rgba(17,17,19,0.5)] ring-1 ring-black/5">
-              <Rings className="h-6 w-8" />
-            </span>
-            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.22em] text-brand-strong">{t("eyebrow")}</p>
-            <h2 className="mt-3 text-balance font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-[3.4rem]">
+        <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 py-20 sm:px-6 sm:py-28 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.7, ease: EASE }}>
+            <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-brand-strong">
+              <Rings className="h-4 w-6" />
+              {t("eyebrow")}
+            </p>
+            <h2 className="mt-4 text-balance font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-[3.2rem]">
               {t("title")} <span className="text-brand-strong">{t("accent")}</span>
             </h2>
-            <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-foreground/65">{t("p1")}</p>
-          </motion.header>
-
-          <motion.div
-            ref={stage}
-            initial={reduce ? "open" : "veil"}
-            whileInView="open"
-            viewport={{ once: true, margin: "-60px" }}
-            className="mt-12"
-            onPointerEnter={() => setHold(true)}
-            onPointerLeave={() => setHold(false)}
-            onTouchStart={(e) => {
-              setHold(true);
-              touchX.current = e.touches[0].clientX;
-            }}
-            onTouchEnd={(e) => {
-              setHold(false);
-              if (touchX.current === null) return;
-              const dx = e.changedTouches[0].clientX - touchX.current;
-              touchX.current = null;
-              if (Math.abs(dx) > 40) go(active + (dx < 0 ? 1 : -1));
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "ArrowRight") go(active + 1);
-              if (e.key === "ArrowLeft") go(active - 1);
-            }}
-          >
-          <motion.div
-            variants={{
-              veil: { clipPath: "inset(0% 50% 0% 50% round 28px)" },
-              open: { clipPath: "inset(0% 0% 0% 0% round 28px)", transition: { duration: 1.4, ease: [0.65, 0, 0.35, 1] } },
-            }}
-            className="relative aspect-[4/5] overflow-hidden rounded-[28px] bg-ink sm:aspect-[16/9] lg:aspect-[2.2/1]"
-          >
-            <AnimatePresence initial={false}>
-              <motion.div
-                key={active}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.9 }}
-                className="absolute inset-0"
-              >
-                <motion.div
-                  initial={{ scale: reduce ? 1 : 1.1 }}
-                  animate={{ scale: 1 }}
-                  transition={{ duration: 7, ease: "easeOut" }}
-                  className="absolute inset-0"
-                >
-                  <Image
-                    src={SRC[active]}
-                    alt={t("imageAlt", { n: active + 1 })}
-                    fill
-                    sizes="(max-width: 1023px) 94vw, 1150px"
-                    quality={88}
-                    placeholder="blur"
-                    blurDataURL={WED_BLUR[ORDER[active]]}
-                    className="object-cover"
-                  />
-                </motion.div>
-              </motion.div>
-            </AnimatePresence>
-            <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/45 to-transparent" />
-            <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/50 to-transparent" />
-
-            <div className="absolute inset-x-4 top-4 flex gap-1.5 sm:inset-x-6 sm:top-5">
-              {SRC.map((src, i) => (
-                <button
-                  key={src}
-                  type="button"
-                  onClick={() => go(i)}
-                  aria-label={t("imageAlt", { n: i + 1 })}
-                  aria-current={i === active || undefined}
-                  className="relative h-4 flex-1"
-                >
-                  <span className="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 overflow-hidden rounded-full bg-white/30">
-                    {i < active && <span className="absolute inset-0 bg-white" />}
-                    {i === active && (
-                      <span
-                        key={active}
-                        onAnimationEnd={() => go(active + 1)}
-                        className="absolute inset-0 origin-left bg-white"
-                        style={{ animation: `ticker-fill ${MS}ms linear forwards`, animationPlayState: run ? "running" : "paused" }}
-                      />
-                    )}
-                  </span>
-                </button>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setLightbox(active)}
-              aria-label={t("open")}
-              className="absolute right-4 top-11 grid h-10 w-10 place-items-center rounded-full bg-black/35 text-white backdrop-blur-md transition-colors hover:bg-black/55 sm:right-6 sm:top-12"
-            >
-              <Expand className="h-4 w-4" />
-            </button>
-
-            <div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3 sm:inset-x-6 sm:bottom-6">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-semibold text-white backdrop-blur-md">
-                <Heart className="h-3.5 w-3.5 fill-white" />
-                <span className="tabular-nums">
-                  {String(active + 1).padStart(2, "0")} <span className="text-white/60">/ {COUNT}</span>
-                </span>
-              </span>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => go(active - 1)}
-                  aria-label={tc("prevImage")}
-                  className="grid h-11 w-11 place-items-center rounded-full bg-white/90 text-ink shadow-sm transition-transform hover:bg-white active:scale-90"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => go(active + 1)}
-                  aria-label={tc("nextImage")}
-                  className="grid h-11 w-11 place-items-center rounded-full bg-white/90 text-ink shadow-sm transition-transform hover:bg-white active:scale-90"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-              </div>
+            <p className="mt-6 border-l-2 border-brand pl-4 text-lg leading-relaxed text-foreground">{t("p1")}</p>
+            <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">{t("p2")}</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <PillLink href={wa} icon={<WhatsAppIcon className="h-4 w-4" />}>
+                {t("cta")}
+              </PillLink>
+              {phone && (
+                <PillLink href={phone.href} variant="outline" icon={<Phone className="h-4 w-4" />}>
+                  {t("call")}
+                </PillLink>
+              )}
             </div>
           </motion.div>
-          </motion.div>
 
-          <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-14">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.6, ease: EASE }}
-              className="space-y-4 text-[15px] leading-relaxed text-muted-foreground sm:text-base"
-            >
-              <p>{t("p2")}</p>
-              <p className="border-l-2 border-brand pl-4 text-foreground">{t("p3")}</p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
-              className="rounded-[26px] bg-white p-5 shadow-[0_30px_60px_-44px_rgba(17,17,19,0.55)] ring-1 ring-black/5 sm:p-7"
-            >
-              <p className="font-display text-lg font-bold text-foreground">{t("rolesTitle")}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{t("rolesHint")}</p>
-              <div className="mt-5 grid grid-cols-2 gap-2.5">
-                {roles.map((r, i) => {
-                  const Icon = ROLE_ICONS[i] ?? Car;
-                  const on = picked.includes(i);
+          <div>
+            <div className="relative mx-auto aspect-[5/4] w-full max-w-[560px]">
+              <AnimatePresence initial={false}>
+                {order.map((idx, pos) => {
+                  const top = pos === 0;
                   return (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => toggle(i)}
-                      aria-pressed={on}
-                      className={`relative flex items-center gap-3 rounded-2xl p-3 text-left text-sm font-semibold ring-1 transition-[background-color,box-shadow,color] duration-200 active:scale-[0.98] sm:p-3.5 ${
-                        on ? "bg-brand/[0.06] text-foreground ring-2 ring-brand" : "bg-surface-muted/60 text-foreground/80 ring-transparent hover:ring-border"
-                      }`}
+                    <motion.div
+                      key={idx}
+                      drag={top ? "x" : false}
+                      dragSnapToOrigin
+                      onDragEnd={top ? onEnd : undefined}
+                      initial={false}
+                      animate={{ rotate: top ? 0 : TILT[idx % TILT.length], x: SHIFT[pos], y: pos * 10, scale: 1 - pos * 0.04, opacity: pos > 3 ? 0 : 1, zIndex: DECK - pos }}
+                      transition={{ type: "spring", stiffness: 260, damping: 26 }}
+                      whileDrag={{ rotate: 4, scale: 1.02 }}
+                      className={`absolute inset-x-[4%] top-[4%] rounded-[18px] bg-white p-2.5 pb-12 shadow-[0_30px_60px_-30px_rgba(17,17,19,0.55)] ring-1 ring-black/5 sm:p-3 sm:pb-14 ${top ? "cursor-grab active:cursor-grabbing" : "pointer-events-none"}`}
                     >
-                      <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full transition-colors duration-200 ${on ? "bg-brand text-white" : "bg-white text-brand-strong"}`}>
-                        <Icon className="h-4 w-4" />
-                      </span>
-                      <span className="min-w-0 leading-snug">{r}</span>
-                      <AnimatePresence>
-                        {on && (
-                          <motion.span
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            exit={{ scale: 0 }}
-                            transition={{ type: "spring", stiffness: 500, damping: 26 }}
-                            className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-full bg-brand text-white ring-2 ring-white"
-                          >
-                            <Check className="h-3 w-3" strokeWidth={3} />
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
-                    </button>
+                      <div className="relative aspect-[3/2] overflow-hidden rounded-[12px] bg-ink">
+                        <Image src={SRC[idx]} alt={t("imageAlt", { n: idx + 1 })} fill sizes="(max-width: 1023px) 90vw, 520px" quality={88} placeholder="blur" blurDataURL={BLUR[idx]} draggable={false} className="object-cover" />
+                      </div>
+                      <p className="absolute inset-x-0 bottom-3.5 flex items-center justify-between px-4 text-xs font-semibold uppercase tracking-[0.18em] text-ink/50 sm:bottom-4">
+                        <span>Maximum · {t("accent")}</span>
+                        <span className="tabular-nums">{String(idx + 1).padStart(2, "0")}</span>
+                      </p>
+                    </motion.div>
                   );
                 })}
-              </div>
-              <div className="mt-6 flex flex-wrap gap-2.5">
-                <PillLink href={wa} icon={<WhatsAppIcon className="h-4 w-4" />}>
-                  {t("cta")}
-                </PillLink>
-                {phone && (
-                  <PillLink href={phone.href} variant="outline" icon={<Phone className="h-4 w-4" />}>
-                    {t("call")}
-                  </PillLink>
-                )}
-              </div>
-            </motion.div>
+              </AnimatePresence>
+            </div>
+            <div className="mt-8 flex items-center justify-center gap-3">
+              <button type="button" onClick={prev} aria-label={tc("prevImage")} className="grid h-11 w-11 place-items-center rounded-full bg-white text-ink shadow-sm ring-1 ring-black/5 active:scale-90">
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-2 text-xs font-medium text-muted-foreground ring-1 ring-black/5">
+                <Hand className="h-3.5 w-3.5" />
+                {String(order[0] + 1).padStart(2, "0")} / {DECK}
+              </span>
+              <button type="button" onClick={next} aria-label={tc("nextImage")} className="grid h-11 w-11 place-items-center rounded-full bg-brand text-white shadow-sm active:scale-90">
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
-
-      <ImageLightbox
-        images={SRC}
-        title={`${t("title")} ${t("accent")}`}
-        openIndex={lightbox}
-        onClose={() => setLightbox(null)}
-        thumbSizes="(max-width: 1023px) 94vw, 1150px"
-      />
     </section>
   );
 }
