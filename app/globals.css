@@ -474,3 +474,9 @@ html[data-intro="out"] .ix * {
     display: none;
   }
 }
+
+@keyframes route-drive {
+  0% { transform: translateX(0); opacity: 0; }
+  12%, 80% { opacity: 1; }
+  100% { transform: translateX(calc(100% - 1.5rem)); opacity: 0; }
+}

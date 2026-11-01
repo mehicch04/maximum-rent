@@ -44,6 +44,12 @@ const config: Config = {
         },
         // Theme-aware red for small brand-colored TEXT (AA-safe on dark).
         "brand-strong": "var(--brand-strong)",
+        ink: {
+          DEFAULT: "#111113",
+          800: "#18181b",
+          700: "#222226",
+          600: "#2c2c31",
+        },
       },
       fontFamily: {
         sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],

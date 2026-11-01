@@ -244,33 +244,54 @@
     "nextImage": "Sljedeća slika",
     "closeGallery": "Zatvori galeriju"
   },
-  "WhyChoose": {
-    "eyebrow": "Zašto Maximum",
-    "title": "Najam bez kompromisa",
-    "subtitle": "Sve što vam treba za bezbrižan put — od preuzimanja do povrata.",
+  "Features": {
     "items": [
       {
         "title": "6 lokacija",
-        "body": "Preuzimanje i povrat u Čitluku, Mostaru, Međugorju, Čapljini i Ljubuškom."
+        "body": "Preuzimanje i povrat u Čitluku, Mostaru, Međugorju, Čapljini, Ljubuškom i na Zračnoj luci Mostar."
       },
       {
         "title": "Sve uključeno",
-        "body": "Osiguranje, vinjete za BiH i neograničena kilometraža — bez skrivenih troškova."
+        "body": "Osiguranje, vinjete za BiH i neograničena kilometraža, bez skrivenih troškova."
       },
       {
-        "title": "Moderan vozni park",
-        "body": "Redovno održavana i čista vozila, od gradskih do luksuznih."
+        "title": "Podrška 0 do 24",
+        "body": "Tu smo u svakom trenutku vašeg putovanja, i noću i vikendom."
+      }
+    ]
+  },
+  "HomeFleet": {
+    "eyebrow": "Izdvojena vozila",
+    "title": "Odaberite vozilo",
+    "accent": "za svoj put",
+    "lead": "Pažljivo održavan vozni park za svaku potrebu i budžet. Osiguranje, vinjete i neograničena kilometraža već su uključeni.",
+    "viewAllCount": "{count, plural, one {Pogledajte # vozilo} few {Pogledajte sva # vozila} other {Pogledajte svih # vozila}}",
+    "goTo": "Vozilo {n}",
+    "included": [
+      {
+        "title": "Osiguranje uključeno",
+        "body": "Osnovno osiguranje je u cijeni svakog vozila."
       },
       {
-        "title": "Podrška 0–24",
-        "body": "Tu smo u svakom trenutku vašeg putovanja."
+        "title": "Neograničena kilometraža",
+        "body": "Vozite koliko treba, bez doplate po kilometru."
+      },
+      {
+        "title": "Vinjete za BiH",
+        "body": "Vinjete su uključene, bez dodatnih troškova."
+      },
+      {
+        "title": "Zračna luka Mostar",
+        "body": "Preuzimanje i povrat i na Zračnoj luci Mostar."
       }
     ]
   },
   "HowItWorks": {
     "eyebrow": "Kako funkcioniše",
-    "title": "Do vozila u tri koraka",
-    "subtitle": "Bez online plaćanja — rezervacija ide brzo i jednostavno, putem upita.",
+    "title": "Do vozila u",
+    "accent": "tri koraka",
+    "lead": "Bez online plaćanja i bez otvaranja računa. Pošaljete upit, potvrdu dobijete na email, a mi se javljamo za sve ostalo.",
+    "cta": "Pogledajte vozila",
     "steps": [
       {
         "title": "Odaberite vozilo",
@@ -284,34 +305,100 @@
         "title": "Preuzmite ključeve",
         "body": "Potvrđujemo dostupnost i čekamo vas na dogovorenoj lokaciji."
       }
-    ]
-  },
-  "Locations": {
-    "eyebrow": "Naše lokacije",
-    "title": "Preuzimanje širom Hercegovine",
-    "subtitle": "Dočekujemo vas i na zračnoj luci Mostar — vozilo vas čeka od trenutka slijetanja.",
-    "airportBadge": "Zračna luka"
+    ],
+    "pass": {
+      "code": "OMO",
+      "label": "Ukrcajna karta",
+      "from": "Od",
+      "to": "Do",
+      "you": "Vi",
+      "youSub": "Gdje god da ste",
+      "destSub": "Zračna luka Mostar",
+      "step": "Korak",
+      "payLabel": "Plaćanje",
+      "pay": "Bez plaćanja online",
+      "stamps": [
+        "Odabrano",
+        "Poslano",
+        "Spremno"
+      ]
+    }
   },
   "Reviews": {
     "eyebrow": "Povjerenje gostiju",
-    "title": "Ocijenjeni {rating} na Googleu",
-    "subtitle": "Prosječna ocjena na osnovu {count} recenzija zadovoljnih korisnika.",
-    "cta": "Pročitajte recenzije"
+    "title": "Šta kažu",
+    "accent": "naši gosti.",
+    "count": "{count, plural, one {# recenzija na Googleu} few {# recenzije na Googleu} other {# recenzija na Googleu}}",
+    "all": "Sve recenzije",
+    "next": "Sljedeća recenzija",
+    "verify": "Provjeri na Googleu",
+    "paused": "Pauzirano",
+    "hint": "Pređite mišem ili dodirnite recenziju da je zaustavite",
+    "book": "Rezervirajte vozilo"
   },
-  "BusinessTeaser": {
-    "eyebrow": "Za tvrtke",
-    "title": "Poslovni najam i transferi",
-    "body": "Dugoročni najam s uključenim održavanjem, flotna rješenja na jedan račun i transferi do zračne luke i hotela.",
-    "points": [
-      "Dugoročni najam",
-      "Flotni najam",
-      "Transferi"
+  "Services": {
+    "eyebrow": "Usluge",
+    "title": "Ne treba vam samo vozilo?",
+    "accent": "Imamo i ovo.",
+    "cta": "Pišite nam",
+    "more": "Saznajte više",
+    "premium": [
+      {
+        "label": "Za tvrtke",
+        "title": "Poslovni najam i transferi",
+        "body": "Dugoročni najam s uključenim održavanjem, flotna rješenja na jedan račun i transferi do zračne luke i hotela.",
+        "points": [
+          "Dugoročni najam s održavanjem",
+          "Cijela flota na jednom računu",
+          "Transferi do zračne luke i hotela"
+        ],
+        "badge": "Predvidiv mjesečni trošak",
+        "cta": "Zatražite ponudu",
+        "imageAlt": "Poslovno vozilo iz ponude Maximum Rent a Car"
+      },
+      {
+        "label": "Lokacije",
+        "title": "Preuzimanje širom Hercegovine",
+        "body": "Dočekujemo vas i na Zračnoj luci Mostar. Vozilo vas čeka od trenutka slijetanja, a vraćate ga na lokaciji koja vam odgovara.",
+        "points": [
+          "Zračna luka Mostar i 5 poslovnica",
+          "Povrat na drugoj lokaciji",
+          "Podrška 0 do 24"
+        ],
+        "badge": "6 lokacija",
+        "cta": "Pogledajte vozila",
+        "imageAlt": "Vozni park Maximum Rent a Car ispred poslovnice"
+      }
     ],
-    "cta": "Zatražite ponudu"
+    "items": [
+      {
+        "title": "Vozila za svaku priliku",
+        "body": "Od gradskih automobila do luksuznih limuzina, SUV vozila i kombija."
+      },
+      {
+        "title": "Vozila za vjenčanja",
+        "body": "Luksuzna vozila za mladence, kumove i goste na vaš poseban dan."
+      },
+      {
+        "title": "Putovanja izvan BiH",
+        "body": "Vozilom možete i van granica BiH, uz prethodnu najavu i odgovarajuću dokumentaciju."
+      },
+      {
+        "title": "Jasni uvjeti najma",
+        "body": "Minimalna dob 21 godina, vozačka dozvola starija od 2 godine i polog koji se vraća u cijelosti."
+      }
+    ],
+    "route": {
+      "from": "Zračna luka Mostar",
+      "toCode": "HQ",
+      "to": "Čitluk"
+    }
   },
   "Faq": {
     "eyebrow": "Česta pitanja",
-    "title": "Sve što vas zanima",
+    "title": "Sve što",
+    "accent": "vas zanima",
+    "lead": "Ako ovdje ne nađete odgovor, pišite nam na WhatsApp ili nas nazovite.",
     "items": [
       {
         "q": "Koja je minimalna dob za najam?",
@@ -337,13 +424,37 @@
         "q": "Mogu li otkazati rezervaciju?",
         "a": "Besplatno otkazivanje moguće je do 48 sati prije preuzimanja."
       }
-    ]
+    ],
+    "facts": [
+      {
+        "v": "21+",
+        "l": "minimalna dob vozača"
+      },
+      {
+        "v": "48h",
+        "l": "besplatno otkazivanje"
+      },
+      {
+        "v": "∞ km",
+        "l": "neograničena kilometraža"
+      },
+      {
+        "v": "6",
+        "l": "lokacija za preuzimanje"
+      }
+    ],
+    "search": "Pretraži pitanja",
+    "clear": "Obriši pretragu",
+    "empty": "Nema takvog pitanja. Pišite nam na WhatsApp i javit ćemo se brzo.",
+    "supportTitle": "Tu smo 0 do 24",
+    "support": "Pišite ili nazovite, kako vam je lakše. Javljamo se brzo, i vikendom.",
+    "call": "Nazovite"
   },
-  "FinalCta": {
+  "Cta": {
     "title": "Spremni za put?",
-    "subtitle": "Rezervišite vozilo u par klikova — dostupnost potvrđujemo u najkraćem roku.",
-    "ctaPrimary": "Rezervirajte vozilo",
-    "ctaSecondary": "Nazovite nas"
+    "body": "Rezervirajte vozilo u par klikova. Dostupnost potvrđujemo u najkraćem roku.",
+    "primary": "Pogledajte vozila",
+    "secondary": "Nazovite nas"
   },
   "Form": {
     "firstName": "Ime",

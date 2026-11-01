@@ -244,33 +244,54 @@
     "nextImage": "Next photo",
     "closeGallery": "Close gallery"
   },
-  "WhyChoose": {
-    "eyebrow": "Why Maximum",
-    "title": "Rental without compromise",
-    "subtitle": "Everything you need for a carefree trip — from pick-up to return.",
+  "Features": {
     "items": [
       {
         "title": "6 locations",
-        "body": "Pick-up and return in Čitluk, Mostar, Međugorje, Čapljina and Ljubuški."
+        "body": "Pick-up and return in Čitluk, Mostar, Međugorje, Čapljina, Ljubuški and at Mostar Airport."
       },
       {
         "title": "All included",
-        "body": "Insurance, BiH vignettes and unlimited mileage — no hidden costs."
-      },
-      {
-        "title": "Modern fleet",
-        "body": "Regularly maintained, spotless vehicles, from city cars to luxury."
+        "body": "Insurance, BiH vignettes and unlimited mileage, with no hidden costs."
       },
       {
         "title": "24/7 support",
-        "body": "We're here at every moment of your journey."
+        "body": "We're here at every moment of your journey, nights and weekends included."
+      }
+    ]
+  },
+  "HomeFleet": {
+    "eyebrow": "Featured vehicles",
+    "title": "Choose a car",
+    "accent": "for your trip",
+    "lead": "A carefully maintained fleet for every need and budget. Insurance, vignettes and unlimited mileage are already included.",
+    "viewAllCount": "{count, plural, one {View # vehicle} other {View all # vehicles}}",
+    "goTo": "Vehicle {n}",
+    "included": [
+      {
+        "title": "Insurance included",
+        "body": "Basic insurance is part of every rental price."
+      },
+      {
+        "title": "Unlimited mileage",
+        "body": "Drive as much as you need, no per kilometre fees."
+      },
+      {
+        "title": "BiH vignettes",
+        "body": "Vignettes are included at no extra cost."
+      },
+      {
+        "title": "Mostar Airport",
+        "body": "Pick-up and return at Mostar Airport too."
       }
     ]
   },
   "HowItWorks": {
     "eyebrow": "How it works",
-    "title": "Your car in three steps",
-    "subtitle": "No online payment — booking is quick and simple, by inquiry.",
+    "title": "Your car in",
+    "accent": "three steps",
+    "lead": "No online payment and no account needed. Send an inquiry, get a confirmation by email and we take care of the rest.",
+    "cta": "View vehicles",
     "steps": [
       {
         "title": "Choose a vehicle",
@@ -284,34 +305,100 @@
         "title": "Pick up the keys",
         "body": "We confirm availability and meet you at the agreed location."
       }
-    ]
-  },
-  "Locations": {
-    "eyebrow": "Our locations",
-    "title": "Pick-up across Herzegovina",
-    "subtitle": "We welcome you at Mostar Airport too — your car is ready the moment you land.",
-    "airportBadge": "Airport"
+    ],
+    "pass": {
+      "code": "OMO",
+      "label": "Boarding pass",
+      "from": "From",
+      "to": "To",
+      "you": "You",
+      "youSub": "Wherever you are",
+      "destSub": "Mostar Airport",
+      "step": "Step",
+      "payLabel": "Payment",
+      "pay": "No online payment",
+      "stamps": [
+        "Chosen",
+        "Sent",
+        "Ready"
+      ]
+    }
   },
   "Reviews": {
     "eyebrow": "Guest trust",
-    "title": "Rated {rating} on Google",
-    "subtitle": "Average rating based on {count} reviews from satisfied customers.",
-    "cta": "Read the reviews"
+    "title": "What our",
+    "accent": "guests say.",
+    "count": "{count, plural, one {# review on Google} other {# reviews on Google}}",
+    "all": "All reviews",
+    "next": "Next review",
+    "verify": "Verify on Google",
+    "paused": "Paused",
+    "hint": "Hover or tap a review to pause it",
+    "book": "Book a vehicle"
   },
-  "BusinessTeaser": {
-    "eyebrow": "For business",
-    "title": "Business rental & transfers",
-    "body": "Long-term rental with maintenance included, fleet solutions on a single invoice, and transfers to the airport and hotels.",
-    "points": [
-      "Long-term rental",
-      "Fleet rental",
-      "Transfers"
+  "Services": {
+    "eyebrow": "Services",
+    "title": "Need more than a car?",
+    "accent": "We have that too.",
+    "cta": "Message us",
+    "more": "Learn more",
+    "premium": [
+      {
+        "label": "For business",
+        "title": "Business rental and transfers",
+        "body": "Long-term rental with maintenance included, fleet solutions on a single invoice and transfers to the airport and hotels.",
+        "points": [
+          "Long-term rental with maintenance",
+          "Your whole fleet on one invoice",
+          "Transfers to the airport and hotels"
+        ],
+        "badge": "Predictable monthly cost",
+        "cta": "Request a quote",
+        "imageAlt": "Business vehicle from the Maximum Rent a Car fleet"
+      },
+      {
+        "label": "Locations",
+        "title": "Pick-up across Herzegovina",
+        "body": "We also meet you at Mostar Airport. Your car is waiting from the moment you land, and you return it wherever suits you.",
+        "points": [
+          "Mostar Airport and 5 offices",
+          "Return at another location",
+          "24/7 support"
+        ],
+        "badge": "6 locations",
+        "cta": "View vehicles",
+        "imageAlt": "Maximum Rent a Car fleet in front of the office"
+      }
     ],
-    "cta": "Request a quote"
+    "items": [
+      {
+        "title": "A car for every occasion",
+        "body": "From city cars to luxury sedans, SUVs and vans."
+      },
+      {
+        "title": "Wedding cars",
+        "body": "Luxury vehicles for the couple, best men and guests on your big day."
+      },
+      {
+        "title": "Trips outside BiH",
+        "body": "You can drive beyond BiH borders with prior notice and the right paperwork."
+      },
+      {
+        "title": "Clear rental terms",
+        "body": "Minimum age 21, a licence held for over 2 years and a deposit that is fully refunded."
+      }
+    ],
+    "route": {
+      "from": "Mostar Airport",
+      "toCode": "HQ",
+      "to": "Čitluk"
+    }
   },
   "Faq": {
     "eyebrow": "FAQ",
-    "title": "Everything you want to know",
+    "title": "Everything",
+    "accent": "you want to know",
+    "lead": "If you can't find the answer here, message us on WhatsApp or give us a call.",
     "items": [
       {
         "q": "What is the minimum rental age?",
@@ -337,13 +424,37 @@
         "q": "Can I cancel my reservation?",
         "a": "Free cancellation is available up to 48 hours before pick-up."
       }
-    ]
+    ],
+    "facts": [
+      {
+        "v": "21+",
+        "l": "minimum driver age"
+      },
+      {
+        "v": "48h",
+        "l": "free cancellation"
+      },
+      {
+        "v": "∞ km",
+        "l": "unlimited mileage"
+      },
+      {
+        "v": "6",
+        "l": "pick-up locations"
+      }
+    ],
+    "search": "Search questions",
+    "clear": "Clear search",
+    "empty": "No such question. Message us on WhatsApp and we'll reply quickly.",
+    "supportTitle": "Here for you 24/7",
+    "support": "Message or call, whichever suits you. We reply quickly, weekends too.",
+    "call": "Call"
   },
-  "FinalCta": {
+  "Cta": {
     "title": "Ready to hit the road?",
-    "subtitle": "Book a vehicle in a few clicks — we confirm availability as soon as possible.",
-    "ctaPrimary": "Book a vehicle",
-    "ctaSecondary": "Call us"
+    "body": "Book a vehicle in a few clicks. We confirm availability as soon as possible.",
+    "primary": "View vehicles",
+    "secondary": "Call us"
   },
   "Form": {
     "firstName": "First name",

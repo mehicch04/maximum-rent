@@ -29,22 +29,21 @@ const inter = Inter({
 
 const CLIENT_NAMESPACES = [
   "Booking",
-  "BusinessTeaser",
   "Common",
+  "Cta",
   "Extras",
   "Faq",
-  "FinalCta",
   "Fleet",
   "Form",
   "Hero",
+  "HomeFleet",
   "HowItWorks",
-  "Locations",
   "Nav",
   "Phone",
   "Reviews",
   "Search",
+  "Services",
   "WeddingCars",
-  "WhyChoose",
 ] as const;
 
 export const metadata: Metadata = {

@@ -90,7 +90,7 @@ export function WeddingCarsSection() {
   }, [active]);
 
   return (
-    <section className="border-y border-border bg-surface-muted/40">
+    <section id="vjencanja" className="scroll-mt-24 border-y border-border bg-surface-muted/40">
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16 lg:py-28">
         <div className="flex flex-col">
           <p className="mb-3 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-brand-strong">
