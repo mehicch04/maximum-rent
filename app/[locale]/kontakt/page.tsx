@@ -39,7 +39,7 @@ export default async function ContactPage({
   ]);
 
   const cards: ContactCard[] = [
-    { kind: "phone", label: t("callLabel"), lines: company.phones.map((p) => ({ value: p.value, href: p.href })) },
+    { kind: "phone", label: t("callLabel"), lines: company.phones.map((p) => ({ value: p.value, href: p.href, tag: p.label })) },
     { kind: "whatsapp", label: "WhatsApp", value: t("chat"), href: `https://wa.me/${company.whatsapp}` },
     { kind: "email", label: t("emailLabel"), value: company.email, href: `mailto:${company.email}`, copy: company.email },
     { kind: "hours", label: t("hoursLabel"), value: company.hours },

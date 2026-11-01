@@ -38,3 +38,43 @@ export async function getAvailableCars(
   return cars.map((c) => toCarListItem(c, seasonalPricing));
 }
 
+
+export type FreeWindow = { pickupAt: string; returnAt: string; free: number };
+
+export async function getNearestFreeWindows(pickupAt: Date, returnAt: Date, max = 3): Promise<FreeWindow[]> {
+  const DAY = 86_400_000;
+  const span = returnAt.getTime() - pickupAt.getTime();
+  const now = Date.now();
+  const from = new Date(Math.max(now, pickupAt.getTime() - 14 * DAY));
+  const to = new Date(returnAt.getTime() + 30 * DAY);
+  const cars = await prisma.car.findMany({
+    where: { isAvailable: true },
+    select: {
+      id: true,
+      inquiries: {
+        where: { status: { in: ["CONFIRMED", "IN_PROGRESS"] }, pickupAt: { lt: to }, returnAt: { gt: from } },
+        select: { pickupAt: true, returnAt: true },
+      },
+      blocks: {
+        where: { startAt: { lt: to }, endAt: { gt: from } },
+        select: { startAt: true, endAt: true },
+      },
+    },
+  });
+  const busy = cars.map((c) => [
+    ...(c.inquiries ?? []).map((q) => [new Date(q.pickupAt).getTime(), new Date(q.returnAt).getTime()] as const),
+    ...(c.blocks ?? []).map((b) => [new Date(b.startAt).getTime(), new Date(b.endAt).getTime()] as const),
+  ]);
+  const out: FreeWindow[] = [];
+  for (let step = 1; step <= 30 && out.length < max; step++) {
+    for (const off of [step, -step]) {
+      if (out.length >= max) break;
+      const s = pickupAt.getTime() + off * DAY;
+      const e = s + span;
+      if (s < now) continue;
+      const free = busy.filter((ranges) => ranges.every(([a, b]) => !(a < e && b > s))).length;
+      if (free > 0) out.push({ pickupAt: new Date(s).toISOString(), returnAt: new Date(e).toISOString(), free });
+    }
+  }
+  return out.sort((a, b) => a.pickupAt.localeCompare(b.pickupAt));
+}

@@ -25,7 +25,9 @@
     "reviews": "Google recenzija",
     "open": "Otvoreno",
     "closed": "Zatvoreno",
-    "localTime": "lokalno"
+    "localTime": "lokalno",
+    "fromPrice": "od {price}/dan",
+    "fleetCount": "{count, plural, one {# vozilo} few {# vozila} other {# vozila}} u ponudi"
   },
   "Search": {
     "title": "Pronađite svoje vozilo",
@@ -131,7 +133,17 @@
     "eyebrow": "Vozni park",
     "noResultsTitle": "Za ove datume nema slobodnih vozila",
     "showAll": "Prikaži sva vozila",
-    "askUs": "Pitajte nas na WhatsApp"
+    "askUs": "Pitajte nas na WhatsApp",
+    "quickSeven": "7+ sjedišta",
+    "quickLabel": "Brzi filteri",
+    "nearestTitle": "Najbliži slobodni termini",
+    "nearestLead": "Isto trajanje najma, malo pomjeren termin:",
+    "freeN": "{count, plural, one {# slobodno vozilo} few {# slobodna vozila} other {# slobodnih vozila}}",
+    "orAsk": "Ili nam pišite i pronaći ćemo rješenje za vaše datume.",
+    "photoN": "Fotografija {n}",
+    "enlarge": "Povećaj fotografiju",
+    "goodToKnow": "Dobro je znati",
+    "extrasShort": "Dodatna oprema"
   },
   "Footer": {
     "contact": "Kontakt",
@@ -143,7 +155,8 @@
     "navTitle": "Izbornik",
     "chat": "Pišite nam",
     "privacy": "Politika privatnosti",
-    "cookies": "Postavke kolačića"
+    "cookies": "Postavke kolačića",
+    "email": "Email"
   },
   "About": {
     "eyebrow": "O nama",
@@ -203,7 +216,10 @@
     "fleetTitle": "Vozila za svaku",
     "fleetAccent": "priliku.",
     "fleetCta": "Pogledajte sva vozila",
-    "imageAlt": "Vozila Maximum Rent a Car"
+    "imageAlt": "Vozila Maximum Rent a Car",
+    "photoBranchAlt": "Poslovnica Maximum Rent a Car",
+    "photoTeamAlt": "Tim Maximum Rent a Car",
+    "photoKeysAlt": "Predaja ključeva klijentu"
   },
   "Business": {
     "eyebrow": "Poslovna ponuda",
@@ -329,7 +345,9 @@
     "closeGallery": "Zatvori galeriju",
     "waText": "Pozdrav, zanima me najam vozila.",
     "waLabel": "Pišite nam na WhatsApp",
-    "waShort": "Pišite nam"
+    "waShort": "Pišite nam",
+    "prev": "Prethodno",
+    "next": "Sljedeće"
   },
   "HomeFleet": {
     "eyebrow": "Izdvojena vozila",
@@ -783,5 +801,19 @@
     "mapBody": "Google karta se prikazuje tek uz vašu privolu jer Google pritom postavlja vlastite kolačiće.",
     "mapShow": "Prikaži kartu",
     "mapOpen": "Otvori u Google kartama"
+  },
+  "NotFound": {
+    "eyebrow": "Greška 404",
+    "title": "Ova cesta ne vodi nikamo",
+    "lead": "Stranica koju tražite ne postoji ili je premještena. Potražite vozilo, vodič ili stranicu, ili krenite od jednog od linkova ispod.",
+    "search": "Pretražite vozila, vodiče i stranice",
+    "empty": "Nema rezultata za ovaj pojam.",
+    "popular": "Popularna vozila",
+    "links": "Korisni linkovi",
+    "home": "Povratak na početnu",
+    "kindPage": "Stranica",
+    "kindGuide": "Vodič",
+    "kindCar": "Vozilo",
+    "clear": "Očisti"
   }
 }

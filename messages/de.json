@@ -25,7 +25,9 @@
     "reviews": "Google Bewertungen",
     "open": "Geöffnet",
     "closed": "Geschlossen",
-    "localTime": "Ortszeit"
+    "localTime": "Ortszeit",
+    "fromPrice": "ab {price}/Tag",
+    "fleetCount": "{count, plural, one {# Fahrzeug} other {# Fahrzeuge}} verfügbar"
   },
   "Search": {
     "title": "Finden Sie Ihr Fahrzeug",
@@ -131,7 +133,17 @@
     "eyebrow": "Unsere Flotte",
     "noResultsTitle": "Für diese Daten ist kein Fahrzeug frei",
     "showAll": "Alle Fahrzeuge zeigen",
-    "askUs": "Fragen Sie uns auf WhatsApp"
+    "askUs": "Fragen Sie uns auf WhatsApp",
+    "quickSeven": "7+ Sitze",
+    "quickLabel": "Schnellfilter",
+    "nearestTitle": "Nächste freie Termine",
+    "nearestLead": "Gleiche Mietdauer, leicht verschoben:",
+    "freeN": "{count, plural, one {# Fahrzeug frei} other {# Fahrzeuge frei}}",
+    "orAsk": "Oder schreiben Sie uns, wir finden eine Lösung für Ihre Daten.",
+    "photoN": "Foto {n}",
+    "enlarge": "Foto vergrößern",
+    "goodToKnow": "Gut zu wissen",
+    "extrasShort": "Extras"
   },
   "Footer": {
     "contact": "Kontakt",
@@ -143,7 +155,8 @@
     "navTitle": "Menü",
     "chat": "Schreiben Sie uns",
     "privacy": "Datenschutz",
-    "cookies": "Cookies verwalten"
+    "cookies": "Cookies verwalten",
+    "email": "E-Mail"
   },
   "About": {
     "eyebrow": "Über uns",
@@ -203,7 +216,10 @@
     "fleetTitle": "Ein Auto für jeden",
     "fleetAccent": "Anlass.",
     "fleetCta": "Alle Fahrzeuge ansehen",
-    "imageAlt": "Fahrzeuge von Maximum Rent a Car"
+    "imageAlt": "Fahrzeuge von Maximum Rent a Car",
+    "photoBranchAlt": "Die Filiale von Maximum Rent a Car",
+    "photoTeamAlt": "Das Team von Maximum Rent a Car",
+    "photoKeysAlt": "Schlüsselübergabe an einen Kunden"
   },
   "Business": {
     "eyebrow": "Für Firmen",
@@ -329,7 +345,9 @@
     "closeGallery": "Galerie schließen",
     "waText": "Hallo, ich interessiere mich für eine Autovermietung.",
     "waLabel": "Schreiben Sie uns auf WhatsApp",
-    "waShort": "Schreiben Sie uns"
+    "waShort": "Schreiben Sie uns",
+    "prev": "Zurück",
+    "next": "Weiter"
   },
   "HomeFleet": {
     "eyebrow": "Ausgewählte Fahrzeuge",
@@ -783,5 +801,19 @@
     "mapBody": "Die Karte von Google wird nur mit Ihrer Zustimmung angezeigt, da Google beim Laden eigene Cookies setzt.",
     "mapShow": "Karte anzeigen",
     "mapOpen": "In Google Maps öffnen"
+  },
+  "NotFound": {
+    "eyebrow": "Fehler 404",
+    "title": "Diese Straße führt nirgendwohin",
+    "lead": "Die gesuchte Seite existiert nicht oder wurde verschoben. Suchen Sie nach einem Fahrzeug, einem Ratgeber oder einer Seite, oder starten Sie mit einem der Links unten.",
+    "search": "Fahrzeuge, Ratgeber und Seiten suchen",
+    "empty": "Keine Ergebnisse für diese Suche.",
+    "popular": "Beliebte Fahrzeuge",
+    "links": "Nützliche Links",
+    "home": "Zur Startseite",
+    "kindPage": "Seite",
+    "kindGuide": "Ratgeber",
+    "kindCar": "Fahrzeug",
+    "clear": "Löschen"
   }
 }

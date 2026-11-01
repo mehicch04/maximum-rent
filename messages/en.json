@@ -25,7 +25,9 @@
     "reviews": "Google reviews",
     "open": "Open",
     "closed": "Closed",
-    "localTime": "local"
+    "localTime": "local",
+    "fromPrice": "from {price}/day",
+    "fleetCount": "{count, plural, one {# car} other {# cars}} available"
   },
   "Search": {
     "title": "Find your vehicle",
@@ -131,7 +133,17 @@
     "eyebrow": "Our fleet",
     "noResultsTitle": "No cars free for these dates",
     "showAll": "Show all vehicles",
-    "askUs": "Ask us on WhatsApp"
+    "askUs": "Ask us on WhatsApp",
+    "quickSeven": "7+ seats",
+    "quickLabel": "Quick filters",
+    "nearestTitle": "Nearest free dates",
+    "nearestLead": "Same rental length, slightly shifted:",
+    "freeN": "{count, plural, one {# car free} other {# cars free}}",
+    "orAsk": "Or message us and we will find a solution for your dates.",
+    "photoN": "Photo {n}",
+    "enlarge": "Enlarge photo",
+    "goodToKnow": "Good to know",
+    "extrasShort": "Extras"
   },
   "Footer": {
     "contact": "Contact",
@@ -143,7 +155,8 @@
     "navTitle": "Menu",
     "chat": "Message us",
     "privacy": "Privacy policy",
-    "cookies": "Cookie settings"
+    "cookies": "Cookie settings",
+    "email": "Email"
   },
   "About": {
     "eyebrow": "About us",
@@ -203,7 +216,10 @@
     "fleetTitle": "A car for every",
     "fleetAccent": "occasion.",
     "fleetCta": "View all vehicles",
-    "imageAlt": "Maximum Rent a Car vehicles"
+    "imageAlt": "Maximum Rent a Car vehicles",
+    "photoBranchAlt": "The Maximum Rent a Car office",
+    "photoTeamAlt": "The Maximum Rent a Car team",
+    "photoKeysAlt": "Handing the keys to a client"
   },
   "Business": {
     "eyebrow": "Business offer",
@@ -329,7 +345,9 @@
     "closeGallery": "Close gallery",
     "waText": "Hello, I'm interested in renting a car.",
     "waLabel": "Message us on WhatsApp",
-    "waShort": "Message us"
+    "waShort": "Message us",
+    "prev": "Previous",
+    "next": "Next"
   },
   "HomeFleet": {
     "eyebrow": "Featured vehicles",
@@ -783,5 +801,19 @@
     "mapBody": "The Google map is shown only with your consent, because Google sets its own cookies when it loads.",
     "mapShow": "Show map",
     "mapOpen": "Open in Google Maps"
+  },
+  "NotFound": {
+    "eyebrow": "Error 404",
+    "title": "This road leads nowhere",
+    "lead": "The page you are looking for does not exist or has moved. Search for a car, a guide or a page, or start from one of the links below.",
+    "search": "Search cars, guides and pages",
+    "empty": "No results for this search.",
+    "popular": "Popular cars",
+    "links": "Useful links",
+    "home": "Back to home",
+    "kindPage": "Page",
+    "kindGuide": "Guide",
+    "kindCar": "Car",
+    "clear": "Clear"
   }
 }

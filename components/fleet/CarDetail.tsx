@@ -20,7 +20,7 @@ import type { CarListItem } from "@/lib/types";
 import type { ExtraItem } from "@/lib/extras";
 import { formatPrice } from "@/lib/currency";
 import { useCurrency } from "@/components/currency/CurrencyProvider";
-import { CarGallery } from "@/components/fleet/CarGallery";
+import { DetailGallery } from "@/components/fleet/DetailGallery";
 import { ImageLightbox } from "@/components/fleet/ImageLightbox";
 import { SimilarCars } from "@/components/fleet/SimilarCars";
 import { CLASS_LABELS, FUEL_LABELS, TRANSMISSION_LABELS, label as pick } from "@/lib/car-labels";
@@ -28,7 +28,7 @@ import type { AppLocale } from "@/i18n/routing";
 import { carCategories } from "@/lib/car-categories";
 import { splitLocal, type BusyRange } from "@/lib/booking";
 import { addDays, shortDate, todayISO } from "@/lib/dates";
-import { BookingWidget } from "@/components/booking/BookingWidget";
+import { BookingInfo, BookingWidget } from "@/components/booking/BookingWidget";
 import { AvailabilityCalendar } from "@/components/booking/AvailabilityCalendar";
 import { quote, type BookingState, type Loc } from "@/components/booking/state";
 
@@ -158,22 +158,13 @@ export function CarDetail({
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-10">
         <div className="min-w-0 lg:col-start-1 lg:row-start-1">
-          <div className="isolate overflow-hidden rounded-[22px] [transform:translateZ(0)]">
-            <CarGallery
-              images={car.images ?? []}
-              title={car.title}
-              onOpen={(i) => setLightbox(i)}
-              autoPlay
-              priority
-              sizes="(max-width: 1023px) 92vw, 62vw"
-            />
-          </div>
+          <DetailGallery images={car.images ?? []} title={car.title} onOpen={(i) => setLightbox(i)} />
         </div>
 
         <aside className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
           <div id="rezervacija" ref={stickRef} style={{ top: stickTop }} className="scroll-mt-24 lg:sticky">
             {car.isAvailable ? (
-              <BookingWidget car={car} locations={locations} extras={extras} busy={busy} b={b} set={set} />
+              <BookingWidget car={car} locations={locations} extras={extras} busy={busy} b={b} set={set} infoLg />
             ) : (
               <p className="rounded-[22px] bg-surface-muted px-5 py-4 text-sm text-muted-foreground">{t("notOffered")}</p>
             )}
@@ -193,6 +184,12 @@ export function CarDetail({
               ))}
             </ul>
           </section>
+
+          {car.isAvailable && (
+            <div className="hidden lg:block">
+              <BookingInfo car={car} extras={extras} split />
+            </div>
+          )}
 
           {description && (
             <section>

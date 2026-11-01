@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
+import { FallbackImage } from "@/components/ui/FallbackImage";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { Star } from "lucide-react";
 
@@ -10,16 +10,24 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 export function StoryCollage({
   main,
   side,
+  mainFallback,
+  sideFallback,
   mainAlt,
   sideAlt,
+  mainFallbackAlt,
+  sideFallbackAlt,
   score,
   reviews,
   badge,
 }: {
   main: string;
   side: string;
+  mainFallback: string;
+  sideFallback: string;
   mainAlt: string;
   sideAlt: string;
+  mainFallbackAlt: string;
+  sideFallbackAlt: string;
   score: string;
   reviews: string;
   badge: string;
@@ -40,7 +48,7 @@ export function StoryCollage({
         transition={{ duration: 0.8, ease: EASE }}
         className="absolute left-0 top-0 h-[78%] w-[82%] overflow-hidden rounded-[30px] bg-ink shadow-[0_40px_80px_-40px_rgba(17,17,19,0.6)]"
       >
-        <Image src={main} alt={mainAlt} fill sizes="(max-width: 1023px) 80vw, 460px" className="object-cover" />
+        <FallbackImage src={main} fallback={mainFallback} alt={mainAlt} fallbackAlt={mainFallbackAlt} fill sizes="(max-width: 1023px) 80vw, 460px" className="object-cover" />
       </motion.div>
 
       <motion.div
@@ -51,7 +59,7 @@ export function StoryCollage({
         transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
         className="absolute bottom-0 right-0 h-[48%] w-[56%] overflow-hidden rounded-[26px] bg-surface shadow-[0_40px_80px_-36px_rgba(17,17,19,0.55)] ring-[6px] ring-background"
       >
-        <Image src={side} alt={sideAlt} fill sizes="(max-width: 1023px) 55vw, 320px" className="object-cover" />
+        <FallbackImage src={side} fallback={sideFallback} alt={sideAlt} fallbackAlt={sideFallbackAlt} fill sizes="(max-width: 1023px) 55vw, 320px" className="object-cover" />
       </motion.div>
 
       <motion.div

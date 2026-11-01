@@ -56,6 +56,9 @@ export default async function HomePage({
     getTranslations({ locale, namespace: "Faq" }),
   ]);
 
+  const prices = cars.map((c) => c.pricePerDay).filter((p): p is number => p != null && p > 0);
+  const fromPrice = prices.length ? Math.min(...prices) : null;
+
   const faqLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -88,7 +91,7 @@ export default async function HomePage({
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd).replace(/</g, "\\u003c") }} />
-      <Hero />
+      <Hero fromPrice={fromPrice} count={cars.length} />
 
       <section
         id="rezervacija"

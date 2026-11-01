@@ -25,7 +25,9 @@
     "reviews": "reseñas en Google",
     "open": "Abierto",
     "closed": "Cerrado",
-    "localTime": "hora local"
+    "localTime": "hora local",
+    "fromPrice": "desde {price}/día",
+    "fleetCount": "{count, plural, one {# coche} other {# coches}} disponibles"
   },
   "Search": {
     "title": "Encuentra tu vehículo",
@@ -131,7 +133,17 @@
     "eyebrow": "Nuestra flota",
     "noResultsTitle": "No hay coches libres para estas fechas",
     "showAll": "Ver todos los vehículos",
-    "askUs": "Pregúntanos por WhatsApp"
+    "askUs": "Pregúntanos por WhatsApp",
+    "quickSeven": "7+ plazas",
+    "quickLabel": "Filtros rápidos",
+    "nearestTitle": "Fechas libres más cercanas",
+    "nearestLead": "La misma duración, con fechas un poco distintas:",
+    "freeN": "{count, plural, one {# coche libre} other {# coches libres}}",
+    "orAsk": "O escríbenos y buscaremos una solución para tus fechas.",
+    "photoN": "Foto {n}",
+    "enlarge": "Ampliar foto",
+    "goodToKnow": "Conviene saber",
+    "extrasShort": "Extras"
   },
   "Footer": {
     "contact": "Contacto",
@@ -143,7 +155,8 @@
     "navTitle": "Menú",
     "chat": "Escríbenos",
     "privacy": "Política de privacidad",
-    "cookies": "Ajustes de cookies"
+    "cookies": "Ajustes de cookies",
+    "email": "Email"
   },
   "About": {
     "eyebrow": "Nosotros",
@@ -203,7 +216,10 @@
     "fleetTitle": "Un coche para cada",
     "fleetAccent": "ocasión.",
     "fleetCta": "Ver todos los vehículos",
-    "imageAlt": "Vehículos de Maximum Rent a Car"
+    "imageAlt": "Vehículos de Maximum Rent a Car",
+    "photoBranchAlt": "La oficina de Maximum Rent a Car",
+    "photoTeamAlt": "El equipo de Maximum Rent a Car",
+    "photoKeysAlt": "Entrega de llaves a un cliente"
   },
   "Business": {
     "eyebrow": "Empresas",
@@ -329,7 +345,9 @@
     "closeGallery": "Cerrar galería",
     "waText": "Hola, me interesa alquilar un coche.",
     "waLabel": "Escríbenos por WhatsApp",
-    "waShort": "Escríbenos"
+    "waShort": "Escríbenos",
+    "prev": "Anterior",
+    "next": "Siguiente"
   },
   "HomeFleet": {
     "eyebrow": "Vehículos destacados",
@@ -783,5 +801,19 @@
     "mapBody": "El mapa de Google solo se muestra con tu consentimiento, ya que Google instala sus propias cookies al cargarlo.",
     "mapShow": "Mostrar mapa",
     "mapOpen": "Abrir en Google Maps"
+  },
+  "NotFound": {
+    "eyebrow": "Error 404",
+    "title": "Esta carretera no lleva a ninguna parte",
+    "lead": "La página que buscas no existe o se ha movido. Busca un coche, una guía o una página, o empieza por uno de los enlaces de abajo.",
+    "search": "Busca coches, guías y páginas",
+    "empty": "No hay resultados para esta búsqueda.",
+    "popular": "Coches populares",
+    "links": "Enlaces útiles",
+    "home": "Volver al inicio",
+    "kindPage": "Página",
+    "kindGuide": "Guía",
+    "kindCar": "Coche",
+    "clear": "Borrar"
   }
 }

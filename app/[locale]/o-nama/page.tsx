@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { FallbackImage } from "@/components/ui/FallbackImage";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { CalendarCheck, Heart, MapPin, ShieldCheck } from "lucide-react";
 import { buildPageMetadata } from "@/lib/seo";
@@ -67,7 +67,7 @@ export default async function AboutPage({
 
   return (
     <>
-      <PageHeader eyebrow={t("eyebrow")} title={t("title")} lead={t("headerLead")} image="/wed-2.webp" position="object-center" />
+      <PageHeader eyebrow={t("eyebrow")} title={t("title")} lead={t("headerLead")} image="/hero-poster.webp" position="object-[center_45%]" />
 
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
         <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-16">
@@ -80,10 +80,14 @@ export default async function AboutPage({
             </div>
           </div>
           <StoryCollage
-            main="/wed-1.webp"
-            side="/fleet-aerial.webp"
-            mainAlt={t("collageMainAlt")}
-            sideAlt={t("collageSideAlt")}
+            main="/o-nama/poslovnica.webp"
+            side="/o-nama/tim.webp"
+            mainFallback="/hero-poster.webp"
+            sideFallback="/fleet-aerial.webp"
+            mainAlt={t("photoBranchAlt")}
+            sideAlt={t("photoTeamAlt")}
+            mainFallbackAlt={t("collageMainAlt")}
+            sideFallbackAlt={t("collageSideAlt")}
             score={score.toLocaleString(nf, { minimumFractionDigits: 1 })}
             reviews={t("reviews", { count })}
             badge={t("features.f1Title")}
@@ -104,9 +108,11 @@ export default async function AboutPage({
       <Band>
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-20 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-16">
           <div className="group relative aspect-[4/3] overflow-hidden rounded-[28px] lg:aspect-[4/5]">
-            <Image
-              src="/wed-3.webp"
-              alt={t("imageAlt")}
+            <FallbackImage
+              src="/o-nama/predaja-kljuceva.webp"
+              fallback="/fleet-premium.webp"
+              alt={t("photoKeysAlt")}
+              fallbackAlt={t("imageAlt")}
               fill
               sizes="(max-width: 1023px) 100vw, 45vw"
               className="object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"

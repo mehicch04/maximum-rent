@@ -57,7 +57,7 @@ export default async function BusinessPage({
 
   const contacts = [
     { icon: Mail, label: company.email, href: `mailto:${company.email}` },
-    ...company.phones.map((p) => ({ icon: Phone, label: p.value, href: p.href })),
+    ...company.phones.map((p) => ({ icon: Phone, label: `${p.label} ${p.value}`, href: p.href })),
   ];
 
   return (

@@ -5,6 +5,8 @@ import { ArrowRight, ChevronDown, Star } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCompany } from "@/components/company/CompanyProvider";
+import { useCurrency } from "@/components/currency/CurrencyProvider";
+import { formatPrice } from "@/lib/currency";
 
 // Agency opening window in minutes from midnight (07:30 – 20:30, local).
 const OPEN_MIN = 7 * 60 + 30;
@@ -65,9 +67,10 @@ function OpenStatus({
   );
 }
 
-export function Hero() {
+export function Hero({ fromPrice, count = 0 }: { fromPrice?: number | null; count?: number }) {
   const t = useTranslations("Hero");
   const company = useCompany();
+  const { currency } = useCurrency();
   const locale = useLocale();
 
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
@@ -182,8 +185,18 @@ export function Hero() {
             className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur transition-colors hover:bg-white/10"
           >
             {t("ctaFleet")}
+            {count > 0 && <span className="grid h-6 min-w-6 place-items-center rounded-full bg-white/15 px-1.5 text-xs tabular-nums">{count}</span>}
           </Link>
         </div>
+        {(fromPrice != null || count > 0) && (
+          <p style={{ animationDelay: "240ms" }} className="animate-fade-up mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-white/75">
+            {fromPrice != null && (
+              <span className="font-semibold text-white">{t("fromPrice", { price: formatPrice(fromPrice, currency) })}</span>
+            )}
+            {fromPrice != null && count > 0 && <span aria-hidden className="h-1 w-1 rounded-full bg-white/40" />}
+            {count > 0 && <span>{t("fleetCount", { count })}</span>}
+          </p>
+        )}
 
         {/* Trust row: Google rating + live open/closed status */}
         <div

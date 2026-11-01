@@ -11,7 +11,7 @@ export type ContactCard = {
   value?: string;
   href?: string;
   copy?: string;
-  lines?: { value: string; href: string }[];
+  lines?: { value: string; href: string; tag?: string }[];
 };
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -60,9 +60,14 @@ export function ContactCards({ cards, copyLabel, copiedLabel }: { cards: Contact
                     <a
                       key={l.value}
                       href={l.href}
-                      className="group/l flex items-center justify-between gap-2 rounded-lg font-display text-[15px] font-bold text-foreground transition-colors hover:text-brand-strong"
+                      className="group/l flex items-center gap-2 rounded-lg font-display text-[15px] font-bold text-foreground transition-colors hover:text-brand-strong"
                     >
-                      {l.value}
+                      {l.tag && (
+                        <span className="inline-flex h-5 w-9 shrink-0 items-center justify-center rounded-md bg-surface-muted font-sans text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                          {l.tag}
+                        </span>
+                      )}
+                      <span className="min-w-0 flex-1 truncate">{l.value}</span>
                       <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform group-hover/l:-translate-y-0.5 group-hover/l:translate-x-0.5 group-hover/l:text-brand-strong" />
                     </a>
                   ))}

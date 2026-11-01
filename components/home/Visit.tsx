@@ -51,6 +51,7 @@ export function Visit({ company, address, locale }: { company: Company; address:
               <li key={p.value}>
                 <a href={p.href} className="flex items-center gap-3 text-foreground transition-colors hover:text-brand-strong">
                   <Phone className="h-4 w-4 shrink-0 text-brand-strong" />
+                  <span className="inline-flex h-5 w-9 shrink-0 items-center justify-center rounded-md bg-surface-muted text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{p.label}</span>
                   {p.value}
                 </a>
               </li>

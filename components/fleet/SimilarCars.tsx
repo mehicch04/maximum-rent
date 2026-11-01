@@ -1,76 +1,56 @@
 "use client";
 
-import { useRef, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { ChevronLeft, ChevronRight, Car as CarIcon } from "lucide-react";
-
+import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { CarListItem } from "@/lib/types";
-import { formatPrice } from "@/lib/currency";
-import { useCurrency } from "@/components/currency/CurrencyProvider";
+import { CarCard } from "./CarCard";
 
-export function SimilarCars({
-  cars,
-  locale,
-  title,
-}: {
-  cars: CarListItem[];
-  locale: string;
-  title: string;
-}) {
-  const { currency } = useCurrency();
-  const trackRef = useRef<HTMLUListElement>(null);
-  const [atEnd, setAtEnd] = useState(false);
-  const en = locale !== "hr";
+export function SimilarCars({ cars, title }: { cars: CarListItem[]; locale?: string; title: string }) {
+  const t = useTranslations("Common");
+  const track = useRef<HTMLUListElement>(null);
+  const [edge, setEdge] = useState({ start: true, end: false });
+  const [page, setPage] = useState(0);
+  const [pages, setPages] = useState(1);
+
+  const measure = () => {
+    const el = track.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setEdge({ start: el.scrollLeft <= 8, end: el.scrollLeft >= max - 8 });
+    const n = Math.max(1, Math.round(el.scrollWidth / el.clientWidth));
+    setPages(n);
+    setPage(max <= 0 ? 0 : Math.round((el.scrollLeft / max) * (n - 1)));
+  };
+
+  useEffect(() => {
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [cars.length]);
 
   if (cars.length === 0) return null;
 
-  const scrollable = cars.length >= 3;
-
   const move = (dir: 1 | -1) => {
-    const el = trackRef.current;
+    const el = track.current;
     if (!el) return;
-    const step = el.clientWidth / Math.min(3, cars.length);
-    const maxLeft = el.scrollWidth - el.clientWidth;
-
-    if (dir === 1 && el.scrollLeft >= maxLeft - 8) {
-      el.scrollTo({ left: 0, behavior: "smooth" });
-    } else if (dir === -1 && el.scrollLeft <= 8) {
-      el.scrollTo({ left: maxLeft, behavior: "smooth" });
-    } else {
-      el.scrollBy({ left: step * dir, behavior: "smooth" });
-    }
+    const card = el.firstElementChild as HTMLElement | null;
+    const step = card ? card.offsetWidth + 16 : el.clientWidth;
+    el.scrollBy({ left: step * dir, behavior: "smooth" });
   };
 
-  const onScroll = () => {
-    const el = trackRef.current;
-    if (!el) return;
-    setAtEnd(el.scrollLeft >= el.scrollWidth - el.clientWidth - 8);
-  };
+  const btn = "grid h-10 w-10 place-items-center rounded-full ring-1 transition-colors disabled:cursor-default disabled:opacity-35";
 
   return (
-    <section className="mt-12 border-t border-border pt-8">
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <h2 className="font-display text-lg font-bold text-foreground">
-          {title}
-        </h2>
-
-        {scrollable && (
+    <section className="mt-16 border-t border-border pt-10">
+      <div className="flex items-end justify-between gap-4">
+        <h2 className="font-display text-xl font-bold tracking-tight text-foreground sm:text-2xl">{title}</h2>
+        {pages > 1 && (
           <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => move(-1)}
-              aria-label={en ? "Previous" : "Prethodno"}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-brand hover:text-brand-strong"
-            >
+            <button type="button" onClick={() => move(-1)} disabled={edge.start} aria-label={t("prev")} className={`${btn} bg-surface text-foreground ring-border hover:ring-brand/40 enabled:hover:text-brand-strong`}>
               <ChevronLeft className="h-4 w-4" />
             </button>
-            <button
-              type="button"
-              onClick={() => move(1)}
-              aria-label={en ? "Next" : "Sljedeće"}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-brand hover:text-brand-strong"
-            >
+            <button type="button" onClick={() => move(1)} disabled={edge.end} aria-label={t("next")} className={`${btn} bg-ink text-white ring-ink enabled:hover:bg-brand enabled:hover:ring-brand`}>
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
@@ -78,61 +58,24 @@ export function SimilarCars({
       </div>
 
       <ul
-        ref={trackRef}
-        onScroll={onScroll}
-        className={
-          scrollable
-            ? // Snap points so a swipe always lands on a card, never between two.
-              "flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            : "grid gap-4 sm:grid-cols-2"
-        }
+        ref={track}
+        onScroll={measure}
+        className="no-scrollbar -mx-4 mt-6 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:mx-0 lg:scroll-px-0 lg:px-0"
       >
         {cars.map((c) => (
-          <li
-            key={c.id}
-            className={
-              scrollable
-                ? "w-[78%] shrink-0 snap-start sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)]"
-                : ""
-            }
-          >
-            <Link
-              href={`/${locale}/vozila/${c.slug}`}
-              className="group block overflow-hidden rounded-2xl border border-border bg-surface transition-colors hover:border-brand"
-            >
-              <div className="relative aspect-[16/10] w-full bg-surface-muted">
-                {c.images?.[0] ? (
-                  <Image
-                    src={c.images[0]}
-                    alt={c.title}
-                    fill
-                    sizes="(max-width: 639px) 78vw, (max-width: 1023px) 46vw, 31vw"
-                    className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-muted-foreground">
-                    <CarIcon className="h-10 w-10" />
-                  </div>
-                )}
-              </div>
-
-              <div className="p-4">
-                <p className="truncate text-sm font-semibold text-foreground">
-                  {c.title}
-                </p>
-                {c.pricePerDay != null && (
-                  <p className="mt-1 text-sm text-brand-strong">
-                    {formatPrice(c.pricePerDay, currency)}{" "}
-                    <span className="text-xs text-muted-foreground">
-                      / {en ? "day" : "dan"}
-                    </span>
-                  </p>
-                )}
-              </div>
-            </Link>
+          <li key={c.id} className="w-[84%] shrink-0 snap-start sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)]">
+            <CarCard car={c} imageSizes="(max-width: 639px) 84vw, (max-width: 1023px) 46vw, 31vw" />
           </li>
         ))}
       </ul>
+
+      {pages > 1 && (
+        <div className="mt-5 flex justify-center gap-1.5" aria-hidden>
+          {Array.from({ length: pages }, (_, i) => (
+            <span key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === page ? "w-6 bg-brand" : "w-1.5 bg-foreground/15"}`} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

@@ -25,6 +25,7 @@ export function BookingWidget({
   busy,
   b,
   set,
+  infoLg = false,
 }: {
   car: CarListItem;
   locations: Loc[];
@@ -32,6 +33,7 @@ export function BookingWidget({
   busy: BusyRange[];
   b: BookingState;
   set: (p: Partial<BookingState>) => void;
+  infoLg?: boolean;
 }) {
   const t = useTranslations("Booking");
   const locale = useLocale() as AppLocale;
@@ -180,41 +182,96 @@ export function BookingWidget({
         </a>
       </div>
 
-      <ul className="mt-5 space-y-2 border-t border-dashed border-border pt-4 text-[13px] text-muted-foreground">
-        {car.deposit != null && (
-          <li className="flex items-start gap-2">
-            <CircleCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-strong" />
-            {t("deposit", { amount: price(car.deposit) })}
-          </li>
-        )}
-        <li className="flex items-start gap-2">
-          <CircleCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-strong" />
-          {t("noPrepay")}
-        </li>
-        <li className="flex items-start gap-2">
-          <CircleCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-strong" />
-          {t("confirmEmail")}
-        </li>
-      </ul>
+      <div className={infoLg ? "lg:hidden" : ""}>
+        <BookingInfo car={car} extras={extras} />
+      </div>
+    </div>
+  );
+}
 
-      {extras.length > 0 && (
-        <div className="mt-5 border-t border-dashed border-border pt-4">
-          <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <Sparkles className="h-4 w-4 text-brand-strong" />
-            {t("extrasTitle")}
-          </p>
-          <ul className="mt-3 space-y-1.5 text-[13px]">
-            {extras.map((e) => (
-              <li key={e.id} className="flex justify-between gap-3 text-muted-foreground">
-                <span className="truncate">{extraText(e, locale).name}</span>
-                <span className="shrink-0 font-medium text-foreground">
-                  <bdi>{price(e.price)}</bdi> {e.pricing === "PER_DAY" ? `/ ${t("perDayUnit")}` : t("once")}
-                </span>
+export function BookingInfo({ car, extras, split = false }: { car: CarListItem; extras: ExtraItem[]; split?: boolean }) {
+  const t = useTranslations("Booking");
+  const tf = useTranslations("Fleet");
+  const locale = useLocale() as AppLocale;
+  const { currency } = useCurrency();
+  const price = (v: number) => formatPrice(v, currency);
+  const perks = [
+    ...(car.deposit != null ? [t("deposit", { amount: price(car.deposit) })] : []),
+    t("noPrepay"),
+    t("confirmEmail"),
+  ];
+
+  if (split) {
+    return (
+      <div className="grid gap-4 sm:grid-cols-2">
+        <section className="rounded-[22px] bg-surface p-5 ring-1 ring-border sm:p-6">
+          <h2 className="font-display text-lg font-semibold text-foreground">{tf("goodToKnow")}</h2>
+          <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+            {perks.map((p) => (
+              <li key={p} className="flex items-start gap-2.5">
+                <CircleCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-strong" />
+                {p}
               </li>
             ))}
           </ul>
-        </div>
+        </section>
+        {extras.length > 0 && (
+          <section className="rounded-[22px] bg-surface p-5 ring-1 ring-border sm:p-6">
+            <h2 className="font-display text-lg font-semibold text-foreground">{tf("extrasShort")}</h2>
+            <p className="mt-1 text-xs text-muted-foreground">{t("extrasTitle")}</p>
+            <ul className="mt-3 divide-y divide-border text-sm">
+              {extras.map((e) => (
+                <li key={e.id} className="flex justify-between gap-3 py-2 first:pt-0 last:pb-0">
+                  <span className="truncate text-muted-foreground">{extraText(e, locale).name}</span>
+                  <span className="shrink-0 font-medium text-foreground">
+                    <bdi>{price(e.price)}</bdi> {e.pricing === "PER_DAY" ? `/ ${t("perDayUnit")}` : t("once")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <>
+    <ul className="mt-5 space-y-2 border-t border-dashed border-border pt-4 text-[13px] text-muted-foreground">
+      {car.deposit != null && (
+        <li className="flex items-start gap-2">
+          <CircleCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-strong" />
+          {t("deposit", { amount: price(car.deposit) })}
+        </li>
       )}
-    </div>
+      <li className="flex items-start gap-2">
+        <CircleCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-strong" />
+        {t("noPrepay")}
+      </li>
+      <li className="flex items-start gap-2">
+        <CircleCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-strong" />
+        {t("confirmEmail")}
+      </li>
+    </ul>
+
+    {extras.length > 0 && (
+      <div className="mt-5 border-t border-dashed border-border pt-4">
+        <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <Sparkles className="h-4 w-4 text-brand-strong" />
+          {t("extrasTitle")}
+        </p>
+        <ul className="mt-3 space-y-1.5 text-[13px]">
+          {extras.map((e) => (
+            <li key={e.id} className="flex justify-between gap-3 text-muted-foreground">
+              <span className="truncate">{extraText(e, locale).name}</span>
+              <span className="shrink-0 font-medium text-foreground">
+                <bdi>{price(e.price)}</bdi> {e.pricing === "PER_DAY" ? `/ ${t("perDayUnit")}` : t("once")}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+    </>
   );
 }
