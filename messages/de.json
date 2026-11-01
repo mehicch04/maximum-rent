@@ -2,6 +2,7 @@
   "Nav": {
     "home": "Startseite",
     "business": "Für Firmen",
+    "guides": "Ratgeber",
     "about": "Über uns",
     "vehicles": "Fahrzeuge",
     "terms": "Mietbedingungen",
@@ -172,10 +173,22 @@
     "journeyTitle": "Von der Anfrage",
     "journeyAccent": "zum Schlüssel.",
     "journey": [
-      { "t": "Anfrage senden", "d": "Wählen Sie Fahrzeug und Zeitraum auf der Website oder schreiben Sie uns auf WhatsApp." },
-      { "t": "Bestätigung per E-Mail", "d": "Wir prüfen die Verfügbarkeit und bestätigen Ihre Buchung per E-Mail." },
-      { "t": "Schlüssel abholen", "d": "Mit Personalausweis oder Reisepass und Führerschein, ohne Online-Zahlung." },
-      { "t": "Rückgabe, wo es passt", "d": "Am selben oder an einem anderen unserer sechs Standorte in der Herzegowina." }
+      {
+        "t": "Anfrage senden",
+        "d": "Wählen Sie Fahrzeug und Zeitraum auf der Website oder schreiben Sie uns auf WhatsApp."
+      },
+      {
+        "t": "Bestätigung per E-Mail",
+        "d": "Wir prüfen die Verfügbarkeit und bestätigen Ihre Buchung per E-Mail."
+      },
+      {
+        "t": "Schlüssel abholen",
+        "d": "Mit Personalausweis oder Reisepass und Führerschein, ohne Online-Zahlung."
+      },
+      {
+        "t": "Rückgabe, wo es passt",
+        "d": "Am selben oder an einem anderen unserer sechs Standorte in der Herzegowina."
+      }
     ],
     "featuresEyebrow": "Warum Maximum",
     "featuresTitle": "Für Sie da",
@@ -200,7 +213,14 @@
     "minDaysLabel": "Tage beträgt die Mindestmietdauer",
     "servicesTitle": "Inklusive Leistungen",
     "servicesSubtitle": "Alles ist im monatlichen Mietpreis enthalten, ohne versteckte Kosten.",
-    "services": ["Wartung", "Zulassung", "Fahrzeugversicherung", "Ersatzfahrzeug", "Reifeneinlagerung", "Schadenmanagement"],
+    "services": [
+      "Wartung",
+      "Zulassung",
+      "Fahrzeugversicherung",
+      "Ersatzfahrzeug",
+      "Reifeneinlagerung",
+      "Schadenmanagement"
+    ],
     "compareCol1": "Langzeitmiete",
     "compareCol2": "Klassisches Leasing",
     "compareRows": [
@@ -269,10 +289,22 @@
     "chatOnline": "365 Tage erreichbar",
     "chatGreeting": "Hallo! Wie können wir helfen? Wählen Sie ein Thema oder schreiben Sie uns eine Nachricht.",
     "chatChips": [
-      { "label": "Verfügbarkeit", "text": "Hallo, ich möchte die Verfügbarkeit eines Fahrzeugs für diesen Zeitraum prüfen:" },
-      { "label": "Hochzeit", "text": "Hallo, ich interessiere mich für Fahrzeuge für eine Hochzeit." },
-      { "label": "Firmenmiete", "text": "Hallo, ich interessiere mich für eine Langzeitmiete für mein Unternehmen." },
-      { "label": "Flughafen Mostar", "text": "Hallo, ich möchte ein Fahrzeug am Flughafen Mostar abholen." }
+      {
+        "label": "Verfügbarkeit",
+        "text": "Hallo, ich möchte die Verfügbarkeit eines Fahrzeugs für diesen Zeitraum prüfen:"
+      },
+      {
+        "label": "Hochzeit",
+        "text": "Hallo, ich interessiere mich für Fahrzeuge für eine Hochzeit."
+      },
+      {
+        "label": "Firmenmiete",
+        "text": "Hallo, ich interessiere mich für eine Langzeitmiete für mein Unternehmen."
+      },
+      {
+        "label": "Flughafen Mostar",
+        "text": "Hallo, ich möchte ein Fahrzeug am Flughafen Mostar abholen."
+      }
     ],
     "whatsapp": "WhatsApp öffnen",
     "mapEyebrow": "Standorte",
@@ -292,9 +324,18 @@
   },
   "Features": {
     "items": [
-      { "title": "6 Standorte", "body": "Abholung und Rückgabe in Čitluk, Mostar, Međugorje, Čapljina, Ljubuški und am Flughafen Mostar." },
-      { "title": "Alles inklusive", "body": "Versicherung, Vignetten für BiH und unbegrenzte Kilometer, ohne versteckte Kosten." },
-      { "title": "Rund um die Uhr", "body": "Wir sind in jedem Moment Ihrer Reise für Sie da, auch nachts und am Wochenende." }
+      {
+        "title": "6 Standorte",
+        "body": "Abholung und Rückgabe in Čitluk, Mostar, Međugorje, Čapljina, Ljubuški und am Flughafen Mostar."
+      },
+      {
+        "title": "Alles inklusive",
+        "body": "Versicherung, Vignetten für BiH und unbegrenzte Kilometer, ohne versteckte Kosten."
+      },
+      {
+        "title": "Rund um die Uhr",
+        "body": "Wir sind in jedem Moment Ihrer Reise für Sie da, auch nachts und am Wochenende."
+      }
     ]
   },
   "HomeFleet": {
@@ -305,10 +346,22 @@
     "viewAllCount": "{count, plural, one {# Fahrzeug ansehen} other {Alle # Fahrzeuge ansehen}}",
     "goTo": "Fahrzeug {n}",
     "included": [
-      { "title": "Versicherung inklusive", "body": "Die Grundversicherung ist in jedem Mietpreis enthalten." },
-      { "title": "Unbegrenzte Kilometer", "body": "Fahren Sie so viel Sie möchten, ohne Kilometergebühr." },
-      { "title": "Vignetten für BiH", "body": "Vignetten sind ohne Aufpreis inklusive." },
-      { "title": "Flughafen Mostar", "body": "Abholung und Rückgabe auch am Flughafen Mostar." }
+      {
+        "title": "Versicherung inklusive",
+        "body": "Die Grundversicherung ist in jedem Mietpreis enthalten."
+      },
+      {
+        "title": "Unbegrenzte Kilometer",
+        "body": "Fahren Sie so viel Sie möchten, ohne Kilometergebühr."
+      },
+      {
+        "title": "Vignetten für BiH",
+        "body": "Vignetten sind ohne Aufpreis inklusive."
+      },
+      {
+        "title": "Flughafen Mostar",
+        "body": "Abholung und Rückgabe auch am Flughafen Mostar."
+      }
     ]
   },
   "HowItWorks": {
@@ -318,9 +371,18 @@
     "lead": "Keine Online-Zahlung und kein Konto nötig. Senden Sie eine Anfrage, erhalten Sie eine Bestätigung per E-Mail und wir kümmern uns um den Rest.",
     "cta": "Fahrzeuge ansehen",
     "steps": [
-      { "title": "Fahrzeug wählen", "body": "Sehen Sie sich die Flotte an und wählen Sie den passenden Zeitraum." },
-      { "title": "Anfrage senden", "body": "Senden Sie Ihre Anfrage mit wenigen Klicks über das Formular oder WhatsApp." },
-      { "title": "Schlüssel abholen", "body": "Wir bestätigen die Verfügbarkeit und erwarten Sie am vereinbarten Ort." }
+      {
+        "title": "Fahrzeug wählen",
+        "body": "Sehen Sie sich die Flotte an und wählen Sie den passenden Zeitraum."
+      },
+      {
+        "title": "Anfrage senden",
+        "body": "Senden Sie Ihre Anfrage mit wenigen Klicks über das Formular oder WhatsApp."
+      },
+      {
+        "title": "Schlüssel abholen",
+        "body": "Wir bestätigen die Verfügbarkeit und erwarten Sie am vereinbarten Ort."
+      }
     ],
     "pass": {
       "code": "OMO",
@@ -333,7 +395,11 @@
       "step": "Schritt",
       "payLabel": "Zahlung",
       "pay": "Keine Online-Zahlung",
-      "stamps": ["Gewählt", "Gesendet", "Bereit"]
+      "stamps": [
+        "Gewählt",
+        "Gesendet",
+        "Bereit"
+      ]
     }
   },
   "Reviews": {
@@ -352,7 +418,11 @@
     "proofTitle": "Vertrauen, das wir",
     "proofAccent": "seit 2009 aufbauen.",
     "proofLead": "Unsere Gäste bewerten uns auf Google mit {score}. Lesen Sie ihre Erfahrungen und überzeugen Sie sich selbst.",
-    "proof": ["zufriedene Kunden", "Jahre für Sie da", "Tage im Jahr für Sie erreichbar"]
+    "proof": [
+      "zufriedene Kunden",
+      "Jahre für Sie da",
+      "Tage im Jahr für Sie erreichbar"
+    ]
   },
   "Services": {
     "eyebrow": "Leistungen",
@@ -365,7 +435,11 @@
         "label": "Für Firmen",
         "title": "Firmenmiete und Transfers",
         "body": "Langzeitmiete mit inklusive Wartung, Flottenlösungen auf einer Rechnung und Transfers zum Flughafen und zu Hotels.",
-        "points": ["Langzeitmiete mit Wartung", "Ihre ganze Flotte auf einer Rechnung", "Transfers zum Flughafen und zu Hotels"],
+        "points": [
+          "Langzeitmiete mit Wartung",
+          "Ihre ganze Flotte auf einer Rechnung",
+          "Transfers zum Flughafen und zu Hotels"
+        ],
         "badge": "Planbare Monatskosten",
         "cta": "Angebot anfordern",
         "imageAlt": "Firmenfahrzeug aus der Flotte von Maximum Rent a Car"
@@ -374,19 +448,39 @@
         "label": "Standorte",
         "title": "Abholung in der ganzen Herzegowina",
         "body": "Wir empfangen Sie auch am Flughafen Mostar. Ihr Auto wartet ab der Landung, und Sie geben es dort zurück, wo es Ihnen passt.",
-        "points": ["Flughafen Mostar und 5 Filialen", "Rückgabe an einem anderen Standort", "Erreichbar rund um die Uhr"],
+        "points": [
+          "Flughafen Mostar und 5 Filialen",
+          "Rückgabe an einem anderen Standort",
+          "Erreichbar rund um die Uhr"
+        ],
         "badge": "6 Standorte",
         "cta": "Fahrzeuge ansehen",
         "imageAlt": "Flotte von Maximum Rent a Car vor der Filiale"
       }
     ],
     "items": [
-      { "title": "Ein Auto für jeden Anlass", "body": "Vom Stadtauto bis zur Luxuslimousine, SUV und Transporter." },
-      { "title": "Hochzeitsautos", "body": "Luxusfahrzeuge für das Brautpaar, die Trauzeugen und die Gäste an Ihrem großen Tag." },
-      { "title": "Fahrten außerhalb von BiH", "body": "Nach vorheriger Anmeldung und mit den passenden Unterlagen auch über die Grenzen von BiH hinaus." },
-      { "title": "Klare Mietbedingungen", "body": "Mindestalter 21 Jahre, Führerschein seit mehr als 2 Jahren und eine Kaution, die vollständig erstattet wird." }
+      {
+        "title": "Ein Auto für jeden Anlass",
+        "body": "Vom Stadtauto bis zur Luxuslimousine, SUV und Transporter."
+      },
+      {
+        "title": "Hochzeitsautos",
+        "body": "Luxusfahrzeuge für das Brautpaar, die Trauzeugen und die Gäste an Ihrem großen Tag."
+      },
+      {
+        "title": "Fahrten außerhalb von BiH",
+        "body": "Nach vorheriger Anmeldung und mit den passenden Unterlagen auch über die Grenzen von BiH hinaus."
+      },
+      {
+        "title": "Klare Mietbedingungen",
+        "body": "Mindestalter 21 Jahre, Führerschein seit mehr als 2 Jahren und eine Kaution, die vollständig erstattet wird."
+      }
     ],
-    "route": { "from": "Flughafen Mostar", "toCode": "HQ", "to": "Čitluk" }
+    "route": {
+      "from": "Flughafen Mostar",
+      "toCode": "HQ",
+      "to": "Čitluk"
+    }
   },
   "Faq": {
     "eyebrow": "Häufige Fragen",
@@ -394,18 +488,48 @@
     "accent": "Sie wissen möchten",
     "lead": "Wenn Sie hier keine Antwort finden, schreiben Sie uns auf WhatsApp oder rufen Sie uns an.",
     "items": [
-      { "q": "Wie alt muss ich für die Miete sein?", "a": "21 Jahre, mit einem Führerschein seit mehr als 2 Jahren." },
-      { "q": "Was brauche ich für die Abholung?", "a": "Einen gültigen Personalausweis oder Reisepass und Ihren Führerschein." },
-      { "q": "Was ist im Mietpreis enthalten?", "a": "Grundversicherung, Vignetten für BiH und unbegrenzte Kilometer." },
-      { "q": "Wie funktioniert die Kaution?", "a": "Die Kaution hängt von der Fahrzeugklasse ab und wird nach ordnungsgemäßer Rückgabe vollständig erstattet." },
-      { "q": "Darf ich mit dem Fahrzeug ins Ausland fahren?", "a": "Ja, nach vorheriger Anmeldung und mit den passenden Unterlagen." },
-      { "q": "Kann ich meine Buchung stornieren?", "a": "Eine kostenlose Stornierung ist bis 48 Stunden vor der Abholung möglich." }
+      {
+        "q": "Wie alt muss ich für die Miete sein?",
+        "a": "21 Jahre, mit einem Führerschein seit mehr als 2 Jahren."
+      },
+      {
+        "q": "Was brauche ich für die Abholung?",
+        "a": "Einen gültigen Personalausweis oder Reisepass und Ihren Führerschein."
+      },
+      {
+        "q": "Was ist im Mietpreis enthalten?",
+        "a": "Grundversicherung, Vignetten für BiH und unbegrenzte Kilometer."
+      },
+      {
+        "q": "Wie funktioniert die Kaution?",
+        "a": "Die Kaution hängt von der Fahrzeugklasse ab und wird nach ordnungsgemäßer Rückgabe vollständig erstattet."
+      },
+      {
+        "q": "Darf ich mit dem Fahrzeug ins Ausland fahren?",
+        "a": "Ja, nach vorheriger Anmeldung und mit den passenden Unterlagen."
+      },
+      {
+        "q": "Kann ich meine Buchung stornieren?",
+        "a": "Eine kostenlose Stornierung ist bis 48 Stunden vor der Abholung möglich."
+      }
     ],
     "facts": [
-      { "v": "21+", "l": "Mindestalter des Fahrers" },
-      { "v": "48h", "l": "kostenlose Stornierung" },
-      { "v": "∞ km", "l": "unbegrenzte Kilometer" },
-      { "v": "6", "l": "Abholstandorte" }
+      {
+        "v": "21+",
+        "l": "Mindestalter des Fahrers"
+      },
+      {
+        "v": "48h",
+        "l": "kostenlose Stornierung"
+      },
+      {
+        "v": "∞ km",
+        "l": "unbegrenzte Kilometer"
+      },
+      {
+        "v": "6",
+        "l": "Abholstandorte"
+      }
     ],
     "search": "Fragen durchsuchen",
     "clear": "Suche löschen",
@@ -490,7 +614,12 @@
     "cta": "Angebot anfordern",
     "rolesTitle": "Für wen brauchen Sie ein Auto?",
     "rolesHint": "Wählen Sie eine oder mehrere Optionen, wir senden ein Angebot für alle.",
-    "roles": ["Brautpaar", "Trauzeugen", "Eltern", "Familie und Freunde"]
+    "roles": [
+      "Brautpaar",
+      "Trauzeugen",
+      "Eltern",
+      "Familie und Freunde"
+    ]
   },
   "Extras": {
     "title": "Optionale Extras",
@@ -537,7 +666,11 @@
     "legendBooked": "Gebucht",
     "prevMonth": "Vorheriger Monat",
     "nextMonth": "Nächster Monat",
-    "steps": ["Auto und Daten", "Ihre Daten", "Bestätigung"],
+    "steps": [
+      "Auto und Daten",
+      "Ihre Daten",
+      "Bestätigung"
+    ],
     "title": "Buchung abschließen",
     "lead": "Nur noch wenige Angaben und Ihre Buchung ist gesendet.",
     "details": "Ihre Daten",

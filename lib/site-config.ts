@@ -24,10 +24,11 @@ export const SITE = {
 
 export const NAV_LINKS = [
   { href: "/", key: "home" },
-  { href: "/poslovna-ponuda", key: "business" },
-  { href: "/o-nama", key: "about" },
   { href: "/vozila", key: "vehicles" },
+  { href: "/poslovna-ponuda", key: "business" },
+  { href: "/vodici", key: "guides" },
   { href: "/uvjeti-najma", key: "terms" },
+  { href: "/o-nama", key: "about" },
   { href: "/kontakt", key: "contact" },
 ] as const;
 

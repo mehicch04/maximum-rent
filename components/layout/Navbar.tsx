@@ -15,6 +15,7 @@ import { intlLocale } from "@/i18n/routing";
 
 const useIso = typeof window === "undefined" ? useEffect : useLayoutEffect;
 const EASE = [0.22, 1, 0.36, 1] as const;
+const MAIN = NAV_LINKS.filter((l) => l.href !== "/");
 
 function Rating() {
   const t = useTranslations("Nav");
@@ -185,7 +186,7 @@ export function Navbar() {
   const items = useRef<(HTMLAnchorElement | null)[]>([]);
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
-  const active = NAV_LINKS.findIndex((l) => isActive(l.href));
+  const active = MAIN.findIndex((l) => isActive(l.href));
   const target = hover ?? (active >= 0 ? active : null);
 
   const measure = useCallback(() => {
@@ -280,7 +281,7 @@ export function Navbar() {
                 className={`absolute inset-y-1 rounded-full bg-ink shadow-[0_8px_18px_-10px_rgba(17,17,19,0.8)] transition-[left,width,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${pill ? "opacity-100" : "opacity-0"}`}
                 style={pill ? { left: pill.left, width: pill.width } : undefined}
               />
-              {NAV_LINKS.map((link, i) => (
+              {MAIN.map((link, i) => (
                 <li key={link.href}>
                   <Link
                     ref={(el) => {
@@ -291,7 +292,7 @@ export function Navbar() {
                     onFocus={() => setHover(i)}
                     onBlur={() => setHover(null)}
                     aria-current={i === active ? "page" : undefined}
-                    className={`relative z-10 block rounded-full px-3 py-2 text-[13px] font-medium transition-colors duration-200 xl:px-4 ${
+                    className={`relative z-10 block whitespace-nowrap rounded-full px-3 py-2 text-[13px] font-medium transition-colors duration-200 xl:px-4 ${
                       target === i ? "text-white" : "text-foreground/70 hover:text-foreground"
                     }`}
                   >
@@ -309,7 +310,7 @@ export function Navbar() {
               </div>
               <Link
                 href="/vozila"
-                className="group relative hidden h-11 items-center gap-2 overflow-hidden rounded-full bg-brand pl-5 pr-1.5 text-sm font-semibold text-white shadow-[0_12px_26px_-14px_rgba(227,6,19,0.85)] transition-[transform,background-color] duration-300 hover:bg-brand-700 active:scale-[0.98] sm:inline-flex"
+                className="group relative hidden h-11 items-center gap-2 overflow-hidden rounded-full bg-brand pl-5 pr-1.5 text-sm font-semibold text-white shadow-[0_12px_26px_-14px_rgba(227,6,19,0.85)] transition-[transform,background-color] duration-300 hover:bg-brand-700 active:scale-[0.98] sm:inline-flex lg:hidden xl:inline-flex"
               >
                 <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/3 -skew-x-12 bg-white/25 opacity-0 transition-[transform,opacity] duration-700 group-hover:translate-x-[420%] group-hover:opacity-100" />
                 {t("book")}

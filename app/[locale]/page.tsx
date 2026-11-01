@@ -90,9 +90,9 @@ export default async function HomePage({
 
       <FeaturedFleet cars={cars} total={cars.length} />
 
-      <HowItWorks />
-
       {reviews.score > 0 && <Reviews data={reviews} />}
+
+      <HowItWorks />
 
       <Services
         images={[premium?.images[0] ?? "/fleet-premium.webp", "/fleet-aerial.webp"]}
