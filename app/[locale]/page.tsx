@@ -13,7 +13,9 @@ import { Reviews, type ReviewsData } from "@/components/home/Reviews";
 import { HowItWorks } from "@/components/home/HowItWorks";
 import { Services } from "@/components/home/Services";
 import { WeddingCarsSection } from "@/components/home/WeddingCarsSection";
+import { GuidesTeaser } from "@/components/home/GuidesTeaser";
 import { Faq } from "@/components/home/Faq";
+import { getGuides } from "@/lib/guides";
 import { CtaBand } from "@/components/home/CtaBand";
 import { ReservationSearchForm } from "@/components/reservation/ReservationSearchForm";
 
@@ -98,6 +100,8 @@ export default async function HomePage({
       />
 
       <WeddingCarsSection />
+
+      <GuidesTeaser guides={getGuides(locale)} />
 
       <Faq />
 

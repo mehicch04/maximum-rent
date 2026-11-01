@@ -16,23 +16,15 @@ export function Footer({ company, locations }: Props) {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-24 border-t border-border bg-surface-muted">
+    <footer className="dark mt-24 bg-ink text-foreground">
       <div className="container grid gap-10 py-14 md:grid-cols-[1.2fr_1fr_1.4fr_0.8fr]">
-        {/* Brand + nav */}
         <div className="space-y-4">
-          <Image
-            src="/logo.png"
-            alt="Maximum Rent a Car"
-            width={800}
-            height={239}
-            className="h-11 w-auto dark:hidden"
-          />
           <Image
             src="/logo-dark.png"
             alt="Maximum Rent a Car"
             width={800}
             height={239}
-            className="hidden h-11 w-auto dark:block"
+            className="h-11 w-auto"
           />
           <p className="max-w-xs text-sm text-muted-foreground">{t("tagline")}</p>
           <ul className="flex flex-col gap-1.5 pt-2">
@@ -48,8 +40,6 @@ export function Footer({ company, locations }: Props) {
             ))}
           </ul>
         </div>
-
-        {/* Contact */}
         <div className="space-y-4">
           <h3 className="text-sm font-semibold uppercase tracking-wide">{t("contact")}</h3>
           <ul className="space-y-2.5 text-sm">
@@ -85,8 +75,6 @@ export function Footer({ company, locations }: Props) {
             </span>
           </div>
         </div>
-
-        {/* Locations */}
         <div className="space-y-4">
           <h3 className="text-sm font-semibold uppercase tracking-wide">{t("locations")}</h3>
           <ul className="grid gap-3 sm:grid-cols-2">
@@ -101,8 +89,6 @@ export function Footer({ company, locations }: Props) {
             ))}
           </ul>
         </div>
-
-        {/* Social */}
         <div className="space-y-4">
           <h3 className="text-sm font-semibold uppercase tracking-wide">{t("follow")}</h3>
           <div className="flex gap-3">

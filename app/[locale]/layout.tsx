@@ -8,6 +8,7 @@ import "../globals.css";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { SITE } from "@/lib/site-config";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Spotlight } from "@/components/motion/Spotlight";
 import { CurrencyProvider } from "@/components/currency/CurrencyProvider";
 import { CompanyProvider } from "@/components/company/CompanyProvider";
 import { getCompany } from "@/lib/company";
@@ -134,7 +135,7 @@ export default async function LocaleLayout({
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
         <IntroLoader />
         <JsonLd locale={locale} />
-        <ThemeProvider>
+        <ThemeProvider forced="light">
           <NextIntlClientProvider messages={messages}>
             <CompanyProvider value={company}>
             <CurrencyProvider defaultCurrency="BAM">
@@ -145,6 +146,7 @@ export default async function LocaleLayout({
                 <Footer company={company} locations={footerLocations} />
               </div>
               <BackToTop />
+              <Spotlight />
             </CurrencyProvider>
             </CompanyProvider>
           </NextIntlClientProvider>

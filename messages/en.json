@@ -128,14 +128,14 @@
     "contact": "Contact",
     "locations": "Locations",
     "follow": "Follow us",
-    "tagline": "Rent a Car — reliable car rental across Herzegovina.",
+    "tagline": "Reliable car rental across Herzegovina since 2009.",
     "rights": "All rights reserved.",
     "hours": "Working hours"
   },
   "About": {
     "eyebrow": "About us",
     "title": "Reliable car rental in the heart of Herzegovina",
-    "lead": "MAXIMUM RENT A CAR d.o.o. was founded in April 2009. Through professional service and a high-quality, reliable fleet that we expand every day, we have built a recognisable image for our company. Our core motto is the satisfaction of every client — the main factor that drives us toward perfecting our services.",
+    "lead": "MAXIMUM RENT A CAR d.o.o. was founded in April 2009. Through professional service and a high-quality, reliable fleet that we expand every day, we have built a recognisable image for our company. Our core motto is the satisfaction of every client, the main factor that drives us toward perfecting our services.",
     "intro2": "We are based in Međugorje, the largest religious and tourist centre not only in Bosnia and Herzegovina but in this part of Europe. Besides Međugorje, vehicles can also be collected in Mostar, at Mostar Airport, and in Čitluk, Ljubuški and Čapljina.",
     "stats": {
       "clientsLabel": "Happy clients",
@@ -156,28 +156,56 @@
       "f4Title": "Customer satisfaction",
       "f4Text": "The satisfaction of every client is the main factor behind everything we do."
     },
-    "mapTitle": "Where to find us",
-    "mapText": "Our head office is in Čitluk, and you can collect a vehicle at six locations across Herzegovina.",
-    "openMap": "Open in Google Maps",
-    "ctaTitle": "Ready to hit the road?",
-    "ctaText": "Browse our fleet or get in touch — we'll be glad to help you choose.",
-    "ctaFleet": "View the fleet",
-    "ctaContact": "Contact us"
+    "headerLead": "Since 2009 we have been renting reliable cars in Herzegovina, with pick-up at six locations.",
+    "storyHeadline": "Reliable rental",
+    "storyAccent": "since 2009.",
+    "collageMainAlt": "The Maximum Rent a Car fleet",
+    "collageSideAlt": "Maximum Rent a Car vehicles in front of the office",
+    "reviews": "{count, plural, one {# Google review} other {# Google reviews}}",
+    "journeyEyebrow": "How renting works",
+    "journeyTitle": "From inquiry",
+    "journeyAccent": "to keys.",
+    "journey": [
+      {
+        "t": "Send an inquiry",
+        "d": "Pick a vehicle and dates on the site or message us on WhatsApp."
+      },
+      {
+        "t": "Confirmation by email",
+        "d": "We check availability and confirm your booking by email."
+      },
+      {
+        "t": "Pick up the keys",
+        "d": "With your ID or passport and driving licence, no online payment."
+      },
+      {
+        "t": "Return where it suits you",
+        "d": "At the same or another of our six locations in Herzegovina."
+      }
+    ],
+    "featuresEyebrow": "Why Maximum",
+    "featuresTitle": "Here for you",
+    "featuresAccent": "365 days a year.",
+    "fleetEyebrow": "Our fleet",
+    "fleetTitle": "A car for every",
+    "fleetAccent": "occasion.",
+    "fleetCta": "View all vehicles",
+    "imageAlt": "Maximum Rent a Car vehicles"
   },
   "Business": {
     "eyebrow": "Business offer",
     "title": "Long-term car rental for your business",
-    "lead": "Professional fleet management without burdening your balance sheet — flexible, simple, and with a predictable monthly cost.",
+    "lead": "Professional fleet management without burdening your balance sheet. Flexible, simple and with a predictable monthly cost.",
     "flexTitle": "Flexibility",
     "flexP1": "Long-term rental is intended for all legal entities and individuals, with the goal of using a professional service to make your operations and fleet management easier. The flexibility our long-term rent a car offers is a must for most modern companies.",
     "flexP2": "With long-term rental we highlight the advantage of us assuming all the financial risks that, with leasing, fall on your company. Your balance sheet is not burdened, you pay only for the number of days you use the vehicle, you keep control over expenses, and you have the guarantee that returning the vehicle before the agreed time brings no additional costs.",
     "simpleTitle": "Simplicity",
-    "simpleP1": "If your business is seasonal, long-term rental lets you optimise costs around the periods you plan for. Unlike leasing — with no need for additional capital or financial approval — if you need more or fewer vehicles, the rental can be arranged at very short notice, without prior announcement or planning.",
+    "simpleP1": "If your business is seasonal, long-term rental lets you optimise costs around the periods you plan for. Unlike leasing, with no need for additional capital or financial approval, if you need more or fewer vehicles the rental can be arranged at very short notice, without prior announcement or planning.",
     "simpleP2": "Long-term rental enables minimal, planned monthly costs, defined by the monthly rental term and the agreed mileage.",
-    "avgAgeLabel": "Years — average age of our fleet",
-    "minDaysLabel": "Days — minimum rental period",
+    "avgAgeLabel": "years is the average age of our fleet",
+    "minDaysLabel": "days is the minimum rental period",
     "servicesTitle": "Included services",
-    "servicesSubtitle": "Everything is included in the monthly rental price — no hidden costs.",
+    "servicesSubtitle": "Everything is included in the monthly rental price, with no hidden costs.",
     "services": [
       "Maintenance",
       "Registration",
@@ -186,7 +214,6 @@
       "Tyre storage",
       "Damage management"
     ],
-    "compareTitle": "Long-term rental vs. classic leasing",
     "compareCol1": "Long-term rental",
     "compareCol2": "Classic leasing",
     "compareRows": [
@@ -205,7 +232,22 @@
       "Mobility guarantee"
     ],
     "ctaTitle": "Arrange your meeting today",
-    "ctaText": "Leave your details and we'll get back to you with a personalised offer for your fleet. You can also reach us directly via WhatsApp."
+    "ctaText": "Leave your details and we'll get back to you with a personalised offer for your fleet. You can also reach us directly via WhatsApp.",
+    "servicesCountLabel": "services included in the monthly price",
+    "assistLabel": "assistance for vehicle replacement",
+    "headerCta": "Request a quote",
+    "waText": "Hi, I'm interested in long-term car rental for my company.",
+    "whyEyebrow": "Why long-term rental",
+    "whyTitle": "A fleet without",
+    "whyAccent": "balance sheet burden.",
+    "servicesEyebrow": "All included",
+    "compareEyebrow": "Comparison",
+    "compareHeading": "Long-term rental or",
+    "compareAccent": "classic leasing?",
+    "compareHint": "Switch between the options and see what you get.",
+    "compareYes": "included in long-term rental",
+    "compareNo": "not included in classic leasing",
+    "formEyebrow": "Quote"
   },
   "Terms": {
     "title": "Rental terms",
@@ -223,15 +265,44 @@
   "Contact": {
     "title": "Contact",
     "lead": "We are here for all your questions and reservations.",
-    "ourOffices": "Our locations",
     "hoursLabel": "Working hours",
-    "phonesLabel": "Phones",
     "emailLabel": "Email",
-    "locationLabel": "Location",
     "mapHeading": "Where to find us",
     "openMap": "Open in Google Maps",
     "formHeading": "Send us an inquiry",
-    "formLead": "Enter your details and we'll reply — no need to open your email. If it's quicker for you, reach us via WhatsApp."
+    "formLead": "Enter your details and we'll reply. If it's quicker for you, reach us via WhatsApp.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "callLabel": "Call us",
+    "chat": "Message us",
+    "infoEyebrow": "Get in touch",
+    "infoTitle": "We're here",
+    "infoAccent": "every day of the year.",
+    "infoLead": "The quickest way to reach us is WhatsApp or phone. You can also send an inquiry through the form.",
+    "chatOnline": "Available 365 days",
+    "chatGreeting": "Hi! How can we help? Pick a topic or write us a message.",
+    "chatChips": [
+      {
+        "label": "Car availability",
+        "text": "Hi, I'd like to check car availability for these dates:"
+      },
+      {
+        "label": "Wedding",
+        "text": "Hi, I'm interested in renting cars for a wedding."
+      },
+      {
+        "label": "Business rental",
+        "text": "Hi, I'm interested in long-term rental for my company."
+      },
+      {
+        "label": "Mostar Airport",
+        "text": "Hi, I'd like to pick up a car at Mostar Airport."
+      }
+    ],
+    "whatsapp": "Open WhatsApp",
+    "mapEyebrow": "Locations",
+    "mapLead": "Six pick-up and return locations across Herzegovina. Choose a location to see it on the map.",
+    "route": "Directions"
   },
   "Common": {
     "from": "from",
@@ -506,16 +577,35 @@
     "contact": {
       "title": "Contact & Locations",
       "description": "Contact Maximum Rent a Car — phone, email, WhatsApp and all locations across Herzegovina (Mostar, Međugorje, Čitluk, Čapljina, Ljubuški). Open 07:30–20:30h."
+    },
+    "guides": {
+      "title": "Driving guides for Bosnia and Herzegovina: fines and rules",
+      "description": "Traffic fines in Bosnia and Herzegovina in KM and euros, speed limits and the driving rules to know before renting a car in Herzegovina."
     }
   },
   "WeddingCars": {
     "eyebrow": "Special occasions",
-    "heading": "Cars for your wedding",
     "p1": "Your wedding is a special day you will remember for the rest of your life.",
     "p2": "On your special day, leave nothing to chance. We offer several types of luxury vehicles, including brand-new models. We can also arrange additional vehicles to transport your best man and maid of honour, parents, relatives and friends.",
     "p3": "Be noticed, with style and elegance. Turn your wedding into the wedding of your dreams.",
-    "cta": "Request a quote",
-    "imageAlt": "Luxury wedding vehicle {n}"
+    "imageAlt": "Luxury wedding vehicle {n}",
+    "title": "Cars for your",
+    "accent": "wedding",
+    "plate": "Just married",
+    "convoyTitle": "Wedding convoy",
+    "convoyLead": "How many cars do you need?",
+    "less": "One car less",
+    "more": "One car more",
+    "convoyRoles": [
+      "A car for the couple",
+      "The couple and the best man",
+      "The couple, best man and parents"
+    ],
+    "convoyMany": "The couple, best man, parents and {extra, plural, one {# more car} other {# more cars}} for family and friends",
+    "ctaCount": "{count, plural, one {Quote for # car} other {Quote for # cars}}",
+    "waText": "Hi, I'm interested in wedding cars. Number of cars in the convoy: {count}.",
+    "call": "Call us",
+    "open": "Open gallery"
   },
   "Extras": {
     "title": "Optional extras",
@@ -633,5 +723,34 @@
     "placeholder": "Phone number",
     "search": "Search country or code",
     "none": "No results"
+  },
+  "Guides": {
+    "eyebrow": "Guides",
+    "title": "Before you",
+    "accent": "hit the road.",
+    "lead": "Short guides for driving in Bosnia and Herzegovina: traffic fines and the rules that surprise visitors most.",
+    "all": "All guides",
+    "read": "Read the guide",
+    "minutes": "{n} min read",
+    "updated": "Updated {date}",
+    "pageTitle": "Driving guides for Bosnia and Herzegovina",
+    "pageLead": "What to know before you get behind the wheel: rules, speed limits and fine amounts.",
+    "ctaTitle": "Ready to go?",
+    "ctaBody": "Choose a car and your dates. You get a confirmation of your inquiry by email.",
+    "ctaButton": "Browse cars",
+    "whatsapp": "Ask us on WhatsApp",
+    "back": "All guides",
+    "more": "Read next",
+    "finesTitle": "Fines in BiH",
+    "finesAll": "All fines",
+    "fineSlide": "Fine",
+    "similar": "Featured vehicles"
+  },
+  "Visit": {
+    "eyebrow": "Visit us",
+    "title": "Head office",
+    "accent": "in Čitluk.",
+    "reviews": "{count, plural, one {# review on Google} other {# reviews on Google}}",
+    "directions": "Get directions"
   }
 }

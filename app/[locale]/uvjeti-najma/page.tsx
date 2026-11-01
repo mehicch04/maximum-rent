@@ -1,46 +1,15 @@
 import type { Metadata } from "next";
-import { buildPageMetadata } from "@/lib/seo";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ChevronDown } from "lucide-react";
-import { RENTAL_TERMS, type TermsBlock } from "@/lib/rental-terms";
+import { BadgeCheck, CalendarX, Gauge, MapPin, Phone } from "lucide-react";
+import { buildPageMetadata } from "@/lib/seo";
+import { getCompany } from "@/lib/company";
+import { RENTAL_TERMS } from "@/lib/rental-terms";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { LegalDoc } from "@/components/legal/LegalDoc";
+import { CtaBand } from "@/components/home/CtaBand";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 
-function Block({ block }: { block: TermsBlock }) {
-  if (block.type === "p") {
-    return (
-      <p className="text-[15px] leading-relaxed text-foreground/90">{block.text}</p>
-    );
-  }
-  if (block.type === "ul") {
-    return (
-      <ul className="space-y-2.5">
-        {block.items.map((item, i) => (
-          <li
-            key={i}
-            className="flex gap-3 text-[15px] leading-relaxed text-foreground/90"
-          >
-            <span className="mt-[0.55rem] h-1.5 w-1.5 flex-none rounded-full bg-brand" />
-            <span>{item}</span>
-          </li>
-        ))}
-      </ul>
-    );
-  }
-  return (
-    <ol className="space-y-2.5">
-      {block.items.map((item, i) => (
-        <li
-          key={i}
-          className="flex gap-3 text-[15px] leading-relaxed text-foreground/90"
-        >
-          <span className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand/10 text-xs font-semibold text-brand">
-            {i + 1}
-          </span>
-          <span>{item}</span>
-        </li>
-      ))}
-    </ol>
-  );
-}
+const ICONS = [BadgeCheck, CalendarX, Gauge, MapPin];
 
 export async function generateMetadata({
   params: { locale },
@@ -65,94 +34,66 @@ export default async function TermsPage({
 }) {
   setRequestLocale(locale);
   const c = RENTAL_TERMS[locale === "en" ? "en" : "hr"];
+  const [tFaq, company] = await Promise.all([getTranslations("Faq"), getCompany()]);
+  const facts = tFaq.raw("facts") as { v: string; l: string }[];
+  const phone = company.phones[0];
 
-  return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-      <header className="max-w-3xl">
-        <h1 className="font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-          {c.heading}
-        </h1>
-        <p className="mt-4 text-lg text-muted-foreground">{c.intro}</p>
-      </header>
+  const summary = (
+    <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      {facts.map((f, i) => {
+        const Icon = ICONS[i] ?? BadgeCheck;
+        return (
+          <li
+            key={f.l}
+            style={{ animationDelay: `${i * 80}ms` }}
+            className="group rounded-[22px] bg-surface p-4 shadow-[0_18px_40px_-30px_rgba(17,17,19,0.45)] ring-1 ring-border transition-transform duration-300 hover:-translate-y-1 motion-safe:animate-rise sm:p-5"
+          >
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand/10 text-brand-strong transition-colors duration-300 group-hover:bg-brand group-hover:text-white">
+                <Icon className="h-[18px] w-[18px]" />
+              </span>
+              <p className="font-display text-xl font-bold text-foreground sm:text-2xl">{f.v}</p>
+            </div>
+            <p className="mt-2.5 text-xs leading-snug text-muted-foreground sm:text-sm">{f.l}</p>
+          </li>
+        );
+      })}
+    </ul>
+  );
 
-      <div className="mt-12 grid gap-10 lg:grid-cols-[16rem_1fr] lg:gap-12">
-        {/* Table of contents */}
-        <aside className="lg:sticky lg:top-24 lg:self-start">
-          {/* Mobile: collapsible */}
-          <details className="group rounded-2xl border border-border bg-surface p-2 lg:hidden">
-            <summary className="flex cursor-pointer list-none items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold text-foreground">
-              {c.indexLabel}
-              <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" />
-            </summary>
-            <nav className="px-1 pb-1">
-              <ol className="space-y-0.5">
-                {c.articles.map((a) => (
-                  <li key={a.n}>
-                    <a
-                      href={`#clanak-${a.n}`}
-                      className="flex gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-surface-muted hover:text-brand"
-                    >
-                      <span className="font-semibold text-brand">{a.n}.</span>
-                      {a.topic}
-                    </a>
-                  </li>
-                ))}
-              </ol>
-            </nav>
-          </details>
-
-          {/* Desktop: sticky list */}
-          <nav className="hidden lg:block">
-            <p className="px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {c.indexLabel}
-            </p>
-            <ol className="mt-3 space-y-0.5">
-              {c.articles.map((a) => (
-                <li key={a.n}>
-                  <a
-                    href={`#clanak-${a.n}`}
-                    className="flex gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-surface-muted hover:text-brand"
-                  >
-                    <span className="font-semibold text-brand">{a.n}.</span>
-                    {a.topic}
-                  </a>
-                </li>
-              ))}
-            </ol>
-          </nav>
-        </aside>
-
-        {/* Articles */}
-        <div className="space-y-6">
-          {c.articles.map((a) => (
-            <section
-              key={a.n}
-              id={`clanak-${a.n}`}
-              className="scroll-mt-24 rounded-2xl border border-border bg-surface p-6 shadow-card sm:p-8"
-            >
-              <div className="flex items-start gap-4">
-                <span className="inline-flex h-10 w-10 flex-none items-center justify-center rounded-full bg-brand text-sm font-bold text-brand-foreground">
-                  {a.n}
-                </span>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand">
-                    {c.articleLabel} {a.n}
-                  </p>
-                  <h2 className="mt-1 font-display text-xl font-bold tracking-tight text-foreground">
-                    {a.topic}
-                  </h2>
-                </div>
-              </div>
-
-              <div className="mt-5 space-y-4">
-                {a.blocks.map((block, i) => (
-                  <Block key={i} block={block} />
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
+  const help = (
+    <div className="relative overflow-hidden rounded-[22px] bg-ink p-5 text-white">
+      <span aria-hidden className="pointer-events-none absolute -right-14 -top-16 h-44 w-44 rounded-full bg-[radial-gradient(closest-side,rgba(227,6,19,0.45),transparent)]" />
+      <p className="relative font-display text-base font-bold">{tFaq("supportTitle")}</p>
+      <p className="relative mt-1.5 text-sm leading-relaxed text-white/60">{tFaq("support")}</p>
+      <div className="relative mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+        <a
+          href={`https://wa.me/${company.whatsapp}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 text-sm font-semibold text-ink transition-[filter] hover:brightness-105"
+        >
+          <WhatsAppIcon className="h-4 w-4" />
+          WhatsApp
+        </a>
+        {phone && (
+          <a
+            href={phone.href}
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white/10 px-4 text-sm font-semibold text-white ring-1 ring-white/15 transition-colors hover:bg-white/15"
+          >
+            <Phone className="h-4 w-4" />
+            {tFaq("call")}
+          </a>
+        )}
       </div>
     </div>
+  );
+
+  return (
+    <>
+      <PageHeader title={c.heading} lead={c.intro} image="/wed-4.webp" position="object-center" />
+      <LegalDoc c={c} summary={summary} help={help} />
+      <CtaBand />
+    </>
   );
 }

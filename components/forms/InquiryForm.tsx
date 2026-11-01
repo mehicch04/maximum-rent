@@ -62,7 +62,7 @@ export function InquiryForm({ type = "contact" }: { type?: FormType }) {
 
   if (status === "success") {
     return (
-      <div className="flex flex-col items-center rounded-2xl border border-border bg-surface p-8 text-center shadow-card">
+      <div className="flex flex-col items-center rounded-[28px] bg-surface p-8 text-center ring-1 ring-border shadow-[0_30px_60px_-44px_rgba(17,17,19,0.5)]">
         <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand/10 text-brand">
           <CheckCircle2 className="h-7 w-7" />
         </span>
@@ -101,7 +101,7 @@ export function InquiryForm({ type = "contact" }: { type?: FormType }) {
   return (
     <form
       onSubmit={onSubmit}
-      className="rounded-2xl border border-border bg-surface p-6 shadow-card sm:p-8"
+      className="rounded-[28px] bg-surface p-5 ring-1 ring-border shadow-[0_30px_60px_-44px_rgba(17,17,19,0.5)] sm:p-8"
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <div>

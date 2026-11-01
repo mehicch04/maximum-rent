@@ -7,7 +7,6 @@ import { Menu, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { NAV_LINKS } from "@/lib/site-config";
-import { ThemeToggle } from "./ThemeToggle";
 import { CurrencySwitch } from "@/components/currency/CurrencySwitch";
 import { LanguageToggle } from "./LanguageToggle";
 
@@ -24,7 +23,6 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close the mobile menu on route change
   useEffect(() => setOpen(false), [pathname]);
 
   const isActive = (href: string) =>
@@ -44,19 +42,10 @@ export function Navbar() {
             width={800}
             height={239}
             priority
-            className="h-9 w-auto dark:hidden lg:h-10"
-          />
-          <Image
-            src="/logo-dark.png"
-            alt="Maximum Rent a Car"
-            width={800}
-            height={239}
-            loading="eager"
-            className="hidden h-9 w-auto dark:block lg:h-10"
+            className="h-9 w-auto lg:h-10"
           />
         </Link>
 
-        {/* Desktop links */}
         <ul className="hidden items-center gap-1 lg:flex">
           {NAV_LINKS.map((link) => (
             <li key={link.href}>
@@ -81,13 +70,8 @@ export function Navbar() {
         </ul>
 
         <div className="flex items-center gap-2">
-          {/* Language is always visible (replaces the theme toggle on mobile) */}
           <LanguageToggle />
           <CurrencySwitch />
-          {/* Theme toggle only from sm and up */}
-          <div className="hidden sm:block">
-            <ThemeToggle />
-          </div>
           <button
             type="button"
             aria-label={t("menu")}
@@ -100,7 +84,6 @@ export function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile drawer */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -125,15 +108,6 @@ export function Navbar() {
                   </Link>
                 </li>
               ))}
-              {/* Theme switch lives in the menu on mobile (top bar shows language). */}
-              <li className="mt-2 border-t border-border px-3 pt-4 sm:hidden">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium uppercase tracking-wide text-foreground/80">
-                    {t("theme")}
-                  </span>
-                  <ThemeToggle />
-                </div>
-              </li>
             </ul>
           </motion.div>
         )}
