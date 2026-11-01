@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { busyCarsFor, getCarOccupancy } from "@/lib/extras-availability";
 import { ADMIN_COOKIE, tokenValid } from "@/lib/admin-auth";
 import { sendReservationDecisionEmail } from "@/lib/email";
+import { toLang, type GuestLang } from "@/lib/email-templates";
 
 async function requireAdmin() {
   const ok = await tokenValid(cookies().get(ADMIN_COOKIE)?.value);
@@ -32,7 +33,7 @@ type DecisionEmailRow = {
   email: string;
   pickupAt: Date;
   returnAt: Date;
-  locale: "HR" | "EN";
+  locale: GuestLang;
   carTitle: string | null;
 };
 
@@ -54,7 +55,7 @@ function toDecisionRow(q: {
     email: q.email,
     pickupAt: q.pickupAt,
     returnAt: q.returnAt,
-    locale: q.locale === "EN" ? "EN" : "HR",
+    locale: toLang(q.locale),
     carTitle: q.car?.title ?? q.carTitleSnapshot,
   };
 }

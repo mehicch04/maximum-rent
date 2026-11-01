@@ -131,7 +131,7 @@ export default async function AdminMessagesPage({
                       )}
 
                       <span className="rounded-full border border-border px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
-                        {m.locale === "EN" ? "EN" : "HR"}
+                        {m.locale}
                       </span>
                     </div>
 

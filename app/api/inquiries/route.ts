@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { tooManyRequests } from "@/lib/rate-limit";
 import { inquirySchema } from "@/lib/validations";
 import { sendInquiryEmail, sendGuestConfirmationEmail } from "@/lib/email";
+import { toLang } from "@/lib/email-templates";
 import { buildOwnerSummaryText } from "@/lib/whatsapp";
 import { rentalDays, extraLineTotal } from "@/lib/extras";
 import { withUniqueReference, REF_PREFIX } from "@/lib/reference";
@@ -120,7 +121,7 @@ export async function POST(req: Request) {
         flightNumber: d.flightNumber || null,
         message: d.message || null,
         channel: "EMAIL",
-        locale: d.locale === "hr" ? "HR" : "EN",
+        locale: toLang(d.locale),
         totalPrice,
         rentalDays: days,
         extras: extraRows.length ? { create: extraRows } : undefined,

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { tooManyRequests } from "@/lib/rate-limit";
 import { contactRequestSchema } from "@/lib/validations";
 import { sendContactEmail } from "@/lib/email";
+import { toLang } from "@/lib/email-templates";
 import { sendOwnerNotification } from "@/lib/notify";
 import { withUniqueReference, REF_PREFIX } from "@/lib/reference";
 
@@ -44,7 +45,7 @@ export async function POST(req: Request) {
         phone: d.phone,
         company: d.company || null,
         message: d.message || null,
-        locale: d.locale === "hr" ? "HR" : "EN",
+        locale: toLang(d.locale),
       },
       }),
     );

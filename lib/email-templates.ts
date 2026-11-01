@@ -23,6 +23,13 @@ const PRICE_COPY = {
   ES: { heading: "Desglose del precio", included: "Incluido", day: "día", days: "días", rental: "Alquiler del vehículo", total: "Total estimado", note: "Importe aproximado. El precio final se confirma con la reserva." },
 } as const;
 
+const OWNER_LANG = {
+  HR: { color: "#111111", badge: "HR &middot; HRVATSKI", row: "HR, hrvatski", loc: "hrvatskoj", talk: "hrvatskom" },
+  EN: { color: "#E30613", badge: "EN &middot; ENGLISH", row: "EN, engleski", loc: "engleskoj", talk: "engleskom" },
+  DE: { color: "#E30613", badge: "DE &middot; DEUTSCH", row: "DE, njema\u010dki", loc: "njema\u010dkoj", talk: "njema\u010dkom" },
+  ES: { color: "#E30613", badge: "ES &middot; ESPA\u00d1OL", row: "ES, \u0161panski", loc: "\u0161panskoj", talk: "\u0161panskom" },
+} as const;
+
 function priceBlock(
   extras: ExtraLine[],
   days: number,
@@ -100,7 +107,7 @@ export type OwnerInquiryVars = {
   guestPhone: string;
   flightNumber: string;
   note: string;
-  guestLocale: "HR" | "EN";
+  guestLocale: GuestLang;
   extras?: ExtraLine[];
   days?: number;
   pricePerDay?: number | null;
@@ -130,17 +137,15 @@ export type ContactRequestVars = {
   phone: string;
   company: string;
   message: string;
-  guestLocale: "HR" | "EN";
+  guestLocale: GuestLang;
 };
 
 export function contactRequestHtml(v: ContactRequestVars): string {
-  const isEn = v.guestLocale === "EN";
-  const langColor = isEn ? "#E30613" : "#111111";
-  const langBadge = isEn ? "EN &middot; ENGLISH" : "HR &middot; HRVATSKI";
-  const langPrefix = isEn ? "EN" : "HR";
-  const langNote = isEn
-    ? "Poruka je poslana s engleske verzije stranice &mdash; o\u010dekujte komunikaciju na engleskom."
-    : "Poruka je poslana s hrvatske verzije stranice.";
+  const lg = OWNER_LANG[v.guestLocale] ?? OWNER_LANG.HR;
+  const langColor = lg.color;
+  const langBadge = lg.badge;
+  const langPrefix = v.guestLocale;
+  const langNote = v.guestLocale === "HR" ? "Poruka je poslana s hrvatske verzije stranice." : `Poruka je poslana na ${lg.loc} verziji stranice, o\u010dekujte komunikaciju na ${lg.talk}.`;
 
   const row = (label: string, value: string) =>
     value
@@ -164,7 +169,7 @@ export function contactRequestHtml(v: ContactRequestVars): string {
 <style>@media only screen and (max-width:620px){.px{padding-left:20px !important;padding-right:20px !important}.stack-right{display:block !important;width:100% !important;text-align:left !important;padding-top:14px !important}}</style>
 </head>
 <body style="margin:0;padding:0;background-color:#f4f4f5;">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${langPrefix} &middot; ${v.kind} &mdash; ${v.name}</div>
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${langPrefix} &middot; ${v.kind} &middot; ${v.name}</div>
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f4f4f5;">
 <tr><td align="center" style="padding:24px 12px;">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;max-width:100%;background-color:#ffffff;">
@@ -225,15 +230,12 @@ export function contactRequestHtml(v: ContactRequestVars): string {
 }
 
 export function ownerInquiryHtml(v: OwnerInquiryVars): string {
-  const isEn = v.guestLocale === "EN";
-
-  const langColor = isEn ? "#E30613" : "#111111";
-  const langBadge = isEn ? "EN &middot; ENGLISH" : "HR &middot; HRVATSKI";
-  const langPrefix = isEn ? "EN" : "HR";
-  const languageRow = isEn ? "EN &mdash; engleski" : "HR &mdash; hrvatski";
-  const langNote = isEn
-    ? "Gost je poslao upit na engleskoj verziji stranice &mdash; o\u010dekujte komunikaciju na engleskom."
-    : "Gost je poslao upit na hrvatskoj verziji stranice.";
+  const lg = OWNER_LANG[v.guestLocale] ?? OWNER_LANG.HR;
+  const langColor = lg.color;
+  const langBadge = lg.badge;
+  const langPrefix = v.guestLocale;
+  const languageRow = lg.row;
+  const langNote = v.guestLocale === "HR" ? "Gost je poslao upit na hrvatskoj verziji stranice." : `Gost je poslao upit na ${lg.loc} verziji stranice, o\u010dekujte komunikaciju na ${lg.talk}.`;
 
   const note = v.note?.trim() ?? "";
   const isOwner = true;
@@ -273,7 +275,7 @@ td {mso-line-height-rule:exactly;}
 </head>
 <body style="margin:0;padding:0;background-color:#f4f4f5;">
 <!-- Preheader -->
-<span style="display:none;font-size:1px;color:#f4f4f5;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${langPrefix} &middot; Novi upit ${v.ref} &mdash; ${v.vehicle}</span>
+<span style="display:none;font-size:1px;color:#f4f4f5;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${langPrefix} &middot; Novi upit ${v.ref} &middot; ${v.vehicle}</span>
 
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f4f4f5;">
 <tr><td align="center" style="padding:24px 12px;">
@@ -585,6 +587,11 @@ const GUEST_COPY = {
 
 export type GuestLang = "HR" | "EN" | "DE" | "ES";
 
+export function toLang(locale?: string | null): GuestLang {
+  const l = (locale ?? "hr").toLowerCase();
+  return l === "hr" ? "HR" : l === "de" ? "DE" : l === "es" ? "ES" : "EN";
+}
+
 export function guestSubject(lang: GuestLang, ref: string): string {
   return lang === "HR" ? `Zaprimili smo vaš upit · ${ref}` : GUEST_COPY[lang].subject(ref);
 }
@@ -846,9 +853,10 @@ td {mso-line-height-rule:exactly;}
 `;
 }
 
-function decisionHtmlEn(v: DecisionVars): string {
+function decisionHtmlIntl(v: DecisionVars, lang: "EN" | "DE" | "ES"): string {
+  const c = GUEST_COPY[lang];
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${c.lang}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -894,7 +902,7 @@ td {mso-line-height-rule:exactly;}
     <!-- Title -->
     <tr><td style="padding:32px 32px 0 32px;" class="px">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-      <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:22px;line-height:30px;color:#111111;font-weight:bold;">We received your inquiry</td></tr>
+      <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:22px;line-height:30px;color:#111111;font-weight:bold;">${v.title}</td></tr>
       <tr><td style="padding-top:10px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:23px;color:#111111;">${v.greeting}</td></tr>
       <tr><td style="padding-top:8px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:23px;color:#111111;">${v.intro}</td></tr>
       </table>
@@ -911,19 +919,19 @@ td {mso-line-height-rule:exactly;}
     <tr><td style="padding:24px 32px 0 32px;" class="px">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
       <tr>
-        <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">Inquiry no.</td>
+        <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">${c.ref}</td>
         <td style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;color:#E30613;font-weight:bold;">${v.ref}</td>
       </tr>
       <tr>
-        <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">Vehicle</td>
+        <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">${c.vehicle}</td>
         <td style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;color:#111111;font-weight:bold;">${v.vehicle}</td>
       </tr>
       <tr>
-        <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">Pick-up</td>
+        <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">${c.pickup}</td>
         <td style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;color:#111111;">${v.pickupLine}</td>
       </tr>
       <tr>
-        <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">Drop-off</td>
+        <td width="170" style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:1px;color:#6b7280;text-transform:uppercase;vertical-align:top;">${c.dropoff}</td>
         <td style="padding:12px 0;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:20px;color:#111111;">${v.dropoffLine}</td>
       </tr>
       </table>
@@ -932,10 +940,10 @@ td {mso-line-height-rule:exactly;}
     <!-- Agency contact -->
     <tr><td style="padding:28px 32px 32px 32px;" class="px">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-      <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:2px;color:#6b7280;text-transform:uppercase;padding-bottom:8px;">Questions? Get in touch</td></tr>
+      <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;letter-spacing:2px;color:#6b7280;text-transform:uppercase;padding-bottom:8px;">${c.questions}</td></tr>
       <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:24px;color:#111111;">
-        Phone: <a href="tel:${telHref(v.agencyPhone)}" style="color:#E30613;text-decoration:underline;">${v.agencyPhone}</a><br>
-        Email: <a href="mailto:${v.agencyEmail}" style="color:#E30613;text-decoration:underline;">${v.agencyEmail}</a>
+        ${c.phone} <a href="tel:${telHref(v.agencyPhone)}" style="color:#E30613;text-decoration:underline;">${v.agencyPhone}</a><br>
+        ${c.email} <a href="mailto:${v.agencyEmail}" style="color:#E30613;text-decoration:underline;">${v.agencyEmail}</a>
       </td></tr>
       </table>
     </td></tr>
@@ -946,7 +954,7 @@ td {mso-line-height-rule:exactly;}
   <!-- Footer -->
   <tr><td style="padding:20px 32px 8px 32px;" class="px">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-    <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#6b7280;">You are receiving this email because you submitted an inquiry on the Maximum Rent a Car website.</td></tr>
+    <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#6b7280;">${c.footer}</td></tr>
     <tr><td style="padding-top:8px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#9ca3af;">${v.agencyAddress}</td></tr>
     </table>
   </td></tr>
@@ -960,6 +968,6 @@ td {mso-line-height-rule:exactly;}
 }
 
 /** Same visual language as the inquiry emails; copy comes from lib/email.ts. */
-export function decisionHtml(v: DecisionVars, locale: "HR" | "EN"): string {
-  return locale === "EN" ? decisionHtmlEn(v) : decisionHtmlHr(v);
+export function decisionHtml(v: DecisionVars, locale: GuestLang): string {
+  return locale === "HR" ? decisionHtmlHr(v) : decisionHtmlIntl(v, locale);
 }

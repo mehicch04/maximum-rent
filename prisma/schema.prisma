@@ -71,6 +71,8 @@ enum InquiryStatus {
 enum Locale {
   HR
   EN
+  DE
+  ES
 }
 
 model Location {
