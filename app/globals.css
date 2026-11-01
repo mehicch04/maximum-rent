@@ -194,3 +194,283 @@
     }
   }
 }
+
+.ix {
+  display: none;
+}
+html[data-intro="wait"],
+html[data-intro="go"],
+html[data-intro="wait"] body,
+html[data-intro="go"] body {
+  overflow: hidden;
+}
+html[data-intro="wait"] .animate-fade-up,
+html[data-intro="go"] .animate-fade-up {
+  animation-play-state: paused;
+}
+html[data-intro] .ix {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 42%, #0b0b10 0%, #050506 60%, #030304 100%);
+  touch-action: none;
+  overscroll-behavior: none;
+  transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1), transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+html[data-intro="out"] .ix {
+  opacity: 0;
+  transform: scale(1.04);
+  pointer-events: none;
+}
+html[data-intro] .ix * {
+  animation-fill-mode: both;
+  animation-play-state: paused;
+}
+html[data-intro="go"] .ix *,
+html[data-intro="out"] .ix * {
+  animation-play-state: running;
+}
+.ix-abs {
+  position: absolute;
+}
+.ix-stage {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 1280px;
+  height: 720px;
+  margin: -360px 0 0 -640px;
+  transform: scale(var(--is, 1));
+}
+.ix-fog,
+.ix-cam,
+.ix-dust,
+.ix-wet {
+  position: absolute;
+  inset: 0;
+}
+.ix-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(30px);
+}
+.ix-b1 { animation: ix-drift1 14s ease-in-out infinite alternate; }
+.ix-b2 { animation: ix-drift2 18s ease-in-out infinite alternate; }
+.ix-b3 { animation: ix-drift1 22s ease-in-out infinite alternate-reverse; }
+@keyframes ix-drift1 { from { transform: translate(-60px, 0); } to { transform: translate(60px, -20px); } }
+@keyframes ix-drift2 { from { transform: translate(50px, 10px); } to { transform: translate(-70px, -10px); } }
+.ix-fog { animation: ix-fog 2.9s; }
+@keyframes ix-fog { 0%, 52.4% { opacity: 0.3; } 57%, 100% { opacity: 1; } }
+.ix-cam {
+  transform-origin: 640px 330px;
+  animation: ix-cam 2.9s;
+}
+@keyframes ix-cam {
+  0%, 1.7% { transform: translate(0, -30px) scale(1); }
+  2.6% { transform: translate(-2px, -29px) scale(1); }
+  3.6% { transform: translate(2px, -31px) scale(1); }
+  4.6% { transform: translate(-1px, -30px) scale(1); }
+  5.6% { transform: translate(1px, -30px) scale(1); }
+  6.9%, 52.4% { transform: translate(0, -30px) scale(1); }
+  54.5% { transform: translate(0, -30px) scale(1.016); }
+  100% { transform: translate(0, -30px) scale(1.045); }
+}
+.ix-under {
+  position: absolute;
+  left: 290px;
+  top: 470px;
+  width: 700px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 40%, rgba(227, 6, 19, 0.55) 0%, rgba(227, 6, 19, 0.12) 45%, rgba(227, 6, 19, 0) 70%);
+  filter: blur(10px);
+  animation: ix-under 2.9s;
+}
+@keyframes ix-under {
+  0% { opacity: 0; }
+  2.8% { opacity: 0.7; }
+  7.6% { opacity: 0; }
+  11% { opacity: 0.5; }
+  16.6%, 52.4% { opacity: 0; }
+  58%, 100% { opacity: 0.45; }
+}
+.ix-cone {
+  position: absolute;
+  inset: 0;
+  filter: blur(16px);
+}
+.ix-beam { animation: ix-beam 2.9s; will-change: opacity; }
+@keyframes ix-beam { 0%, 52.4% { opacity: 0; } 55.9% { opacity: 1; } 65.5% { opacity: 0.85; } 100% { opacity: 0.9; } }
+.ix-wet { animation: ix-wet 2.9s; }
+@keyframes ix-wet { 0%, 53.4% { opacity: 0; } 60.3%, 100% { opacity: 1; } }
+.ix-ripple { animation: ix-ripple 2.4s ease-in-out infinite; }
+@keyframes ix-ripple { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(1.18); } }
+.ix-dust { animation: ix-dust 2.9s; }
+@keyframes ix-dust { 0%, 55.2% { opacity: 0; } 65.5%, 100% { opacity: 1; } }
+.ix-p1 { animation: ix-float1 5s linear infinite; }
+.ix-p2 { animation: ix-float2 7s linear infinite; }
+.ix-p3 { animation: ix-float3 9s linear infinite; }
+@keyframes ix-float1 { 0% { transform: translate(0, 0); opacity: 0; } 15%, 85% { opacity: 0.85; } 100% { transform: translate(30px, -90px); opacity: 0; } }
+@keyframes ix-float2 { 0% { transform: translate(0, 0); opacity: 0; } 20%, 80% { opacity: 0.7; } 100% { transform: translate(-40px, -120px); opacity: 0; } }
+@keyframes ix-float3 { 0% { transform: translate(0, 0); opacity: 0; } 20%, 80% { opacity: 0.6; } 100% { transform: translate(20px, -150px); opacity: 0; } }
+.ix-glow-w { filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.95)); }
+.ix-glow-lens { filter: drop-shadow(0 0 8px #ffffff) drop-shadow(0 0 18px rgba(190, 215, 255, 0.95)); }
+.ix-glow-drl { filter: drop-shadow(0 0 4px #ffffff) drop-shadow(0 0 10px rgba(170, 205, 255, 0.9)); }
+.ix-glow-dot { filter: drop-shadow(0 0 6px rgba(200, 225, 255, 1)); }
+.ix-body { animation: ix-body 2.9s; }
+@keyframes ix-body { 0%, 52.4% { opacity: 0; } 63.8%, 100% { opacity: 1; } }
+.ix-spec {
+  stroke-dasharray: 6 100;
+  animation: ix-spec 2.9s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+}
+@keyframes ix-spec { 0%, 54.5% { stroke-dashoffset: 6; opacity: 0; } 55.2% { opacity: 1; } 70.7% { stroke-dashoffset: -100; opacity: 1; } 71.5%, 100% { stroke-dashoffset: -100; opacity: 0; } }
+.ix-spec2 {
+  stroke-dasharray: 10 100;
+  animation: ix-spec2 2.9s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+}
+@keyframes ix-spec2 { 0%, 60.3% { stroke-dashoffset: 10; opacity: 0; } 61% { opacity: 1; } 74.1% { stroke-dashoffset: -100; opacity: 1; } 75%, 100% { stroke-dashoffset: -100; opacity: 0; } }
+.ix-lens { animation: ix-lens 2.9s; }
+@keyframes ix-lens { 0%, 52.4% { opacity: 0; } 53.8%, 100% { opacity: 1; } }
+.ix-s0 { animation: ix-s0 2.9s; }
+.ix-s1 { animation: ix-s1 2.9s; }
+.ix-s2 { animation: ix-s2 2.9s; }
+.ix-s3 { animation: ix-s3 2.9s; }
+.ix-s4 { animation: ix-s4 2.9s; }
+.ix-s5 { animation: ix-s5 2.9s; }
+.ix-s6 { animation: ix-s6 2.9s; }
+.ix-s7 { animation: ix-s7 2.9s; }
+@keyframes ix-s0 { 0%, 10.3% { opacity: 0; } 11.4%, 34.8% { opacity: 1; } 35.9%, 100% { opacity: 0; } }
+@keyframes ix-s1 { 0%, 12.4% { opacity: 0; } 13.4%, 33.8% { opacity: 1; } 34.8%, 100% { opacity: 0; } }
+@keyframes ix-s2 { 0%, 14.5% { opacity: 0; } 15.5%, 32.8% { opacity: 1; } 33.8%, 100% { opacity: 0; } }
+@keyframes ix-s3 { 0%, 16.6% { opacity: 0; } 17.6%, 31.7% { opacity: 1; } 32.7%, 100% { opacity: 0; } }
+@keyframes ix-s4 { 0%, 18.6% { opacity: 0; } 19.6%, 30.7% { opacity: 1; } 31.7%, 100% { opacity: 0; } }
+@keyframes ix-s5 { 0%, 20.7% { opacity: 0; } 21.7%, 29.7% { opacity: 1; } 30.7%, 100% { opacity: 0; } }
+@keyframes ix-s6 { 0%, 22.8% { opacity: 0; } 23.8%, 28.6% { opacity: 1; } 29.6%, 100% { opacity: 0; } }
+@keyframes ix-s7 { 0%, 24.8% { opacity: 0; } 25.8%, 27.6% { opacity: 1; } 28.6%, 100% { opacity: 0; } }
+.ix-drl {
+  stroke-dasharray: 100;
+  animation: ix-drl 2.9s;
+}
+@keyframes ix-drl { 0%, 32.8% { stroke-dashoffset: 100; animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); } 43.1%, 100% { stroke-dashoffset: 0; } }
+.ix-flick { animation: ix-flick 2.9s; }
+@keyframes ix-flick { 0%, 43.1% { opacity: 1; } 44.1% { opacity: 0.15; } 45.2% { opacity: 1; } 46.2% { opacity: 0.3; } 47.2% { opacity: 1; } 47.9% { opacity: 0.6; } 48.6%, 100% { opacity: 1; } }
+.ix-d1 { animation: ix-d1 2.9s; }
+.ix-d2 { animation: ix-d2 2.9s; }
+.ix-d3 { animation: ix-d3 2.9s; }
+.ix-d4 { animation: ix-d4 2.9s; }
+@keyframes ix-d1 { 0%, 46.9% { opacity: 0.06; } 47.6%, 100% { opacity: 1; } }
+@keyframes ix-d2 { 0%, 48.3% { opacity: 0.06; } 49%, 100% { opacity: 1; } }
+@keyframes ix-d3 { 0%, 49.7% { opacity: 0.06; } 50.4%, 100% { opacity: 1; } }
+@keyframes ix-d4 { 0%, 51% { opacity: 0.06; } 51.7%, 100% { opacity: 1; } }
+.ix-flare {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 330px;
+  height: 3px;
+  background: linear-gradient(90deg, rgba(150, 190, 255, 0) 0%, rgba(190, 215, 255, 0.55) 25%, rgba(255, 255, 255, 0.95) 50%, rgba(190, 215, 255, 0.55) 75%, rgba(150, 190, 255, 0) 100%);
+  filter: blur(1px);
+  animation: ix-flare 2.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes ix-flare { 0%, 52.4% { opacity: 0; transform: scaleX(0.1); } 55.2% { opacity: 1; transform: scaleX(1); } 69%, 100% { opacity: 0.35; transform: scaleX(1); } }
+.ix-badge {
+  position: absolute;
+  left: 612px;
+  top: 318px;
+  width: 56px;
+  height: auto;
+  animation: ix-badge 2.9s;
+}
+@keyframes ix-badge { 0% { opacity: 0.15; } 2.8% { opacity: 0.9; } 7.6% { opacity: 0.2; } 11% { opacity: 0.75; } 16.6%, 52.4% { opacity: 0.15; } 53.8%, 100% { opacity: 1; } }
+.ix-bglow {
+  position: absolute;
+  left: 580px;
+  top: 288px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 40, 52, 0.75) 0%, rgba(255, 40, 52, 0.2) 40%, rgba(255, 40, 52, 0) 70%);
+  animation: ix-bglow 2.9s;
+}
+@keyframes ix-bglow { 0% { opacity: 0; } 2.8% { opacity: 0.8; } 7.6% { opacity: 0; } 11% { opacity: 0.6; } 16.6%, 52.4% { opacity: 0; } 53.8% { opacity: 1; } 62%, 100% { opacity: 0.7; } }
+.ix-load {
+  position: absolute;
+  left: 380px;
+  top: 566px;
+  width: 520px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(255, 42, 53, 0) 0%, #ff2a35 20%, #ffffff 50%, #ff2a35 80%, rgba(255, 42, 53, 0) 100%);
+  box-shadow: 0 0 14px rgba(255, 40, 52, 0.9);
+  animation: ix-load 2.9s;
+}
+@keyframes ix-load {
+  0%, 1.7% { transform: scaleX(0); opacity: 1; animation-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95); }
+  51.7% { transform: scaleX(1); opacity: 1; }
+  53.4% { transform: scaleX(1.08); opacity: 1; }
+  60.3%, 100% { transform: scaleX(1.08); opacity: 0.35; }
+}
+.ix-flash {
+  position: absolute;
+  left: -200px;
+  right: -200px;
+  top: -160px;
+  bottom: -160px;
+  background: radial-gradient(closest-side at 50% 42%, rgba(255, 255, 255, 0.9) 0%, rgba(220, 232, 255, 0.35) 45%, rgba(255, 255, 255, 0) 100%);
+  animation: ix-flash 2.9s;
+}
+@keyframes ix-flash { 0%, 52.4% { opacity: 0; } 53.8% { opacity: 0.55; } 63.8%, 100% { opacity: 0; } }
+.ix-brand {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(44% + 230px * var(--is, 1));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.ix-logo {
+  position: relative;
+  width: clamp(200px, 24vw, 300px);
+  aspect-ratio: 800 / 239;
+  animation: ix-logo 2.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ix-logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+@keyframes ix-logo { 0%, 63.8% { clip-path: inset(0 50% 0 50%); opacity: 0; } 64.8% { clip-path: inset(0 46% 0 46%); opacity: 1; } 75.9%, 100% { clip-path: inset(0 0 0 0); opacity: 1; } }
+.ix-sheen {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-image: url(/logo-dark.png);
+  mask-image: url(/logo-dark.png);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  background: linear-gradient(105deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.95) 50%, rgba(255, 255, 255, 0) 60%) no-repeat;
+  background-size: 300% 100%;
+  animation: ix-sheen 2.9s;
+}
+@keyframes ix-sheen { 0%, 75.9% { background-position: 105% 0; animation-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95); } 89.7%, 100% { background-position: -5% 0; } }
+.ix-tag {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: #b4b4ba;
+  animation: ix-tag 2.9s;
+}
+@keyframes ix-tag { 0%, 69% { opacity: 0; letter-spacing: 0.6em; } 81%, 100% { opacity: 1; letter-spacing: 0.34em; } }
+@media (prefers-reduced-motion: reduce) {
+  html[data-intro] .ix {
+    display: none;
+  }
+}

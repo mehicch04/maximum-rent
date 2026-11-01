@@ -18,6 +18,7 @@ import { Footer } from "@/components/layout/Footer";
 import { PageBackground } from "@/components/layout/PageBackground";
 import { BackToTop } from "@/components/layout/BackToTop";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { IntroLoader } from "@/components/layout/IntroLoader";
 
 // latin-ext is REQUIRED for Croatian/Bosnian glyphs (č ć đ š ž).
 const inter = Inter({
@@ -132,6 +133,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning className={inter.variable}>
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
+        <IntroLoader />
         <JsonLd locale={locale} />
         <ThemeProvider>
           <NextIntlClientProvider messages={messages}>
