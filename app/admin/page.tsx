@@ -33,6 +33,7 @@ import { ConflictNotice } from "@/components/admin/ConflictNotice";
 import { SearchBox } from "@/components/admin/SearchBox";
 import { ReservationDetail } from "@/components/admin/ReservationDetail";
 import { DueBadge } from "@/components/admin/DueBadge";
+import { GuestWhatsApp } from "@/components/admin/GuestWhatsApp";
 import { FinishRentalButton } from "@/components/admin/FinishRentalButton";
 import { NewReservationForm } from "@/components/admin/NewReservationForm";
 import { createManualInquiry } from "./new-reservation-actions";
@@ -197,6 +198,9 @@ export default async function AdminPage({
     RANGES.some((r) => r.id === rangeRaw) ? rangeRaw : "all"
   ) as Range;
   const msg = MESSAGES[one(searchParams.msg) ?? ""];
+  const reviewUrl = process.env.GOOGLE_PLACE_ID
+    ? `https://search.google.com/local/writereview?placeid=${process.env.GOOGLE_PLACE_ID}`
+    : null;
   const missingExtras = one(searchParams.missing);
 
   const rangeMs = RANGES.find((r) => r.id === range)?.ms ?? null;
@@ -696,12 +700,29 @@ export default async function AdminPage({
                 >
                   <Mail className="h-3.5 w-3.5 shrink-0" /> {q.email}
                 </a>
-                <a
-                  href={`tel:${q.phone}`}
-                  className="flex items-center gap-1.5 transition-colors hover:text-brand"
-                >
-                  <Phone className="h-3.5 w-3.5 shrink-0" /> {q.phone}
-                </a>
+                <span className="flex flex-wrap items-center gap-2">
+                  <a
+                    href={`tel:${q.phone}`}
+                    className="flex items-center gap-1.5 transition-colors hover:text-brand"
+                  >
+                    <Phone className="h-3.5 w-3.5 shrink-0" /> {q.phone}
+                  </a>
+                  <GuestWhatsApp
+                    phone={q.phone}
+                    lang={q.locale === "EN" || q.locale === "DE" || q.locale === "ES" ? q.locale : "HR"}
+                    guest={{
+                      firstName: q.firstName,
+                      reference: q.reference,
+                      status: q.status,
+                      carTitle: q.car?.title ?? q.carTitleSnapshot,
+                      pickupAt: q.pickupAt,
+                      returnAt: q.returnAt,
+                      pickupLocation: q.pickupLocation?.name,
+                      returnLocation: q.returnLocation?.name,
+                      reviewUrl,
+                    }}
+                  />
+                </span>
                 {q.flightNumber && (
                   <span className="flex items-center gap-1.5">
                     <Plane className="h-3.5 w-3.5 shrink-0" /> {q.flightNumber}
