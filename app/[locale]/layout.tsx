@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, setRequestLocale } from "next-intl/server";
+import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 
 import "../globals.css";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { SITE } from "@/lib/site-config";
+import { OG_DESCRIPTION, OG_LOCALE, PUBLIC_URL, ogImage, ogTitle } from "@/lib/seo";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Spotlight } from "@/components/motion/Spotlight";
 import { CurrencyProvider } from "@/components/currency/CurrencyProvider";
@@ -23,7 +24,6 @@ import { CookieConsent } from "@/components/consent/CookieConsent";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { IntroLoader } from "@/components/layout/IntroLoader";
 
-// latin-ext is REQUIRED for Croatian/Bosnian glyphs (č ć đ š ž).
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
   variable: "--font-inter",
@@ -51,48 +51,48 @@ const CLIENT_NAMESPACES = [
   "WeddingCars",
 ] as const;
 
-export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? `https://${SITE.domain}`,
-  ),
-  title: {
-    default: SITE.name,
-    template: `%s | ${SITE.name}`,
-  },
-  description:
-    "Premium najam vozila u Hercegovini s preuzimanjem na 6 lokacija, od gradskih automobila do luksuznih limuzina.",
-  applicationName: SITE.name,
-  authors: [{ name: "mehiccdev", url: "https://mehiccdev.com" }],
-  creator: "mehiccdev",
-  formatDetection: { telephone: true, address: true, email: true },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large" },
-  },
-  openGraph: {
-    type: "website",
-    siteName: SITE.name,
-    title: `${SITE.name} | Rent a Car Hercegovina`,
-    description:
-      "Premium najam vozila u Hercegovini s preuzimanjem na 6 lokacija.",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: `${SITE.name} | Rent a Car Hercegovina`,
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${SITE.name} | Rent a Car Hercegovina`,
-    description:
-      "Premium najam vozila u Hercegovini s preuzimanjem na 6 lokacija.",
-    images: ["/og-image.jpg"],
-  },
-};
+export async function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const tSeo = await getTranslations({ locale, namespace: "Seo" });
+  const description = tSeo("home.description");
+  const share = OG_DESCRIPTION[locale] ?? description;
+  const image = ogImage(locale);
+  const title = ogTitle(locale);
+  return {
+    metadataBase: new URL(PUBLIC_URL),
+    title: {
+      default: SITE.name,
+      template: `%s | ${SITE.name}`,
+    },
+    description,
+    applicationName: SITE.name,
+    authors: [{ name: "mehiccdev", url: "https://mehiccdev.com" }],
+    creator: "mehiccdev",
+    formatDetection: { telephone: true, address: true, email: true },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true, "max-image-preview": "large" },
+    },
+    openGraph: {
+      type: "website",
+      siteName: SITE.name,
+      title,
+      description: share,
+      locale: OG_LOCALE[locale] ?? "hr_HR",
+      images: [image],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: share,
+      images: [image],
+    },
+  };
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -109,7 +109,6 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  // Enable static rendering for this locale.
   setRequestLocale(locale);
 
   const all = await getMessages();

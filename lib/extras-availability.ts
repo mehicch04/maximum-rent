@@ -1,16 +1,13 @@
 export type Booked = {
-  /** Extra the pieces belong to. */
   extraId: string;
   qty: number;
-  /** Rental period the pieces are tied up for. */
   from: Date;
   to: Date;
 };
 
-/** Free pieces per extra id, for one requested period. */
 export type Availability = Record<string, number>;
 
-export function overlaps(
+function overlaps(
   aFrom: Date,
   aTo: Date,
   bFrom: Date,
@@ -28,7 +25,6 @@ export function availabilityFor(
   const free: Availability = {};
   for (const e of extras) free[e.id] = e.totalStock;
 
-  // No usable period yet: show the full stock rather than a misleading zero.
   if (!from || !to || Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
     return free;
   }
@@ -101,15 +97,12 @@ export async function getBookedExtras(): Promise<Booked[]> {
   }
 }
 
-/** One period a car is spoken for, whatever the reason. */
 export type CarBusy = {
   carId: string;
   from: Date;
   to: Date;
   label: string;
-  /** Set for reservations, so a form can skip the one it is editing. */
   inquiryId?: string;
-  /** Who holds it, so a clash can name the guest instead of just the dates. */
   guest?: string;
   reference?: string;
 };
@@ -167,7 +160,6 @@ export async function getCarOccupancy(): Promise<CarBusy[]> {
   ];
 }
 
-/** Cars that clash with [from, to], mapped to why they are unavailable. */
 export function busyCarsFor(
   occupancy: CarBusy[],
   from: Date | null,

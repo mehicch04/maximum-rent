@@ -1,10 +1,17 @@
+import { existsSync } from "node:fs";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
-/** @type {import('next').NextConfig} */
+const aboutPhoto = (name) => (existsSync(`./public/o-nama/${name}.webp`) ? `/o-nama/${name}.webp` : "");
+
 const nextConfig = {
   reactStrictMode: true,
+  env: {
+    ABOUT_BRANCH_PHOTO: aboutPhoto("poslovnica"),
+    ABOUT_TEAM_PHOTO: aboutPhoto("tim"),
+    ABOUT_KEYS_PHOTO: aboutPhoto("predaja-kljuceva"),
+  },
   experimental: {
     serverActions: { bodySizeLimit: "4mb" },
   },
@@ -28,7 +35,6 @@ const nextConfig = {
         ],
       },
       {
-        // The admin panel must never be framed or indexed.
         source: "/admin/:path*",
         headers: [
           { key: "X-Frame-Options", value: "DENY" },
@@ -40,10 +46,7 @@ const nextConfig = {
 
   images: {
     remotePatterns: [
-      // Supabase Storage (car photos)
       { protocol: "https", hostname: "*.supabase.co" },
-      // YouTube thumbnails (hero fallback)
-      { protocol: "https", hostname: "img.youtube.com" },
     ],
   },
 };

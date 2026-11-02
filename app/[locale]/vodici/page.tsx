@@ -12,7 +12,6 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   return buildPageMetadata({
     locale,
     path: "/vodici",
-    title: tSeo("guides.title"),
     description: tSeo("guides.description"),
     tab: t("eyebrow"),
   });

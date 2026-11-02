@@ -1,4 +1,3 @@
-/** One reservation ready for handover, flattened for the client components. */
 export type HandoverItem = {
   id: string;
   reference: string;
@@ -12,9 +11,7 @@ export type HandoverItem = {
   pickupLocation: string;
   returnLocation: string;
   rentalDays: number;
-  /** Pickup time already passed and the car has not gone out. */
   overdue?: boolean;
-  /** Vehicle already handed over; listed for reprinting only. */
   active?: boolean;
   totalPrice: number | null;
   extras: { name: string; qty: number }[];

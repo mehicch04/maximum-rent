@@ -25,7 +25,6 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: "/poslovna-ponuda",
-    title: tSeo("business.title"),
     description: tSeo("business.description"),
     tab: tNav("business"),
   });

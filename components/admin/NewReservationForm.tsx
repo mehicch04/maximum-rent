@@ -19,7 +19,6 @@ const lbl = "mb-1 block text-xs font-medium text-muted-foreground";
 
 type Car = { id: string; title: string; pricePerDay: number | null };
 
-/** Days between two dates, rounded up, never below one. */
 function days(from: Date, to: Date): number {
   const ms = to.getTime() - from.getTime();
   if (!Number.isFinite(ms) || ms <= 0) return 1;
@@ -58,13 +57,11 @@ export function NewReservationForm({
 
   const busy = useMemo(
     () => busyCarsFor(occupancy, from, to),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [occupancy, pickupDate, pickupTime, returnDate, returnTime],
   );
 
   const free = useMemo(
     () => availabilityFor(extras, booked, from, to),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [extras, booked, pickupDate, pickupTime, returnDate, returnTime],
   );
 
@@ -75,7 +72,6 @@ export function NewReservationForm({
 
   useEffect(() => {
     if (carId && busy.has(carId)) setCarId("");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [busy]);
 
   useEffect(() => {
@@ -89,10 +85,8 @@ export function NewReservationForm({
       if (capped > 0) next[id] = capped;
     }
     if (changed) setChosen(next);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [free]);
 
-  // ── Price ────────────────────────────────────────────────────────────────
   const nDays = validPeriod ? days(from!, to!) : 0;
   const car = cars.find((c) => c.id === carId);
   const rentalTotal = car?.pricePerDay != null ? car.pricePerDay * nDays : 0;
@@ -118,7 +112,6 @@ export function NewReservationForm({
 
   return (
     <form action={action} className="space-y-5">
-      {/* ── 1. Dates first: nothing can be checked without them ── */}
       <div>
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-brand-strong">
           1. Period najma
@@ -180,7 +173,6 @@ export function NewReservationForm({
         )}
       </div>
 
-      {/* ── 2. Vehicle and equipment, filtered by those dates ── */}
       <div>
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-brand-strong">
           2. Vozilo i oprema
@@ -276,7 +268,6 @@ export function NewReservationForm({
         </div>
       </div>
 
-      {/* ── 3. Guest and locations ── */}
       <div>
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-brand-strong">
           3. Podaci klijenta
@@ -319,7 +310,6 @@ export function NewReservationForm({
         </div>
       </div>
 
-      {/* ── 4. Price, worked out as the form is filled ── */}
       <div className="rounded-xl border border-border bg-surface-muted/50 p-4">
         <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-brand-strong">
           <Calculator className="h-3.5 w-3.5" />

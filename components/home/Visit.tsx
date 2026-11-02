@@ -4,6 +4,7 @@ import type { Company } from "@/lib/company";
 import { PillLink } from "@/components/ui/PillLink";
 import { Heading } from "./Heading";
 import { intlLocale } from "@/i18n/routing";
+import { formatHours } from "@/lib/hours";
 import { ConsentMap } from "@/components/consent/MapConsent";
 
 export function Visit({ company, address, locale }: { company: Company; address: string; locale: string }) {
@@ -45,7 +46,7 @@ export function Visit({ company, address, locale }: { company: Company; address:
             </li>
             <li className="flex items-center gap-3 text-foreground">
               <Clock3 className="h-4 w-4 shrink-0 text-brand-strong" />
-              {company.hours}
+              {formatHours(company.hours, locale)}
             </li>
             {company.phones.map((p) => (
               <li key={p.value}>

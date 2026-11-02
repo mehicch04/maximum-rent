@@ -298,9 +298,9 @@ export const PRIVACY: Record<"hr" | "en" | "de" | "es", PrivacyContent> = {
           {
             type: "ul",
             items: [
-              "Mietanfrage: vollständiger Name, E-Mail, Telefonnummer, gewähltes Fahrzeug, Daten und Orte für Abholung und Rückgabe, Extras sowie, falls angegeben, Flugnummer und Nachricht.",
-              "Kontaktanfrage und Firmenanfrage: vollständiger Name, E-Mail, Telefonnummer, Firmenname und Nachricht.",
-              "Technische Daten: IP-Adresse, ausschließlich zum Schutz der Formulare vor Missbrauch und übermäßigem Versand.",
+              "Mietanfrage: vollständiger Name, Mailadresse, Telefonnummer, gewähltes Fahrzeug, Daten und Orte für Abholung und Rückgabe, Extras sowie, falls angegeben, Flugnummer und Nachricht.",
+              "Kontaktanfrage und Firmenanfrage: vollständiger Name, Mailadresse, Telefonnummer, Firmenname und Nachricht.",
+              "Technische Daten: die IP Ihres Geräts, ausschließlich zum Schutz der Formulare vor Missbrauch und übermäßigem Versand.",
             ],
           },
           { type: "p", text: "Daten für den Mietvertrag, etwa Führerschein und Ausweis, erheben wir nicht über die Website, sondern bei der Fahrzeugübergabe in der Filiale." },
@@ -314,7 +314,7 @@ export const PRIVACY: Record<"hr" | "en" | "de" | "es", PrivacyContent> = {
             type: "ul",
             items: [
               "Beantwortung Ihrer Anfrage, Prüfung der Verfügbarkeit und Vorbereitung der Miete, auf Ihren Wunsch vor Vertragsschluss.",
-              "Versand der Anfragebestätigung und von Buchungsinformationen an Ihre E-Mail.",
+              "Versand der Anfragebestätigung und von Buchungsinformationen an Ihre Mailadresse.",
               "Schutz der Website und Formulare vor Missbrauch, auf Grundlage unseres berechtigten Interesses.",
               "Anzeige von Google Maps, ausschließlich mit Ihrer Einwilligung.",
             ],
@@ -346,7 +346,7 @@ export const PRIVACY: Record<"hr" | "en" | "de" | "es", PrivacyContent> = {
             items: [
               "Vercel, für das Hosting der Website.",
               "Supabase, für die Datenbank, in der Anfragen gespeichert werden.",
-              "Resend, für den Versand von Bestätigungen per E-Mail.",
+              "Resend, für den Versand von Bestätigungen per Mail.",
               "Google, für die Anzeige von Karten, nur wenn Sie diese aktivieren.",
             ],
           },

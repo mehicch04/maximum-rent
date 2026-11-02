@@ -5,7 +5,6 @@ export type CarListItem = Omit<
   "pricePerDay" | "seasonalPrice" | "deposit"
 > & {
   pricePerDay: number | null;
-  /** True when the number above came from the seasonal rate. */
   isSeasonalPrice: boolean;
   deposit: number | null;
 };
@@ -28,7 +27,6 @@ export function toCarListItem(car: Car, seasonalActive = false): CarListItem {
   };
 }
 
-/** Shared shape for passing the active search down to cards / modal. */
 export type SearchContext = {
   pickupLocationId?: string;
   returnLocationId?: string;

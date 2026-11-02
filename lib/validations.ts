@@ -14,7 +14,6 @@ export const inquirySchema = z.object({
   flightNumber: z.string().trim().max(20).optional().or(z.literal("")),
   message: z.string().trim().max(1000).optional().or(z.literal("")),
   locale: z.enum(["hr", "en", "de", "es"]).default("hr"),
-  /** Currency shown to the guest, so the emails can match what they saw. */
   currency: z.enum(["BAM", "EUR"]).default("BAM"),
   extras: z
     .array(

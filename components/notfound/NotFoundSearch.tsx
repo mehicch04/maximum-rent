@@ -53,6 +53,8 @@ export function NotFoundSearch({
         <Search className="h-5 w-5 shrink-0 text-ink/40" />
         <input
           ref={input}
+          type="search"
+          enterKeyHint="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={placeholder}

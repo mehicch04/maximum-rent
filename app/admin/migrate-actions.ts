@@ -15,7 +15,6 @@ type MigrationResult = {
   errors: string[];
 };
 
-/** "Ana Marić" into the two fields a reservation expects. */
 function splitName(full: string | null): { firstName: string; lastName: string } {
   const parts = String(full ?? "").trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return { firstName: "Nepoznat", lastName: "klijent" };

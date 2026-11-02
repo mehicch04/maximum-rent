@@ -8,7 +8,6 @@ const intl = createMiddleware(routing);
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // /admin/* is locale-free and cookie-protected (login page excluded).
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {
     if (pathname === "/admin/login") return NextResponse.next();
 
@@ -26,6 +25,5 @@ export default async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // Skip API routes, Next internals, and anything with a file extension.
   matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
 };

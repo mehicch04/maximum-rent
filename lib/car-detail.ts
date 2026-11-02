@@ -32,7 +32,6 @@ export const getSimilarCars = unstable_cache(
   { tags: ["fleet"], revalidate: 300 },
 );
 
-/** Every slug, for the sitemap. */
 export const getAllCarSlugs = unstable_cache(
   async (): Promise<{ slug: string; updatedAt: Date }[]> =>
     prisma.car.findMany({

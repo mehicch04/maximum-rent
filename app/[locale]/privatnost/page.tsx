@@ -15,7 +15,6 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   return buildPageMetadata({
     locale,
     path: "/privatnost",
-    title: tSeo("privacy.title"),
     description: tSeo("privacy.description"),
     tab: tSeo("privacy.title"),
   });

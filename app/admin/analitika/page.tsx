@@ -32,7 +32,6 @@ export default async function AdminAnalyticsPage({
   const raw = one(searchParams.period);
   const range = isRange(raw) ? raw : "month";
 
-  // Only meaningful for a custom window; the presets work their own out.
   const custom = {
     from: one(searchParams.from),
     to: one(searchParams.to),
@@ -60,7 +59,6 @@ export default async function AdminAnalyticsPage({
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
-      {/* ── Header ── */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="flex items-center gap-2 font-display text-2xl font-bold tracking-tight text-foreground">
@@ -72,7 +70,6 @@ export default async function AdminAnalyticsPage({
           </p>
         </div>
 
-        {/* Suspense is required because the filter reads the URL query. */}
         <Suspense fallback={<div className="h-11 w-full sm:w-52" />}>
           <RangeFilter value={range} from={custom.from} to={custom.to} />
         </Suspense>
@@ -85,14 +82,12 @@ export default async function AdminAnalyticsPage({
         </div>
       )}
 
-      {/* ── KPI ── */}
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {kpis.map((k) => (
           <KpiCard key={k.key} kpi={k} note={COMPARED_TO[range]} />
         ))}
       </div>
 
-      {/* ── Grafikoni ── */}
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-5">
         <Section
           title="Trend rezervacija i prihoda"
@@ -112,7 +107,6 @@ export default async function AdminAnalyticsPage({
         </Section>
       </div>
 
-      {/* ── Tabele ── */}
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Section
           title="Najprofitabilnija vozila"

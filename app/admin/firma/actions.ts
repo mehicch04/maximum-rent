@@ -13,7 +13,6 @@ async function requireAdmin() {
   }
 }
 
-/** Clears every cache that carries company data or prices. */
 function refresh() {
   revalidateTag("company");
   revalidateTag("fleet");
@@ -46,7 +45,6 @@ export async function saveCompany(formData: FormData) {
     phone2Label: str(formData, "phone2Label") || "Mob",
     phone3: opt(formData, "phone3"),
     phone3Label: str(formData, "phone3Label") || "Fax",
-    // wa.me needs digits only.
     whatsapp: str(formData, "whatsapp").replace(/\D/g, ""),
     hours: str(formData, "hours"),
     address: opt(formData, "address"),
@@ -75,7 +73,6 @@ export async function saveCompany(formData: FormData) {
   redirect("/admin/firma?saved=1");
 }
 
-/** Turns the seasonal rates on or off for the whole fleet at once. */
 export async function toggleSeasonal(formData: FormData) {
   await requireAdmin();
   const next = formData.get("next") === "1";
@@ -105,7 +102,6 @@ export async function toggleSeasonal(formData: FormData) {
   refresh();
 }
 
-/** URL-safe slug, keeping our diacritics readable. */
 function slugify(v: string): string {
   return v
     .toLowerCase()
@@ -166,7 +162,6 @@ export async function deleteLocation(formData: FormData) {
     try {
       await prisma.location.update({ where: { id }, data: { isActive: false } });
     } catch {
-      /* already gone */
     }
   }
   refresh();

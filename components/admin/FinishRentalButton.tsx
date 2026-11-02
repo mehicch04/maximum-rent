@@ -22,9 +22,7 @@ export function FinishRentalButton({
   reference: string;
   guest?: string;
   carTitle?: string;
-  /** Agreed return time, used to show how late the car actually is. */
   returnAt?: string;
-  /** True when the car went out without the handover being recorded. */
   handoverMissing?: boolean;
 }) {
   const [open, setOpen] = useState(false);
@@ -49,7 +47,6 @@ export function FinishRentalButton({
 
   const amount = Number(charge.replace(",", "."));
   const hasCharge = charge.trim() !== "" && Number.isFinite(amount) && amount > 0;
-  // A charge with no reason is what gets questioned later, so it blocks saving.
   const needsNote = hasCharge && note.trim() === "";
 
   const late =

@@ -2,8 +2,7 @@ import type { Car, Location } from "@prisma/client";
 import type { AppLocale } from "@/i18n/routing";
 import { SITE } from "@/lib/site-config";
 
-export const WHATSAPP_NUMBER = SITE.whatsapp;
-export const INQUIRY_EMAIL = SITE.email;
+const WHATSAPP_NUMBER = SITE.whatsapp;
 
 export type InquiryContext = {
   car: Pick<Car, "title"> | { title: string };
@@ -27,7 +26,7 @@ function formatDateTime(value?: Date | string | null): string {
   }).format(d);
 }
 
-export function buildInquiryMessage(ctx: InquiryContext): string {
+function buildInquiryMessage(ctx: InquiryContext): string {
   const car = ctx.car.title;
   const start = formatDateTime(ctx.pickupAt);
   const end = formatDateTime(ctx.returnAt);
@@ -55,7 +54,6 @@ export function buildWhatsAppUrl(
   return `https://wa.me/${phone}?text=${encodeURIComponent(buildInquiryMessage(ctx))}`;
 }
 
-
 type OwnerSummary = {
   reference: string;
   createdAt: Date;
@@ -78,7 +76,6 @@ function fmtSarajevo(d: Date): string {
   }).format(d);
 }
 
-/** Short owner-facing summary of a new inquiry (plain text, HR). */
 export function buildOwnerSummaryText(q: OwnerSummary): string {
   return (
     `🚗 Novi upit (${q.reference})\n` +

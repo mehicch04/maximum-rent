@@ -18,7 +18,6 @@ const WEEK = 60 * 60 * 24 * 7;
 export async function POST(req: Request) {
   const ip = clientIp(req);
 
-  // Refuse outright while this address is locked out.
   const lock = await checkLock(ip);
   if (lock.locked) {
     return NextResponse.json(
@@ -43,7 +42,6 @@ export async function POST(req: Request) {
   if (!ok) {
     await recordFailure(ip);
     await new Promise((r) => setTimeout(r, 400));
-    // Uniform error; no hint whether ADMIN_PASSWORD is unset or wrong input.
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 

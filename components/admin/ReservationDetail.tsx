@@ -16,10 +16,8 @@ export type ReservationDetailData = {
   plate: string;
   pickupLocation: string;
   returnLocation: string;
-  /** What was agreed. */
   pickupAt: string;
   returnAt: string;
-  /** What actually happened, where it was recorded. */
   actualPickUpTime: string | null;
   actualDropOffTime: string | null;
   rentalDays: number | null;

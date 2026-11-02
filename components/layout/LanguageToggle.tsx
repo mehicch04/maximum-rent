@@ -8,7 +8,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { LOCALE_FLAG, LOCALE_NAMES, routing, type AppLocale } from "@/i18n/routing";
 import { FlagIcon } from "@/components/ui/FlagIcon";
 
-export function LangFlag({ locale, width = 20 }: { locale: AppLocale; width?: number }) {
+function LangFlag({ locale, width = 20 }: { locale: AppLocale; width?: number }) {
   return <FlagIcon iso={LOCALE_FLAG[locale]} width={width} />;
 }
 

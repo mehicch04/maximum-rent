@@ -23,7 +23,6 @@ const field =
   "h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-ring/30";
 const lbl = "mb-1.5 block text-xs font-medium text-muted-foreground";
 
-/** yyyy-mm-dd for a date offset by whole months from today. */
 function monthsAgo(n: number): string {
   const d = new Date();
   d.setMonth(d.getMonth() - n);
@@ -37,7 +36,6 @@ export function ExportForm() {
   const [to, setTo] = useState("");
   const [status, setStatus] = useState("");
 
-  // Vehicles are a current snapshot, so a date range would only confuse.
   const datesApply = type !== "vozila";
   const statusApplies = type === "rezervacije";
 

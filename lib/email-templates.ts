@@ -1,6 +1,6 @@
 function telHref(phone: string): string {
   const digits = String(phone ?? "")
-    .replace(/\([^)]*\)/g, "") // drop "(0)" and anything else in brackets
+    .replace(/\([^)]*\)/g, "")
     .replace(/[^\d+]/g, "");
   return digits;
 }
@@ -36,7 +36,6 @@ function priceBlock(
   pricePerDay: number | null,
   locale: "HR" | "EN" | "DE" | "ES",
   currency: Currency = "BAM",
-  /** Owner copy only: also show the BAM figure so he doesn't have to convert. */
   showBamEquivalent = false,
 ): string {
   const hasRental = pricePerDay != null && pricePerDay > 0;
@@ -51,7 +50,6 @@ function priceBlock(
   const totalLbl = pc.total;
   const note = pc.note;
 
-  // Amounts are stored in BAM; show them in whatever the guest was browsing in.
   const money = (n: number) => formatPrice(n, currency);
 
   const line = (label: string, value: string, strong = false) => `<tr>
@@ -413,7 +411,7 @@ ${extrasHtml}${noteBlock}
 `;
 }
 
-export function guestConfirmationHtmlHr(v: GuestConfirmationVars): string {
+function guestConfirmationHtmlHr(v: GuestConfirmationVars): string {
   const extrasHtml = priceBlock(v.extras ?? [], v.days ?? 1, v.pricePerDay ?? null, "HR", v.currency ?? "BAM");
   return `<!DOCTYPE html>
 <html lang="hr">
@@ -463,7 +461,7 @@ td {mso-line-height-rule:exactly;}
     <tr><td style="padding:32px 32px 0 32px;" class="px">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
       <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:22px;line-height:30px;color:#111111;font-weight:bold;">Va&scaron; upit je zaprimljen</td></tr>
-      <tr><td style="padding-top:10px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:23px;color:#111111;">Po&scaron;tovani ${v.guestFirstName}</td></tr>
+      <tr><td style="padding-top:10px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:23px;color:#111111;">Pozdrav ${v.guestFirstName},</td></tr>
       <tr><td style="padding-top:8px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:23px;color:#111111;">hvala vam na upitu. Uspje&scaron;no smo ga zaprimili i na&scaron; tim &#263;e vas <strong>kontaktirati u najkra&#263;em roku</strong> radi potvrde dostupnosti vozila i dogovora detalja.</td></tr>
       </table>
     </td></tr>
@@ -471,7 +469,7 @@ td {mso-line-height-rule:exactly;}
     <!-- Important notice -->
     <tr><td style="padding:20px 32px 0 32px;" class="px">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#fafafa;border-top:2px solid #E30613;">
-      <tr><td style="padding:14px 24px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#6b7280;"><strong style="color:#111111;">Napomena:</strong> ovo jo&scaron; nije potvr&#273;ena rezervacija. Vozilo &#263;e biti rezervisano tek nakon &scaron;to vam na&scaron;a agencija potvrdi dostupnost.</td></tr>
+      <tr><td style="padding:14px 24px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#6b7280;"><strong style="color:#111111;">Napomena:</strong> ovo jo&scaron; nije potvr&#273;ena rezervacija. Vozilo &#263;e biti rezervirano tek nakon &scaron;to na&scaron;a agencija potvrdi dostupnost.</td></tr>
       </table>
     </td></tr>
 
@@ -561,8 +559,8 @@ const GUEST_COPY = {
     dropoff: "Rückgabe",
     questions: "Fragen? Kontaktieren Sie uns",
     phone: "Telefon:",
-    email: "E-Mail:",
-    footer: "Sie erhalten diese E-Mail, weil Sie auf der Website von Maximum Rent a Car eine Anfrage gesendet haben.",
+    email: "Mail:",
+    footer: "Sie erhalten diese Mail, weil Sie auf der Website von Maximum Rent a Car eine Anfrage gesendet haben.",
     subject: (ref: string) => `Wir haben Ihre Anfrage erhalten · ${ref}`,
   },
   ES: {
@@ -647,7 +645,7 @@ td {mso-line-height-rule:exactly;}
     <tr><td style="padding:32px 32px 0 32px;" class="px">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
       <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:22px;line-height:30px;color:#111111;font-weight:bold;">${c.title}</td></tr>
-      <tr><td style="padding-top:10px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:23px;color:#111111;">${c.dear} ${v.guestFirstName}</td></tr>
+      <tr><td style="padding-top:10px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:23px;color:#111111;">${c.dear} ${v.guestFirstName},</td></tr>
       <tr><td style="padding-top:8px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:23px;color:#111111;">${c.intro}</td></tr>
       </table>
     </td></tr>
@@ -712,15 +710,9 @@ td {mso-line-height-rule:exactly;}
 `;
 }
 
-export function guestConfirmationHtmlEn(v: GuestConfirmationVars): string {
-  return guestConfirmationHtmlIntl(v, "EN");
-}
-
-/** Picks the guest template that matches the language they browsed in. */
 export function guestConfirmationHtml(v: GuestConfirmationVars, locale: GuestLang): string {
   return locale === "HR" ? guestConfirmationHtmlHr(v) : guestConfirmationHtmlIntl(v, locale);
 }
-
 
 export type DecisionVars = {
   ref: string;
@@ -730,13 +722,11 @@ export type DecisionVars = {
   agencyPhone: string;
   agencyEmail: string;
   agencyAddress: string;
-  /** Copy varies by decision + language; supplied by lib/email.ts. */
   title: string;
   greeting: string;
   intro: string;
   notice: string;
   preheader: string;
-  /** Accent rule above the notice: green when confirmed, brand red otherwise. */
   accent: string;
 };
 
@@ -967,7 +957,6 @@ td {mso-line-height-rule:exactly;}
 `;
 }
 
-/** Same visual language as the inquiry emails; copy comes from lib/email.ts. */
 export function decisionHtml(v: DecisionVars, locale: GuestLang): string {
   return locale === "HR" ? decisionHtmlHr(v) : decisionHtmlIntl(v, locale);
 }

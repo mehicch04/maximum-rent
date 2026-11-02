@@ -10,7 +10,6 @@ export function isValidPeriod(pickupAt: Date, returnAt: Date): boolean {
   );
 }
 
-/** All offerable cars that are free for the whole requested period. */
 export async function getAvailableCars(
   pickupAt: Date,
   returnAt: Date,
@@ -37,7 +36,6 @@ export async function getAvailableCars(
   const { seasonalPricing } = await getCompany();
   return cars.map((c) => toCarListItem(c, seasonalPricing));
 }
-
 
 export type FreeWindow = { pickupAt: string; returnAt: string; free: number };
 

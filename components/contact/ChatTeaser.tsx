@@ -34,7 +34,7 @@ export function ChatTeaser({
       <span aria-hidden className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-[radial-gradient(closest-side,rgba(227,6,19,0.4),transparent)]" />
       <div className="relative flex items-center gap-3 border-b border-white/10 px-5 py-4 sm:px-6">
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/10 ring-1 ring-white/15">
-          <Image src="/intro-shield.png" alt="" width={26} height={26} className="h-[26px] w-auto" />
+          <Image src="/intro-shield.png" alt="" width={180} height={191} className="h-[26px] w-auto" />
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate font-display text-[15px] font-semibold">{name}</p>

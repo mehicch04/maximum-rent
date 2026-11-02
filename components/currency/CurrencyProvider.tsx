@@ -36,7 +36,6 @@ export function CurrencyProvider({
     try {
       window.localStorage.setItem(STORAGE_KEY, c);
     } catch {
-      /* ignore (private mode etc.) */
     }
   };
 

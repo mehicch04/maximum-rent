@@ -113,7 +113,6 @@ export async function createContinuation(formData: FormData) {
         reference,
         carId,
         carTitleSnapshot: car?.title ?? null,
-        // Picked up where the last one was dropped off, unless told otherwise.
         pickupLocationId: source.returnLocationId ?? source.pickupLocationId,
         returnLocationId: source.returnLocationId,
         pickupAt,

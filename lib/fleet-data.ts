@@ -2,8 +2,8 @@ import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { toCarListItem, type CarListItem } from "@/lib/types";
 import { getCompany } from "@/lib/company";
+import { tidyName } from "@/lib/hours";
 
-/** All offerable cars, no date filter (the default /vozila browse view). */
 export const getBrowseCars = unstable_cache(
   async (): Promise<CarListItem[]> => {
     const rows = await prisma.car.findMany({
@@ -17,7 +17,6 @@ export const getBrowseCars = unstable_cache(
   { revalidate: 300, tags: ["fleet"] },
 );
 
-/** Active pickup / return offices. */
 export const getActiveLocations = unstable_cache(
   async () =>
     prisma.location.findMany({
@@ -31,7 +30,7 @@ export const getActiveLocations = unstable_cache(
         city: true,
         postalCode: true,
       },
-    }),
+    }).then((rows) => rows.map((r) => ({ ...r, name: tidyName(r.name) }))),
   ["active-locations"],
   { revalidate: 300, tags: ["fleet", "locations"] },
 );

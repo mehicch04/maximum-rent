@@ -2,9 +2,7 @@ import ExcelJS from "exceljs";
 
 export type Column = {
   header: string;
-  /** Rough width in characters; the sheet auto-fits within sensible bounds. */
   width?: number;
-  /** How the value should be treated by the spreadsheet. */
   kind?: "text" | "number" | "money" | "date" | "datetime";
 };
 
@@ -20,7 +18,7 @@ export async function buildWorkbook(
   wb.created = new Date();
 
   const ws = wb.addWorksheet(sheetName, {
-    views: [{ state: "frozen", ySplit: 1 }], // header stays visible while scrolling
+    views: [{ state: "frozen", ySplit: 1 }],
   });
 
   ws.columns = columns.map((c) => ({
@@ -28,7 +26,6 @@ export async function buildWorkbook(
     width: c.width ?? 18,
   }));
 
-  // Header: brand colour, white bold text, taller row.
   const head = ws.getRow(1);
   head.height = 22;
   head.eachCell((cell) => {
@@ -40,7 +37,6 @@ export async function buildWorkbook(
 
   rows.forEach((r) => ws.addRow(r));
 
-  // Per-column formatting, so dates sort and prices add up.
   columns.forEach((c, i) => {
     const col = ws.getColumn(i + 1);
     if (c.kind === "money") col.numFmt = "#,##0.00";
@@ -55,7 +51,6 @@ export async function buildWorkbook(
     };
   });
 
-  // Filter arrows on the header, so the owner can narrow the list himself.
   if (rows.length > 0) {
     ws.autoFilter = {
       from: { row: 1, column: 1 },
@@ -63,7 +58,6 @@ export async function buildWorkbook(
     };
   }
 
-  // Widen columns to fit their content, within limits so nothing runs away.
   columns.forEach((c, i) => {
     const col = ws.getColumn(i + 1);
     let longest = c.header.length;
@@ -80,7 +74,6 @@ export async function buildWorkbook(
   return Buffer.from(out);
 }
 
-/** Filename such as rezervacije-2026-08-31.xlsx */
 export function workbookFilename(kind: string): string {
   const n = new Date();
   const iso = `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}`;

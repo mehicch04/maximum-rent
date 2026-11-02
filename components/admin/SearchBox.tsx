@@ -16,7 +16,6 @@ export function SearchBox({
 
   const [value, setValue] = useState(current);
 
-  // Follows the URL when the user navigates or clears filters elsewhere.
   useEffect(() => setValue(current), [current]);
 
   useEffect(() => {
@@ -28,7 +27,6 @@ export function SearchBox({
       router.replace(`${pathname}?${next.toString()}`, { scroll: false });
     }, 300);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   return (

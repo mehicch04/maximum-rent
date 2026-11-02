@@ -182,7 +182,6 @@ export default async function AdminPromotionsPage({ searchParams }: { searchPara
             <label className={lbl}>Slika (nije obavezno)</label>
             <div className="flex flex-wrap items-center gap-3">
               {editing?.image && (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img src={editing.image} alt="" className="h-16 w-28 rounded-lg object-cover ring-1 ring-border" />
               )}
               <div className="min-w-[240px] flex-1">
@@ -233,7 +232,6 @@ export default async function AdminPromotionsPage({ searchParams }: { searchPara
             return (
               <li key={p.id} className={`flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border bg-surface px-4 py-3 ${p.isActive ? "border-border" : "border-dashed border-border opacity-70"}`}>
                 {p.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img src={p.image} alt="" className="h-12 w-20 shrink-0 rounded-lg object-cover" />
                 ) : (
                   <span className="grid h-12 w-20 shrink-0 place-items-center rounded-lg bg-surface-muted text-muted-foreground">

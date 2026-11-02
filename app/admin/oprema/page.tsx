@@ -44,7 +44,6 @@ export default async function AdminExtrasPage({
         where: {
           extraId: { not: null },
           inquiry: {
-            // Finished rentals have handed their equipment back.
             status: { in: ["CONFIRMED", "IN_PROGRESS"] },
             pickupAt: { lte: now },
             returnAt: { gte: now },
@@ -65,7 +64,6 @@ export default async function AdminExtrasPage({
       outNow[r.extraId] = (outNow[r.extraId] ?? 0) + r.qty;
     }
   } catch (err) {
-    // The screen still works without the counter.
     console.error("[oprema] live count failed:", err);
   }
 
@@ -123,7 +121,6 @@ npx prisma generate{"\n"}npx prisma db push
         </div>
       )}
 
-      {/* ── Form ── */}
       <form
         action={saveExtra}
         className="mt-8 rounded-2xl border border-border bg-surface p-5 shadow-card sm:p-6"
@@ -273,7 +270,6 @@ npx prisma generate{"\n"}npx prisma db push
         </div>
       </form>
 
-      {/* ── List ── */}
       {extras.length === 0 ? (
         <div className="mt-8 rounded-2xl border border-dashed border-border p-12 text-center">
           <Package className="mx-auto h-8 w-8 text-muted-foreground" />

@@ -5,12 +5,11 @@ import { createPortal } from "react-dom";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 
 type Props = {
-  value: string; // "YYYY-MM-DD"
+  value: string;
   onChange: (value: string) => void;
-  min?: string; // "YYYY-MM-DD"
-  locale?: string; // "hr" | "en"
+  min?: string;
+  locale?: string;
   placeholder?: string;
-  /** When set, also renders a hidden input so native <form> submits the value. */
   name?: string;
   className?: string;
 };
@@ -22,7 +21,6 @@ const fromISO = (s?: string) => (s ? new Date(`${s}T12:00:00`) : null);
 const startOfDay = (d: Date) =>
   new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-/** True when `d` is the final day of its month. */
 function isLastDayOfMonth(d: Date): boolean {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate() === d.getDate();
 }
@@ -63,12 +61,10 @@ export function DateField({
   useEffect(() => setMounted(true), []);
   useEffect(() => {
     setView(startView());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, min]);
 
   useEffect(() => {
     if (open) setView(startView());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const place = () => {
@@ -87,7 +83,6 @@ export function DateField({
 
   useLayoutEffect(() => {
     if (open) place();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   useEffect(() => {
@@ -111,7 +106,6 @@ export function DateField({
       window.removeEventListener("resize", reposition);
       window.removeEventListener("scroll", reposition, true);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const label = selected
@@ -122,7 +116,6 @@ export function DateField({
       }).format(selected)
     : placeholder;
 
-  // Monday-first weekday headers (Jan 1 2024 was a Monday).
   const weekdays = Array.from({ length: 7 }, (_, i) =>
     new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
       new Date(2024, 0, 1 + i),
@@ -135,7 +128,7 @@ export function DateField({
 
   const y = view.getFullYear();
   const m = view.getMonth();
-  const startOffset = (new Date(y, m, 1).getDay() + 6) % 7; // Monday = 0
+  const startOffset = (new Date(y, m, 1).getDay() + 6) % 7;
   const daysInMonth = new Date(y, m + 1, 0).getDate();
   const minD = minDate ? startOfDay(minDate) : null;
   const todayISO = toISO(new Date());

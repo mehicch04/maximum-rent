@@ -11,7 +11,6 @@ async function requireAdmin() {
   if (!ok) redirect("/admin/login");
 }
 
-/** Marks a message as handled (or puts it back to new). */
 export async function setMessageStatus(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id") ?? "");
@@ -32,7 +31,6 @@ export async function deleteMessage(formData: FormData) {
     try {
       await prisma.contactRequest.delete({ where: { id } });
     } catch {
-      // already gone
     }
   }
   revalidatePath("/admin/poruke", "layout");

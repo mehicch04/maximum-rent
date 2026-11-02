@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: "class", // toggled by next-themes
+  darkMode: "class",
   content: [
     "./app/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -42,7 +42,6 @@ const config: Config = {
           DEFAULT: "#E30613",
           foreground: "#FFFFFF",
         },
-        // Theme-aware red for small brand-colored TEXT (AA-safe on dark).
         "brand-strong": "var(--brand-strong)",
         ink: {
           DEFAULT: "#111113",

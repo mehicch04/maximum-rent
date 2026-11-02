@@ -44,7 +44,6 @@ function fmt(iso: string, locale: GuestLang = "HR"): string {
   }).format(d);
 }
 
-/** Escapes user-supplied text before it goes into the HTML email. */
 function esc(v?: string | null): string {
   return String(v ?? "")
     .replace(/&/g, "&amp;")
@@ -271,9 +270,9 @@ const DECISION_COPY = {
     reference: "Referenca",
     contact: "Kontakt",
     footer: "Maximum Rent a Car · Hercegovina",
-    greeting: (name: string) => `Poštovani ${name}`,
+    greeting: (name: string) => `Pozdrav ${name},`,
     confirmedNotice:
-      '<strong style="color:#111111;">Vozilo je rezervisano</strong> za navedeni period. Molimo ponesite važeću vozačku dozvolu i osobni dokument pri preuzimanju.',
+      '<strong style="color:#111111;">Vozilo je rezervirano</strong> za navedeni period. Molimo ponesite važeću vozačku dozvolu i osobni dokument pri preuzimanju.',
     cancelledNotice:
       '<strong style="color:#111111;">Rezervacija nije potvrđena.</strong> Slobodno nas kontaktirajte, rado ćemo pronaći alternativni termin ili vozilo.',
     confirmedPre: (ref: string) => `Rezervacija ${ref} je potvrđena.`,
@@ -293,7 +292,7 @@ const DECISION_COPY = {
     reference: "Reference",
     contact: "Contact",
     footer: "Maximum Rent a Car · Herzegovina",
-    greeting: (name: string) => `Dear ${name}`,
+    greeting: (name: string) => `Dear ${name},`,
     confirmedNotice:
       '<strong style="color:#111111;">Your vehicle is reserved</strong> for the selected period. Please bring a valid driving licence and ID at pick-up.',
     cancelledNotice:
@@ -315,7 +314,7 @@ const DECISION_COPY = {
     reference: "Referenz",
     contact: "Kontakt",
     footer: "Maximum Rent a Car · Herzegowina",
-    greeting: (name: string) => `Hallo ${name}`,
+    greeting: (name: string) => `Hallo ${name},`,
     confirmedNotice:
       '<strong style="color:#111111;">Ihr Fahrzeug ist reserviert</strong> für den angegebenen Zeitraum. Bitte bringen Sie bei der Abholung einen gültigen Führerschein und Ausweis mit.',
     cancelledNotice:
@@ -337,7 +336,7 @@ const DECISION_COPY = {
     reference: "Referencia",
     contact: "Contacto",
     footer: "Maximum Rent a Car · Herzegovina",
-    greeting: (name: string) => `Hola ${name}`,
+    greeting: (name: string) => `Hola ${name},`,
     confirmedNotice:
       '<strong style="color:#111111;">Tu vehículo está reservado</strong> para el periodo indicado. Trae un carné de conducir válido y tu documento de identidad al recogerlo.',
     cancelledNotice:
@@ -384,7 +383,6 @@ export async function sendReservationDecisionEmail({
       preheader: confirmed
         ? c.confirmedPre(esc(inquiry.reference))
         : c.cancelledPre(esc(inquiry.reference)),
-      // Green reads as "done" for a confirmation; brand red for the rest.
       accent: confirmed ? "#16a34a" : "#E30613",
     },
     locale,

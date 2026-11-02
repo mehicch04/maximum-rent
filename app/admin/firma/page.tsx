@@ -53,7 +53,6 @@ export default async function AdminCompanyPage({
       prisma.location.findMany({ orderBy: [{ sortOrder: "asc" }, { name: "asc" }] }),
       prisma.car.count({ where: { seasonalPrice: { not: null } } }),
     ]);
-    // Drives the one-off migration card; zero means it has already been done.
     oldManualBlocks = await prisma.carBlock
       .count({ where: { kind: "MANUAL_BOOKING" } })
       .catch(() => 0);
@@ -115,7 +114,6 @@ npx prisma generate{"\n"}npx prisma db push
         </div>
       )}
 
-      {/* ── Sezonske cijene ── */}
       <div className="mt-8">
         <SeasonalToggle
           active={company.seasonalPricing}
@@ -123,7 +121,6 @@ npx prisma generate{"\n"}npx prisma db push
         />
       </div>
 
-      {/* ── Kontakt ── */}
       <form action={saveCompany} className={`${card} mt-6`}>
         <h2 className={`${h2} flex items-center gap-2`}>
           <Building2 className="h-4 w-4 text-brand-strong" />
@@ -263,7 +260,6 @@ npx prisma generate{"\n"}npx prisma db push
         </button>
       </form>
 
-      {/* ── Lokacije ── */}
       <div id="lokacije" className={`${card} mt-6`}>
         <h2 className={`${h2} flex items-center gap-2`}>
           <MapPin className="h-4 w-4 text-brand-strong" />

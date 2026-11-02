@@ -6,7 +6,6 @@ import { Clock } from "lucide-react";
 export function DueBadge({ returnAt }: { returnAt: string }) {
   const [now, setNow] = useState<number | null>(null);
 
-  // Set after mount so the server and the browser never disagree on the time.
   useEffect(() => {
     setNow(Date.now());
     const t = setInterval(() => setNow(Date.now()), 30_000);
@@ -27,7 +26,6 @@ export function DueBadge({ returnAt }: { returnAt: string }) {
   };
 
   const late = diff < 0;
-  // Under two hours is the point where somebody should be watching the door.
   const soon = !late && diff < 2 * 3_600_000;
 
   const tone = late

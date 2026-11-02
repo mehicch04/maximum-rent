@@ -1,7 +1,7 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 
-export const STORAGE_BUCKET = "cars";
+const STORAGE_BUCKET = "cars";
 const IMAGE_PREFIX = "fleet";
 
 function client() {
@@ -16,9 +16,8 @@ function client() {
 }
 
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/avif"];
-const MAX_BYTES = 8 * 1024 * 1024; // 8 MB
+const MAX_BYTES = 8 * 1024 * 1024;
 
-/** Upload one image file to Storage and return its public URL. */
 export async function uploadVehicleImage(file: File): Promise<string> {
   if (!ALLOWED.includes(file.type)) {
     throw new Error("Dozvoljene su samo slike (JPG, PNG, WEBP, AVIF).");

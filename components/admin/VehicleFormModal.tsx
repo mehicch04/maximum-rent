@@ -21,7 +21,7 @@ import {
 import type { SaveResult } from "@/app/admin/vozila/actions";
 
 type Props = {
-  vehicle: AdminVehicle | null; // null = add new
+  vehicle: AdminVehicle | null;
   saveAction: (formData: FormData) => Promise<SaveResult>;
   onClose: () => void;
   onSaved: () => void;
@@ -44,7 +44,6 @@ export function VehicleFormModal({
   const [success, setSuccess] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, boolean>>({});
 
-  // ── form state ──
   const [brand, setBrand] = useState(vehicle?.brand ?? "");
   const [model, setModel] = useState(vehicle?.model ?? "");
   const [title, setTitle] = useState(vehicle?.title ?? "");
@@ -72,7 +71,6 @@ export function VehicleFormModal({
   const [isFeatured, setIsFeatured] = useState(vehicle?.isFeatured ?? false);
   const [sortOrder, setSortOrder] = useState(String(vehicle?.sortOrder ?? 0));
 
-  // images
   const [existingImages, setExistingImages] = useState<string[]>(
     vehicle?.images ?? [],
   );
@@ -175,7 +173,6 @@ export function VehicleFormModal({
   return (
     <div className="fixed inset-0 z-[80] flex items-start justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm sm:items-center">
       <div className="my-4 w-full max-w-2xl rounded-2xl border border-border bg-surface shadow-card-hover">
-        {/* header */}
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="font-display text-lg font-bold tracking-tight">
             {editing ? "Uredi vozilo" : "Dodaj novo vozilo"}
@@ -190,9 +187,7 @@ export function VehicleFormModal({
           </button>
         </div>
 
-        {/* body */}
         <div className="max-h-[70vh] space-y-5 overflow-y-auto px-5 py-5">
-          {/* basic */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={lbl}>Marka *</label>
@@ -265,7 +260,6 @@ export function VehicleFormModal({
             </div>
           </div>
 
-          {/* selects */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div>
               <label className={lbl}>Klasa *</label>
@@ -320,7 +314,6 @@ export function VehicleFormModal({
             </div>
           </div>
 
-          {/* categories (filter tags) */}
           <div>
             <label className={lbl}>Kategorije (filteri na sajtu)</label>
             <div className="flex flex-wrap gap-1.5">
@@ -344,7 +337,6 @@ export function VehicleFormModal({
             </div>
           </div>
 
-          {/* price */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <div>
               <label className={lbl}>Cijena / dan</label>
@@ -394,7 +386,6 @@ export function VehicleFormModal({
             </div>
           </div>
 
-          {/* descriptions */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={lbl}>Opis (HR)</label>
@@ -436,7 +427,6 @@ export function VehicleFormModal({
             </div>
           </div>
 
-          {/* toggles */}
           <div className="flex flex-wrap gap-4">
             <label className="flex cursor-pointer items-center gap-2 text-sm">
               <input
@@ -458,7 +448,6 @@ export function VehicleFormModal({
             </label>
           </div>
 
-          {/* images */}
           <div>
             <label className={lbl}>Slike (prva je glavna)</label>
             <div className="flex flex-wrap gap-2">
@@ -490,7 +479,6 @@ export function VehicleFormModal({
                   key={p.url}
                   className="group relative h-20 w-28 overflow-hidden rounded-lg border border-brand/40 bg-surface-muted"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={p.url}
                     alt=""
@@ -539,7 +527,6 @@ export function VehicleFormModal({
             )}
           </div>
 
-          {/* error / success banner */}
           {error && (
             <div className="flex items-start gap-2 rounded-xl border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-600">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -554,7 +541,6 @@ export function VehicleFormModal({
           )}
         </div>
 
-        {/* footer */}
         <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-4">
           <button
             type="button"
@@ -582,7 +568,6 @@ export function VehicleFormModal({
         </div>
       </div>
 
-      {/* confirm sub-modal */}
       {confirming && (
         <div
           className="fixed inset-0 z-[85] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"

@@ -9,7 +9,7 @@ import {
 } from "./contract-data";
 
 const A4 = { w: 210, h: 297 };
-const M = 18; // margin
+const M = 18;
 const LINE = 5.6;
 
 let fontsCached: { regular: string; bold: string } | null = null;
@@ -44,7 +44,6 @@ export async function generateContractPdf(data: ContractData): Promise<void> {
 
   let y = M;
 
-  /** Starts a new page when the next block would run off the bottom. */
   const room = (needed: number) => {
     if (y + needed > A4.h - 32) {
       doc.addPage();
@@ -74,7 +73,6 @@ export async function generateContractPdf(data: ContractData): Promise<void> {
     y += 8;
   }
 
-  // ── Header ──
   doc.setFont("Contract", "bold");
   doc.setFontSize(15);
   doc.text("UGOVOR O NAJMU VOZILA", A4.w / 2, y, { align: "center" });
@@ -97,7 +95,6 @@ export async function generateContractPdf(data: ContractData): Promise<void> {
   doc.line(M, y, A4.w - M, y);
   y += 8;
 
-  // ── Sections ──
   const LABEL_W = 52;
   for (const section of contractSections(data)) {
     room(12 + section.rows.length * LINE);
@@ -127,7 +124,6 @@ export async function generateContractPdf(data: ContractData): Promise<void> {
     y += 5;
   }
 
-  // ── Condition notes ──
   const notes = (data.condition || "").trim();
   const noteLines = notes
     ? (doc.splitTextToSize(notes, A4.w - M * 2) as string[])
@@ -143,7 +139,6 @@ export async function generateContractPdf(data: ContractData): Promise<void> {
   doc.text(noteLines, M, y);
   y += noteLines.length * LINE + 4;
 
-  // ── Signatures, always at the foot of the last page ──
   const signY = Math.max(y + 14, A4.h - 34);
   const colW = (A4.w - M * 2 - 16) / 2;
 

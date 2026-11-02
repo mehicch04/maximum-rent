@@ -148,7 +148,7 @@ export const AIRPORT: Record<Loc, () => Copy> = {
     blocks: [
       { type: "p", text: "Der Flughafen Mostar (OMO) liegt südlich der Stadt, wenige Fahrminuten vom Zentrum von Mostar und von Blagaj entfernt. Das Terminal ist klein und übersichtlich, zwischen Flugzeug und Mietwagen vergeht meist nur wenig Zeit." },
       { type: "h2", text: "So funktioniert die Übernahme" },
-      { type: "ol", items: ["Wählen Sie in der Suche Mostar, Flughafen als Abholort.", "Geben Sie in der Anfrage Ihre Flugnummer an, damit wir wissen, wann Sie landen.", "Sie erhalten die Bestätigung per E-Mail, und wir melden uns mit den Details.", "Nach der Landung wartet das Fahrzeug am Flughafen auf Sie, der Vertrag liegt zur Unterschrift bereit."] },
+      { type: "ol", items: ["Wählen Sie in der Suche Mostar, Flughafen als Abholort.", "Geben Sie in der Anfrage Ihre Flugnummer an, damit wir wissen, wann Sie landen.", "Sie erhalten die Bestätigung per Mail, und wir melden uns mit den Details.", "Nach der Landung wartet das Fahrzeug am Flughafen auf Sie, der Vertrag liegt zur Unterschrift bereit."] },
       { type: "h2", text: "Was Sie mitbringen sollten" },
       { type: "ul", items: ["Einen gültigen Führerschein, seit mindestens zwei Jahren.", "Personalausweis oder Reisepass.", "Ein Zahlungsmittel für die Kaution gemäß Mietbedingungen. Die Kaution wird nach der Rückgabe vollständig erstattet."] },
       { type: "h2", text: "Verspätung und Ankunft außerhalb der Öffnungszeiten" },

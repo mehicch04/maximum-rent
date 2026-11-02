@@ -33,7 +33,6 @@ export function ExtrasTable({ data }: { data: ExtraStat[] }) {
             const free = Math.max(0, e.stock - e.rented);
             const ratio = e.stock > 0 ? e.rented / e.stock : 0;
             const tight = ratio >= TIGHT;
-            // A sliver keeps a barely-used item from looking like an empty row.
             const width = Math.max(2, Math.min(100, ratio * 100));
 
             return (

@@ -67,9 +67,9 @@
   }
 
   :root {
-    --mesh: 227 6 19; /* brand red */
-    --mesh-a: 0.12; /* stronger glow (visible on white) */
-    --mesh-b: 0.08; /* opposite, softer glow */
+    --mesh: 227 6 19;
+    --mesh-a: 0.12;
+    --mesh-b: 0.08;
   }
   .dark {
     --mesh-a: 0.13;
@@ -181,6 +181,9 @@
     html[data-bar] .back-to-top,
     html[data-bar] .wa-fab {
       display: none;
+    }
+    html[data-bar] .site-footer {
+      padding-bottom: calc(88px + env(safe-area-inset-bottom));
     }
   }
   .glass {

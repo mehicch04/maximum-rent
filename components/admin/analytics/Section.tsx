@@ -13,7 +13,6 @@ export function Section({
 }: {
   title: string;
   subtitle?: string;
-  /** Small stagger so blocks appear in reading order, not all at once. */
   delay?: number;
   className?: string;
   children: React.ReactNode;

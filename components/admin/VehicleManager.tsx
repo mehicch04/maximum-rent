@@ -15,12 +15,9 @@ type Props = {
   deleteAction: (formData: FormData) => void;
 };
 
-/** What a vehicle is doing right now, worked out fresh on every page load. */
 export type LiveStatus = {
   busy: boolean;
-  /** "u najmu", "servis", "oštećenje"… */
   reason: string;
-  /** When it comes back, already formatted. */
   until: string;
 };
 

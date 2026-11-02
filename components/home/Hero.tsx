@@ -8,7 +8,6 @@ import { useCompany } from "@/components/company/CompanyProvider";
 import { useCurrency } from "@/components/currency/CurrencyProvider";
 import { formatPrice } from "@/lib/currency";
 
-// Agency opening window in minutes from midnight (07:30 – 20:30, local).
 const OPEN_MIN = 7 * 60 + 30;
 const CLOSE_MIN = 20 * 60 + 30;
 const TZ = "Europe/Sarajevo";
@@ -47,7 +46,6 @@ function OpenStatus({
     return () => clearInterval(id);
   }, []);
 
-  // Render nothing until mounted to avoid a server/client clock mismatch.
   if (!state) return null;
 
   return (
@@ -143,7 +141,6 @@ export function Hero({ fromPrice, count = 0 }: { fromPrice?: number | null; coun
         )}
       </div>
 
-      {/* Overlays: darken for legibility + fade into the page background */}
       <div className="absolute inset-0 -z-10 bg-black/55" />
       <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-background to-transparent" />
 
@@ -198,7 +195,6 @@ export function Hero({ fromPrice, count = 0 }: { fromPrice?: number | null; coun
           </p>
         )}
 
-        {/* Trust row: Google rating + live open/closed status */}
         <div
           style={{ animationDelay: "280ms" }}
           className="animate-fade-up mt-7 flex flex-wrap items-center gap-3 text-sm"

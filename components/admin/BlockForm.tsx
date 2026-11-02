@@ -26,7 +26,6 @@ export function BlockForm({
   action: (formData: FormData) => void;
   cars: { id: string; title: string }[];
   today: string;
-  /** Periods each vehicle is already taken, so busy ones can be greyed out. */
   occupancy?: CarBusy[];
 }) {
   const [from, setFrom] = useState("");
@@ -40,7 +39,6 @@ export function BlockForm({
 
   const busy = useMemo(
     () => busyCarsFor(occupancy, fromDate, toDate),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [occupancy, from, to],
   );
 
@@ -51,7 +49,6 @@ export function BlockForm({
 
   useEffect(() => {
     if (carId && busy.has(carId)) setCarId("");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [busy]);
 
   const selected = KINDS.find((k) => k.value === kind)!;

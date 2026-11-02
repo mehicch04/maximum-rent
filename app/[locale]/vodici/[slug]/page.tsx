@@ -23,7 +23,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const g = getGuide(params.locale, params.slug);
   if (!g) return {};
-  return buildPageMetadata({ locale: params.locale, path: `/vodici/${g.slug}`, title: g.title, description: g.lead, tab: g.title });
+  return buildPageMetadata({ locale: params.locale, path: `/vodici/${g.slug}`, description: g.lead, tab: g.title });
 }
 
 function Block({ b }: { b: GuideBlock }) {

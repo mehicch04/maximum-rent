@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { AlertTriangle } from "lucide-react";
 
 type Props = {
-  children: React.ReactNode; // button label/content
+  children: React.ReactNode;
   className?: string;
   title: string;
   message: string;

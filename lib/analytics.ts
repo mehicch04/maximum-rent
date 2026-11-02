@@ -35,7 +35,6 @@ export type Kpi = {
   hint?: string;
 };
 
-/** Explicit dates for a custom period, as they arrive from the URL. */
 export type CustomRange = { from?: string; to?: string };
 
 export type Analytics = { range: Range; kpis: Kpi[] };
@@ -109,7 +108,6 @@ function bounds(range: Range, custom?: { from?: string; to?: string }) {
   };
 }
 
-/** Percentage change, or null when there is nothing to compare against. */
 function pctChange(current: number, previous: number): number | null {
   if (previous === 0) return current === 0 ? 0 : null;
   return Math.round(((current - previous) / previous) * 100);
@@ -118,10 +116,8 @@ function pctChange(current: number, previous: number): number | null {
 const num = (v: unknown) => (v == null ? 0 : Number(v));
 const fmtMoney = (n: number) => `${Math.round(n).toLocaleString("hr-HR")} KM`;
 
-/** Earns revenue. Cancelled and unanswered inquiries do not. */
 const EARNING = ["CONFIRMED", "IN_PROGRESS", "COMPLETED"] as const;
 
-/** Statuses that keep a vehicle tied up. */
 const HOLDING = ["CONFIRMED", "IN_PROGRESS"] as const;
 
 function fleetWhere(now: Date) {
@@ -276,7 +272,6 @@ export async function getAnalytics(range: Range, custom?: CustomRange): Promise<
   return { range, kpis };
 }
 
-/** Buckets differ per period so the axis never turns into a wall of labels. */
 function buckets(range: Range, from: Date, to: Date) {
   if (range === "custom") {
     const out: { label: string; start: Date; end: Date }[] = [];
@@ -359,7 +354,6 @@ export async function getTrend(range: Range, custom?: CustomRange): Promise<Tren
   const { from, to } = bounds(range, custom);
   const slots = buckets(range, from, to);
 
-  // One query, bucketed in memory: far cheaper than a query per bucket.
   const rows = await prisma.inquiry.findMany({
     where: { status: { in: [...EARNING] }, createdAt: { gte: from, lte: to } },
     select: { createdAt: true, totalPrice: true },

@@ -4,6 +4,7 @@ import { tooManyRequests } from "@/lib/rate-limit";
 import { inquirySchema } from "@/lib/validations";
 import { sendInquiryEmail, sendGuestConfirmationEmail } from "@/lib/email";
 import { toLang } from "@/lib/email-templates";
+import { tidyName } from "@/lib/hours";
 import { buildOwnerSummaryText } from "@/lib/whatsapp";
 import { rentalDays, extraLineTotal } from "@/lib/extras";
 import { withUniqueReference, REF_PREFIX } from "@/lib/reference";
@@ -39,7 +40,6 @@ export async function POST(req: Request) {
   }
   const d = parsed.data;
 
-  // Resolve relations defensively (ignore stale/unknown ids).
   const [car, pickup, ret] = await Promise.all([
     d.carId ? prisma.car.findUnique({ where: { id: d.carId } }) : null,
     d.pickupLocationId
@@ -132,8 +132,8 @@ export async function POST(req: Request) {
     const emailData = {
       ...d,
       reference: inquiry.reference,
-      pickupLocationName: pickup?.name ?? null,
-      returnLocationName: ret?.name ?? null,
+      pickupLocationName: pickup?.name ? tidyName(pickup.name) : null,
+      returnLocationName: ret?.name ? tidyName(ret.name) : null,
       extras: extrasForEmail,
       days,
       pricePerDay: car ? await dailyRate(car) : null,

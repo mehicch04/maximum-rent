@@ -19,10 +19,6 @@ export const LOCALE_COUNTRY: Record<string, string> = { hr: "BA", en: "GB", de: 
 
 export const countryOf = (iso: string) => BY_ISO.get(iso) ?? BY_ISO.get("BA")!;
 
-export function flagEmoji(iso: string) {
-  return String.fromCodePoint(...[...iso.toUpperCase()].map((ch) => 0x1f1a5 + ch.charCodeAt(0)));
-}
-
 export function matchDial(digits: string, prefer?: string): { country: Country; rest: string } | null {
   for (const d of DIALS) {
     if (!digits.startsWith(d)) continue;
@@ -56,13 +52,4 @@ export function phoneValid(value: string) {
   const m = value.trim().match(/^\+\d{1,4}\s(.*)$/);
   const digits = (m ? m[1] : value).replace(/\D/g, "");
   return digits.length >= 6 && digits.length <= 14;
-}
-
-export function waDigits(phone: string) {
-  const v = phone.trim();
-  const d = v.replace(/\D/g, "");
-  if (v.startsWith("+")) return d;
-  if (d.startsWith("00")) return d.slice(2);
-  if (d.startsWith("0")) return `387${d.slice(1)}`;
-  return d;
 }

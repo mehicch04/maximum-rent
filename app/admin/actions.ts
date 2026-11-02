@@ -74,7 +74,6 @@ export async function confirmInquiry(formData: FormData) {
     if (!inquiry || inquiry.status === "CANCELLED") {
       return { msg: "error" as const, email: null };
     }
-    // Idempotent re-click: already confirmed → no second email.
     if (inquiry.status === "CONFIRMED") {
       return { msg: "confirmed" as const, email: null };
     }
@@ -110,7 +109,6 @@ export async function confirmInquiry(formData: FormData) {
     return { msg: "confirmed" as const, email: toDecisionRow(inquiry) };
   });
 
-  // Email after the transaction committed; never blocks the action.
   if (outcome.email) {
     try {
       await sendReservationDecisionEmail({

@@ -18,7 +18,7 @@
   "Hero": {
     "eyebrow": "Rent a Car · Hercegovina",
     "title": "Vaš ključ slobode na cesti",
-    "subtitle": "Premium vozni park, preuzimanje na 6 lokacija i rezervacija bez kompromisa. Od gradskih automobila do luksuznih limuzina.",
+    "subtitle": "Premium vozni park, preuzimanje na 6 lokacija i jednostavna rezervacija. Od gradskih automobila do luksuznih limuzina.",
     "ctaSearch": "Rezervirajte vozilo",
     "ctaFleet": "Pogledajte vozni park",
     "scroll": "Krenite",
@@ -32,15 +32,15 @@
   "Search": {
     "title": "Pronađite svoje vozilo",
     "pickupLocation": "Poslovnica preuzimanja",
-    "returnLocation": "Poslovnica vraćanja",
+    "returnLocation": "Poslovnica povrata",
     "pickupDate": "Datum preuzimanja",
-    "returnDate": "Datum vraćanja",
+    "returnDate": "Datum povrata",
     "time": "Vrijeme",
     "sameLocation": "Vraćam vozilo na istu lokaciju",
     "search": "Pretraži vozila",
     "placeholder": "Odaberite lokaciju",
     "errRequired": "Molimo popunite sva polja.",
-    "errOrder": "Datum vraćanja mora biti nakon preuzimanja.",
+    "errOrder": "Datum povrata mora biti nakon datuma preuzimanja.",
     "sameAsPickup": "Isto kao preuzimanje",
     "change": "Promijeni"
   },
@@ -51,12 +51,11 @@
     "detailsTitle": "Detalji rezervacije",
     "period": "Period",
     "pickup": "Preuzimanje",
-    "return": "Povratak",
+    "return": "Povrat",
     "days": "dana",
     "day": "dan",
-    "noResults": "Nema dostupnih vozila za odabrane datume. Pokušajte s drugim terminom ili nas kontaktirajte.",
+    "noResults": "Pokušajte s drugim terminom ili nas kontaktirajte.",
     "allVehicles": "Sva vozila",
-    "select": "Izaberi",
     "class": "Klasa",
     "year": "Godište",
     "seats": "Putnika",
@@ -64,19 +63,17 @@
     "all": "Sve",
     "categories": {
       "LIMUZINA": "Limuzina",
-      "LUXURY": "Luksuzni",
+      "LUXURY": "Luksuzno vozilo",
       "SUV": "SUV",
       "COUPE": "Coupe",
-      "COMPACT": "Kompakt",
+      "COMPACT": "Kompaktno vozilo",
       "KARAVAN": "Karavan",
       "CABRIO": "Kabriolet",
-      "TRANSPORT": "Transport",
+      "TRANSPORT": "Kombi",
       "MINIBUS": "Minibus"
     },
     "invalidPeriod": "Odabrani period nije ispravan, datum povrata mora biti nakon preuzimanja. Prikazujemo sva vozila.",
-    "viewAll": "Pogledajte sva vozila",
     "sort": {
-      "label": "Sortiraj:",
       "recommended": "Preporučeno",
       "priceAsc": "Cijena: od najniže",
       "priceDesc": "Cijena: od najviše",
@@ -84,20 +81,12 @@
       "nameAsc": "Naziv: od A do Ž",
       "nameDesc": "Naziv: od Ž do A"
     },
-    "brandLabel": "Marka",
-    "allBrands": "Sve marke",
-    "resultsCount": "{count, plural, one {# vozilo} few {# vozila} other {# vozila}}",
-    "clearFilters": "Poništi filtere",
-    "typeLabel": "Tip vozila",
-    "allTypes": "Svi tipovi",
-    "backToFleet": "Nazad na vozila",
     "specifications": "Specifikacije",
     "description": "O vozilu",
     "similar": "Slična vozila",
     "notOffered": "Ovo vozilo trenutno nije u ponudi.",
-    "bookNow": "Rezerviši ovo vozilo",
     "availableN": "{count, plural, one {# vozilo} few {# vozila} other {# vozila}}",
-    "book": "Rezerviraj",
+    "book": "Rezervirajte",
     "clearAll": "Očisti sve",
     "closeFilters": "Zatvori",
     "fBrand": "Marka",
@@ -116,7 +105,7 @@
     "reset": "Poništi",
     "seatsN": "{n} sjedala",
     "showN": "Prikaži {count, plural, one {# vozilo} few {# vozila} other {# vozila}}",
-    "sortBy": "Sortiraj",
+    "sortBy": "Poredaj",
     "cardSeats": "sjedala",
     "spec": {
       "seats": "Sjedala",
@@ -133,11 +122,11 @@
     "eyebrow": "Vozni park",
     "noResultsTitle": "Za ove datume nema slobodnih vozila",
     "showAll": "Prikaži sva vozila",
-    "askUs": "Pitajte nas na WhatsApp",
+    "askUs": "Pitajte nas na WhatsAppu",
     "nearestTitle": "Najbliži slobodni termini",
-    "nearestLead": "Isto trajanje najma, malo pomjeren termin:",
+    "nearestLead": "Isto trajanje najma, u malo drugačijem terminu:",
     "freeN": "{count, plural, one {# slobodno vozilo} few {# slobodna vozila} other {# slobodnih vozila}}",
-    "orAsk": "Ili nam pišite i pronaći ćemo rješenje za vaše datume.",
+    "orAsk": "Možete nam i pisati, rado ćemo pronaći rješenje za vaše datume.",
     "photoN": "Fotografija {n}",
     "enlarge": "Povećaj fotografiju",
     "goodToKnow": "Dobro je znati",
@@ -146,7 +135,6 @@
   "Footer": {
     "contact": "Kontakt",
     "locations": "Lokacije",
-    "follow": "Pratite nas",
     "tagline": "Pouzdan najam vozila u Hercegovini od 2009. godine.",
     "rights": "Sva prava pridržana.",
     "hours": "Radno vrijeme",
@@ -159,7 +147,7 @@
   "About": {
     "eyebrow": "O nama",
     "title": "Pouzdan najam vozila u srcu Hercegovine",
-    "lead": "MAXIMUM RENT A CAR d.o.o. firma je osnovana u travnju 2009. godine. Pružanjem profesionalne usluge uz visokokvalitetan i pouzdan vozni park, koji se svakodnevno proširuje, gradimo prepoznatljiv imidž svoje tvrtke. Osnovni moto naše firme jest zadovoljstvo svakog klijenta, glavni faktor koji nas gura ka savršenstvu naših usluga.",
+    "lead": "Tvrtka MAXIMUM RENT A CAR d.o.o. osnovana je u travnju 2009. godine. Profesionalnom uslugom i kvalitetnim, pouzdanim voznim parkom koji neprestano širimo izgradili smo prepoznatljivo ime. Naš je moto zadovoljstvo svakog klijenta jer nas upravo ono potiče da svoju uslugu stalno činimo boljom.",
     "intro2": "Nalazimo se u Međugorju, najvećem vjerskom i turističkom središtu ne samo u Bosni i Hercegovini, nego i u ovom dijelu Europe. Osim u Međugorju, preuzimanje vozila moguće je i u Mostaru, na Zračnoj luci Mostar te u Čitluku, Ljubuškom i Čapljini.",
     "stats": {
       "clientsLabel": "Zadovoljnih klijenata",
@@ -168,17 +156,17 @@
       "branchesLabel": "Lokacija"
     },
     "storyTitle": "Tko smo mi",
-    "storyP1": "MAXIMUM RENT A CAR d.o.o. odlikuje izrazito kvalitetan vozni park te ljubazno osoblje, uvijek spremno odgovoriti na sve zahtjeve klijenata. Radimo 365 dana u godini i dostupni smo vam i izvan radnog vremena.",
-    "storyP2": "Svima koji u Međugorje dolaze turistički ili poslovno naša firma stoji potpuno na raspolaganju. Sve uvjete vezane uz najam i ostale informacije možete pročitati na našim stranicama ili nas kontaktirati putem kontakt obrasca, gdje su navedeni i naši brojevi telefona.",
+    "storyP1": "Tvrtku MAXIMUM RENT A CAR d.o.o. odlikuju kvalitetan vozni park i ljubazno osoblje, uvijek spremno izaći u susret svakom zahtjevu. Radimo 365 dana u godini, a dostupni smo i izvan radnog vremena.",
+    "storyP2": "Svima koji u Međugorje dolaze kao turisti ili poslovno stojimo na raspolaganju. Uvjete najma i ostale informacije pronaći ćete na našoj stranici, a možete nas kontaktirati i putem obrasca, telefonom ili WhatsAppom.",
     "features": {
       "f1Title": "Dostupni 365 dana",
-      "f1Text": "Radimo svaki dan u godini i izlazimo u susret i izvan radnog vremena.",
+      "f1Text": "Radimo svaki dan u godini, a izlazimo vam u susret i izvan radnog vremena.",
       "f2Title": "Šest lokacija",
       "f2Text": "Preuzimanje u Međugorju, Mostaru, na Zračnoj luci Mostar te u Čitluku, Ljubuškom i Čapljini.",
       "f3Title": "Pouzdan vozni park",
       "f3Text": "Visokokvalitetna vozila koja se redovito održavaju i obnavljaju.",
       "f4Title": "Zadovoljstvo klijenta",
-      "f4Text": "Zadovoljstvo svakog klijenta glavni je faktor svega što radimo."
+      "f4Text": "Zadovoljstvo svakog klijenta mjerilo je svega što radimo."
     },
     "headerLead": "Od 2009. godine iznajmljujemo pouzdana vozila u Hercegovini, s preuzimanjem na šest lokacija.",
     "storyHeadline": "Pouzdan najam",
@@ -224,11 +212,11 @@
     "title": "Dugoročni najam vozila za vaše poslovanje",
     "lead": "Profesionalno upravljanje voznim parkom bez opterećenja bilance. Fleksibilno, jednostavno i s predvidivim mjesečnim troškom.",
     "flexTitle": "Fleksibilnost",
-    "flexP1": "Dugoročni najam namijenjen je svim pravnim i fizičkim osobama s ciljem da Vam profesionalnom uslugom olakšamo poslovanje i upravljanje voznim parkom. Fleksibilnost u poslovanju koju nudi naš dugoročni rent a car imperativ je za većinu modernih kompanija.",
-    "flexP2": "U dugoročnom najmu ističemo prednost preuzimanja svih financijskih rizika koji su u slučaju leasinga na vašoj kompaniji. Vaša bilanca nije opterećena, plaćate samo broj dana korištenja vozila, imate kontrolu nad rashodima te jamstvo da, ako vratite vozilo prije dogovorenog vremena, nećete imati dodatnih troškova.",
+    "flexP1": "Dugoročni najam namijenjen je pravnim i fizičkim osobama kojima želimo profesionalnom uslugom olakšati poslovanje i upravljanje voznim parkom. Fleksibilnost koju nudi naš dugoročni najam danas je nužnost za većinu modernih tvrtki.",
+    "flexP2": "Najveća prednost dugoročnog najma je što mi preuzimamo sve financijske rizike koje kod leasinga snosi vaša tvrtka. Vaša bilanca nije opterećena, plaćate samo dane korištenja vozila, imate kontrolu nad troškovima i jamstvo da nećete imati dodatnih troškova ako vozilo vratite prije dogovorenog roka.",
     "simpleTitle": "Jednostavnost",
-    "simpleP1": "Ako je vaš posao sezonske prirode, dugoročnim najmom vozila možete optimizirati troškove prema razdobljima koja planirate. Za razliku od leasinga, bez potrebe za dodatnim kapitalom ili financijskim odobrenjem, ako imate potrebu za većim ili manjim brojem vozila, najam realizirate u vrlo kratkom roku, bez prethodne najave i planiranja.",
-    "simpleP2": "Dugoročni najam omogućava minimalne i planirane mjesečne troškove, a definira se mjesečnim trajanjem najma i ugovorenom kilometražom.",
+    "simpleP1": "Ako je vaš posao sezonske prirode, dugoročnim najmom možete uskladiti troškove s razdobljima koja planirate. Za razliku od leasinga, ne trebate dodatni kapital ni odobrenje financiranja. Ako vam zatreba više ili manje vozila, najam organiziramo u vrlo kratkom roku, bez dugog planiranja.",
+    "simpleP2": "Dugoročni najam omogućuje niske i predvidive mjesečne troškove, a definira se trajanjem najma u mjesecima i ugovorenom kilometražom.",
     "avgAgeLabel": "godine je prosječna starost naše flote",
     "minDaysLabel": "dana je minimalno trajanje najma",
     "servicesTitle": "Uključene usluge",
@@ -258,8 +246,8 @@
       "Dostava i preuzimanje vozila",
       "Mobilno jamstvo"
     ],
-    "ctaTitle": "Svoj sastanak dogovorite još danas",
-    "ctaText": "Ostavite svoje podatke i javit ćemo vam se s personaliziranom ponudom za vaš vozni park. Možete nas kontaktirati i izravno putem WhatsAppa.",
+    "ctaTitle": "Dogovorite sastanak još danas",
+    "ctaText": "Ostavite svoje podatke i javit ćemo vam se s ponudom prilagođenom vašem voznom parku. Možete nam pisati i izravno na WhatsApp.",
     "servicesCountLabel": "usluga uključeno u mjesečnu cijenu",
     "assistLabel": "asistencija u slučaju zamjene vozila",
     "headerCta": "Zatražite ponudu",
@@ -281,7 +269,7 @@
     "lead": "Transparentni uvjeti za bezbrižan najam.",
     "items": [
       "Minimalna dob vozača je 21 godina, uz vozačku dozvolu stariju od 2 godine.",
-      "Za preuzimanje vozila potrebni su važeća osobna iskaznica/putovnica i vozačka dozvola.",
+      "Za preuzimanje vozila potrebni su važeća osobna iskaznica ili putovnica i vozačka dozvola.",
       "Cijena najma uključuje osnovno osiguranje, vinjete za BiH i neograničenu kilometražu.",
       "Polog se utvrđuje ovisno o klasi vozila i vraća se u cijelosti nakon urednog povrata.",
       "Vozilo se preuzima i vraća s punim spremnikom goriva.",
@@ -295,9 +283,9 @@
     "hoursLabel": "Radno vrijeme",
     "emailLabel": "Email",
     "mapHeading": "Gdje se nalazimo",
-    "openMap": "Otvori u Google Maps",
+    "openMap": "Otvori u Google kartama",
     "formHeading": "Pošaljite nam upit",
-    "formLead": "Unesite svoje podatke i poslat ćemo vam odgovor. Ako vam je brže, javite se putem WhatsAppa.",
+    "formLead": "Ostavite svoje podatke i javit ćemo vam se. Ako vam je brže, pišite nam na WhatsApp.",
     "copy": "Kopiraj",
     "copied": "Kopirano",
     "callLabel": "Nazovite nas",
@@ -334,10 +322,8 @@
   "Common": {
     "from": "od",
     "perDay": "dan",
-    "loading": "Učitavanje...",
     "backHome": "Povratak na početnu",
-    "notFound": "Stranica nije pronađena",
-    "backToTop": "Nazad na vrh",
+    "backToTop": "Natrag na vrh",
     "prevImage": "Prethodna slika",
     "nextImage": "Sljedeća slika",
     "closeGallery": "Zatvori galeriju",
@@ -369,15 +355,15 @@
       },
       {
         "title": "Zračna luka Mostar",
-        "body": "Preuzimanje i povrat i na Zračnoj luci Mostar."
+        "body": "Vozilo možete preuzeti i vratiti na Zračnoj luci Mostar."
       }
     ]
   },
   "HowItWorks": {
-    "eyebrow": "Kako funkcioniše",
+    "eyebrow": "Kako funkcionira",
     "title": "Do vozila u",
     "accent": "tri koraka",
-    "lead": "Bez otvaranja računa i bez komplikacija. Pošaljete upit, potvrdu dobijete na email, a mi se javljamo za sve ostalo.",
+    "lead": "Bez otvaranja računa i bez komplikacija. Pošaljete upit, potvrdu dobivate na email, a za sve ostalo javljamo se mi.",
     "cta": "Pogledajte vozila",
     "steps": [
       {
@@ -386,7 +372,7 @@
       },
       {
         "title": "Pošaljite upit",
-        "body": "Pošaljite upit putem forme ili WhatsAppa u par klikova."
+        "body": "Upit pošaljite putem obrasca ili WhatsAppa u nekoliko klikova."
       },
       {
         "title": "Preuzmite ključeve",
@@ -399,7 +385,7 @@
       "from": "Od",
       "to": "Do",
       "you": "Vi",
-      "youSub": "Gdje god da ste",
+      "youSub": "Gdje god bili",
       "destSub": "Zračna luka (OMO)",
       "step": "Korak",
       "payLabel": "Plaćanje",
@@ -413,20 +399,20 @@
   },
   "Reviews": {
     "eyebrow": "Povjerenje gostiju",
-    "title": "Šta kažu",
+    "title": "Što kažu",
     "accent": "naši gosti.",
     "count": "{count, plural, one {# recenzija na Googleu} few {# recenzije na Googleu} other {# recenzija na Googleu}}",
     "all": "Sve recenzije",
     "next": "Sljedeća recenzija",
     "verify": "Provjeri na Googleu",
     "paused": "Pauzirano",
-    "hint": "Pređite mišem ili dodirnite recenziju da je zaustavite",
+    "hint": "Prijeđite mišem preko recenzije ili je dodirnite da je zaustavite",
     "book": "Rezervirajte vozilo",
     "google": "Google recenzije",
     "recent": "Najnovije recenzije naših gostiju",
     "proofTitle": "Povjerenje koje",
     "proofAccent": "gradimo od 2009.",
-    "proofLead": "Gosti nas na Googleu ocjenjuju ocjenom {score}. Pročitajte njihova iskustva i uvjerite se sami.",
+    "proofLead": "Prosječna ocjena naših gostiju na Googleu je {score}. Pročitajte njihova iskustva i uvjerite se sami.",
     "proof": [
       "zadovoljnih klijenata",
       "godina s vama",
@@ -443,7 +429,7 @@
       {
         "label": "Za tvrtke",
         "title": "Poslovni najam i transferi",
-        "body": "Dugoročni najam s uključenim održavanjem, flotna rješenja na jedan račun i transferi do zračne luke i hotela.",
+        "body": "Dugoročni najam s uključenim održavanjem, cijeli vozni park na jednom računu i transferi do zračne luke i hotela.",
         "points": [
           "Dugoročni najam s održavanjem",
           "Cijela flota na jednom računu",
@@ -483,7 +469,7 @@
       },
       {
         "title": "Putovanja izvan BiH",
-        "body": "Vozilom možete i van granica BiH, uz prethodnu najavu i odgovarajuću dokumentaciju."
+        "body": "Vozilom možete i izvan granica BiH, uz prethodnu najavu i odgovarajuću dokumentaciju."
       }
     ],
     "route": {
@@ -500,22 +486,22 @@
     "items": [
       {
         "q": "Koja je minimalna dob za najam?",
-        "a": "21 godina, uz vozačku dozvolu stariju od 2 godine."
+        "a": "21 godina, uz vozačku dozvolu stariju od dvije godine."
       },
       {
-        "q": "Šta je potrebno za preuzimanje vozila?",
+        "q": "Što je potrebno za preuzimanje vozila?",
         "a": "Važeća osobna iskaznica ili putovnica i vozačka dozvola."
       },
       {
-        "q": "Šta je uključeno u cijenu najma?",
+        "q": "Što je uključeno u cijenu najma?",
         "a": "Osnovno osiguranje, vinjete za BiH i neograničena kilometraža."
       },
       {
-        "q": "Kako funkcioniše polog?",
+        "q": "Kako funkcionira polog?",
         "a": "Polog ovisi o klasi vozila i vraća se u cijelosti nakon urednog povrata."
       },
       {
-        "q": "Mogu li vozilo izvesti izvan BiH?",
+        "q": "Mogu li s vozilom izvan BiH?",
         "a": "Da, uz prethodnu najavu i odgovarajuću dokumentaciju."
       },
       {
@@ -543,14 +529,14 @@
     ],
     "search": "Pretraži pitanja",
     "clear": "Obriši pretragu",
-    "empty": "Nema takvog pitanja. Pišite nam na WhatsApp i javit ćemo se brzo.",
+    "empty": "Nismo pronašli to pitanje. Pišite nam na WhatsApp i brzo ćemo odgovoriti.",
     "supportTitle": "Tu smo 0 do 24",
     "support": "Pišite ili nazovite, kako vam je lakše. Javljamo se brzo, i vikendom.",
     "call": "Nazovite"
   },
   "Cta": {
     "title": "Spremni za put?",
-    "body": "Rezervirajte vozilo u par klikova. Dostupnost potvrđujemo u najkraćem roku.",
+    "body": "Rezervirajte vozilo u nekoliko klikova. Dostupnost potvrđujemo u najkraćem roku.",
     "primary": "Pogledajte vozila",
     "secondary": "Nazovite nas"
   },
@@ -561,14 +547,13 @@
     "lastNamePh": "Vaše prezime",
     "email": "Email",
     "emailPh": "vas@email.com",
-    "phone": "Kontakt broj",
-    "phonePh": "+387 ...",
+    "phone": "Broj telefona",
     "company": "Naziv tvrtke",
     "companyPh": "Naziv vaše tvrtke",
     "message": "Poruka",
     "messagePh": "Kako vam možemo pomoći?",
     "name": "Ime i prezime",
-    "optional": "opcionalno",
+    "optional": "neobavezno",
     "submit": "Pošalji upit",
     "sending": "Šaljem…",
     "whatsapp": "WhatsApp",
@@ -577,36 +562,29 @@
     "successText": "Hvala na upitu. Javit ćemo vam se u najkraćem mogućem roku.",
     "reference": "Broj upita",
     "sendAnother": "Pošalji novi upit",
-    "errorText": "Došlo je do greške pri slanju. Pokušajte ponovno ili nas kontaktirajte telefonom.",
-    "privacy": "Slanjem obrasca pristajete da vas kontaktiramo u vezi vašeg upita."
+    "errorText": "Došlo je do pogreške pri slanju. Pokušajte ponovno ili nas nazovite.",
+    "privacy": "Slanjem obrasca pristajete da vas kontaktiramo u vezi s vašim upitom."
   },
   "Seo": {
     "home": {
-      "title": "Najam vozila u Hercegovini: Mostar, Međugorje, Čitluk",
       "description": "Premium najam vozila u Hercegovini s preuzimanjem na 6 lokacija: Mostar, Međugorje, Čitluk, Čapljina i Ljubuški. Od gradskih automobila do luksuznih limuzina i SUV vozila. Provjerite dostupnost i rezervirajte."
     },
     "fleet": {
-      "title": "Vozni park: iznajmite automobil",
       "description": "Pregledajte vozni park Maximum Rent a Car: limuzine, SUV vozila, luksuzna i gradska vozila. Provjerite dostupnost za svoje datume i pošaljite upit za rezervaciju."
     },
     "about": {
-      "title": "O nama",
       "description": "Upoznajte Maximum Rent a Car, pouzdan najam vozila u Hercegovini od 2009. godine, s preuzimanjem na 6 lokacija i voznim parkom za svaku potrebu i budžet."
     },
     "business": {
-      "title": "Poslovni i dugoročni najam vozila",
       "description": "Dugoročni i poslovni najam vozila za tvrtke uz fleksibilne uvjete, povoljnije od klasičnog leasinga. Zatražite ponudu prilagođenu vašem poslovanju."
     },
     "terms": {
-      "title": "Uvjeti najma",
       "description": "Uvjeti najma vozila u Maximum Rent a Car: rezervacija, preuzimanje i povrat vozila, osiguranje i plaćanje, jasno i pregledno objašnjeni."
     },
     "contact": {
-      "title": "Kontakt i lokacije",
       "description": "Kontaktirajte Maximum Rent a Car putem telefona, emaila ili WhatsAppa. Sve lokacije u Hercegovini: Mostar, Međugorje, Čitluk, Čapljina i Ljubuški. Radno vrijeme od 07:30 do 20:30h."
     },
     "guides": {
-      "title": "Vodiči za vožnju po BiH: aerodrom, Međugorje, izleti i kazne",
       "description": "Preuzimanje vozila na Zračnoj luci Mostar, Međugorje autom, izleti na Kravice, Blagaj i Počitelj te prometne kazne i pravila vožnje u BiH."
     },
     "privacy": {
@@ -617,17 +595,14 @@
   "WeddingCars": {
     "eyebrow": "Posebne prilike",
     "p1": "Vjenčanje je poseban dan koji ćete pamtiti cijeli svoj život.",
-    "p2": "Na svoj poseban dan ne prepustite ništa slučaju. Nudimo Vam više vrsta luksuznih vozila, uključujući i nova vozila. Također nudimo i mogućnost najma dodatnih vozila za prijevoz kumova, roditelja, rodbine, prijatelja.",
-    "p3": "Budite zamijećeni sa stilom i elegancijom. Pretvorite Vaše vjenčanje u vjenčanje iz snova.",
+    "p2": "Na svoj poseban dan ne prepuštajte ništa slučaju. Nudimo vam više vrsta luksuznih vozila, uključujući i potpuno nova. Možete unajmiti i dodatna vozila za kumove, roditelje, rodbinu i prijatelje.",
     "imageAlt": "Luksuzno vozilo za vjenčanje {n}",
-    "title": "Automobili za Vaše",
+    "title": "Automobili za vaše",
     "accent": "vjenčanje",
     "waText": "Pozdrav, zanima me ponuda vozila za vjenčanje. Vozila za: {roles}.",
     "call": "Nazovite nas",
     "open": "Otvori galeriju",
     "cta": "Zatražite ponudu",
-    "rolesTitle": "Za koga trebate vozilo?",
-    "rolesHint": "Odaberite jedno ili više, ponudu šaljemo za sve.",
     "roles": [
       "Mladenci",
       "Kumovi",
@@ -637,18 +612,14 @@
   },
   "Extras": {
     "title": "Dodatna oprema",
-    "subtitle": "Nije obavezno. Javite nam šta vam treba, potvrđujemo uz rezervaciju.",
+    "subtitle": "Nije obavezno. Javite nam što vam treba, a mi ćemo to potvrditi uz rezervaciju.",
     "perDay": "dan",
     "included": "Uključeno",
     "increase": "Dodaj: {name}",
     "decrease": "Ukloni: {name}",
     "day": "dan",
     "days": "dana",
-    "rentalLine": "Najam vozila · {days} {dayWord}",
-    "estimate": "Procjena ukupno",
-    "estimateNote": "Okvirni iznos. Konačnu cijenu potvrđujemo uz rezervaciju.",
-    "freeLeft": "Slobodno još: {count}",
-    "unavailable": "Nedostupno u ovom periodu"
+    "rentalLine": "Najam vozila · {days} {dayWord}"
   },
   "Booking": {
     "perDay": "/ dan",
@@ -667,7 +638,7 @@
     "total": "Ukupno",
     "continue": "Nastavi na rezervaciju",
     "askWa": "Pitajte na WhatsAppu",
-    "deposit": "Depozit: {amount}",
+    "deposit": "Polog: {amount}",
     "noPrepay": "Bez plaćanja online",
     "confirmEmail": "Potvrdu rezervacije dobivate na email",
     "extrasTitle": "Dodatna oprema koju birate u sljedećem koraku",
@@ -686,17 +657,17 @@
       "Potvrda"
     ],
     "title": "Dovršite rezervaciju",
-    "lead": "Samo nekoliko podataka i rezervacija je poslana.",
+    "lead": "Još samo nekoliko podataka i rezervacija je poslana.",
     "details": "Vaši podaci",
     "firstName": "Ime",
     "lastName": "Prezime",
     "phone": "Telefon ili WhatsApp",
     "phoneHint": "Odaberite državu pa upišite broj.",
     "email": "Email",
-    "emailHint": "Ovdje šaljemo potvrdu rezervacije",
+    "emailHint": "Na ovu adresu šaljemo potvrdu rezervacije",
     "flight": "Broj leta",
     "flightHint": "Kako bismo pratili vaš dolazak",
-    "optional": "opcionalno",
+    "optional": "neobavezno",
     "noteTitle": "Želite li nam nešto poručiti?",
     "notePh": "Npr. stižem kasnim letom ili trebam dječju sjedalicu",
     "upsellTitle": "Za malo više",
@@ -711,14 +682,14 @@
     "terms": "Slanjem prihvaćate <link>uvjete najma</link>.",
     "summary": "Pregled rezervacije",
     "change": "Promijeni datume",
-    "depositLabel": "Depozit",
+    "depositLabel": "Polog",
     "errRequired": "Obavezno polje",
     "errEmail": "Upišite ispravan email",
     "errPhone": "Upišite broj telefona",
     "errGeneric": "Rezervacija nije poslana. Pokušajte ponovno ili nam pišite na WhatsApp.",
     "errBooked": "Ovo vozilo je zauzeto u tom terminu. Promijenite datume ili odaberite drugo vozilo.",
     "successTitle": "Rezervacija je poslana",
-    "successBody": "Potvrdu smo poslali na {email}, provjerite i spam folder. Javit ćemo vam se uskoro kako bismo potvrdili sve detalje.",
+    "successBody": "Potvrdu smo poslali na {email}, provjerite i mapu neželjene pošte. Uskoro ćemo vam se javiti kako bismo potvrdili sve detalje.",
     "reference": "Broj rezervacije",
     "backHome": "Natrag na početnu",
     "waUs": "Pišite nam na WhatsApp",
@@ -766,7 +737,7 @@
     "ctaTitle": "Spremni za put?",
     "ctaBody": "Odaberite vozilo i termin. Potvrdu upita dobivate na email.",
     "ctaButton": "Pogledajte vozila",
-    "whatsapp": "Pitajte nas na WhatsApp",
+    "whatsapp": "Pitajte nas na WhatsAppu",
     "back": "Svi vodiči",
     "more": "Pročitajte i",
     "finesTitle": "Kazne u BiH",

@@ -23,7 +23,6 @@ export function RangeFilter({
   const [start, setStart] = useState(from);
   const [end, setEnd] = useState(to);
 
-  // Follow the URL when it changes from elsewhere, such as the back button.
   useEffect(() => {
     setStart(from);
     setEnd(to);

@@ -36,7 +36,7 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
               `„Najmoprimatelj": fizička ili pravna osoba u čije ime se vozilo unajmljuje. U Ugovoru o najmu vozila navedena je kao „Najmoprimatelj" te je odgovorna za poštivanje svih točaka ovih Općih uvjeta o najmu i Ugovora o najmu.`,
               `„Ugovor": pojedinačni ugovor o najmu koji se potpisuje prilikom preuzimanja vozila u najam u kojem se odobrava korištenje vozila, definira preuzimanje i vraćanje vozila, pokriće, oprema i usluge uključene u cijenu najma i način plaćanja najma. Ugovor sadrži i informacije o stanju kilometraže, količini goriva, oštećenjima i eventualnim nedostacima na unajmljenom vozilu te druga prava i obveze koje obje ugovorne strane svojim potpisom u cijelosti prihvaćaju.`,
               `Stanje vozila prilikom izdavanja i Opći uvjeti najma smatraju se dijelom Ugovora o najmu vozila.`,
-              `„Vozač/dodatni vozač": fizička osoba navedena u Ugovoru o najmu kao „Korisnik" koja potpisuje Ugovor o najmu i preuzima vozilo, odgovorna za poštivanje svih odredbi Ugovora o najmu.`,
+              `„Vozač i dodatni vozač": fizička osoba navedena u Ugovoru o najmu kao „Korisnik" koja potpisuje Ugovor o najmu i preuzima vozilo, odgovorna za poštivanje svih odredbi Ugovora o najmu.`,
               `„Korisnik": Najmoprimatelj, vozač i dodatni vozač u daljnjem tekstu Općih uvjeta najma označavaju se jednom riječju: Korisnik.`,
               `„Vozilo" je objekt najma Ugovora, a čiji podaci su navedeni u Ugovoru.`,
             ],
@@ -49,7 +49,7 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
         blocks: [
           {
             type: "p",
-            text: `Potpisivanjem ovog Ugovora najmoprimatelj potvrđuje da je preuzeo vozilo u ispravnom i neoštećenom stanju i punog spremnika goriva, osim ako u Ugovoru nije izričito pismeno drugčije navedeno. Najmoprimatelj potvrđuje da je uz vozilo primio dokument za vozilo, ključeve za vozilo, svu obveznu opremu i pribor vozila kao i dodatnu opremu i pribor naveden u Ugovoru.`,
+            text: `Potpisivanjem ovog Ugovora najmoprimatelj potvrđuje da je preuzeo vozilo u ispravnom i neoštećenom stanju i punog spremnika goriva, osim ako u Ugovoru nije izričito pismeno drukčije navedeno. Najmoprimatelj potvrđuje da je uz vozilo primio dokument za vozilo, ključeve za vozilo, svu obveznu opremu i pribor vozila kao i dodatnu opremu i pribor naveden u Ugovoru.`,
           },
           {
             type: "p",
@@ -67,7 +67,7 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
             items: [
               `da će vozilo vratiti u mjesto preuzimanja i to najkasnije u roku utvrđenom ovim Ugovorom;`,
               `da će vozilo vratiti i prije ugovorenog roka, a na zahtjev najmodavatelja;`,
-              `da će vozilo vratiti ispravno i neoštećeno, sa svom dokumentacijom, ključevima, gumama, alatom, obaveznom, standardnom i dodatnom opremom, punim spremnikom goriva, kako ga je i preuzeo;`,
+              `da će vozilo vratiti ispravno i neoštećeno, sa svom dokumentacijom, ključevima, gumama, alatom, obveznom, standardnom i dodatnom opremom, punim spremnikom goriva, kako ga je i preuzeo;`,
               `novčane obveze prema ovom Ugovoru, ukoliko se ne plaćaju u vidu predujma ili pologa, Najmoprimatelj je dužan platiti odmah kod preuzimanja vozila;`,
               `da na teret njegove kreditne kartice ili nekim drugim načinom plaćanja, Najmodavatelj naplati sve troškove popravka, kvarova ili gubitka koji su otkriveni nakon što je vozilo vraćeno, a Najmoprimatelj nije o tome izvijestio Najmodavatelja u skladu s procedurom o povratu vozila;`,
               `da priznaje da je Najmodavatelj ovlašten teretiti njegovu kreditnu karticu za bilo kakve troškove koje najmodavatelj ima prema Ugovoru;`,
@@ -90,23 +90,23 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
         n: 4,
         topic: "Obveze Najmoprimatelja",
         blocks: [
-          { type: "p", text: `Obaveze Najmoprimatelja:` },
+          { type: "p", text: `Obveze Najmoprimatelja:` },
           {
             type: "ul",
             items: [
               `da će iznajmljeno vozilo preuzeti i koristiti sukladno Zakonu o sigurnosti prometa na cestama BiH ili bilo kojim drugim zakonom kojim je reguliran cestovni promet na području drugih država, te drugim važećim propisima;`,
-              `da će odmah prekinuti vožnju ukoliko se na vozilu dogodi kvar na brojaču kilometara, te o tome bez odlaganja izvijestiti Najmodavatelja;`,
+              `da će odmah prekinuti vožnju ukoliko se na vozilu dogodi kvar na brojaču kilometara, te o tome bez odgađanja izvijestiti Najmodavatelja;`,
               `da će vozilo koristiti samo za vlastite potrebe;`,
               `da će vozilom upravljati samo Najmoprimatelj ili osoba koja je pored Najmoprimatelja u Ugovoru navedena kao vozač, odnosno u Ugovoru navedena kao dodatni vozač, a sve pod uvjetom da te osobe imaju potrebne dozvole i dokumente za upravljanje vozilom;`,
               `da neće vozilo voziti izvan granica Bosne i Hercegovine, osim ako nije ugovorom naglašeno, kao i da neće voziti vozilo u zemlje u koje ulazak nije dopušten;`,
               `da neće vozilo koristiti u nedozvoljene svrhe, primjerice za vršenje kaznenih djela, carinskih, deviznih ili drugih prekršaja ili drugih nedozvoljenih radnji;`,
               `da neće vozilo pretovariti teretom ili putnicima;`,
               `da neće vozilom upravljati pod utjecajem alkohola ili narkotika;`,
-              `da će se brinuti o tehničkoj ispravnosti vozila i obaveznom periodičnom servisiranju vozila;`,
+              `da će se brinuti o tehničkoj ispravnosti vozila i obveznom periodičnom servisiranju vozila;`,
               `da će redovito kontrolirati i po potrebi nadopunjavati tekućinu za hlađenje, ulje i tlak u gumama;`,
-              `da će vozilo, kada ga ne koristi, obavezno zaključavati i uzimati ključeve i dokumentaciju vozila uz aktiviranje i drugih sigurnosnih uređaja ukoliko isti na vozilu postoje;`,
-              `da vozilo neće koristiti za prijevoz robe, tereta ili putnika; za vuču ili prijevoz drugih vozila ili prikolica; za prijevoz materijala, predmeta ili stvari koje mogu oštetiti ili zagaditi vozilo, primjerice životinja, lako zapaljivih materijala, natprosječno prljavih stvari ili stvari neugodnog mirisa; za utrke, moto-sportska ili druga slična natjecanja; te za obuku vozača.`,
-              `da će koristiti vozilo kao dobar domaćin / gospodarstvenik sukladno odredbama ZOO-a F BiH.`,
+              `da će vozilo, kada ga ne koristi, obvezno zaključavati i uzimati ključeve i dokumentaciju vozila uz aktiviranje i drugih sigurnosnih uređaja ukoliko isti na vozilu postoje;`,
+              `da vozilo neće koristiti za prijevoz robe, tereta ili putnika; za vuču ili prijevoz drugih vozila ili prikolica; za prijevoz materijala, predmeta ili stvari koje mogu oštetiti ili zagaditi vozilo, primjerice životinja, lako zapaljivih materijala, natprosječno prljavih stvari ili stvari neugodnog mirisa; za utrke, motosportska ili druga slična natjecanja; te za obuku vozača.`,
+              `da će koristiti vozilo kao dobar domaćin, odnosno dobar gospodarstvenik, sukladno odredbama Zakona o obligacijskim odnosima F BiH.`,
             ],
           },
         ],
@@ -180,7 +180,7 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
           },
           {
             type: "p",
-            text: `SCDW je pokriće s kojim se u potpunost otkupljuje financijska odgovornost učešća u šteti nastaloj na karoseriji vozila.`,
+            text: `SCDW je pokriće s kojim se u potpunosti otkupljuje financijska odgovornost učešća u šteti nastaloj na karoseriji vozila.`,
           },
           { type: "p", text: `Osiguranje ni u kojem slučaju ne pokriva:` },
           {
@@ -190,16 +190,16 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
               `štetu na donjem postroju vozila, unutrašnjosti vozila, vjetrobranskom i ostalim staklima vozila;`,
               `spaljeno kvačilo vozila;`,
               `štetu na motoru uzrokovanu nedostatkom ulja, ulijevanjem krive vrste goriva ili nemarnim korištenjem;`,
-              `šteta nastala gubitkom dokumenata, ključeva vozila ili registarskih pločica;`,
+              `štetu nastalu gubitkom dokumenata, ključeva vozila ili registarskih pločica;`,
               `štetu koju je napravio vozač pod utjecajem alkohola, droge ili drugih opojnih sredstava;`,
               `štetu koju je napravio neovlašteni vozač;`,
               `štetu koja je napravljena u inozemstvu, a prelazak granice nije bio odobren od strane Najmodavatelja;`,
-              `bilo koje oštećenje na vozilu koje nije prijavljeno nadležnoj policijskoj postaji / Najmodavatelju;`,
+              `bilo koje oštećenje na vozilu koje nije prijavljeno nadležnoj policijskoj postaji ili Najmodavatelju;`,
             ],
           },
           {
             type: "p",
-            text: `U slučaju bilo koje od gore navedenih štetnih događaja, Najmoprimatelj odgovara za puni iznos štete.`,
+            text: `U slučaju bilo kojeg od gore navedenih štetnih događaja, Najmoprimatelj odgovara za puni iznos štete.`,
           },
           {
             type: "p",
@@ -221,12 +221,12 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
               `čuvati vozilo do njegovog preuzimanja od strane Najmodavatelja;`,
               `zabilježiti imena i adrese sudionika i svjedoka;`,
               `pozvati nadležnu policijsku upravu i osigurati njihov zapisnik, osim u slučaju pogonske neispravnosti;`,
-              `bez odlaganja dati izjavu o događaju u najbližoj poslovnici Najmodavatelja.`,
+              `bez odgađanja dati izjavu o događaju u najbližoj poslovnici Najmodavatelja.`,
             ],
           },
           {
             type: "p",
-            text: `U slučaju da Najmoprimatelj ne osigura policijski zapisnik, sav trošak naknade štete u svezi s oštećenjem ili nestankom vozila pada na teret Najmoprimatelja u punom iznosu bez obzira na Najmoprimatelju krivicu za takav događaj. Najmoprimatelj prima na znanje da u slučaju nemarnog odnosa prema vozilu, dokumentima ili ključevima vozila kao i drugim slučajevima predviđenim pravilima osiguranja ili zakonom, može biti terećen regresnim zahtjevom osiguravatelja vozila.`,
+            text: `U slučaju da Najmoprimatelj ne osigura policijski zapisnik, sav trošak naknade štete u svezi s oštećenjem ili nestankom vozila pada na teret Najmoprimatelja u punom iznosu bez obzira na krivnju Najmoprimatelja za takav događaj. Najmoprimatelj prima na znanje da u slučaju nemarnog odnosa prema vozilu, dokumentima ili ključevima vozila kao i drugim slučajevima predviđenim pravilima osiguranja ili zakonom, može biti terećen regresnim zahtjevom osiguravatelja vozila.`,
           },
           {
             type: "p",
@@ -276,7 +276,7 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
         blocks: [
           {
             type: "p",
-            text: `Najmoprimatelj ne smije prenijeti prava ili obaveze po ovom Ugovoru na treće osobe, a niti smije otuđiti vozilo, dijelove ili opremu vozila ili vršiti bilo kakve preinake na vozilu.`,
+            text: `Najmoprimatelj ne smije prenijeti prava ili obveze po ovom Ugovoru na treće osobe, a niti smije otuđiti vozilo, dijelove ili opremu vozila ili vršiti bilo kakve preinake na vozilu.`,
           },
         ],
       },
@@ -286,7 +286,7 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
         blocks: [
           {
             type: "p",
-            text: `Na sva prava i obveze koja nisu regulirani ovim uvjetima primjenjivat će se odredbe Zakona o obveznim odnosima prema sjedištu Najmodavatelja.`,
+            text: `Na sva prava i obveze koji nisu regulirani ovim uvjetima primjenjivat će se odredbe Zakona o obveznim odnosima prema sjedištu Najmodavatelja.`,
           },
         ],
       },
@@ -321,7 +321,7 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
               `"Lessee": the natural or legal person in whose name the vehicle is rented. In the Vehicle Rental Agreement they are designated as the "Lessee" and are responsible for complying with all points of these General Rental Terms and of the Rental Agreement.`,
               `"Agreement": the individual rental agreement signed upon collection of the vehicle, which authorises the use of the vehicle and defines the collection and return of the vehicle, the coverage, the equipment and services included in the rental price, and the method of payment. The Agreement also contains information on the odometer reading, the amount of fuel, damage and any defects on the rented vehicle, as well as other rights and obligations which both contracting parties fully accept by their signature.`,
               `The condition of the vehicle at the time of handover and the General Rental Terms are considered part of the Vehicle Rental Agreement.`,
-              `"Driver / additional driver": the natural person named in the Rental Agreement as the "User", who signs the Rental Agreement and collects the vehicle, responsible for complying with all provisions of the Rental Agreement.`,
+              `"Driver and additional driver": the natural person named in the Rental Agreement as the "User", who signs the Rental Agreement and collects the vehicle, responsible for complying with all provisions of the Rental Agreement.`,
               `"User": the Lessee, the driver and the additional driver are, in the remainder of these General Rental Terms, referred to by the single term "User".`,
               `"Vehicle" is the object of the rental under the Agreement, whose details are stated in the Agreement.`,
             ],
@@ -338,7 +338,7 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
           },
           {
             type: "p",
-            text: `By signing the Agreement, the Lessee warrants to the Lessor that they meet the general minimum-age requirements for operating a motor vehicle and that they hold the documents required to operate a motor vehicle in accordance with the applicable regulations of Bosnia and Herzegovina, which they are obliged to present to the Lessor in the original, while a copy thereof remains in the Lessor's possession as an annex to the Agreement.`,
+            text: `By signing the Agreement, the Lessee warrants to the Lessor that they meet the general minimum age requirements for operating a motor vehicle and that they hold the documents required to operate a motor vehicle in accordance with the applicable regulations of Bosnia and Herzegovina, which they are obliged to present to the Lessor in the original, while a copy thereof remains in the Lessor's possession as an annex to the Agreement.`,
           },
         ],
       },
@@ -384,14 +384,14 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
               `to use the vehicle only for their own needs;`,
               `that the vehicle will be operated only by the Lessee or a person named in the Agreement as a driver alongside the Lessee, that is, named in the Agreement as an additional driver, provided that such persons hold the necessary licences and documents to operate the vehicle;`,
               `not to drive the vehicle outside the borders of Bosnia and Herzegovina, unless specified in the Agreement, and not to drive the vehicle into countries where entry is not permitted;`,
-              `not to use the vehicle for unlawful purposes, for example to commit criminal offences, customs, foreign-currency or other violations, or other unlawful acts;`,
+              `not to use the vehicle for unlawful purposes, for example to commit criminal offences, customs, foreign currency or other violations, or other unlawful acts;`,
               `not to overload the vehicle with cargo or passengers;`,
               `not to operate the vehicle under the influence of alcohol or narcotics;`,
               `to take care of the technical soundness of the vehicle and its mandatory periodic servicing;`,
               `to regularly check and, if necessary, top up the coolant, the oil and the tyre pressure;`,
               `when not using the vehicle, to always lock it and remove the keys and vehicle documentation, while also activating any other security devices if such exist on the vehicle;`,
               `not to use the vehicle to transport goods, cargo or passengers; to tow or transport other vehicles or trailers; to transport materials, objects or items that may damage or contaminate the vehicle, for example animals, highly flammable materials, excessively dirty items or items with an unpleasant odour; for races, motorsport or other similar competitions; or for driver training.`,
-              `to use the vehicle as a good steward / prudent businessperson in accordance with the provisions of the Obligations Act of the Federation of BiH.`,
+              `to use the vehicle as a good steward and prudent businessperson in accordance with the provisions of the Obligations Act of the Federation of BiH.`,
             ],
           },
         ],
@@ -435,7 +435,7 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
           },
           {
             type: "p",
-            text: `If, due to negligence of the vehicle's Lessee or driver, damage occurs to the engine or drivetrain of the vehicle (for example due to a lack of oil or coolant), in cases of damage to the oil pan, the clutch, the undercarriage of the vehicle or other faults caused by the negligence of the Lessee or driver (for example careless driving or driving off-road), the vehicle's Lessee shall reimburse the Lessor for the entire amount of the vehicle repair costs and, additionally, the amount of lost daily rental of the vehicle according to the applicable price list for the duration of the vehicle repair, but no more than 30 days, as well as all resulting damage such as, for example, vehicle towing costs or the diminished value of the vehicle. If, for any reason, special cleaning of the vehicle is required, the Lessor shall cover the cost of any necessary cleaning. The Lessor reserves the right to charge for the fuel-refilling service.`,
+            text: `If, due to negligence of the vehicle's Lessee or driver, damage occurs to the engine or drivetrain of the vehicle (for example due to a lack of oil or coolant), in cases of damage to the oil pan, the clutch, the undercarriage of the vehicle or other faults caused by the negligence of the Lessee or driver (for example careless driving or driving off the road), the vehicle's Lessee shall reimburse the Lessor for the entire amount of the vehicle repair costs and, additionally, the amount of lost daily rental of the vehicle according to the applicable price list for the duration of the vehicle repair, but no more than 30 days, as well as all resulting damage such as, for example, vehicle towing costs or the diminished value of the vehicle. If, for any reason, special cleaning of the vehicle is required, the Lessor shall cover the cost of any necessary cleaning. The Lessor reserves the right to charge for the fuel refilling service.`,
           },
         ],
       },
@@ -473,13 +473,13 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
             items: [
               `damage to tyres, rims and wheel rims;`,
               `damage to the vehicle's undercarriage, the vehicle interior, the windscreen and other vehicle glass;`,
-              `a burnt-out vehicle clutch;`,
+              `a burnt out vehicle clutch;`,
               `damage to the engine caused by a lack of oil, by filling with the wrong type of fuel, or by negligent use;`,
               `damage arising from the loss of documents, vehicle keys or registration plates;`,
               `damage caused by a driver under the influence of alcohol, drugs or other intoxicants;`,
               `damage caused by an unauthorised driver;`,
               `damage caused abroad where the border crossing was not approved by the Lessor;`,
-              `any damage to the vehicle that has not been reported to the competent police station / the Lessor;`,
+              `any damage to the vehicle that has not been reported to the competent police station or the Lessor;`,
             ],
           },
           {
@@ -529,11 +529,11 @@ export const RENTAL_TERMS: Record<"hr" | "en" | "de" | "es", TermsContent> = {
         blocks: [
           {
             type: "p",
-            text: `In the event of damage to the vehicle, the Lessee shall, at the Lessor's request, pay the full amount of the repair of the damaged vehicle and other losses the Lessor incurs due to the damage to the vehicle, including lost profit in the amount of the daily rental due to non-use of the vehicle during the repair period according to the applicable price list, but no more than 30 days.`,
+            text: `In the event of damage to the vehicle, the Lessee shall, at the Lessor's request, pay the full amount of the repair of the damaged vehicle and other losses the Lessor incurs due to the damage to the vehicle, including lost profit in the amount of the daily rental because the vehicle cannot be used during the repair period according to the applicable price list, but no more than 30 days.`,
           },
           {
             type: "p",
-            text: `In the event of theft of the vehicle or other circumstances due to which the Lessee is unable to return the vehicle to the Lessor at the end of the rental, the Lessee shall, at the Lessor's request, pay the full value of the vehicle, namely the purchase value of a new vehicle, according to the offer of the Lessor's supplier, as well as other losses the Lessor incurs due to the lack of the vehicle, including lost profit in the amount of the daily rental due to non-use of the vehicle according to the applicable price list, but no more than 30 days.`,
+            text: `In the event of theft of the vehicle or other circumstances due to which the Lessee is unable to return the vehicle to the Lessor at the end of the rental, the Lessee shall, at the Lessor's request, pay the full value of the vehicle, namely the purchase value of a new vehicle, according to the offer of the Lessor's supplier, as well as other losses the Lessor incurs due to the lack of the vehicle, including lost profit in the amount of the daily rental because the vehicle cannot be used according to the applicable price list, but no more than 30 days.`,
           },
           {
             type: "p",

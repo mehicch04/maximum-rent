@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { FallbackImage } from "@/components/ui/FallbackImage";
+import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { CalendarCheck, Heart, MapPin, ShieldCheck } from "lucide-react";
 import { buildPageMetadata } from "@/lib/seo";
@@ -27,7 +27,6 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: "/o-nama",
-    title: tSeo("about.title"),
     description: tSeo("about.description"),
     tab: tNav("about"),
   });
@@ -50,6 +49,10 @@ export default async function AboutPage({
   const count = company.rating.count ?? 0;
   const head = locations[0];
   const address = company.address ?? (head ? `${head.street}, ${head.city}` : "");
+
+  const branchPhoto = process.env.ABOUT_BRANCH_PHOTO;
+  const teamPhoto = process.env.ABOUT_TEAM_PHOTO;
+  const keysPhoto = process.env.ABOUT_KEYS_PHOTO;
 
   const stats: Stat[] = [
     { icon: "users", to: 4532, suffix: "+", label: t("stats.clientsLabel") },
@@ -80,14 +83,10 @@ export default async function AboutPage({
             </div>
           </div>
           <StoryCollage
-            main="/o-nama/poslovnica.webp"
-            side="/o-nama/tim.webp"
-            mainFallback="/hero-poster.webp"
-            sideFallback="/fleet-aerial.webp"
-            mainAlt={t("photoBranchAlt")}
-            sideAlt={t("photoTeamAlt")}
-            mainFallbackAlt={t("collageMainAlt")}
-            sideFallbackAlt={t("collageSideAlt")}
+            main={branchPhoto || "/hero-poster.webp"}
+            side={teamPhoto || "/fleet-aerial.webp"}
+            mainAlt={branchPhoto ? t("photoBranchAlt") : t("collageMainAlt")}
+            sideAlt={teamPhoto ? t("photoTeamAlt") : t("collageSideAlt")}
             score={score.toLocaleString(nf, { minimumFractionDigits: 1 })}
             reviews={t("reviews", { count })}
             badge={t("features.f1Title")}
@@ -108,11 +107,9 @@ export default async function AboutPage({
       <Band>
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-20 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-16">
           <div className="group relative aspect-[4/3] overflow-hidden rounded-[28px] lg:aspect-[4/5]">
-            <FallbackImage
-              src="/o-nama/predaja-kljuceva.webp"
-              fallback="/fleet-premium.webp"
-              alt={t("photoKeysAlt")}
-              fallbackAlt={t("imageAlt")}
+            <Image
+              src={keysPhoto || "/fleet-premium.webp"}
+              alt={keysPhoto ? t("photoKeysAlt") : t("imageAlt")}
               fill
               sizes="(max-width: 1023px) 100vw, 45vw"
               className="object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"

@@ -11,7 +11,6 @@ async function requireAdmin() {
   if (!ok) redirect("/admin/login");
 }
 
-/** Clears the cached list so the site shows the change straight away. */
 function refresh() {
   revalidateTag("extras");
   revalidatePath("/admin/oprema");
@@ -46,7 +45,6 @@ export async function saveExtra(formData: FormData) {
     if (id) await prisma.extra.update({ where: { id }, data });
     else await prisma.extra.create({ data });
   } catch (err) {
-    // Most likely the table does not exist yet (`prisma db push` not run).
     console.error("[extras] save failed:", err);
     redirect("/admin/oprema?error=1");
   }
@@ -63,7 +61,6 @@ export async function toggleExtra(formData: FormData) {
     try {
       await prisma.extra.update({ where: { id }, data: { isActive: next } });
     } catch {
-      /* already gone */
     }
   }
   refresh();
@@ -76,7 +73,6 @@ export async function deleteExtra(formData: FormData) {
     try {
       await prisma.extra.delete({ where: { id } });
     } catch {
-      /* already gone */
     }
   }
   refresh();

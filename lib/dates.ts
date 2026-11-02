@@ -31,12 +31,6 @@ export function shortDate(locale: string, iso: string): string {
   return new Intl.DateTimeFormat(intl(locale), { weekday: "short", day: "numeric", month: "short", year: "numeric" }).format(d);
 }
 
-export function longDate(locale: string, iso: string): string {
-  const d = new Date(`${iso}T12:00:00`);
-  if (Number.isNaN(d.getTime())) return "";
-  return new Intl.DateTimeFormat(intl(locale), { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(d);
-}
-
 export function localParts(iso: string, timeZone: string): { date: string; time: string } {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone,

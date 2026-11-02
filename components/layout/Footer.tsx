@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { formatHours } from "@/lib/hours";
 import { ArrowUpRight, Clock3, Facebook, Instagram, Mail, MapPin, Phone } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { NAV_LINKS } from "@/lib/site-config";
@@ -15,6 +16,7 @@ type Props = {
 export function Footer({ company, locations }: Props) {
   const t = useTranslations("Footer");
   const nav = useTranslations("Nav");
+  const locale = useLocale();
   const year = new Date().getFullYear();
   const phone = company.phones[0];
   const head = "text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40";
@@ -24,7 +26,7 @@ export function Footer({ company, locations }: Props) {
     "grid h-10 w-10 place-items-center rounded-full bg-white/[0.06] text-white/75 ring-1 ring-white/10 transition-colors hover:bg-brand hover:text-white hover:ring-brand";
 
   return (
-    <footer className="mt-24 px-3 pb-3 sm:px-4 sm:pb-4">
+    <footer className="site-footer mt-24 px-3 pb-3 sm:px-4 sm:pb-4">
       <div className="relative isolate overflow-hidden rounded-[28px] bg-ink text-white">
         <div aria-hidden className="pointer-events-none absolute -left-32 -top-40 -z-10 h-80 w-[560px] rounded-full bg-[radial-gradient(closest-side,rgba(227,6,19,0.28),transparent)]" />
         <div aria-hidden className="pointer-events-none absolute -bottom-48 right-[-10%] -z-10 h-96 w-[640px] rounded-full bg-[radial-gradient(closest-side,rgba(227,6,19,0.14),transparent)]" />
@@ -123,7 +125,7 @@ export function Footer({ company, locations }: Props) {
                 <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
                 <span className="text-sm">
                   <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">{t("hours")}</span>
-                  <span className="mt-0.5 block font-medium text-white/85">{company.hours}</span>
+                  <span className="mt-0.5 block font-medium text-white/85">{formatHours(company.hours, locale)}</span>
                 </span>
               </div>
             </div>

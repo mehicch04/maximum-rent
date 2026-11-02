@@ -50,7 +50,6 @@ const labelOf = <T extends string>(opts: Option<T>[], v: T) =>
 
 export const carClassLabel = (v: CarClass) => labelOf(CAR_CLASS_OPTIONS, v);
 
-/** URL-safe slug from text (handles HR diacritics). */
 export function slugify(input: string): string {
   const map: Record<string, string> = {
     č: "c", ć: "c", đ: "d", š: "s", ž: "z",

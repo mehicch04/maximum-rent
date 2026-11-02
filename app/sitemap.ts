@@ -21,7 +21,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
 
   for (const path of PATHS) {
-    // hreflang alternates shared by both locale variants of this page.
     const languages: Record<string, string> = {};
     for (const l of routing.locales) languages[l] = `${SITE_URL}/${l}${path}`;
 

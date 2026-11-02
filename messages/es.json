@@ -54,9 +54,8 @@
     "return": "Devolución",
     "days": "días",
     "day": "día",
-    "noResults": "No hay vehículos disponibles para las fechas elegidas. Prueba otro periodo o contáctanos.",
+    "noResults": "Prueba otras fechas o contáctanos.",
     "allVehicles": "Todos los vehículos",
-    "select": "Elegir",
     "class": "Clase",
     "year": "Año",
     "seats": "Plazas",
@@ -74,9 +73,7 @@
       "MINIBUS": "Minibús"
     },
     "invalidPeriod": "El periodo elegido no es válido, la devolución debe ser posterior a la recogida. Mostramos todos los vehículos.",
-    "viewAll": "Ver todos los vehículos",
     "sort": {
-      "label": "Ordenar:",
       "recommended": "Recomendados",
       "priceAsc": "Precio: de menor a mayor",
       "priceDesc": "Precio: de mayor a menor",
@@ -84,18 +81,10 @@
       "nameAsc": "Nombre: A a Z",
       "nameDesc": "Nombre: Z a A"
     },
-    "brandLabel": "Marca",
-    "allBrands": "Todas las marcas",
-    "resultsCount": "{count, plural, one {# vehículo} other {# vehículos}}",
-    "clearFilters": "Quitar filtros",
-    "typeLabel": "Tipo de vehículo",
-    "allTypes": "Todos los tipos",
-    "backToFleet": "Volver a la flota",
     "specifications": "Características",
     "description": "Sobre el vehículo",
     "similar": "Vehículos similares",
     "notOffered": "Este vehículo no está disponible actualmente.",
-    "bookNow": "Reservar este vehículo",
     "availableN": "{count, plural, one {# vehículo} other {# vehículos}}",
     "book": "Reservar",
     "clearAll": "Borrar todo",
@@ -146,7 +135,6 @@
   "Footer": {
     "contact": "Contacto",
     "locations": "Ubicaciones",
-    "follow": "Síguenos",
     "tagline": "Alquiler de coches de confianza en Herzegovina desde 2009.",
     "rights": "Todos los derechos reservados.",
     "hours": "Horario",
@@ -227,7 +215,7 @@
     "flexP1": "El alquiler a largo plazo está pensado para empresas y particulares. Con un servicio profesional te facilitamos el día a día y la gestión de tu flota. La flexibilidad de nuestro alquiler a largo plazo es imprescindible para la mayoría de las empresas modernas.",
     "flexP2": "Con el alquiler a largo plazo asumimos todos los riesgos financieros que con el leasing recaen sobre tu empresa. Tu balance no se ve afectado, solo pagas los días que usas el vehículo, controlas los gastos y tienes la garantía de que devolverlo antes de lo acordado no supone costes adicionales.",
     "simpleTitle": "Sencillez",
-    "simpleP1": "Si tu negocio es estacional, el alquiler a largo plazo te permite ajustar los costes a los periodos que planificas. A diferencia del leasing, no necesitas capital adicional ni aprobación financiera. Si necesitas más o menos vehículos, lo organizamos en muy poco tiempo, sin aviso previo ni planificación.",
+    "simpleP1": "Si tu negocio es estacional, el alquiler a largo plazo te permite ajustar los costes a los periodos que planificas. A diferencia del leasing, no necesitas capital adicional ni aprobación financiera. Si necesitas más o menos vehículos, lo organizamos en muy poco tiempo, sin largas planificaciones.",
     "simpleP2": "El alquiler a largo plazo permite costes mensuales mínimos y planificados, definidos por la duración mensual del alquiler y el kilometraje acordado.",
     "avgAgeLabel": "años es la edad media de nuestra flota",
     "minDaysLabel": "días es la duración mínima del alquiler",
@@ -305,7 +293,7 @@
     "infoEyebrow": "Contacta con nosotros",
     "infoTitle": "Estamos aquí",
     "infoAccent": "todos los días del año.",
-    "infoLead": "La forma más rápida de contactarnos es WhatsApp o teléfono. También puedes enviarnos una solicitud con el formulario.",
+    "infoLead": "La forma más rápida de contactarnos es por WhatsApp o por teléfono. También puedes enviarnos una solicitud con el formulario.",
     "chatOnline": "Disponibles 365 días",
     "chatGreeting": "¡Hola! ¿En qué podemos ayudarte? Elige un tema o escríbenos un mensaje.",
     "chatChips": [
@@ -334,9 +322,7 @@
   "Common": {
     "from": "desde",
     "perDay": "día",
-    "loading": "Cargando...",
     "backHome": "Volver al inicio",
-    "notFound": "Página no encontrada",
     "backToTop": "Volver arriba",
     "prevImage": "Foto anterior",
     "nextImage": "Foto siguiente",
@@ -443,7 +429,7 @@
       {
         "label": "Empresas",
         "title": "Alquiler para empresas y traslados",
-        "body": "Alquiler a largo plazo con mantenimiento incluido, soluciones de flota en una sola factura y traslados al aeropuerto y a hoteles.",
+        "body": "Alquiler a largo plazo con mantenimiento incluido, toda tu flota en una sola factura y traslados al aeropuerto y a hoteles.",
         "points": [
           "Alquiler a largo plazo con mantenimiento",
           "Toda tu flota en una sola factura",
@@ -465,7 +451,7 @@
       {
         "label": "Ubicaciones",
         "title": "Recogida en toda Herzegovina",
-        "body": "También te esperamos en el aeropuerto de Mostar. Tu coche te espera desde que aterrizas y lo devuelves donde mejor te venga.",
+        "body": "También te recibimos en el aeropuerto de Mostar. Tu coche está listo desde que aterrizas y lo devuelves donde mejor te venga.",
         "points": [
           "Aeropuerto de Mostar y 5 oficinas",
           "Devolución en otra ubicación",
@@ -543,7 +529,7 @@
     ],
     "search": "Buscar preguntas",
     "clear": "Borrar búsqueda",
-    "empty": "No hay ninguna pregunta así. Escríbenos por WhatsApp y te responderemos rápido.",
+    "empty": "No encontramos esa pregunta. Escríbenos por WhatsApp y te responderemos rápido.",
     "supportTitle": "Contigo 24/7",
     "support": "Escribe o llama, como prefieras. Respondemos rápido, también los fines de semana.",
     "call": "Llamar"
@@ -562,7 +548,6 @@
     "email": "Email",
     "emailPh": "tu@email.com",
     "phone": "Teléfono",
-    "phonePh": "+34 ...",
     "company": "Empresa",
     "companyPh": "Nombre de tu empresa",
     "message": "Mensaje",
@@ -582,31 +567,24 @@
   },
   "Seo": {
     "home": {
-      "title": "Alquiler de coches en Herzegovina: Mostar, Međugorje, Čitluk",
       "description": "Alquiler de coches en Herzegovina con recogida en 6 ubicaciones: Mostar, Međugorje, Čitluk, Čapljina y Ljubuški. Desde coches urbanos hasta berlinas de lujo y SUV. Consulta la disponibilidad y reserva."
     },
     "fleet": {
-      "title": "Nuestra flota: alquila un coche",
       "description": "Descubre la flota de Maximum Rent a Car: berlinas, SUV, coches de lujo y urbanos. Consulta la disponibilidad para tus fechas y envía una solicitud de reserva."
     },
     "about": {
-      "title": "Nosotros",
       "description": "Conoce Maximum Rent a Car: alquiler de coches de confianza en Herzegovina desde 2009, con recogida en 6 ubicaciones y una flota para cada necesidad."
     },
     "business": {
-      "title": "Alquiler para empresas y a largo plazo",
       "description": "Alquiler a largo plazo y para empresas con condiciones flexibles, más rentable que el leasing clásico. Pide una oferta a medida para tu negocio."
     },
     "terms": {
-      "title": "Condiciones de alquiler",
       "description": "Condiciones de alquiler de Maximum Rent a Car: reserva, recogida y devolución, seguro y pago, explicados de forma clara."
     },
     "contact": {
-      "title": "Contacto y ubicaciones",
       "description": "Contacta con Maximum Rent a Car: teléfono, email, WhatsApp y todas las ubicaciones en Herzegovina (Mostar, Međugorje, Čitluk, Čapljina, Ljubuški)."
     },
     "guides": {
-      "title": "Guías para conducir en Bosnia y Herzegovina: aeropuerto, Međugorje, excursiones y multas",
       "description": "Recogida del coche en el aeropuerto de Mostar, Međugorje en coche, excursiones a Kravice, Blagaj y Počitelj, y multas y normas de tráfico."
     },
     "privacy": {
@@ -618,7 +596,6 @@
     "eyebrow": "Ocasiones especiales",
     "p1": "Tu boda es un día especial que recordarás toda la vida.",
     "p2": "En tu gran día no dejes nada al azar. Te ofrecemos varios tipos de vehículos de lujo, incluidos modelos nuevos. También puedes alquilar vehículos adicionales para los padrinos, los padres, los familiares y los amigos.",
-    "p3": "Llama la atención con estilo y elegancia. Convierte tu boda en la boda de tus sueños.",
     "imageAlt": "Vehículo de lujo para bodas {n}",
     "title": "Coches para tu",
     "accent": "boda",
@@ -626,8 +603,6 @@
     "call": "Llámanos",
     "open": "Abrir galería",
     "cta": "Pedir oferta",
-    "rolesTitle": "¿Para quién necesitas el coche?",
-    "rolesHint": "Elige una o varias opciones y te enviamos una oferta para todo.",
     "roles": [
       "Los novios",
       "Los padrinos",
@@ -644,11 +619,7 @@
     "decrease": "Quitar: {name}",
     "day": "día",
     "days": "días",
-    "rentalLine": "Alquiler del vehículo · {days} {dayWord}",
-    "estimate": "Total estimado",
-    "estimateNote": "Importe aproximado. Confirmamos el precio final con tu reserva.",
-    "freeLeft": "Quedan {count}",
-    "unavailable": "No disponible para estas fechas"
+    "rentalLine": "Alquiler del vehículo · {days} {dayWord}"
   },
   "Booking": {
     "perDay": "/ día",
@@ -686,7 +657,7 @@
       "Confirmación"
     ],
     "title": "Completa tu reserva",
-    "lead": "Solo unos datos más y tu reserva estará enviada.",
+    "lead": "Solo unos datos más y enviamos tu reserva.",
     "details": "Tus datos",
     "firstName": "Nombre",
     "lastName": "Apellidos",
@@ -717,7 +688,7 @@
     "errPhone": "Introduce un número de teléfono",
     "errGeneric": "La reserva no se ha enviado. Inténtalo de nuevo o escríbenos por WhatsApp.",
     "errBooked": "Este coche está reservado para estas fechas. Cambia las fechas o elige otro coche.",
-    "successTitle": "Tu reserva está enviada",
+    "successTitle": "Tu reserva se ha enviado",
     "successBody": "Hemos enviado la confirmación a {email}, revisa también la carpeta de spam. Te contactaremos en breve para confirmar todos los detalles.",
     "reference": "Número de reserva",
     "backHome": "Volver al inicio",

@@ -12,7 +12,6 @@ export type ExtraItem = {
   pricing: ExtraPricing;
   price: number;
   maxQty: number;
-  /** Total pieces owned; availability is worked out against this. */
   totalStock: number;
 };
 
@@ -35,7 +34,6 @@ export const getActiveExtras = unstable_cache(
         totalStock: e.totalStock,
       }));
     } catch {
-      // Never let a missing table break the booking flow.
       return [];
     }
   },
@@ -49,7 +47,6 @@ export function rentalDays(pickupAt: Date, returnAt: Date): number {
   return Math.max(1, Math.ceil(ms / 86_400_000));
 }
 
-/** What one chosen extra costs for the whole rental. */
 export function extraLineTotal(
   pricing: ExtraPricing,
   unitPrice: number,

@@ -1,3 +1,4 @@
+import { formatHours } from "@/lib/hours";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { buildPageMetadata } from "@/lib/seo";
@@ -20,7 +21,6 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: "/kontakt",
-    title: tSeo("contact.title"),
     description: tSeo("contact.description"),
     tab: tNav("contact"),
   });
@@ -42,7 +42,7 @@ export default async function ContactPage({
     { kind: "phone", label: t("callLabel"), lines: company.phones.map((p) => ({ value: p.value, href: p.href, tag: p.label })) },
     { kind: "whatsapp", label: "WhatsApp", value: t("chat"), href: `https://wa.me/${company.whatsapp}` },
     { kind: "email", label: t("emailLabel"), value: company.email, href: `mailto:${company.email}`, copy: company.email },
-    { kind: "hours", label: t("hoursLabel"), value: company.hours },
+    { kind: "hours", label: t("hoursLabel"), value: formatHours(company.hours, locale) },
   ];
 
   const office = company.map.lat != null && company.map.lng != null ? `${company.map.lat},${company.map.lng}` : null;

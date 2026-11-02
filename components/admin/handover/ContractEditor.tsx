@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FileDown, FileText, Fuel, Gauge, IdCard, Loader2 } from "lucide-react";
+import { FileDown, FileText, Fuel, Gauge, IdCard } from "lucide-react";
 import { DateField } from "@/components/ui/DateField";
 import { TimeField } from "@/components/ui/TimeField";
 import { FUEL_LEVELS, type FuelLevel, type HandoverItem } from "./types";
@@ -14,7 +14,6 @@ const input =
 const lbl = "mb-1 block text-xs font-medium text-muted-foreground";
 const section = "text-xs font-semibold uppercase tracking-wide text-brand-strong";
 
-/** Details that only exist at the desk, filled in while the guest is standing there. */
 type Handover = {
   licence: string;
   document: string;
@@ -33,7 +32,6 @@ const EMPTY: Handover = {
   condition: "",
 };
 
-/** ISO timestamp into the date and time halves the pickers expect. */
 function split(iso: string) {
   const d = new Date(iso);
   const p = (n: number) => String(n).padStart(2, "0");
@@ -43,7 +41,6 @@ function split(iso: string) {
   };
 }
 
-/** 2026-09-12 -> 12.09.2026. */
 const fmtDate = (d: string) => {
   const [y, m, day] = d.split("-");
   return y && m && day ? `${day}.${m}.${y}.` : d;
@@ -108,7 +105,6 @@ export function ContractEditor({
     email,
     carTitle,
     plate,
-    // Printed the way people read dates here, not in the form's raw format.
     pickupAt: `${fmtDate(pickupDate)} u ${pickupTime}`,
     returnAt: `${fmtDate(returnDate)} u ${returnTime}`,
     pickupLocation: item.pickupLocation,
@@ -119,7 +115,6 @@ export function ContractEditor({
     ...h,
   });
 
-  /** Runs a generator and reports rather than failing silently. */
   const run = async (kind: "pdf" | "docx") => {
     setBusy(kind);
     setError("");
@@ -157,7 +152,6 @@ export function ContractEditor({
         </span>
       </div>
 
-      {/* ── Reservation, editable ── */}
       <div>
         <p className={`${section} mb-2`}>Podaci iz rezervacije</p>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -235,7 +229,6 @@ export function ContractEditor({
         </div>
       </div>
 
-      {/* ── Filled in at the desk ── */}
       <div>
         <p className={`${section} mb-2 flex items-center gap-1.5`}>
           <IdCard className="h-3.5 w-3.5" />

@@ -12,6 +12,7 @@ import { CurrencySwitch } from "@/components/currency/CurrencySwitch";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { LanguageToggle } from "./LanguageToggle";
 import { intlLocale } from "@/i18n/routing";
+import { formatHours } from "@/lib/hours";
 
 const useIso = typeof window === "undefined" ? useEffect : useLayoutEffect;
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -138,6 +139,7 @@ function PhoneMenu() {
 function TopBar() {
   const t = useTranslations("Nav");
   const company = useCompany();
+  const locale = useLocale();
   return (
     <div className="relative z-[60] bg-ink text-white/70">
       <div className="mx-auto flex h-9 max-w-[1320px] items-center justify-between gap-6 px-6 text-xs">
@@ -151,7 +153,7 @@ function TopBar() {
         <div className="flex items-center gap-5">
           <span className="inline-flex items-center gap-1.5">
             <Clock className="h-3.5 w-3.5 text-brand-400" />
-            {company.hours}
+            {formatHours(company.hours, locale)}
           </span>
           <PhoneMenu />
         </div>

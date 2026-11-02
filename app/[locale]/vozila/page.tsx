@@ -36,7 +36,6 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: "/vozila",
-    title: tSeo("fleet.title"),
     description: tSeo("fleet.description"),
     tab: tNav("vehicles"),
   });
@@ -64,7 +63,6 @@ export default async function VehiclesPage({
   const hasDates = isValidISO(pickupAtRaw) && isValidISO(returnAtRaw);
   const pickupDate = hasDates ? new Date(pickupAtRaw) : null;
   const returnDate = hasDates ? new Date(returnAtRaw) : null;
-  // Dates present but return <= pickup → show a friendly notice + all cars.
   const periodValid =
     !!pickupDate && !!returnDate && isValidPeriod(pickupDate, returnDate);
   const periodInvalid = hasDates && !periodValid;

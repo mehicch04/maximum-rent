@@ -3,7 +3,6 @@
 import { useCurrency } from "./CurrencyProvider";
 import { formatPrice } from "@/lib/currency";
 
-/** Renders a BAM-stored amount in the visitor's currently selected currency. */
 export function Price({
   bam,
   className,

@@ -31,7 +31,6 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: "/",
-    title: tSeo("home.title"),
     description: tSeo("home.description"),
   });
 }

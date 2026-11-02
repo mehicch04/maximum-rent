@@ -14,7 +14,6 @@ export default async function AdminExportPage() {
     ]);
     counts = { inquiries, cars, messages };
   } catch {
-    // Counts are a convenience; the export itself still works.
   }
 
   const cards = [

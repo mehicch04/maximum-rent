@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 
-/** "YYYY-MM-DD" for a local date, without timezone drift. */
 function toISODate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
     d.getDate(),
@@ -14,7 +13,7 @@ export function useReturnAfterPickup(
   returnDate: string,
   setReturnDate: (v: string) => void,
 ) {
-  const gapRef = useRef(2); // remembers how long they wanted the car
+  const gapRef = useRef(2);
 
   useEffect(() => {
     if (!pickupDate || !returnDate) return;
@@ -32,6 +31,5 @@ export function useReturnAfterPickup(
     const next = new Date(p);
     next.setDate(next.getDate() + Math.max(1, gapRef.current));
     setReturnDate(toISODate(next));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pickupDate, returnDate]);
 }

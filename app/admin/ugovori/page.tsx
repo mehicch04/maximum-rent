@@ -54,7 +54,6 @@ export default async function AdminHandoverPage() {
       returnLocation: r.returnLocation?.name ?? "",
       rentalDays: r.rentalDays ?? 1,
       overdue: r.status === "CONFIRMED" && r.pickupAt < new Date(),
-      // Already handed over; kept only so the contract can be printed again.
       active: r.status === "IN_PROGRESS",
       totalPrice: r.totalPrice != null ? Number(r.totalPrice) : null,
       extras: r.extras.map((e) => ({ name: e.nameHr, qty: e.qty })),

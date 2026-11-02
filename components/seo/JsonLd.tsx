@@ -11,16 +11,13 @@ const DAYS = [
   "Sunday",
 ];
 
-// Only emit real social profiles (the defaults in site-config are placeholders).
 function realSocials(): string[] {
   const out: string[] = [];
   for (const url of Object.values(SITE.socials)) {
     try {
       const u = new URL(url);
-      // skip bare "facebook.com" / "instagram.com" placeholders (no path)
       if (u.pathname && u.pathname !== "/") out.push(url);
     } catch {
-      /* ignore */
     }
   }
   return out;
@@ -41,7 +38,7 @@ export function JsonLd({ locale }: { locale: string }) {
     "@id": `${SITE_URL}/#business`,
     name: SITE.name,
     url: `${SITE_URL}/${locale}`,
-    image: `${SITE_URL}/og-image.jpg`,
+    image: `${SITE_URL}/og/hr.jpg`,
     logo: `${SITE_URL}/logo.png`,
     telephone: "+38763660444",
     email: SITE.email,

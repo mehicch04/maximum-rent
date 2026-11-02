@@ -57,7 +57,7 @@ function fmt(d: Date): string {
 }
 function fmtDay(d: Date): string {
   return new Intl.DateTimeFormat("hr-HR", {
-    timeZone: "UTC", // blocks are stored as UTC day boundaries
+    timeZone: "UTC",
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -180,7 +180,6 @@ const MESSAGES: Record<string, { text: string; tone: "ok" | "warn" | "err" }> =
 function phoneTerm(q: string): string | null {
   const digits = q.replace(/[^0-9]/g, "");
   if (digits.length < 3) return null;
-  // Half or more of the characters must be digits for this to be a number.
   return digits.length * 2 >= q.replace(/\s/g, "").length ? digits : null;
 }
 
@@ -231,7 +230,6 @@ export default async function AdminPage({
           { firstName: { contains: q, mode: "insensitive" as const } },
           { lastName: { contains: q, mode: "insensitive" as const } },
           { email: { contains: q, mode: "insensitive" as const } },
-          // Digits only, so "062 784 029" finds "+38762784029".
           ...(phoneTerm(q) ? [{ phone: { contains: phoneTerm(q)! } }] : []),
           { reference: { contains: q, mode: "insensitive" as const } },
           { carTitleSnapshot: { contains: q, mode: "insensitive" as const } },
@@ -265,7 +263,6 @@ export default async function AdminPage({
         pickupLocation: { select: { name: true } },
         returnLocation: { select: { name: true } },
         extras: true,
-        // Both directions of a swap, so the edit form can warn either way.
         continuesFrom: {
           select: { reference: true, carTitleSnapshot: true, pickupAt: true, returnAt: true },
         },
@@ -322,12 +319,10 @@ export default async function AdminPage({
   }));
   const carsForForm = cars.map((c) => ({
     id: c.id,
-    // Withdrawn cars stay selectable when editing, but say so in the label.
     title: c.isAvailable ? c.title : `${c.title} (nije u ponudi)`,
     pricePerDay: effectivePrice(c, seasonalPricing),
   }));
 
-  // A brand new booking should never start on a car that is out of the offer.
   const carsForNew = carsForForm.filter(
     (c) => cars.find((x) => x.id === c.id)?.isAvailable,
   );
@@ -381,7 +376,6 @@ export default async function AdminPage({
         </div>
       )}
 
-      {/* Status filter */}
       <div className="mt-6 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {FILTERS.map((f) => {
           const active = f.id === filter;
@@ -410,7 +404,6 @@ export default async function AdminPage({
         })}
       </div>
 
-      {/* Time-range filter */}
       <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <Clock className="h-4 w-4 flex-none text-muted-foreground" />
         {RANGES.map((r) => {
@@ -431,7 +424,6 @@ export default async function AdminPage({
         })}
       </div>
 
-      {/* Inquiries */}
       <div className="mt-5 space-y-4">
         {inquiries.length === 0 && (
           <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
@@ -739,7 +731,6 @@ export default async function AdminPage({
         })}
       </div>
 
-      {/* Manual blocks */}
       <h2 className="mt-12 font-display text-xl font-bold tracking-tight">
         Blokade vozila (servis i sl.)
       </h2>

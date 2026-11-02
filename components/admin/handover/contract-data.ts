@@ -1,5 +1,3 @@
-/** Everything the contract prints, gathered from the editor. */
-/** Who is issuing the contract. Printed at the very top of both formats. */
 export type ContractCompany = {
   name: string;
   address: string;
@@ -33,7 +31,6 @@ export type ContractData = {
 
 const dash = (v: string | null | undefined) => (v && v.trim() ? v.trim() : "—");
 
-/** Section title with the rows beneath it, shared by both exports. */
 export type Section = { title: string; rows: [string, string][] };
 
 function human(v: string): string {
@@ -89,7 +86,6 @@ export function contractSections(d: ContractData): Section[] {
   ];
 }
 
-/** Filename such as ugovor-MR-7K3P9W.pdf */
 export function contractFilename(reference: string, ext: string): string {
   const safe = (reference || "ugovor").replace(/[^A-Za-z0-9-]/g, "");
   return `ugovor-${safe}.${ext}`;
@@ -98,7 +94,6 @@ export function contractFilename(reference: string, ext: string): string {
 export const CONDITION_TITLE = "Postojeća oštećenja i napomene";
 export const SIGN_LEFT = "Potpis klijenta";
 export const SIGN_RIGHT = "Za agenciju";
-
 
 export function companyHeaderLines(c?: ContractCompany): string[] {
   if (!c) return [];

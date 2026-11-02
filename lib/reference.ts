@@ -8,7 +8,7 @@ export const REF_PREFIX = {
   message: "MP",
 } as const;
 
-export function newReference(prefix: string): string {
+function newReference(prefix: string): string {
   let body = "";
   for (let i = 0; i < LENGTH; i++) {
     body += ALPHABET[randomInt(ALPHABET.length)];
@@ -18,7 +18,7 @@ export function newReference(prefix: string): string {
 
 export async function withUniqueReference<T>(
   prefix: string,
-  create: (reference: string) => PromiseLike<T>,  // Prisma returns PrismaPromise
+  create: (reference: string) => PromiseLike<T>,
   attempts = 4,
 ): Promise<T> {
   let lastError: unknown;
@@ -26,7 +26,6 @@ export async function withUniqueReference<T>(
     try {
       return await create(newReference(prefix));
     } catch (err) {
-      // P2002 = unique constraint failed. Anything else is a real problem.
       const code = (err as { code?: string })?.code;
       if (code !== "P2002") throw err;
       lastError = err;

@@ -6,7 +6,6 @@ import { BadgePercent, BarChart3, Building2, CalendarCheck, Car, Download, FileS
 
 export type PendingCounts = { inquiries: number; messages: number };
 
-/** Which counter, if any, belongs on a tab. */
 const TABS = [
   { href: "/admin", label: "Rezervacije", icon: CalendarCheck, exact: true, badge: "inquiries" as const },
   { href: "/admin/vozila", label: "Vozila", icon: Car, exact: false },

@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 
 export type Consent = { v: 1; maps: boolean; ts: number };
 
-export const CONSENT_KEY = "mx-consent";
+const CONSENT_KEY = "mx-consent";
 export const CONSENT_OPEN = "mx:consent-open";
-export const CONSENT_CHANGE = "mx:consent";
+const CONSENT_CHANGE = "mx:consent";
 
 export function readConsent(): Consent | null {
   try {
@@ -25,8 +25,6 @@ export function saveConsent(maps: boolean): Consent {
   window.dispatchEvent(new CustomEvent(CONSENT_CHANGE, { detail: c }));
   return c;
 }
-
-export const openConsent = () => window.dispatchEvent(new Event(CONSENT_OPEN));
 
 export function useMapsConsent(): [boolean | null, (v: boolean) => void] {
   const [maps, setMaps] = useState<boolean | null>(null);

@@ -87,7 +87,7 @@ export default async function LocaleNotFound() {
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-brand/10 text-brand-strong transition-colors duration-300 group-hover:bg-brand group-hover:text-white">
                   <Icon className="h-5 w-5" />
                 </span>
-                <span className="min-w-0 flex-1 truncate font-display text-[15px] font-bold text-foreground">{nav(key)}</span>
+                <span className="min-w-0 flex-1 font-display text-[15px] font-bold leading-snug text-foreground [overflow-wrap:anywhere]">{nav(key)}</span>
                 <ArrowUpRight className="hidden h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand-strong sm:block" />
               </Link>
             </li>

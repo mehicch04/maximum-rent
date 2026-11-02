@@ -21,7 +21,6 @@ const STATUS: Record<string, string> = {
   COMPLETED: "Završeno",
 };
 
-/** Where the reservation came from, in words the owner uses. */
 const CHANNEL: Record<string, string> = {
   EMAIL: "Web",
   WHATSAPP: "WhatsApp",

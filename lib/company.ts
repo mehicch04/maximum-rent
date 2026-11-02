@@ -18,15 +18,13 @@ export type Company = {
   seasonalPricing: boolean;
 };
 
-/** Builds a dialable tel: value; the trunk "0" in brackets must be dropped. */
-export function telHref(phone: string): string {
+function telHref(phone: string): string {
   const digits = String(phone ?? "")
     .replace(/\([^)]*\)/g, "")
     .replace(/[^\d+]/g, "");
   return digits;
 }
 
-/** The values shipped with the site, used until the owner saves his own. */
 export const COMPANY_FALLBACK: Company = {
   name: SITE.name,
   email: SITE.email,
@@ -79,7 +77,6 @@ export const getCompany = unstable_cache(
         seasonalPricing: row.seasonalPricing,
       };
     } catch {
-      // A missing table must never take the whole site down.
       return COMPANY_FALLBACK;
     }
   },

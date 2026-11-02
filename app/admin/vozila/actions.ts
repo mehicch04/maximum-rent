@@ -63,7 +63,6 @@ export async function saveVehicle(formData: FormData): Promise<SaveResult> {
   }
   const { categories, ...rest } = parsed.data;
 
-  // Merge kept images with newly uploaded files.
   const existing = formData.getAll("existingImages").map(String).filter(Boolean);
   const files = formData
     .getAll("newImages")
@@ -111,7 +110,6 @@ export async function saveVehicle(formData: FormData): Promise<SaveResult> {
   return { ok: true };
 }
 
-/** Delete a vehicle. Form-action style (redirect back to the list). */
 export async function deleteVehicle(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id") ?? "");

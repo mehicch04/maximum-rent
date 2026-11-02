@@ -22,7 +22,6 @@ export function FleetDonut({ data }: { data: FleetSlice[] }) {
 
   useEffect(() => setMounted(true), []);
 
-  // Escape closes the dialog, and the page behind it must not scroll.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(null);

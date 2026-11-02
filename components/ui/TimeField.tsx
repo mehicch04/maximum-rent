@@ -4,8 +4,7 @@ import { ChevronDown } from "lucide-react";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** 00:00 → 23:30 in half-hour steps. Always 24h, never AM/PM. */
-export const TIME_SLOTS = Array.from(
+const TIME_SLOTS = Array.from(
   { length: 48 },
   (_, i) => `${pad(Math.floor(i / 2))}:${i % 2 ? "30" : "00"}`,
 );
@@ -19,7 +18,6 @@ export function TimeField({
   className = "",
 }: {
   id?: string;
-  /** Submitted with the form; the value rides along in a hidden input. */
   name?: string;
   value: string;
   onChange: (v: string) => void;

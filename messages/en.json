@@ -10,7 +10,7 @@
     "menu": "Menu",
     "language": "Language",
     "rating": "{count, plural, one {# review} other {# reviews}} on Google",
-    "airport": "Pick-up at Mostar Airport too",
+    "airport": "Pickup also at Mostar Airport",
     "book": "Book now",
     "call": "Call",
     "copy": "Copy"
@@ -18,7 +18,7 @@
   "Hero": {
     "eyebrow": "Rent a Car · Herzegovina",
     "title": "Your key to freedom on the road",
-    "subtitle": "A premium fleet, pick-up at 6 locations, and booking without compromise. From city cars to luxury saloons.",
+    "subtitle": "A premium fleet, pickup at 6 locations and easy booking. From city cars to luxury sedans.",
     "ctaSearch": "Book a vehicle",
     "ctaFleet": "View the fleet",
     "scroll": "Explore",
@@ -31,17 +31,17 @@
   },
   "Search": {
     "title": "Find your vehicle",
-    "pickupLocation": "Pick-up location",
+    "pickupLocation": "Pickup location",
     "returnLocation": "Return location",
-    "pickupDate": "Pick-up date",
+    "pickupDate": "Pickup date",
     "returnDate": "Return date",
     "time": "Time",
     "sameLocation": "Return to the same location",
     "search": "Search cars",
     "placeholder": "Select a location",
     "errRequired": "Please fill in all fields.",
-    "errOrder": "Return must be after pick-up.",
-    "sameAsPickup": "Same as pick-up",
+    "errOrder": "The return date must be after the pickup date.",
+    "sameAsPickup": "Same as pickup",
     "change": "Change"
   },
   "Fleet": {
@@ -50,13 +50,12 @@
     "resultsTitle": "Search results",
     "detailsTitle": "Reservation details",
     "period": "Period",
-    "pickup": "Pick-up",
+    "pickup": "Pickup",
     "return": "Return",
     "days": "days",
     "day": "day",
-    "noResults": "No vehicles available for the selected dates. Try another period or contact us.",
+    "noResults": "Try other dates or contact us.",
     "allVehicles": "All vehicles",
-    "select": "Select",
     "class": "Class",
     "year": "Year",
     "seats": "Seats",
@@ -70,13 +69,11 @@
       "COMPACT": "Compact",
       "KARAVAN": "Estate",
       "CABRIO": "Convertible",
-      "TRANSPORT": "Transport",
+      "TRANSPORT": "Van",
       "MINIBUS": "Minibus"
     },
-    "invalidPeriod": "The selected period isn't valid, the return date must be after pick-up. Showing all vehicles.",
-    "viewAll": "View all vehicles",
+    "invalidPeriod": "The selected period is not valid, the return date must be after pickup. Showing all vehicles.",
     "sort": {
-      "label": "Sort by:",
       "recommended": "Recommended",
       "priceAsc": "Price: low to high",
       "priceDesc": "Price: high to low",
@@ -84,18 +81,10 @@
       "nameAsc": "Name: A to Z",
       "nameDesc": "Name: Z to A"
     },
-    "brandLabel": "Brand",
-    "allBrands": "All brands",
-    "resultsCount": "{count, plural, one {# vehicle} other {# vehicles}}",
-    "clearFilters": "Clear filters",
-    "typeLabel": "Vehicle type",
-    "allTypes": "All types",
-    "backToFleet": "Back to fleet",
     "specifications": "Specifications",
     "description": "About this car",
     "similar": "Similar vehicles",
     "notOffered": "This vehicle is not currently offered.",
-    "bookNow": "Book this vehicle",
     "availableN": "{count, plural, one {# vehicle} other {# vehicles}}",
     "book": "Book now",
     "clearAll": "Clear all",
@@ -131,13 +120,13 @@
       "no": "No"
     },
     "eyebrow": "Our fleet",
-    "noResultsTitle": "No cars free for these dates",
+    "noResultsTitle": "No cars available for these dates",
     "showAll": "Show all vehicles",
     "askUs": "Ask us on WhatsApp",
     "nearestTitle": "Nearest free dates",
-    "nearestLead": "Same rental length, slightly shifted:",
-    "freeN": "{count, plural, one {# car free} other {# cars free}}",
-    "orAsk": "Or message us and we will find a solution for your dates.",
+    "nearestLead": "Same rental length, slightly different dates:",
+    "freeN": "{count, plural, one {# car available} other {# cars available}}",
+    "orAsk": "You can also message us and we will gladly find a solution for your dates.",
     "photoN": "Photo {n}",
     "enlarge": "Enlarge photo",
     "goodToKnow": "Good to know",
@@ -146,7 +135,6 @@
   "Footer": {
     "contact": "Contact",
     "locations": "Locations",
-    "follow": "Follow us",
     "tagline": "Reliable car rental across Herzegovina since 2009.",
     "rights": "All rights reserved.",
     "hours": "Working hours",
@@ -159,7 +147,7 @@
   "About": {
     "eyebrow": "About us",
     "title": "Reliable car rental in the heart of Herzegovina",
-    "lead": "MAXIMUM RENT A CAR d.o.o. was founded in April 2009. Through professional service and a high-quality, reliable fleet that we expand every day, we have built a recognisable image for our company. Our core motto is the satisfaction of every client, the main factor that drives us toward perfecting our services.",
+    "lead": "MAXIMUM RENT A CAR d.o.o. was founded in April 2009. With professional service and a reliable fleet that keeps growing, we have built a name people recognise. Our motto is the satisfaction of every client, and that is what drives us to keep improving.",
     "intro2": "We are based in Međugorje, the largest religious and tourist centre not only in Bosnia and Herzegovina but in this part of Europe. Besides Međugorje, vehicles can also be collected in Mostar, at Mostar Airport, and in Čitluk, Ljubuški and Čapljina.",
     "stats": {
       "clientsLabel": "Happy clients",
@@ -168,19 +156,19 @@
       "branchesLabel": "Locations"
     },
     "storyTitle": "Who we are",
-    "storyP1": "MAXIMUM RENT A CAR d.o.o. is defined by an exceptionally high-quality fleet and friendly staff, always ready to meet every client's request. We work 365 days a year and are available to you even outside business hours.",
-    "storyP2": "For everyone who comes to Međugorje, whether for tourism or business, our company is fully at your disposal. You can read all rental terms and other information on our website, or contact us through the contact form, where our phone numbers are also listed.",
+    "storyP1": "MAXIMUM RENT A CAR d.o.o. stands out for an excellent fleet and friendly staff, always ready to help with any request. We work 365 days a year and are available even outside business hours.",
+    "storyP2": "Whether you come to Međugorje as a tourist or on business, we are at your service. You will find the rental terms and other information on our website, and you can reach us through the form, by phone or on WhatsApp.",
     "features": {
       "f1Title": "Available 365 days",
-      "f1Text": "We work every day of the year and accommodate you even outside business hours.",
+      "f1Text": "We work every day of the year and help out even outside business hours.",
       "f2Title": "Six locations",
       "f2Text": "Collection in Međugorje, Mostar, at Mostar Airport, and in Čitluk, Ljubuški and Čapljina.",
       "f3Title": "Reliable fleet",
-      "f3Text": "High-quality vehicles that are regularly maintained and renewed.",
+      "f3Text": "Quality vehicles that are regularly serviced and renewed.",
       "f4Title": "Customer satisfaction",
-      "f4Text": "The satisfaction of every client is the main factor behind everything we do."
+      "f4Text": "Every client's satisfaction is the measure of everything we do."
     },
-    "headerLead": "Since 2009 we have been renting reliable cars in Herzegovina, with pick-up at six locations.",
+    "headerLead": "Since 2009 we have been renting reliable cars in Herzegovina, with pickup at six locations.",
     "storyHeadline": "Reliable rental",
     "storyAccent": "since 2009.",
     "collageMainAlt": "The Maximum Rent a Car fleet",
@@ -221,14 +209,14 @@
   },
   "Business": {
     "eyebrow": "Business offer",
-    "title": "Long-term car rental for your business",
+    "title": "Long term car rental for your business",
     "lead": "Professional fleet management without burdening your balance sheet. Flexible, simple and with a predictable monthly cost.",
     "flexTitle": "Flexibility",
-    "flexP1": "Long-term rental is intended for all legal entities and individuals, with the goal of using a professional service to make your operations and fleet management easier. The flexibility our long-term rent a car offers is a must for most modern companies.",
-    "flexP2": "With long-term rental we highlight the advantage of us assuming all the financial risks that, with leasing, fall on your company. Your balance sheet is not burdened, you pay only for the number of days you use the vehicle, you keep control over expenses, and you have the guarantee that returning the vehicle before the agreed time brings no additional costs.",
+    "flexP1": "Long term rental is designed for companies and individuals who want a professional service that makes running a fleet easier. The flexibility of our long term rental is a must for most modern companies.",
+    "flexP2": "The biggest advantage of long term rental is that we take on all the financial risks that leasing puts on your company. Your balance sheet stays clear, you pay only for the days you use the vehicle, you keep control of costs, and returning the vehicle early brings no extra charges.",
     "simpleTitle": "Simplicity",
-    "simpleP1": "If your business is seasonal, long-term rental lets you optimise costs around the periods you plan for. Unlike leasing, with no need for additional capital or financial approval, if you need more or fewer vehicles the rental can be arranged at very short notice, without prior announcement or planning.",
-    "simpleP2": "Long-term rental enables minimal, planned monthly costs, defined by the monthly rental term and the agreed mileage.",
+    "simpleP1": "If your business is seasonal, long term rental lets you match costs to the periods you plan for. Unlike leasing, you need no extra capital or financing approval, and if you need more or fewer vehicles, we arrange it at very short notice.",
+    "simpleP2": "Long term rental keeps monthly costs low and predictable, based on the rental length in months and the agreed mileage.",
     "avgAgeLabel": "years is the average age of our fleet",
     "minDaysLabel": "days is the minimum rental period",
     "servicesTitle": "Included services",
@@ -241,7 +229,7 @@
       "Tyre storage",
       "Damage management"
     ],
-    "compareCol1": "Long-term rental",
+    "compareCol1": "Long term rental",
     "compareCol2": "Classic leasing",
     "compareRows": [
       "No documentation for leasing approval or company creditworthiness assessment",
@@ -254,7 +242,7 @@
       "Comprehensive (collision) insurance",
       "Replacement vehicle in case of breakdown or damage",
       "24/7 assistance for vehicle replacement",
-      "Seasonal tyre changeover (summer / winter)",
+      "Summer and winter tyre changes",
       "Vehicle delivery and collection",
       "Mobility guarantee"
     ],
@@ -263,30 +251,30 @@
     "servicesCountLabel": "services included in the monthly price",
     "assistLabel": "assistance for vehicle replacement",
     "headerCta": "Request a quote",
-    "waText": "Hi, I'm interested in long-term car rental for my company.",
-    "whyEyebrow": "Why long-term rental",
+    "waText": "Hi, I'm interested in long term car rental for my company.",
+    "whyEyebrow": "Why long term rental",
     "whyTitle": "A fleet without",
     "whyAccent": "balance sheet burden.",
     "servicesEyebrow": "All included",
     "compareEyebrow": "Comparison",
-    "compareHeading": "Long-term rental or",
+    "compareHeading": "Long term rental or",
     "compareAccent": "classic leasing?",
     "compareHint": "Switch between the options and see what you get.",
-    "compareYes": "included in long-term rental",
+    "compareYes": "included in long term rental",
     "compareNo": "not included in classic leasing",
     "formEyebrow": "Quote"
   },
   "Terms": {
     "title": "Rental terms",
-    "lead": "Transparent terms for a worry-free rental.",
+    "lead": "Clear terms for a carefree rental.",
     "items": [
-      "Minimum driver age is 21, with a driving licence held for over 2 years.",
-      "A valid ID/passport and driving licence are required to collect the vehicle.",
+      "The minimum driver age is 21, with a driving licence held for more than 2 years.",
+      "A valid ID card or passport and a driving licence are needed to collect the vehicle.",
       "The rental price includes basic insurance, BiH vignettes and unlimited mileage.",
       "The deposit depends on the vehicle class and is fully refunded after a proper return.",
       "The vehicle is collected and returned with a full fuel tank.",
       "Taking the vehicle outside BiH is possible with prior notice and the right paperwork.",
-      "Free cancellation is available up to 48 hours before pick-up."
+      "Free cancellation is possible up to 48 hours before pickup."
     ]
   },
   "Contact": {
@@ -297,7 +285,7 @@
     "mapHeading": "Where to find us",
     "openMap": "Open in Google Maps",
     "formHeading": "Send us an inquiry",
-    "formLead": "Enter your details and we'll reply. If it's quicker for you, reach us via WhatsApp.",
+    "formLead": "Leave your details and we will get back to you. If it's quicker, message us on WhatsApp.",
     "copy": "Copy",
     "copied": "Copied",
     "callLabel": "Call us",
@@ -307,7 +295,7 @@
     "infoAccent": "every day of the year.",
     "infoLead": "The quickest way to reach us is WhatsApp or phone. You can also send an inquiry through the form.",
     "chatOnline": "Available 365 days",
-    "chatGreeting": "Hi! How can we help? Pick a topic or write us a message.",
+    "chatGreeting": "Hi! How can we help? Pick a topic or send us a message.",
     "chatChips": [
       {
         "label": "Car availability",
@@ -319,7 +307,7 @@
       },
       {
         "label": "Business rental",
-        "text": "Hi, I'm interested in long-term rental for my company."
+        "text": "Hi, I'm interested in long term rental for my company."
       },
       {
         "label": "Mostar Airport",
@@ -328,15 +316,13 @@
     ],
     "whatsapp": "Open WhatsApp",
     "mapEyebrow": "Locations",
-    "mapLead": "Six pick-up and return locations across Herzegovina. Choose a location to see it on the map.",
+    "mapLead": "Six pickup and return locations across Herzegovina. Choose one to see it on the map.",
     "route": "Directions"
   },
   "Common": {
     "from": "from",
     "perDay": "day",
-    "loading": "Loading...",
     "backHome": "Back to home",
-    "notFound": "Page not found",
     "backToTop": "Back to top",
     "prevImage": "Previous photo",
     "nextImage": "Next photo",
@@ -369,7 +355,7 @@
       },
       {
         "title": "Mostar Airport",
-        "body": "Pick-up and return at Mostar Airport too."
+        "body": "Pickup and return are also possible at Mostar Airport."
       }
     ]
   },
@@ -424,8 +410,8 @@
     "book": "Book a vehicle",
     "google": "Google reviews",
     "recent": "Latest reviews from our guests",
-    "proofTitle": "Trust we have",
-    "proofAccent": "built since 2009.",
+    "proofTitle": "Trust built",
+    "proofAccent": "since 2009.",
     "proofLead": "Guests rate us {score} on Google. Read their experiences and see for yourself.",
     "proof": [
       "happy clients",
@@ -443,9 +429,9 @@
       {
         "label": "For business",
         "title": "Business rental and transfers",
-        "body": "Long-term rental with maintenance included, fleet solutions on a single invoice and transfers to the airport and hotels.",
+        "body": "Long term rental with maintenance included, your whole fleet on one invoice and transfers to the airport and hotels.",
         "points": [
-          "Long-term rental with maintenance",
+          "Long term rental with maintenance",
           "Your whole fleet on one invoice",
           "Transfers to the airport and hotels"
         ],
@@ -464,7 +450,7 @@
       },
       {
         "label": "Locations",
-        "title": "Pick-up across Herzegovina",
+        "title": "Pickup across Herzegovina",
         "body": "We also meet you at Mostar Airport. Your car is waiting from the moment you land, and you return it wherever suits you.",
         "points": [
           "Mostar Airport and 5 offices",
@@ -500,7 +486,7 @@
     "items": [
       {
         "q": "What is the minimum rental age?",
-        "a": "21 years, with a driving licence held for over 2 years."
+        "a": "21 years, with a driving licence held for more than 2 years."
       },
       {
         "q": "What do I need to collect the vehicle?",
@@ -520,7 +506,7 @@
       },
       {
         "q": "Can I cancel my reservation?",
-        "a": "Free cancellation is available up to 48 hours before pick-up."
+        "a": "Free cancellation is possible up to 48 hours before pickup."
       }
     ],
     "facts": [
@@ -543,7 +529,7 @@
     ],
     "search": "Search questions",
     "clear": "Clear search",
-    "empty": "No such question. Message us on WhatsApp and we'll reply quickly.",
+    "empty": "We couldn't find that question. Message us on WhatsApp and we'll reply quickly.",
     "supportTitle": "Here for you 24/7",
     "support": "Message or call, whichever suits you. We reply quickly, weekends too.",
     "call": "Call"
@@ -562,7 +548,6 @@
     "email": "Email",
     "emailPh": "you@email.com",
     "phone": "Phone",
-    "phonePh": "+387 ...",
     "company": "Company",
     "companyPh": "Your company name",
     "message": "Message",
@@ -582,31 +567,24 @@
   },
   "Seo": {
     "home": {
-      "title": "Car Rental in Herzegovina: Mostar, Međugorje, Čitluk",
       "description": "Premium car rental in Herzegovina with pickup at 6 locations: Mostar, Međugorje, Čitluk, Čapljina and Ljubuški. From city cars to luxury sedans and SUVs. Check availability and book."
     },
     "fleet": {
-      "title": "Our Fleet: rent a car",
       "description": "Browse the Maximum Rent a Car fleet of sedans, SUVs, luxury and city cars. Check availability for your dates and send a reservation inquiry."
     },
     "about": {
-      "title": "About Us",
       "description": "Meet Maximum Rent a Car, reliable car rental in Herzegovina since 2009, with pickup at 6 locations and a fleet for every need and budget."
     },
     "business": {
-      "title": "Business & Long-Term Car Rental",
-      "description": "Long term and corporate car rental for companies with flexible terms, more cost effective than classic leasing. Request an offer tailored to your business."
+      "description": "Long term and corporate car rental for companies, with flexible terms and better value than classic leasing. Request an offer tailored to your business."
     },
     "terms": {
-      "title": "Rental Terms",
       "description": "Maximum Rent a Car rental terms: booking, vehicle pickup and return, insurance and payment conditions, clearly laid out."
     },
     "contact": {
-      "title": "Contact & Locations",
       "description": "Contact Maximum Rent a Car by phone, email or WhatsApp. All locations across Herzegovina: Mostar, Međugorje, Čitluk, Čapljina and Ljubuški. Open from 07:30 to 20:30."
     },
     "guides": {
-      "title": "Driving guides for Bosnia and Herzegovina: airport, Međugorje, day trips and fines",
       "description": "Car pickup at Mostar Airport, Međugorje by car, day trips to Kravice, Blagaj and Počitelj, plus traffic fines and driving rules in Bosnia and Herzegovina."
     },
     "privacy": {
@@ -617,8 +595,7 @@
   "WeddingCars": {
     "eyebrow": "Special occasions",
     "p1": "Your wedding is a special day you will remember for the rest of your life.",
-    "p2": "On your special day, leave nothing to chance. We offer several types of luxury vehicles, including brand-new models. We can also arrange additional vehicles to transport your best man and maid of honour, parents, relatives and friends.",
-    "p3": "Be noticed, with style and elegance. Turn your wedding into the wedding of your dreams.",
+    "p2": "On your special day, leave nothing to chance. We offer several types of luxury vehicles, including brand new models. We can also arrange extra vehicles for your best man and maid of honour, parents, relatives and friends.",
     "imageAlt": "Luxury wedding vehicle {n}",
     "title": "Cars for your",
     "accent": "wedding",
@@ -626,8 +603,6 @@
     "call": "Call us",
     "open": "Open gallery",
     "cta": "Request a quote",
-    "rolesTitle": "Who needs a car?",
-    "rolesHint": "Pick one or more and we send one quote for all.",
     "roles": [
       "The couple",
       "Best man",
@@ -644,25 +619,21 @@
     "decrease": "Remove: {name}",
     "day": "day",
     "days": "days",
-    "rentalLine": "Vehicle rental · {days} {dayWord}",
-    "estimate": "Estimated total",
-    "estimateNote": "Approximate amount. We confirm the final price with your booking.",
-    "freeLeft": "{count} left",
-    "unavailable": "Not available for these dates"
+    "rentalLine": "Vehicle rental · {days} {dayWord}"
   },
   "Booking": {
     "perDay": "/ day",
-    "pickupPlace": "Pick-up place",
+    "pickupPlace": "Pickup place",
     "returnPlace": "Return place",
     "choose": "Choose a place",
-    "pickupDate": "Pick-up",
+    "pickupDate": "Pickup",
     "returnDate": "Return",
     "time": "Time",
-    "free": "Free for your dates",
+    "free": "Available for your dates",
     "booked": "Booked for these dates, please pick other days",
-    "invalid": "Return must be after pick-up",
+    "invalid": "Return must be after pickup",
     "rentalLine": "Rental · {days, plural, one {# day} other {# days}} × {price}",
-    "pickupLine": "Pick-up",
+    "pickupLine": "Pickup",
     "returnLine": "Return",
     "total": "Total",
     "continue": "Continue to booking",
@@ -674,9 +645,9 @@
     "once": "once",
     "perDayUnit": "day",
     "availability": "Availability",
-    "availabilityHint": "Tap your pick-up day, then your return day.",
-    "legendFree": "Free",
-    "legendPartial": "Partly free",
+    "availabilityHint": "Tap your pickup day, then your return day.",
+    "legendFree": "Available",
+    "legendPartial": "Partly available",
     "legendBooked": "Booked",
     "prevMonth": "Previous month",
     "nextMonth": "Next month",
@@ -686,7 +657,7 @@
       "Confirmation"
     ],
     "title": "Complete your booking",
-    "lead": "Just a few details and your booking is sent.",
+    "lead": "A few details and your booking is on its way.",
     "details": "Your details",
     "firstName": "First name",
     "lastName": "Last name",
@@ -700,7 +671,7 @@
     "noteTitle": "Anything we should know?",
     "notePh": "E.g. I'm on a late flight or I need a child seat",
     "upsellTitle": "For a little more",
-    "upsellLead": "These cars are also free for your dates.",
+    "upsellLead": "These cars are also available for your dates.",
     "upsellDiff": "+{amount} for the whole rental",
     "upsellTake": "Take this one instead",
     "payTitle": "No online payment",
@@ -717,7 +688,7 @@
     "errPhone": "Enter a phone number",
     "errGeneric": "The booking was not sent. Please try again or message us on WhatsApp.",
     "errBooked": "This car is booked for these dates. Change the dates or choose another car.",
-    "successTitle": "Your booking is sent",
+    "successTitle": "Your booking has been sent",
     "successBody": "We sent the confirmation to {email}, please check your spam folder too. We'll be in touch shortly to confirm every detail.",
     "reference": "Booking number",
     "backHome": "Back to home",
@@ -725,10 +696,10 @@
     "seoTitle": "Booking",
     "daysCount": "{days, plural, one {# day} other {# days}}",
     "equipmentTitle": "Equipment and extras",
-    "equipmentLead": "Quantities show what is really free for your dates.",
-    "stock": "{free} of {total} free",
+    "equipmentLead": "Quantities show what is really available for your dates.",
+    "stock": "{free} of {total} available",
     "stockAlways": "Available",
-    "stockNone": "None free for your dates",
+    "stockNone": "None available for your dates",
     "errExtras": "Some equipment was just booked by someone else. We updated the quantities, please check and send again.",
     "needTitle": "What you need",
     "needBody": "Bring these when you pick up the car:",

@@ -11,7 +11,8 @@ import { getCarBySlug, getSimilarCars } from "@/lib/car-detail";
 import { getActiveLocations } from "@/lib/fleet-data";
 import { getActiveExtras } from "@/lib/extras";
 import { getCarBusy } from "@/lib/car-busy";
-import { SITE_URL } from "@/lib/seo";
+import { OG_LOCALE, PUBLIC_URL, SITE_URL, ogImage } from "@/lib/seo";
+import { SITE } from "@/lib/site-config";
 import { CarDetail } from "@/components/fleet/CarDetail";
 
 export const revalidate = 60;
@@ -42,6 +43,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = carDescription(car, params.locale) ?? fallbackDescription(car, params.locale);
 
   const url = `${SITE_URL}/${params.locale}/vozila/${car.slug}`;
+  const ogTitle = `${car.title} | ${SITE.name}`;
+  const images = car.images?.length
+    ? [{ url: car.images[0].startsWith("http") ? car.images[0] : `${PUBLIC_URL}${car.images[0]}`, alt: `${car.title}, ${SITE.name}` }, ogImage(params.locale)]
+    : [ogImage(params.locale)];
 
   return {
     title: car.title,
@@ -51,11 +56,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages: Object.fromEntries(routing.locales.map((l) => [l, `${SITE_URL}/${l}/vozila/${car.slug}`])),
     },
     openGraph: {
-      title: car.title,
-      description: description.slice(0, 160),
-      url,
-      images: car.images?.length ? [{ url: car.images[0] }] : undefined,
       type: "website",
+      siteName: SITE.name,
+      title: ogTitle,
+      description: description.slice(0, 160),
+      url: `${PUBLIC_URL}/${params.locale}/vozila/${car.slug}`,
+      locale: OG_LOCALE[params.locale] ?? "hr_HR",
+      images,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: ogTitle,
+      description: description.slice(0, 160),
+      images: [images[0].url],
     },
   };
 }
@@ -125,7 +138,6 @@ export default async function CarPage({ params }: Props) {
     <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
       <script
         type="application/ld+json"
-        // Escaped so a stray closing tag in a description cannot break out.
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
         }}

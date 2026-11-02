@@ -17,7 +17,6 @@ const input =
   "h-10 w-full min-w-0 rounded-xl border border-border bg-background px-3 text-base outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-ring/30 sm:text-sm";
 const lbl = "mb-1 block text-xs font-medium text-muted-foreground";
 
-/** Just enough of the linked reservation to identify it on screen. */
 export type LinkedRental = {
   reference: string;
   carTitleSnapshot: string | null;
@@ -40,16 +39,13 @@ export type EditableInquiry = {
   flightNumber: string | null;
   message: string | null;
   status: string;
-  /** Set when the nightly job cancelled it for going unanswered. */
   expiredAt?: string | null;
-  /** The other half of a vehicle swap, if this rental is part of one. */
   continuesFrom?: LinkedRental | null;
   continuedBy?: LinkedRental[];
   totalPrice: number | null;
   extras: { extraId: string | null; qty: number }[];
 };
 
-/** "2026-08-12T10:00:00Z" split into the two fields the form uses. */
 function split(iso: string) {
   const d = new Date(iso);
   const p = (n: number) => String(n).padStart(2, "0");
@@ -85,9 +81,7 @@ export function EditInquiryForm({
   locations: { id: string; name: string }[];
   extras?: ExtraItem[];
   booked?: Booked[];
-  /** Periods each vehicle is taken, so a clash can be spotted while typing. */
   occupancy?: CarBusy[];
-  /** Creates the follow-on rental on another vehicle. */
   onContinue?: (fd: FormData) => void;
 }) {
   const p0 = split(inquiry.pickupAt);
@@ -119,7 +113,6 @@ export function EditInquiryForm({
       if (e.extraId && base[e.extraId] !== undefined) base[e.extraId] += e.qty;
     }
     return base;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [extras, booked, pickupDate, pickupTime, returnDate, returnTime]);
 
   const invalidPeriod = !(to.getTime() > from.getTime());
@@ -133,7 +126,6 @@ export function EditInquiryForm({
   const busy = useMemo(() => {
     const others = occupancy.filter((o) => o.inquiryId !== inquiry.id);
     return busyCarsFor(others, from, to);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [occupancy, pickupDate, pickupTime, returnDate, returnTime]);
 
   const carTaken = Boolean(carId && busy.has(carId));
@@ -142,7 +134,6 @@ export function EditInquiryForm({
     inquiry.status === "IN_PROGRESS" &&
     new Date(inquiry.returnAt).getTime() < to.getTime();
 
-  /** The bookings this period now runs into, with who holds them. */
   const blockers = useMemo(() => {
     if (!carId) return [];
     return occupancy
@@ -154,7 +145,6 @@ export function EditInquiryForm({
           o.to > from,
       )
       .sort((a, b) => a.from.getTime() - b.from.getTime());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [occupancy, carId, pickupDate, pickupTime, returnDate, returnTime]);
 
   const continuationCars = useMemo(() => {
@@ -166,7 +156,6 @@ export function EditInquiryForm({
       to,
     );
     return cars.filter((c) => c.id !== carId && !takenThen.has(c.id));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [extending, occupancy, cars, carId, returnDate, returnTime]);
 
   const maxUntil = blockers.length > 0 ? blockers[0].from : null;
@@ -189,7 +178,6 @@ export function EditInquiryForm({
     [cars, busy],
   );
 
-  /** Equipment asked for that can no longer be supplied in full. */
   const shortages = extras
     .map((e) => {
       const want = chosen[e.id] ?? 0;
@@ -210,10 +198,8 @@ export function EditInquiryForm({
       if (capped > 0) next[id] = capped;
     }
     if (changed) setChosen(next);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [free]);
 
-  // ── Price, recalculated whenever the car or the equipment changes ────────
   const nDays = invalidPeriod
     ? 0
     : Math.max(1, Math.ceil((to.getTime() - from.getTime()) / 86_400_000));
@@ -235,7 +221,6 @@ export function EditInquiryForm({
 
   useEffect(() => {
     if (!priceTouched && !invalidPeriod) setPrice(String(computed));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [computed, invalidPeriod]);
 
   const blocked =
@@ -387,7 +372,6 @@ export function EditInquiryForm({
             Termin je zauzet
           </p>
 
-          {/* The one line that answers most calls, given room of its own. */}
           {maxUntil && (
             <p className="mt-2 text-base font-semibold leading-snug text-foreground">
               Možete produžiti najviše do {dayTime(maxUntil)}.
@@ -402,7 +386,6 @@ export function EditInquiryForm({
             {blockers[0]?.reference ? ` (${blockers[0].reference})` : ""}.
           </p>
 
-          {/* Most calls end here: set it to the latest possible date and save. */}
           {maxUntil && (
             <button
               type="button"
@@ -581,7 +564,6 @@ export function EditInquiryForm({
         </div>
       )}
 
-      {/* Vehicle clash: say it plainly and offer what can be given instead. */}
       {carTaken && !extending && (
         <div className="rounded-xl border border-brand/50 bg-brand/[0.06] p-4">
           <p className="flex items-center gap-2 text-sm font-semibold text-brand-strong">
@@ -608,7 +590,6 @@ export function EditInquiryForm({
         </div>
       )}
 
-      {/* Equipment that had to be trimmed; the amounts are already reduced. */}
       {shortages.length > 0 && (
         <div className="rounded-xl border border-amber-500/50 bg-amber-500/[0.07] p-3">
           <p className="flex items-center gap-2 text-xs font-semibold text-amber-700 dark:text-amber-400">
@@ -636,7 +617,6 @@ export function EditInquiryForm({
               placeholder="Odaberite…"
               onChange={(v) => {
                 setPickupDate(v);
-                // Keep the return from falling behind the pickup.
                 if (returnDate && returnDate < v) setReturnDate(v);
               }}
               className={`${input} flex-1`}

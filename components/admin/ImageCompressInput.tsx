@@ -26,7 +26,6 @@ export function ImageCompressInput({ name, label }: { name: string; label: strin
   return (
     <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-border bg-background px-3 py-3 text-sm text-muted-foreground transition-colors hover:border-brand hover:text-foreground">
       {preview ? (
-        // eslint-disable-next-line @next/next/no-img-element
         <img src={preview} alt="" className="h-12 w-20 rounded-lg object-cover" />
       ) : (
         <span className="grid h-12 w-12 place-items-center rounded-lg bg-surface-muted">

@@ -120,7 +120,6 @@ export async function generateContractDocx(data: ContractData): Promise<void> {
     new Paragraph({ children: [new TextRun({ text: notes, size: 19 })] }),
   );
 
-  // Signature lines: two cells with only a top border, so they print as rules.
   const topOnly = {
     top: { style: BorderStyle.SINGLE, size: 6, color: "555555" },
     bottom: NONE,
@@ -158,7 +157,6 @@ export async function generateContractDocx(data: ContractData): Promise<void> {
     sections: [{ properties: {}, children: body }],
   });
 
-  // Blob, not Buffer: this runs in the browser.
   const blob = await Packer.toBlob(doc);
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");

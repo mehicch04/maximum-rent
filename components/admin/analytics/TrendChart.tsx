@@ -6,7 +6,6 @@ import type { TrendPoint } from "@/lib/analytics";
 
 const W = 660;
 const H = 260;
-// Left padding fits a three-digit label without clipping.
 const PAD = { top: 16, right: 46, bottom: 28, left: 46 };
 const PLOT_W = W - PAD.left - PAD.right;
 const PLOT_H = H - PAD.top - PAD.bottom;
@@ -26,7 +25,6 @@ function niceScale(
   let step = (steps.find((s) => raw / magnitude <= s) ?? 10) * magnitude;
 
   if (integer) {
-    // Never below one, and rounded so repeated addition cannot drift.
     step = Math.max(1, Math.round(step));
   }
 
@@ -79,7 +77,6 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
 
   return (
     <div>
-      {/* Legend first, so the colours are explained before they are seen. */}
       <div className="mb-3 flex flex-wrap items-center gap-4 text-xs">
         <span className="flex items-center gap-1.5 text-muted-foreground">
           <span className="h-2.5 w-2.5 rounded-sm bg-brand/35" />
@@ -105,7 +102,6 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
             </linearGradient>
           </defs>
 
-          {/* Horizontal guides with the bookings scale on the left. */}
           {left.values.map((leftVal, idx) => {
             const t = idx / (left.values.length - 1);
             const y = PAD.top + PLOT_H * t;
@@ -140,7 +136,6 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
             );
           })}
 
-          {/* Bars: bookings. Only the height animates, which is GPU-cheap. */}
           {data.map((d, i) => {
             const y = yBar(d.bookings);
             const h = PAD.top + PLOT_H - y;
@@ -166,7 +161,6 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
             );
           })}
 
-          {/* Line: revenue. Drawn once via dash offset, then left alone. */}
           <motion.path
             d={linePath}
             fill="none"
@@ -191,8 +185,7 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
             />
           ))}
 
-          {/* Full-height hit areas: easier to hover than a 3px dot. */}
-          {data.map((d, i) => (
+          {data.map((_, i) => (
             <rect
               key={`hit-${i}`}
               x={PAD.left + step * i}
@@ -219,7 +212,6 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
           ))}
         </svg>
 
-        {/* Readout instead of a floating tooltip: no layout shift, works on touch. */}
         <div className="mt-2 flex h-5 items-center justify-center gap-4 text-xs">
           {active ? (
             <>
