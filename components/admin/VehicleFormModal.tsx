@@ -66,6 +66,8 @@ export function VehicleFormModal({
   const [emissionClass, setEmissionClass] = useState(vehicle?.emissionClass ?? "");
   const [descriptionHr, setDescriptionHr] = useState(vehicle?.descriptionHr ?? "");
   const [descriptionEn, setDescriptionEn] = useState(vehicle?.descriptionEn ?? "");
+  const [descriptionDe, setDescriptionDe] = useState(vehicle?.descriptionDe ?? "");
+  const [descriptionEs, setDescriptionEs] = useState(vehicle?.descriptionEs ?? "");
   const [isAvailable, setIsAvailable] = useState(vehicle?.isAvailable ?? true);
   const [isFeatured, setIsFeatured] = useState(vehicle?.isFeatured ?? false);
   const [sortOrder, setSortOrder] = useState(String(vehicle?.sortOrder ?? 0));
@@ -148,6 +150,8 @@ export function VehicleFormModal({
     fd.set("emissionClass", emissionClass);
     fd.set("descriptionHr", descriptionHr);
     fd.set("descriptionEn", descriptionEn);
+    fd.set("descriptionDe", descriptionDe);
+    fd.set("descriptionEs", descriptionEs);
     fd.set("isAvailable", String(isAvailable));
     fd.set("isFeatured", String(isFeatured));
     fd.set("sortOrder", sortOrder);
@@ -407,6 +411,26 @@ export function VehicleFormModal({
                 value={descriptionEn}
                 onChange={(e) => setDescriptionEn(e.target.value)}
                 rows={3}
+                className={`${field} h-auto resize-none border-border py-2 focus:border-brand`}
+              />
+            </div>
+            <div>
+              <label className={lbl}>Opis (DE)</label>
+              <textarea
+                value={descriptionDe}
+                onChange={(e) => setDescriptionDe(e.target.value)}
+                rows={3}
+                placeholder="Ako ostane prazno, prikazuje se engleski opis"
+                className={`${field} h-auto resize-none border-border py-2 focus:border-brand`}
+              />
+            </div>
+            <div>
+              <label className={lbl}>Opis (ES)</label>
+              <textarea
+                value={descriptionEs}
+                onChange={(e) => setDescriptionEs(e.target.value)}
+                rows={3}
+                placeholder="Ako ostane prazno, prikazuje se engleski opis"
                 className={`${field} h-auto resize-none border-border py-2 focus:border-brand`}
               />
             </div>

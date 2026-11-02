@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Building2, CalendarCheck, Car, Download, FileSignature, MessageSquare, Package } from "lucide-react";
+import { BadgePercent, BarChart3, Building2, CalendarCheck, Car, Download, FileSignature, MessageSquare, Package } from "lucide-react";
 
 export type PendingCounts = { inquiries: number; messages: number };
 
@@ -14,6 +14,7 @@ const TABS = [
   { href: "/admin/analitika", label: "Analitika", icon: BarChart3, exact: false },
   { href: "/admin/poruke", label: "Poruke", icon: MessageSquare, exact: false, badge: "messages" as const },
   { href: "/admin/oprema", label: "Oprema", icon: Package, exact: false },
+  { href: "/admin/akcije", label: "Akcije", icon: BadgePercent, exact: false },
   { href: "/admin/izvoz", label: "Izvoz", icon: Download, exact: false },
   { href: "/admin/firma", label: "Firma", icon: Building2, exact: false },
 ];

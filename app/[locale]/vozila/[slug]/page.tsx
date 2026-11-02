@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { Link } from "@/i18n/navigation";
-import { routing } from "@/i18n/routing";
+import { routing, type AppLocale } from "@/i18n/routing";
+import { carDescription } from "@/lib/car-text";
+import { CLASS_LABELS, FUEL_LABELS, TRANSMISSION_LABELS, label } from "@/lib/car-labels";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ChevronRight } from "lucide-react";
@@ -16,16 +18,28 @@ export const revalidate = 60;
 
 type Props = { params: { locale: string; slug: string } };
 
+const FALLBACK: Record<AppLocale, (title: string, seats: number, gear: string, fuel: string) => string> = {
+  hr: (t, s, g, f) => `Iznajmite ${t} u Mostaru, Međugorju i Čitluku. ${s} sjedala, ${g.toLowerCase()} mjenjač, ${f.toLowerCase()}.`,
+  en: (t, s, g, f) => `Rent a ${t} in Mostar, Međugorje and Čitluk. ${s} seats, ${g.toLowerCase()} gearbox, ${f.toLowerCase()}.`,
+  de: (t, s, g, f) => `Mieten Sie einen ${t} in Mostar, Međugorje und Čitluk. ${s} Sitze, ${g}, ${f}.`,
+  es: (t, s, g, f) => `Alquila un ${t} en Mostar, Međugorje y Čitluk. ${s} plazas, cambio ${g.toLowerCase()}, ${f.toLowerCase()}.`,
+};
+
+function fallbackDescription(
+  car: { title: string; passengers: number; transmission: keyof typeof TRANSMISSION_LABELS; fuelType: keyof typeof FUEL_LABELS },
+  locale: string,
+): string {
+  const l = (locale in FALLBACK ? locale : "hr") as AppLocale;
+  return FALLBACK[l](car.title, car.passengers, label(TRANSMISSION_LABELS[car.transmission], l), label(FUEL_LABELS[car.fuelType], l));
+}
+
+const FUEL_SCHEMA: Record<string, string> = { DIESEL: "Diesel", PETROL: "Gasoline", HYBRID: "Hybrid", PLUG_IN_HYBRID: "Plug-in hybrid", ELECTRIC: "Electric" };
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const car = await getCarBySlug(params.slug);
   if (!car) return { title: { absolute: "Maximum Rent a Car" } };
 
-  const en = params.locale !== "hr";
-  const description =
-    (en ? car.descriptionEn : car.descriptionHr) ??
-    (en
-      ? `Rent a ${car.title} in Mostar and Međugorje. ${car.passengers} seats, ${car.transmission.toLowerCase()}.`
-      : `Iznajmite ${car.title} u Mostaru i Međugorju. ${car.passengers} sjedišta, ${car.transmission.toLowerCase()}.`);
+  const description = carDescription(car, params.locale) ?? fallbackDescription(car, params.locale);
 
   const url = `${SITE_URL}/${params.locale}/vozila/${car.slug}`;
 
@@ -69,23 +83,40 @@ export default async function CarPage({ params }: Props) {
     itemListElement: crumbs.map((c, i) => ({ "@type": "ListItem", position: i + 1, name: c.name, item: c.url })),
   };
 
+  const url = `${SITE_URL}/${params.locale}/vozila/${car.slug}`;
+  const lang = (params.locale in FALLBACK ? params.locale : "hr") as AppLocale;
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Product",
+    "@type": "Car",
     name: car.title,
-    image: car.images ?? [],
-    description:
-      (params.locale !== "hr" ? car.descriptionEn : car.descriptionHr) ?? car.title,
+    url,
+    image: (car.images ?? []).map((src) => (src.startsWith("http") ? src : `${SITE_URL}${src}`)),
+    description: carDescription(car, params.locale) ?? fallbackDescription(car, params.locale),
     brand: { "@type": "Brand", name: car.brand },
+    model: car.model,
+    vehicleModelDate: String(car.year),
+    bodyType: label(CLASS_LABELS[car.carClass], lang),
+    fuelType: FUEL_SCHEMA[car.fuelType] ?? car.fuelType,
+    vehicleTransmission: car.transmission === "AUTOMATIC" ? "https://schema.org/AutomaticTransmission" : "https://schema.org/ManualTransmission",
+    numberOfDoors: car.doors,
+    vehicleSeatingCapacity: car.passengers,
+    ...(car.emissionClass ? { meetsEmissionStandard: car.emissionClass } : {}),
     offers: car.pricePerDay
       ? {
           "@type": "Offer",
+          url,
           price: car.pricePerDay,
           priceCurrency: car.currency ?? "BAM",
-          availability: car.isAvailable
-            ? "https://schema.org/InStock"
-            : "https://schema.org/OutOfStock",
-          url: `${SITE_URL}/${params.locale}/vozila/${car.slug}`,
+          businessFunction: "http://purl.org/goodrelations/v1#LeaseOut",
+          availability: car.isAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: car.pricePerDay,
+            priceCurrency: car.currency ?? "BAM",
+            unitCode: "DAY",
+            referenceQuantity: { "@type": "QuantitativeValue", value: 1, unitCode: "DAY" },
+          },
+          seller: { "@id": `${SITE_URL}/#business` },
         }
       : undefined,
   };

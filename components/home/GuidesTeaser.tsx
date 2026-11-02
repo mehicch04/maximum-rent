@@ -19,6 +19,8 @@ export function GuidesTeaser({ guides }: { guides: Guide[] }) {
   if (!guides.length) return null;
 
   const finesGuide = guides.find((g) => g.icon === "fines");
+  const picked = (["airport", "trips", "medjugorje"] as const).map((i) => guides.find((g) => g.icon === i)).filter((g): g is Guide => Boolean(g));
+  const cards = picked.length === 3 ? picked : guides.slice(0, 3);
   const table = finesGuide?.blocks.find((b) => b.type === "table");
   const fines: Fine[] =
     table && table.type === "table"
@@ -41,7 +43,7 @@ export function GuidesTeaser({ guides }: { guides: Guide[] }) {
           )}
         </div>
         <ul className="no-scrollbar -mx-4 mt-10 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 pt-2 sm:-mx-6 sm:scroll-px-6 sm:px-6 md:mx-0 md:mt-12 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0">
-          {guides.map((g) => (
+          {cards.map((g) => (
             <li key={g.slug} className="w-[84%] shrink-0 snap-start md:w-auto">
               <GuideCard guide={g} readLabel={t("read")} minutesLabel={t("minutes", { n: g.minutes })} />
             </li>

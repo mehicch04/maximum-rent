@@ -46,6 +46,8 @@ export const vehicleSchema = z.object({
   emissionClass: z.string().trim().optional(),
   descriptionHr: z.string().trim().optional(),
   descriptionEn: z.string().trim().optional(),
+  descriptionDe: z.string().trim().optional(),
+  descriptionEs: z.string().trim().optional(),
   isAvailable: z.boolean().default(true),
   isFeatured: z.boolean().default(false),
   sortOrder: z.coerce.number().int().default(0),

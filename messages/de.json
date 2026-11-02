@@ -606,8 +606,8 @@
       "description": "Kontaktieren Sie Maximum Rent a Car: Telefon, E-Mail, WhatsApp und alle Standorte in der Herzegowina (Mostar, Međugorje, Čitluk, Čapljina, Ljubuški)."
     },
     "guides": {
-      "title": "Ratgeber für das Autofahren in Bosnien und Herzegowina: Bußgelder, Regeln, Ausflüge",
-      "description": "Bußgelder in Bosnien und Herzegowina in KM und Euro, Tempolimits, Verkehrsregeln und Ausflüge mit dem Auto ab Mostar und Međugorje mit ungefähren Entfernungen."
+      "title": "Ratgeber für Bosnien und Herzegowina: Flughafen, Međugorje, Ausflüge und Bußgelder",
+      "description": "Fahrzeugübernahme am Flughafen Mostar, Međugorje mit dem Auto, Ausflüge nach Kravice, Blagaj und Počitelj sowie Bußgelder und Verkehrsregeln."
     },
     "privacy": {
       "title": "Datenschutzerklärung",
@@ -756,13 +756,13 @@
     "eyebrow": "Ratgeber",
     "title": "Bevor Sie",
     "accent": "losfahren.",
-    "lead": "Kurze Ratgeber zum Autofahren in Bosnien und Herzegowina: Bußgelder, Regeln, die Besucher am meisten überraschen, und Ausflüge mit dem Auto.",
+    "lead": "Kurze Ratgeber für unsere Gäste: Übernahme am Flughafen, Međugorje mit dem Auto, Ausflüge in der Herzegowina und Verkehrsregeln.",
     "all": "Alle Ratgeber",
     "read": "Ratgeber lesen",
     "minutes": "{n} Min. Lesezeit",
     "updated": "Aktualisiert am {date}",
     "pageTitle": "Ratgeber für das Autofahren in Bosnien und Herzegowina",
-    "pageLead": "Was Sie wissen sollten, bevor Sie losfahren: Regeln, Bußgelder und die schönsten Ausflüge in der Umgebung.",
+    "pageLead": "Alles, was Sie vor der Fahrt wissen sollten: Anreise, Parken, Ausflüge, Regeln und Bußgelder.",
     "ctaTitle": "Bereit zur Abfahrt?",
     "ctaBody": "Wählen Sie ein Auto und Ihre Daten. Die Bestätigung Ihrer Anfrage erhalten Sie per E-Mail.",
     "ctaButton": "Fahrzeuge ansehen",
@@ -813,5 +813,13 @@
     "kindGuide": "Ratgeber",
     "kindCar": "Fahrzeug",
     "clear": "Löschen"
+  },
+  "Promotions": {
+    "eyebrow": "Aktionen und Angebote",
+    "title": "Sonderangebote",
+    "accent": "dieser Saison",
+    "until": "Gültig bis {date}",
+    "from": "ab {price}/Tag",
+    "more": "Angebot ansehen"
   }
 }

@@ -43,6 +43,17 @@ function Block({ b }: { b: GuideBlock }) {
           ))}
         </ul>
       );
+    case "ol":
+      return (
+        <ol className="space-y-3">
+          {b.items.map((it, i) => (
+            <li key={it} className="flex gap-3.5 text-[15.5px] leading-[1.7] text-foreground/85">
+              <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-brand text-xs font-bold text-white">{i + 1}</span>
+              <span>{it}</span>
+            </li>
+          ))}
+        </ol>
+      );
     case "table":
       return (
         <div className="overflow-hidden rounded-2xl bg-surface ring-1 ring-border">

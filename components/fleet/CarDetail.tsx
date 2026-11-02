@@ -26,6 +26,7 @@ import { SimilarCars } from "@/components/fleet/SimilarCars";
 import { CLASS_LABELS, FUEL_LABELS, TRANSMISSION_LABELS, label as pick } from "@/lib/car-labels";
 import type { AppLocale } from "@/i18n/routing";
 import { carCategories } from "@/lib/car-categories";
+import { carDescription } from "@/lib/car-text";
 import { splitLocal, type BusyRange } from "@/lib/booking";
 import { addDays, shortDate, todayISO } from "@/lib/dates";
 import { BookingInfo, BookingWidget } from "@/components/booking/BookingWidget";
@@ -123,7 +124,7 @@ export function CarDetail({
     };
   }, [bar]);
 
-  const description = (lang !== "hr" ? car.descriptionEn : car.descriptionHr)?.trim();
+  const description = carDescription(car, lang);
   const cats = carCategories(car);
 
   const specs = [

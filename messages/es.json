@@ -606,8 +606,8 @@
       "description": "Contacta con Maximum Rent a Car: teléfono, email, WhatsApp y todas las ubicaciones en Herzegovina (Mostar, Međugorje, Čitluk, Čapljina, Ljubuški)."
     },
     "guides": {
-      "title": "Guías para conducir en Bosnia y Herzegovina: multas, normas y excursiones",
-      "description": "Multas de tráfico en Bosnia y Herzegovina en KM y euros, límites de velocidad, normas y excursiones en coche desde Mostar y Međugorje con distancias aproximadas."
+      "title": "Guías para conducir en Bosnia y Herzegovina: aeropuerto, Međugorje, excursiones y multas",
+      "description": "Recogida del coche en el aeropuerto de Mostar, Međugorje en coche, excursiones a Kravice, Blagaj y Počitelj, y multas y normas de tráfico."
     },
     "privacy": {
       "title": "Política de privacidad",
@@ -756,13 +756,13 @@
     "eyebrow": "Guías",
     "title": "Antes de",
     "accent": "ponerte en marcha.",
-    "lead": "Guías breves para conducir en Bosnia y Herzegovina: multas, las normas que más sorprenden a los visitantes y excursiones en coche.",
+    "lead": "Guías breves para nuestros clientes: recogida en el aeropuerto, Međugorje en coche, excursiones por Herzegovina y normas de tráfico.",
     "all": "Todas las guías",
     "read": "Leer la guía",
     "minutes": "{n} min de lectura",
     "updated": "Actualizado el {date}",
     "pageTitle": "Guías para conducir en Bosnia y Herzegovina",
-    "pageLead": "Lo que debes saber antes de ponerte al volante: normas, importes de las multas y las mejores excursiones cercanas.",
+    "pageLead": "Todo lo que debes saber antes de ponerte al volante: llegada, aparcamiento, excursiones, normas e importes de las multas.",
     "ctaTitle": "¿Listo para salir?",
     "ctaBody": "Elige un coche y tus fechas. Recibirás la confirmación de tu solicitud por email.",
     "ctaButton": "Ver vehículos",
@@ -813,5 +813,13 @@
     "kindGuide": "Guía",
     "kindCar": "Coche",
     "clear": "Borrar"
+  },
+  "Promotions": {
+    "eyebrow": "Promociones y ofertas",
+    "title": "Ofertas especiales",
+    "accent": "de esta temporada",
+    "until": "Válido hasta el {date}",
+    "from": "desde {price}/día",
+    "more": "Ver la oferta"
   }
 }

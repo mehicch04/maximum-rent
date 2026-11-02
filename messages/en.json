@@ -606,8 +606,8 @@
       "description": "Contact Maximum Rent a Car by phone, email or WhatsApp. All locations across Herzegovina: Mostar, Međugorje, Čitluk, Čapljina and Ljubuški. Open from 07:30 to 20:30."
     },
     "guides": {
-      "title": "Driving guides for Bosnia and Herzegovina: fines, rules and day trips",
-      "description": "Traffic fines in Bosnia and Herzegovina in KM and euros, speed limits, driving rules and day trips by car from Mostar and Međugorje with approximate distances."
+      "title": "Driving guides for Bosnia and Herzegovina: airport, Međugorje, day trips and fines",
+      "description": "Car pickup at Mostar Airport, Međugorje by car, day trips to Kravice, Blagaj and Počitelj, plus traffic fines and driving rules in Bosnia and Herzegovina."
     },
     "privacy": {
       "title": "Privacy policy",
@@ -756,13 +756,13 @@
     "eyebrow": "Guides",
     "title": "Before you",
     "accent": "hit the road.",
-    "lead": "Short guides to driving in Bosnia and Herzegovina: traffic fines, the rules that surprise visitors most and day trips by car.",
+    "lead": "Short guides for our guests: airport pickup, Međugorje by car, day trips in Herzegovina and the rules of the road.",
     "all": "All guides",
     "read": "Read the guide",
     "minutes": "{n} min read",
     "updated": "Updated {date}",
     "pageTitle": "Driving guides for Bosnia and Herzegovina",
-    "pageLead": "What to know before you get behind the wheel: rules, fine amounts and the best day trips nearby.",
+    "pageLead": "Everything to know before you get behind the wheel: arrival, parking, day trips, rules and fine amounts.",
     "ctaTitle": "Ready to go?",
     "ctaBody": "Choose a car and your dates. You get a confirmation of your inquiry by email.",
     "ctaButton": "Browse cars",
@@ -813,5 +813,13 @@
     "kindGuide": "Guide",
     "kindCar": "Car",
     "clear": "Clear"
+  },
+  "Promotions": {
+    "eyebrow": "Deals and offers",
+    "title": "Special offers",
+    "accent": "this season",
+    "until": "Valid until {date}",
+    "from": "from {price}/day",
+    "more": "See the offer"
   }
 }

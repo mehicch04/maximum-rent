@@ -15,6 +15,8 @@ import { WeddingCarsSection } from "@/components/home/WeddingCarsSection";
 import { GuidesTeaser } from "@/components/home/GuidesTeaser";
 import { Faq } from "@/components/home/Faq";
 import { getGuides } from "@/lib/guides";
+import { getActivePromotions } from "@/lib/promotions";
+import { Promotions } from "@/components/home/Promotions";
 import { CtaBand } from "@/components/home/CtaBand";
 import { ReservationSearchForm } from "@/components/reservation/ReservationSearchForm";
 
@@ -48,12 +50,13 @@ export default async function HomePage({
     fetchPriority: "high",
   });
 
-  const [locations, cars, google, company, tFaq] = await Promise.all([
+  const [locations, cars, google, company, tFaq, promos] = await Promise.all([
     getActiveLocations(),
     getBrowseCars(),
     getGooglePlace(locale),
     getCompany(),
     getTranslations({ locale, namespace: "Faq" }),
+    getActivePromotions(locale),
   ]);
 
   const prices = cars.map((c) => c.pricePerDay).filter((p): p is number => p != null && p > 0);
@@ -99,6 +102,8 @@ export default async function HomePage({
       >
         <ReservationSearchForm locations={locations} />
       </section>
+
+      <Promotions items={promos} />
 
       <FeaturedFleet cars={cars} total={cars.length} />
 

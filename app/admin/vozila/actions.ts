@@ -42,6 +42,8 @@ function parse(formData: FormData) {
     emissionClass: String(formData.get("emissionClass") || "").trim() || undefined,
     descriptionHr: String(formData.get("descriptionHr") || "").trim() || undefined,
     descriptionEn: String(formData.get("descriptionEn") || "").trim() || undefined,
+    descriptionDe: String(formData.get("descriptionDe") || "").trim() || undefined,
+    descriptionEs: String(formData.get("descriptionEs") || "").trim() || undefined,
     isAvailable: bool(formData.get("isAvailable")),
     isFeatured: bool(formData.get("isFeatured")),
     sortOrder: formData.get("sortOrder") || 0,

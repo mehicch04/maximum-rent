@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-import { Plane, Route, Users } from "lucide-react";
+import { Church, Landmark, Plane, Route, Users } from "lucide-react";
 
-export type SignKind = "speed" | "phone" | "belt" | "light" | "warning" | "plane" | "route" | "family";
+export type SignKind = "speed" | "phone" | "belt" | "light" | "warning" | "plane" | "route" | "family" | "church" | "landmark";
 
 const RED = "#D62828";
 const BLUE = "#1D5FB8";
@@ -31,6 +31,16 @@ export function RoadSign({ kind, value = 50, className = "" }: { kind: SignKind;
         </Square>
       </span>
     );
+  if (kind === "church" || kind === "landmark") {
+    const Icon = kind === "church" ? Church : Landmark;
+    return (
+      <span className={`block ${className}`}>
+        <Square color="#7A4A1E">
+          <Icon className="h-[52%] w-[52%] text-white" strokeWidth={2.2} />
+        </Square>
+      </span>
+    );
+  }
   if (kind === "family")
     return (
       <span className={`block ${className}`}>

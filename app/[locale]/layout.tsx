@@ -44,6 +44,7 @@ const CLIENT_NAMESPACES = [
   "HowItWorks",
   "Nav",
   "Phone",
+  "Promotions",
   "Reviews",
   "Search",
   "Services",

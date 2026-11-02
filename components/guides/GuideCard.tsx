@@ -7,7 +7,9 @@ import { SwingSign } from "./SwingSign";
 export const GUIDE_SIGNS: Record<GuideIcon, SignKind> = {
   fines: "speed",
   rules: "warning",
-  trips: "route",
+  trips: "landmark",
+  airport: "plane",
+  medjugorje: "church",
 };
 
 export function GuideCard({

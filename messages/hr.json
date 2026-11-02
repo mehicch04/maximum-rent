@@ -606,8 +606,8 @@
       "description": "Kontaktirajte Maximum Rent a Car putem telefona, emaila ili WhatsAppa. Sve lokacije u Hercegovini: Mostar, Međugorje, Čitluk, Čapljina i Ljubuški. Radno vrijeme od 07:30 do 20:30h."
     },
     "guides": {
-      "title": "Vodiči za vožnju po BiH: kazne, pravila i izleti",
-      "description": "Prometne kazne u BiH u KM i eurima, ograničenja brzine, pravila vožnje i izleti autom iz Mostara i Međugorja s okvirnim udaljenostima."
+      "title": "Vodiči za vožnju po BiH: aerodrom, Međugorje, izleti i kazne",
+      "description": "Preuzimanje vozila na Zračnoj luci Mostar, Međugorje autom, izleti na Kravice, Blagaj i Počitelj te prometne kazne i pravila vožnje u BiH."
     },
     "privacy": {
       "title": "Politika privatnosti",
@@ -756,13 +756,13 @@
     "eyebrow": "Vodiči",
     "title": "Prije nego",
     "accent": "krenete na put.",
-    "lead": "Kratki vodiči za vožnju po BiH: prometne kazne, pravila koja posjetitelje najčešće iznenade i izleti autom.",
+    "lead": "Kratki vodiči za goste: preuzimanje na aerodromu, Međugorje autom, izleti po Hercegovini i prometna pravila.",
     "all": "Svi vodiči",
     "read": "Pročitajte vodič",
     "minutes": "{n} min čitanja",
     "updated": "Ažurirano {date}",
     "pageTitle": "Vodiči za vožnju po BiH",
-    "pageLead": "Što trebate znati prije nego sjednete za volan: propisi, iznosi kazni i najljepši izleti u okolici.",
+    "pageLead": "Sve što trebate znati prije nego sjednete za volan: dolazak, parking, izleti, propisi i iznosi kazni.",
     "ctaTitle": "Spremni za put?",
     "ctaBody": "Odaberite vozilo i termin. Potvrdu upita dobivate na email.",
     "ctaButton": "Pogledajte vozila",
@@ -813,5 +813,13 @@
     "kindGuide": "Vodič",
     "kindCar": "Vozilo",
     "clear": "Očisti"
+  },
+  "Promotions": {
+    "eyebrow": "Akcije i ponude",
+    "title": "Posebne ponude",
+    "accent": "ove sezone",
+    "until": "Vrijedi do {date}",
+    "from": "od {price}/dan",
+    "more": "Pogledajte ponudu"
   }
 }
