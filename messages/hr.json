@@ -715,7 +715,9 @@
     "copy": "Kopiraj broj",
     "copied": "Kopirano",
     "submitShort": "Pošalji",
-    "pickDates": "Odaberite datume"
+    "pickDates": "Odaberite datume",
+    "calHintStart": "Kod djelomično slobodnih dana piše od koliko sati se vozilo može preuzeti.",
+    "calHintEnd": "Kod djelomično slobodnih dana piše do koliko sati se vozilo treba vratiti."
   },
   "Phone": {
     "country": "Država",

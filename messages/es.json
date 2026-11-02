@@ -715,7 +715,9 @@
     "copy": "Copiar número",
     "copied": "Copiado",
     "submitShort": "Enviar",
-    "pickDates": "Elegir fechas"
+    "pickDates": "Elegir fechas",
+    "calHintStart": "En los días parcialmente libres se indica la hora a partir de la cual puedes recoger el coche.",
+    "calHintEnd": "En los días parcialmente libres se indica la hora límite para devolver el coche."
   },
   "Phone": {
     "country": "País",

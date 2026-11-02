@@ -84,6 +84,23 @@ export const getCompany = unstable_cache(
   { revalidate: 300, tags: ["company"] },
 );
 
+export const TURNAROUND_KEY = "turnaroundMinutes";
+export const TURNAROUND_DEFAULT = 120;
+
+export const getTurnaroundMinutes = unstable_cache(
+  async (): Promise<number> => {
+    try {
+      const row = await prisma.setting.findUnique({ where: { key: TURNAROUND_KEY } });
+      const n = row ? Number(row.value) : TURNAROUND_DEFAULT;
+      return Number.isFinite(n) && n >= 0 ? n : TURNAROUND_DEFAULT;
+    } catch {
+      return TURNAROUND_DEFAULT;
+    }
+  },
+  ["turnaround-minutes"],
+  { revalidate: 300, tags: ["company"] },
+);
+
 export function effectivePrice(
   car: { pricePerDay?: unknown; seasonalPrice?: unknown },
   seasonalActive: boolean,

@@ -37,15 +37,40 @@ export function overlapsBusy(busy: BusyRange[], start: Date, end: Date): boolean
 
 export type DayStatus = "free" | "partial" | "booked";
 
-export function dayStatus(busy: BusyRange[], day: Date): DayStatus {
+export type DayInfo = { status: DayStatus; from: string | null; until: string | null };
+
+const SLOT = 30 * 60_000;
+const two = (n: number) => String(n).padStart(2, "0");
+const clock = (ms: number) => {
+  const d = new Date(ms);
+  return `${two(d.getHours())}:${two(d.getMinutes())}`;
+};
+
+export function dayInfo(busy: BusyRange[], day: Date): DayInfo {
   const start = new Date(day.getFullYear(), day.getMonth(), day.getDate()).getTime();
-  const end = start + 86_400_000;
-  let covered = 0;
-  for (const r of busy) {
-    const s = Math.max(start, new Date(r.from).getTime());
-    const e = Math.min(end, new Date(r.to).getTime());
-    if (e > s) covered += e - s;
+  const end = new Date(day.getFullYear(), day.getMonth(), day.getDate() + 1).getTime();
+  const segs = busy
+    .map((r) => [Math.max(start, new Date(r.from).getTime()), Math.min(end, new Date(r.to).getTime())] as [number, number])
+    .filter(([s, e]) => e > s)
+    .sort((a, b) => a[0] - b[0]);
+  if (!segs.length) return { status: "free", from: null, until: null };
+
+  const merged: [number, number][] = [];
+  for (const [s, e] of segs) {
+    const last = merged[merged.length - 1];
+    if (last && s <= last[1]) last[1] = Math.max(last[1], e);
+    else merged.push([s, e]);
   }
-  if (covered <= 0) return "free";
-  return covered >= 86_400_000 - 60_000 ? "booked" : "partial";
+  const covered = merged.reduce((sum, [s, e]) => sum + (e - s), 0);
+  if (end - start - covered < SLOT) return { status: "booked", from: null, until: null };
+
+  const lastEnd = merged[merged.length - 1][1];
+  const firstStart = merged[0][0];
+  const fromMs = lastEnd < end ? start + Math.ceil((lastEnd - start) / SLOT) * SLOT : null;
+  const untilMs = firstStart > start ? start + Math.floor((firstStart - start) / SLOT) * SLOT : null;
+  return {
+    status: "partial",
+    from: fromMs !== null && fromMs < end ? clock(fromMs) : null,
+    until: untilMs !== null && untilMs > start ? clock(untilMs) : null,
+  };
 }

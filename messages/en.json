@@ -715,7 +715,9 @@
     "copy": "Copy number",
     "copied": "Copied",
     "submitShort": "Send",
-    "pickDates": "Choose dates"
+    "pickDates": "Choose dates",
+    "calHintStart": "On partly available days, the time shows when the car can be picked up from.",
+    "calHintEnd": "On partly available days, the time shows the latest return time."
   },
   "Phone": {
     "country": "Country",

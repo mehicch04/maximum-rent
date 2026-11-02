@@ -2,6 +2,7 @@ import {
   AlertTriangle,
   Building2,
   Check,
+  Clock3,
   MapPin,
   Plus,
   Star,
@@ -9,11 +10,11 @@ import {
   Trash2,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { getCompany } from "@/lib/company";
+import { getCompany, getTurnaroundMinutes } from "@/lib/company";
 import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import { SeasonalToggle } from "@/components/admin/SeasonalToggle";
 import { MigrateBlocksCard } from "@/components/admin/MigrateBlocksCard";
-import { saveCompany, saveLocation, deleteLocation } from "./actions";
+import { saveCompany, saveLocation, deleteLocation, saveTurnaround } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,17 @@ const lbl = "mb-1 block text-xs font-medium text-muted-foreground";
 const card = "rounded-2xl border border-border bg-surface p-5 shadow-card sm:p-6";
 const h2 = "font-display text-base font-semibold text-foreground";
 
+const PAUSES = [
+  { value: 0, label: "Bez pauze" },
+  { value: 30, label: "30 minuta" },
+  { value: 60, label: "1 sat" },
+  { value: 90, label: "1 sat i 30 minuta" },
+  { value: 120, label: "2 sata" },
+  { value: 180, label: "3 sata" },
+  { value: 240, label: "4 sata" },
+  { value: 360, label: "6 sati" },
+];
+
 export default async function AdminCompanyPage({
   searchParams,
 }: {
@@ -42,7 +54,7 @@ export default async function AdminCompanyPage({
   const failed = one(searchParams.error) === "1";
   const editId = one(searchParams.lokacija);
 
-  const company = await getCompany();
+  const [company, pause] = await Promise.all([getCompany(), getTurnaroundMinutes()]);
 
   let locations: Awaited<ReturnType<typeof prisma.location.findMany>> = [];
   let seasonalCount = 0;
@@ -120,6 +132,37 @@ npx prisma generate{"\n"}npx prisma db push
           carsWithSeasonal={seasonalCount}
         />
       </div>
+
+      <form action={saveTurnaround} className={`${card} mt-6`}>
+        <h2 className={`${h2} flex items-center gap-2`}>
+          <Clock3 className="h-4 w-4 text-brand-strong" />
+          Pauza između najmova
+        </h2>
+        <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
+          Koliko vremena nakon povrata vozilo ostaje nedostupno za nove rezervacije na sajtu, da stignete pregledati
+          i pripremiti auto. Ista pauza vrijedi i prije sljedećeg preuzimanja. Gost u kalendaru vidi od koliko sati je
+          auto slobodno.
+        </p>
+        <div className="mt-4 flex flex-wrap items-end gap-3">
+          <div className="w-full sm:w-64">
+            <label className={lbl}>Pauza</label>
+            <select name="minutes" defaultValue={String(pause)} className={field}>
+              {(PAUSES.some((o) => o.value === pause) ? PAUSES : [...PAUSES, { value: pause, label: `${pause} minuta` }]).map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="submit"
+            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-brand px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+          >
+            <Check className="h-4 w-4" />
+            Sačuvaj
+          </button>
+        </div>
+      </form>
 
       <form action={saveCompany} className={`${card} mt-6`}>
         <h2 className={`${h2} flex items-center gap-2`}>

@@ -30,7 +30,7 @@ import { carDescription } from "@/lib/car-text";
 import { splitLocal, type BusyRange } from "@/lib/booking";
 import { addDays, shortDate, todayISO } from "@/lib/dates";
 import { BookingInfo, BookingWidget } from "@/components/booking/BookingWidget";
-import { AvailabilityCalendar } from "@/components/booking/AvailabilityCalendar";
+import { AvailabilityCalendar, type PickHint } from "@/components/booking/AvailabilityCalendar";
 import { quote, type BookingState, type Loc } from "@/components/booking/state";
 
 export function CarDetail({
@@ -138,8 +138,13 @@ export function CarDetail({
     { icon: Armchair, label: t("spec.class"), value: pick(CLASS_LABELS[car.carClass], lang) },
   ];
 
-  const pickRange = (start: string, end: string | null) =>
-    set({ pickupDate: start, returnDate: end ?? (b.returnDate > start ? b.returnDate : addDays(start, 3)) });
+  const pickRange = (start: string, end: string | null, hint: PickHint) =>
+    setB((s) => {
+      const next = { ...s, pickupDate: start, returnDate: end ?? (s.returnDate > start ? s.returnDate : addDays(start, 3)) };
+      if (!end && hint.from && s.pickupTime < hint.from) next.pickupTime = hint.from;
+      if (end && hint.until && s.returnTime > hint.until) next.returnTime = hint.until;
+      return next;
+    });
 
   return (
     <>

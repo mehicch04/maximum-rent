@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE, tokenValid } from "@/lib/admin-auth";
-import { COMPANY_FALLBACK } from "@/lib/company";
+import { COMPANY_FALLBACK, TURNAROUND_KEY } from "@/lib/company";
 
 async function requireAdmin() {
   if (!(await tokenValid(cookies().get(ADMIN_COOKIE)?.value))) {
@@ -100,6 +100,23 @@ export async function toggleSeasonal(formData: FormData) {
     console.error("[company] seasonal toggle failed:", err);
   }
   refresh();
+}
+
+export async function saveTurnaround(formData: FormData) {
+  await requireAdmin();
+  const minutes = Math.min(1440, Math.max(0, Math.round(Number(formData.get("minutes") ?? 0)) || 0));
+  try {
+    await prisma.setting.upsert({
+      where: { key: TURNAROUND_KEY },
+      create: { key: TURNAROUND_KEY, value: String(minutes) },
+      update: { value: String(minutes) },
+    });
+  } catch (err) {
+    console.error("[company] turnaround save failed:", err);
+    redirect("/admin/firma?error=1");
+  }
+  refresh();
+  redirect("/admin/firma?saved=1");
 }
 
 function slugify(v: string): string {

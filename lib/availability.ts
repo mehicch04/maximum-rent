@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { toCarListItem, type CarListItem } from "@/lib/types";
-import { getCompany } from "@/lib/company";
+import { getCompany, getTurnaroundMinutes } from "@/lib/company";
 
 export function isValidPeriod(pickupAt: Date, returnAt: Date): boolean {
   return (
@@ -14,14 +14,15 @@ export async function getAvailableCars(
   pickupAt: Date,
   returnAt: Date,
 ): Promise<CarListItem[]> {
+  const pad = (await getTurnaroundMinutes()) * 60_000;
   const cars = await prisma.car.findMany({
     where: {
       isAvailable: true,
       inquiries: {
         none: {
           status: { in: ["CONFIRMED", "IN_PROGRESS"] },
-          pickupAt: { lt: returnAt },
-          returnAt: { gt: pickupAt },
+          pickupAt: { lt: new Date(returnAt.getTime() + pad) },
+          returnAt: { gt: new Date(pickupAt.getTime() - pad) },
         },
       },
       blocks: {
@@ -45,6 +46,7 @@ export async function getNearestFreeWindows(pickupAt: Date, returnAt: Date, max 
   const now = Date.now();
   const from = new Date(Math.max(now, pickupAt.getTime() - 14 * DAY));
   const to = new Date(returnAt.getTime() + 30 * DAY);
+  const pad = (await getTurnaroundMinutes()) * 60_000;
   const cars = await prisma.car.findMany({
     where: { isAvailable: true },
     select: {
@@ -60,7 +62,7 @@ export async function getNearestFreeWindows(pickupAt: Date, returnAt: Date, max 
     },
   });
   const busy = cars.map((c) => [
-    ...(c.inquiries ?? []).map((q) => [new Date(q.pickupAt).getTime(), new Date(q.returnAt).getTime()] as const),
+    ...(c.inquiries ?? []).map((q) => [new Date(q.pickupAt).getTime() - pad, new Date(q.returnAt).getTime() + pad] as const),
     ...(c.blocks ?? []).map((b) => [new Date(b.startAt).getTime(), new Date(b.endAt).getTime()] as const),
   ]);
   const out: FreeWindow[] = [];

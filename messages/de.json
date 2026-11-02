@@ -715,7 +715,9 @@
     "copy": "Nummer kopieren",
     "copied": "Kopiert",
     "submitShort": "Senden",
-    "pickDates": "Daten wählen"
+    "pickDates": "Daten wählen",
+    "calHintStart": "Bei teilweise freien Tagen steht die Uhrzeit, ab der das Auto abgeholt werden kann.",
+    "calHintEnd": "Bei teilweise freien Tagen steht die Uhrzeit, bis zu der das Auto zurückgegeben werden muss."
   },
   "Phone": {
     "country": "Land",

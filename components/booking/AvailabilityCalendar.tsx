@@ -3,14 +3,16 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { dayStatus, type BusyRange } from "@/lib/booking";
+import { dayInfo, type BusyRange } from "@/lib/booking";
 import { monthLabel, toISODate, weekdayLabels } from "@/lib/dates";
+
+export type PickHint = { from: string | null; until: string | null };
 
 type Props = {
   busy: BusyRange[];
   start: string;
   end: string;
-  onPick: (start: string, end: string | null) => void;
+  onPick: (start: string, end: string | null, hint: PickHint) => void;
   footer?: ReactNode;
 };
 
@@ -22,6 +24,7 @@ function Month({
   start,
   end,
   today,
+  picking,
   onDay,
 }: {
   month: Date;
@@ -29,7 +32,8 @@ function Month({
   start: string;
   end: string;
   today: string;
-  onDay: (iso: string) => void;
+  picking: "start" | "end";
+  onDay: (iso: string, hint: PickHint) => void;
 }) {
   const locale = useLocale();
   const y = month.getFullYear();
@@ -53,7 +57,9 @@ function Month({
           if (!d) return <span key={`e${i}`} />;
           const iso = toISODate(d);
           const past = iso < today;
-          const status = past ? "free" : dayStatus(busy, d);
+          const info = past ? null : dayInfo(busy, d);
+          const status = info?.status ?? "free";
+          const time = status === "partial" ? (picking === "start" ? info?.from : info?.until) : null;
           const edge = iso === start || iso === end;
           const inside = start && end && iso > start && iso < end;
           const tone = past
@@ -72,11 +78,12 @@ function Month({
               key={iso}
               type="button"
               disabled={past || status === "booked"}
-              onClick={() => onDay(iso)}
+              onClick={() => onDay(iso, { from: info?.from ?? null, until: info?.until ?? null })}
               aria-pressed={edge}
-              className={`h-9 rounded-lg text-[13px] tabular-nums transition-colors disabled:cursor-not-allowed ${tone}`}
+              className={`flex h-10 flex-col items-center justify-center rounded-lg text-[13px] leading-none tabular-nums transition-colors disabled:cursor-not-allowed ${tone}`}
             >
               {d.getDate()}
+              {time && <span className={`mt-0.5 text-[9px] font-semibold leading-none ${edge ? "text-white/90" : ""}`}>{time}</span>}
             </button>
           );
         })}
@@ -92,19 +99,21 @@ export function AvailabilityCalendar({ busy, start, end, onPick, footer }: Props
   const [picking, setPicking] = useState<"start" | "end">("start");
 
   useEffect(() => {
-    setToday(toISODate(new Date()));
-    setView(first(start ? new Date(`${start}T12:00:00`) : new Date()));
+    const now = new Date();
+    const iso = toISODate(now);
+    setToday(iso);
+    setView(first(start && start > iso ? new Date(`${start}T12:00:00`) : now));
   }, []);
 
   const months = useMemo(() => (view ? [view, new Date(view.getFullYear(), view.getMonth() + 1, 1)] : []), [view]);
   const atStart = !view || first(new Date()).getTime() >= view.getTime();
 
-  const onDay = (iso: string) => {
+  const onDay = (iso: string, hint: PickHint) => {
     if (picking === "start" || !start || iso <= start) {
-      onPick(iso, null);
+      onPick(iso, null, hint);
       setPicking("end");
     } else {
-      onPick(start, iso);
+      onPick(start, iso, hint);
       setPicking("start");
     }
   };
@@ -140,14 +149,16 @@ export function AvailabilityCalendar({ busy, start, end, onPick, footer }: Props
       </div>
 
       <div className="mt-6 grid gap-8 sm:grid-cols-2">
-        {months.map((mo, i) => (
-          <div key={mo.toISOString()} className={i === 1 ? "hidden sm:block" : ""}>
-            <Month month={mo} busy={busy} start={start} end={end} today={today} onDay={onDay} />
+        {months.map((mo) => (
+          <div key={mo.toISOString()}>
+            <Month month={mo} busy={busy} start={start} end={end} today={today} picking={picking} onDay={onDay} />
           </div>
         ))}
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
+      <p className="mt-5 text-xs leading-relaxed text-muted-foreground">{t(picking === "start" ? "calHintStart" : "calHintEnd")}</p>
+
+      <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-2">
           <span className="h-3 w-3 rounded bg-emerald-500/25" />
           {t("legendFree")}

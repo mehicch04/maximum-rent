@@ -171,7 +171,8 @@ export function DateField({
                 type="button"
                 aria-label="Prethodni mjesec"
                 onClick={() => setView(new Date(y, m - 1, 1))}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-foreground/80 transition-colors hover:border-brand hover:text-brand"
+                disabled={!!minDate && new Date(y, m, 1) <= new Date(minDate.getFullYear(), minDate.getMonth(), 1)}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-foreground/80 transition-colors hover:border-brand hover:text-brand disabled:pointer-events-none disabled:opacity-30"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
