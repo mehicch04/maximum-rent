@@ -14,7 +14,7 @@ export type WaGuest = {
   reviewUrl?: string | null;
 };
 
-export const WA_LANG_LABEL: Record<WaLang, string> = { HR: "", EN: " (engleski)", DE: " (njemački)", ES: " (španski)" };
+export const WA_LANGS: WaLang[] = ["HR", "EN", "DE", "ES"];
 
 const ORDER: Record<string, string[]> = {
   NEW: ["confirm", "docs", "unavailable", "hello"],
