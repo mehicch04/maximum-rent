@@ -134,8 +134,6 @@
     "noResultsTitle": "Za ove datume nema slobodnih vozila",
     "showAll": "Prikaži sva vozila",
     "askUs": "Pitajte nas na WhatsApp",
-    "quickSeven": "7+ sjedišta",
-    "quickLabel": "Brzi filteri",
     "nearestTitle": "Najbliži slobodni termini",
     "nearestLead": "Isto trajanje najma, malo pomjeren termin:",
     "freeN": "{count, plural, one {# slobodno vozilo} few {# slobodna vozila} other {# slobodnih vozila}}",

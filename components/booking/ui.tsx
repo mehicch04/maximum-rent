@@ -46,6 +46,7 @@ export function Amount({ value, className = "" }: { value: number; className?: s
 }
 
 export function Reveal({ show, children }: { show: boolean; children: ReactNode }) {
+  const [settled, setSettled] = useState(false);
   return (
     <AnimatePresence initial={false}>
       {show && (
@@ -54,7 +55,9 @@ export function Reveal({ show, children }: { show: boolean; children: ReactNode 
           animate={{ height: "auto", opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
           transition={{ duration: 0.32, ease: EASE }}
-          className="overflow-hidden"
+          onAnimationStart={() => setSettled(false)}
+          onAnimationComplete={(d) => setSettled((d as { height?: unknown }).height === "auto")}
+          className={settled ? "overflow-visible" : "overflow-hidden"}
         >
           {children}
         </motion.div>

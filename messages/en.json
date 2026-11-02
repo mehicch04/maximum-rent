@@ -134,8 +134,6 @@
     "noResultsTitle": "No cars free for these dates",
     "showAll": "Show all vehicles",
     "askUs": "Ask us on WhatsApp",
-    "quickSeven": "7+ seats",
-    "quickLabel": "Quick filters",
     "nearestTitle": "Nearest free dates",
     "nearestLead": "Same rental length, slightly shifted:",
     "freeN": "{count, plural, one {# car free} other {# cars free}}",

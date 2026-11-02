@@ -12,7 +12,6 @@ import {
   Gauge,
   Gem,
   Package,
-  Settings2,
   SlidersHorizontal,
   Sun,
   Users,
@@ -185,26 +184,6 @@ export function FleetGrid({ cars, search, eagerFirstImages = false, imageSizes, 
     ];
   }, [cars, values, sel, currency, locale, t]);
 
-  const quick = useMemo(() => {
-    const cats = present("cat");
-    const seven = [...present("seats")].filter((n) => Number(n) >= 7);
-    const list: { id: string; label: string; icon: Option["icon"]; f: Facet; values: string[] }[] = [
-      { id: "auto", label: label(TRANSMISSION_LABELS.AUTOMATIC, locale), icon: Settings2, f: "gear", values: present("gear").has("AUTOMATIC") ? ["AUTOMATIC"] : [] },
-      { id: "suv", label: t("categories.SUV"), icon: CarFront, f: "cat", values: cats.has("SUV") ? ["SUV"] : [] },
-      { id: "seven", label: t("quickSeven"), icon: Users, f: "seats", values: seven },
-      { id: "lux", label: t("categories.LUXURY"), icon: Gem, f: "cat", values: cats.has("LUXURY") ? ["LUXURY"] : [] },
-    ];
-    return list.filter((q) => q.values.length > 0);
-  }, [cars, values, locale, t]);
-
-  const quickOn = (q: (typeof quick)[number]) => q.values.every((v) => sel[q.f].includes(v));
-  const flipQuick = (q: (typeof quick)[number]) =>
-    setSel((s) => ({
-      ...s,
-      [q.f]: q.values.every((v) => s[q.f].includes(v)) ? s[q.f].filter((x) => !q.values.includes(x)) : Array.from(new Set([...s[q.f], ...q.values])),
-    }));
-  const quickCount = (q: (typeof quick)[number]) => cars.filter((c) => values.get(c.id)![q.f].some((x) => q.values.includes(x))).length;
-
   const toggle = (f: Facet, v: string) =>
     setSel((s) => ({ ...s, [f]: s[f].includes(v) ? s[f].filter((x) => x !== v) : [...s[f], v] }));
   const clear = () => setSel(EMPTY);
@@ -307,32 +286,6 @@ export function FleetGrid({ cars, search, eagerFirstImages = false, imageSizes, 
             {sortSelect("fleet-sort")}
           </div>
         </div>
-
-        {quick.length > 0 && (
-          <div role="group" aria-label={t("quickLabel")} className="no-scrollbar -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
-            {quick.map((q) => {
-              const on = quickOn(q);
-              const Icon = q.icon;
-              return (
-                <button
-                  key={q.id}
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => flipQuick(q)}
-                  className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full pl-3 pr-2 text-sm font-semibold ring-1 transition-[background-color,color,box-shadow,transform] duration-200 active:scale-[0.97] ${
-                    on ? "bg-ink text-white ring-ink shadow-[0_10px_24px_-14px_rgba(17,17,19,0.8)]" : "bg-surface text-foreground ring-border hover:ring-foreground/25"
-                  }`}
-                >
-                  {Icon && <Icon className={`h-4 w-4 ${on ? "text-brand-300" : "text-brand-strong"}`} />}
-                  {q.label}
-                  <span className={`grid h-6 min-w-6 place-items-center rounded-full px-1.5 text-[11px] font-semibold tabular-nums ${on ? "bg-white/15 text-white" : "bg-surface-muted text-muted-foreground"}`}>
-                    {on ? <X className="h-3 w-3" /> : quickCount(q)}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        )}
 
         <div className="sticky top-[80px] z-30 mt-4 before:pointer-events-none before:absolute before:-inset-x-3 before:-top-3 before:bottom-1/2 before:-z-10 before:bg-background before:content-[''] min-[1680px]:hidden">
           <div className="hidden lg:block">

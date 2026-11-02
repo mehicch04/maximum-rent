@@ -134,8 +134,6 @@
     "noResultsTitle": "No hay coches libres para estas fechas",
     "showAll": "Ver todos los vehículos",
     "askUs": "Pregúntanos por WhatsApp",
-    "quickSeven": "7+ plazas",
-    "quickLabel": "Filtros rápidos",
     "nearestTitle": "Fechas libres más cercanas",
     "nearestLead": "La misma duración, con fechas un poco distintas:",
     "freeN": "{count, plural, one {# coche libre} other {# coches libres}}",

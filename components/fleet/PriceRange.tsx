@@ -50,7 +50,7 @@ export function PriceRange({ min, max, value, amounts, symbol, onChange }: Range
   const pos = (v: number) => `calc(${THUMB / 2}px + (100% - ${THUMB}px) * ${pct(v)})`;
 
   const field = (i: 0 | 1) => (
-    <label className="block min-w-0 flex-1 cursor-text rounded-xl bg-surface px-3 py-2 ring-1 ring-border transition-shadow focus-within:ring-2 focus-within:ring-brand">
+    <label className="block min-w-0 flex-1 cursor-text rounded-xl border border-border bg-surface px-3 py-2 transition-[border-color,box-shadow] focus-within:border-brand focus-within:shadow-[inset_0_0_0_1px_#E30613]">
       <span className="block text-[11px] font-medium text-muted-foreground">{t(i === 0 ? "priceFrom" : "priceTo")}</span>
       <span className="flex items-baseline gap-1">
         <input

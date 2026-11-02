@@ -18,7 +18,7 @@ export function LocationMap({ spots, locale, openLabel, routeLabel }: { spots: M
 
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] lg:gap-5">
-      <ul className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0">
+      <ul className="no-scrollbar -mx-4 -mb-5 -mt-2 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-8 pt-2 lg:m-0 lg:flex-col lg:overflow-visible lg:p-0">
         {spots.map((s, i) => {
           const on = i === active;
           return (

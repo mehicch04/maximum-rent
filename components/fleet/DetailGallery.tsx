@@ -106,7 +106,7 @@ export function DetailGallery({ images, title, onOpen }: { images: string[]; tit
       </div>
 
       {count > 1 && (
-        <ul ref={strip} className="no-scrollbar mt-3 flex snap-x gap-2 overflow-x-auto pb-1 sm:gap-2.5">
+        <ul ref={strip} className="no-scrollbar -mx-1 mt-2 flex snap-x scroll-px-1 gap-2 overflow-x-auto p-1 sm:gap-2.5">
           {images.map((src, i) => {
             const on = i === index;
             return (
@@ -116,11 +116,13 @@ export function DetailGallery({ images, title, onOpen }: { images: string[]; tit
                   onClick={() => go(i)}
                   aria-label={t("photoN", { n: i + 1 })}
                   aria-current={on || undefined}
-                  className={`relative block aspect-[16/10] w-20 overflow-hidden rounded-xl transition-[opacity,box-shadow] duration-300 sm:w-28 ${
-                    on ? "opacity-100 ring-2 ring-brand ring-offset-2 ring-offset-background" : "opacity-55 hover:opacity-100"
-                  }`}
+                  className={`relative block aspect-[16/10] w-20 overflow-hidden rounded-xl transition-opacity duration-300 sm:w-28 ${on ? "opacity-100" : "opacity-55 hover:opacity-100"}`}
                 >
                   <Image src={src} alt="" fill sizes="112px" className="object-cover" />
+                  <span
+                    aria-hidden
+                    className={`pointer-events-none absolute inset-0 rounded-xl transition-shadow duration-300 ${on ? "shadow-[inset_0_0_0_2px_#E30613,inset_0_0_0_4px_rgba(255,255,255,0.9)]" : "shadow-[inset_0_0_0_1px_rgba(0,0,0,0.06)]"}`}
+                  />
                 </button>
               </li>
             );

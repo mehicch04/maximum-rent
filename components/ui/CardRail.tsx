@@ -52,7 +52,7 @@ export function CardRail({
       <ul
         ref={ref}
         onScroll={onScroll}
-        className={`no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth pb-1 sm:mx-0 sm:grid sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 ${bleed} ${cols}`}
+        className={`no-scrollbar flex snap-x snap-mandatory -my-2 gap-3 overflow-x-auto scroll-smooth py-2 pb-5 sm:mx-0 sm:my-0 sm:grid sm:gap-5 sm:overflow-visible sm:p-0 ${bleed} ${cols}`}
       >
         {items.map((it) => (
           <li key={it.key} className="w-[86%] shrink-0 snap-center [transform:translateZ(0)] sm:w-auto sm:[transform:none]">
