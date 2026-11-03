@@ -56,11 +56,11 @@ export function Promotions({ items }: { items: PromoItem[] }) {
               }`}
             >
               <Image
-                src={p.image}
+                src={single ? "/fleet-premium.webp" : p.image}
                 alt={p.title}
                 fill
                 sizes={single ? "(max-width: 1151px) 100vw, 1104px" : "(max-width: 767px) 92vw, (max-width: 1023px) 46vw, 31vw"}
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                className={`object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03] ${single ? "object-[22%_50%] md:object-center" : ""}`}
               />
               <div
                 aria-hidden
