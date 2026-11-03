@@ -19,7 +19,7 @@ export function GuidesTeaser({ guides }: { guides: Guide[] }) {
   if (!guides.length) return null;
 
   const finesGuide = guides.find((g) => g.icon === "fines");
-  const picked = (["airport", "trips", "medjugorje"] as const).map((i) => guides.find((g) => g.icon === i)).filter((g): g is Guide => Boolean(g));
+  const picked = (["fines", "rules", "airport"] as const).map((i) => guides.find((g) => g.icon === i)).filter((g): g is Guide => Boolean(g));
   const cards = picked.length === 3 ? picked : guides.slice(0, 3);
   const table = finesGuide?.blocks.find((b) => b.type === "table");
   const fines: Fine[] =
