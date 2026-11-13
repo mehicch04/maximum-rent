@@ -9,6 +9,7 @@ import "../globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -49,10 +50,15 @@ export default async function AdminLayout({
     <html lang="hr" suppressHydrationWarning className={inter.variable}>
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
         <ThemeProvider>
-          <div className="flex min-h-dvh flex-col">
-            <AdminHeader />
-            <AdminNav counts={counts} />
-            <main className="flex-1">{children}</main>
+          <AdminHeader counts={counts} />
+          <div className="flex min-h-[calc(100dvh-4rem)]">
+            <AdminSidebar counts={counts} />
+            <main className="min-w-0 flex-1">
+              <div className="lg:hidden">
+                <AdminNav counts={counts} />
+              </div>
+              {children}
+            </main>
           </div>
         </ThemeProvider>
       </body>

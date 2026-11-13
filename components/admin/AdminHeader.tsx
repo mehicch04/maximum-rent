@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { LogOut, Moon, ShieldCheck, Sun } from "lucide-react";
+import { Bell, Moon, Sun } from "lucide-react";
+import { SearchBox } from "@/components/admin/SearchBox";
 
-export function AdminHeader() {
+export function AdminHeader({
+  counts = { inquiries: 0, messages: 0 },
+}: {
+  counts?: { inquiries: number; messages: number };
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const { resolvedTheme, setTheme } = useTheme();
@@ -22,38 +28,55 @@ export function AdminHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-2 font-semibold">
-          <ShieldCheck className="h-5 w-5 text-brand" />
-          <span>
-            Maximum <span className="text-brand">Admin</span>
-          </span>
-        </div>
+    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-border bg-background/85 px-4 backdrop-blur sm:px-6">
+      <Link href="/admin" className="flex shrink-0 items-center gap-2.5 lg:w-60">
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand text-sm font-extrabold text-white">
+          M
+        </span>
+        <span className="text-[17px] font-bold tracking-tight">
+          Maximum <span className="font-semibold text-brand">Admin</span>
+        </span>
+      </Link>
 
-        <div className="flex items-center gap-2">
-          {mounted && (
-            <button
-              type="button"
-              aria-label="Promijeni temu"
-              onClick={() => setTheme(isDark ? "light" : "dark")}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border text-foreground/80 transition-colors hover:border-brand hover:text-brand"
+      {!onLogin && (
+        <>
+          <div className="hidden min-w-0 flex-1 md:block">
+            <SearchBox placeholder="Pretraži rezervacije, klijente ili vozila…" />
+          </div>
+
+          <div className="ml-auto flex items-center gap-2">
+            {mounted && (
+              <button
+                type="button"
+                aria-label="Promijeni temu"
+                onClick={() => setTheme(isDark ? "light" : "dark")}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border text-foreground/70 transition-colors hover:text-foreground"
+              >
+                {isDark ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
+              </button>
+            )}
+            <Link
+              href="/admin/poruke"
+              aria-label="Poruke"
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border text-foreground/70 transition-colors hover:text-foreground"
             >
-              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-          )}
-          {!onLogin && (
+              <Bell className="h-[18px] w-[18px]" />
+              {counts.messages > 0 && (
+                <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-brand ring-2 ring-background" />
+              )}
+            </Link>
             <button
               type="button"
               onClick={logout}
-              className="inline-flex h-9 items-center gap-2 rounded-xl border border-border px-3 text-sm font-medium text-foreground/80 transition-colors hover:border-brand hover:text-brand"
+              aria-label="Odjava"
+              title="Odjava"
+              className="grid h-10 w-10 place-items-center rounded-full bg-ink text-[13px] font-semibold text-white"
             >
-              <LogOut className="h-4 w-4" />
-              Odjava
+              MA
             </button>
-          )}
-        </div>
-      </div>
+          </div>
+        </>
+      )}
     </header>
   );
 }

@@ -5,12 +5,13 @@ import {
   Check,
   Clock,
   Mail,
+  MapPin,
   Phone,
   Plane,
   Package,
-  Receipt,
   StickyNote,
   Trash2,
+  User,
   X,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -30,7 +31,6 @@ import { createContinuation } from "./extend-actions";
 import { NewReservationButton } from "@/components/admin/NewReservationButton";
 import { StartRentalButton } from "@/components/admin/StartRentalButton";
 import { ConflictNotice } from "@/components/admin/ConflictNotice";
-import { SearchBox } from "@/components/admin/SearchBox";
 import { ReservationDetail } from "@/components/admin/ReservationDetail";
 import { DueBadge } from "@/components/admin/DueBadge";
 import { GuestWhatsApp } from "@/components/admin/GuestWhatsApp";
@@ -84,28 +84,28 @@ type Range = (typeof RANGES)[number]["id"];
 
 const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
   NEW: {
-    label: "Novo",
-    cls: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+    label: "Na čekanju",
+    cls: "bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
   },
   CONTACTED: {
     label: "Kontaktirano",
-    cls: "bg-sky-500/15 text-sky-600 dark:text-sky-400",
+    cls: "bg-sky-50 text-sky-700 dark:bg-sky-500/15 dark:text-sky-400",
   },
   CONFIRMED: {
     label: "Potvrđeno",
-    cls: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+    cls: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
   },
   IN_PROGRESS: {
     label: "U toku",
-    cls: "bg-brand/15 text-brand-strong",
+    cls: "bg-teal-50 text-teal-700 dark:bg-teal-500/15 dark:text-teal-300",
   },
   CANCELLED: {
     label: "Otkazano",
-    cls: "bg-zinc-500/15 text-zinc-500 dark:text-zinc-400",
+    cls: "bg-zinc-100 text-zinc-600 dark:bg-zinc-500/15 dark:text-zinc-400",
   },
   COMPLETED: {
     label: "Završeno",
-    cls: "bg-zinc-500/15 text-zinc-500 dark:text-zinc-400",
+    cls: "bg-zinc-100 text-zinc-600 dark:bg-zinc-500/15 dark:text-zinc-400",
   },
 };
 
@@ -340,14 +340,10 @@ export default async function AdminPage({
           <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
             Rezervacije
           </h1>
-          <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
-            Potvrdite upit da zauzme vozilo. Potvrđene rezervacije i blokade
-            automatski skrivaju vozilo iz pretrage za taj period.
+          <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+            Upravljajte upitima i rezervacijama. Potvrđene rezervacije
+            automatski blokiraju vozilo za taj period.
           </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <SearchBox placeholder="Ime, telefon, broj rezervacije…" />
         </div>
 
         <NewReservationButton>
@@ -380,24 +376,24 @@ export default async function AdminPage({
         </div>
       )}
 
-      <div className="mt-6 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="mt-6 flex gap-6 overflow-x-auto border-b border-border [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {FILTERS.map((f) => {
           const active = f.id === filter;
           return (
             <Link
               key={f.id}
               href={`/admin?status=${f.id}&range=${range}`}
-              className={`inline-flex flex-none items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+              className={`-mb-px inline-flex flex-none items-center gap-2 whitespace-nowrap border-b-2 py-3 text-sm transition-colors ${
                 active
-                  ? "border-brand bg-brand text-brand-foreground"
-                  : "border-border bg-surface text-foreground/80 hover:border-brand hover:text-brand"
+                  ? "border-brand font-semibold text-foreground"
+                  : "border-transparent font-medium text-muted-foreground hover:text-foreground"
               }`}
             >
               {f.label}
               <span
-                className={`rounded-full px-1.5 py-0.5 text-xs tabular-nums ${
+                className={`inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full px-1.5 text-[11px] font-bold tabular-nums ${
                   active
-                    ? "bg-white/25 text-brand-foreground"
+                    ? "bg-brand text-brand-foreground"
                     : "bg-surface-muted text-muted-foreground"
                 }`}
               >
@@ -418,8 +414,8 @@ export default async function AdminPage({
               href={`/admin?status=${filter}&range=${r.id}`}
               className={`inline-flex flex-none items-center rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors ${
                 active
-                  ? "border-brand bg-brand text-brand-foreground"
-                  : "border-border bg-surface text-foreground/80 hover:border-brand hover:text-brand"
+                  ? "border-ink bg-ink text-white"
+                  : "border-border bg-surface text-foreground/80 hover:border-foreground/30 hover:text-foreground"
               }`}
             >
               {r.label}
@@ -442,68 +438,113 @@ export default async function AdminPage({
             q.status === "CANCELLED" && q.expiredAt
               ? {
                   label: "Isteklo",
-                  cls: "bg-zinc-500/15 text-zinc-500 dark:text-zinc-400",
+                  cls: "bg-zinc-100 text-zinc-600 dark:bg-zinc-500/15 dark:text-zinc-400",
                 }
               : (STATUS_BADGE[q.status] ?? STATUS_BADGE.NEW);
           const canAct = q.status === "NEW" || q.status === "CONTACTED";
+          const overdue = q.status === "IN_PROGRESS" && q.returnAt < new Date();
+          const guestName = [q.firstName, q.lastName].filter(Boolean).join(" ");
           return (
             <div
               key={q.id}
-              className={`rounded-2xl border p-5 shadow-card ${
-                q.status === "IN_PROGRESS" && q.returnAt < new Date()
-                  ? "border-brand/50 bg-brand/[0.04]"
-                  : "border-border bg-surface"
+              className={`rounded-2xl border p-5 shadow-card sm:p-6 ${
+                overdue ? "border-brand/40 bg-brand/[0.03]" : "border-border bg-surface"
               }`}
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${badge.cls}`}
-                    >
-                      {badge.label}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {fmt(q.createdAt)} · {q.reference}
-                    </span>
-                  </div>
-                  <p className="mt-2 flex items-center gap-2 font-semibold">
-                    <CarIcon className="h-4 w-4 shrink-0 text-brand" />
-                    {q.car?.title ?? q.carTitleSnapshot ?? "— (opći upit)"}
-                  </p>
-                  <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-                    <CalendarDays className="h-4 w-4 shrink-0 text-brand" />
-                    {fmt(q.pickupAt)} → {fmt(q.returnAt)}
-                    {q.status === "IN_PROGRESS" && (
-                      <>
-                        {" · "}
-                        <DueBadge returnAt={q.returnAt.toISOString()} />
-                      </>
-                    )}
-                    {q.rentalDays ? (
-                      <span className="text-xs">· {q.rentalDays} dana</span>
-                    ) : null}
-                  </p>
-                  {q.totalPrice != null && (
-                    <p className="mt-1 flex items-center gap-2 text-sm">
-                      <Receipt className="h-4 w-4 shrink-0 text-brand" />
-                      <span className="font-semibold text-foreground">
-                        {Number(q.totalPrice).toFixed(0)} KM
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        najam i oprema
-                      </span>
-                    </p>
-                  )}
-                </div>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                <span
+                  className={`rounded-md px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${badge.cls}`}
+                >
+                  {badge.label}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  <span className="font-semibold text-foreground/70">
+                    {fmt(q.createdAt)}
+                  </span>{" "}
+                  · {q.reference}
+                </span>
 
-                <div className="flex flex-wrap items-start gap-2">
+                <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+                  {canAct && (
+                    <form action={confirmInquiry}>
+                      <input type="hidden" name="id" value={q.id} />
+                      <input type="hidden" name="statusFilter" value={filter} />
+                      <input type="hidden" name="rangeFilter" value={range} />
+                      <ConfirmSubmit
+                        title="Potvrditi rezervaciju?"
+                        message="Vozilo će biti označeno kao zauzeto za odabrani period, a klijent će dobiti email s potvrdom."
+                        confirmLabel="Da, potvrdi"
+                        cancelLabel="Odustani"
+                        tone="confirm"
+                        className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 text-[13px] font-semibold text-white transition-colors hover:bg-emerald-700"
+                      >
+                        <Check className="h-4 w-4" />
+                        Potvrdi
+                      </ConfirmSubmit>
+                    </form>
+                  )}
+                  {canAct && (
+                    <form action={cancelInquiry}>
+                      <input type="hidden" name="id" value={q.id} />
+                      <input type="hidden" name="statusFilter" value={filter} />
+                      <input type="hidden" name="rangeFilter" value={range} />
+                      <ConfirmSubmit
+                        title="Otkazati upit?"
+                        message="Klijent će dobiti email da rezervacija nije potvrđena. Ovu radnju možete kasnije ručno izmijeniti."
+                        confirmLabel="Da, otkaži"
+                        cancelLabel="Nazad"
+                        tone="danger"
+                        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border px-3.5 text-[13px] font-medium text-foreground/70 transition-colors hover:border-foreground/30 hover:text-foreground"
+                      >
+                        <X className="h-4 w-4" />
+                        Otkaži
+                      </ConfirmSubmit>
+                    </form>
+                  )}
+                  {q.carId &&
+                    (q.status === "IN_PROGRESS" ||
+                      (q.status === "CONFIRMED" && q.pickupAt <= new Date())) && (
+                      <FinishRentalButton
+                        id={q.id}
+                        reference={q.reference}
+                        guest={[q.firstName, q.lastName].filter(Boolean).join(" ")}
+                        carTitle={q.car?.title ?? q.carTitleSnapshot ?? ""}
+                        returnAt={q.returnAt.toISOString()}
+                        handoverMissing={q.status === "CONFIRMED"}
+                      />
+                    )}
+                  {q.status === "CONFIRMED" && q.carId && (
+                    <StartRentalButton
+                      id={q.id}
+                      reference={q.reference}
+                      guest={[q.firstName, q.lastName].filter(Boolean).join(" ")}
+                      carTitle={q.car?.title ?? q.carTitleSnapshot ?? ""}
+                    />
+                  )}
+                  {q.status === "CONFIRMED" && (
+                    <form action={cancelInquiry}>
+                      <input type="hidden" name="id" value={q.id} />
+                      <input type="hidden" name="statusFilter" value={filter} />
+                      <input type="hidden" name="rangeFilter" value={range} />
+                      <ConfirmSubmit
+                        title="Otkazati potvrđenu rezervaciju?"
+                        message="Vozilo će ponovo postati dostupno za taj period, a klijent će dobiti email o otkazivanju."
+                        confirmLabel="Da, otkaži"
+                        cancelLabel="Nazad"
+                        tone="danger"
+                        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border px-3.5 text-[13px] font-medium text-foreground/70 transition-colors hover:border-foreground/30 hover:text-foreground"
+                      >
+                        <X className="h-4 w-4" />
+                        Otkaži rezervaciju
+                      </ConfirmSubmit>
+                    </form>
+                  )}
                   <ReservationDetail
                     data={{
                       reference: q.reference,
                       status: q.status,
                       channel: q.channel,
-                      guest: [q.firstName, q.lastName].filter(Boolean).join(" "),
+                      guest: guestName,
                       email: q.email,
                       phone: q.phone,
                       flightNumber: q.flightNumber,
@@ -579,44 +620,107 @@ export default async function AdminPage({
                     />
                   </EditInquiryButton>
                 </div>
+              </div>
 
-                {canAct && (
-                  <div className="flex flex-wrap gap-2">
-                    <form action={confirmInquiry}>
-                      <input type="hidden" name="id" value={q.id} />
-                      <input type="hidden" name="statusFilter" value={filter} />
-                      <input type="hidden" name="rangeFilter" value={range} />
-                      <ConfirmSubmit
-                        title="Potvrditi rezervaciju?"
-                        message="Vozilo će biti označeno kao zauzeto za odabrani period, a klijent će dobiti email s potvrdom."
-                        confirmLabel="Da, potvrdi"
-                        cancelLabel="Odustani"
-                        tone="confirm"
-                        className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-emerald-600 px-3 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
-                      >
-                        <Check className="h-4 w-4" />
-                        Potvrdi
-                      </ConfirmSubmit>
-                    </form>
-                    <form action={cancelInquiry}>
-                      <input type="hidden" name="id" value={q.id} />
-                      <input type="hidden" name="statusFilter" value={filter} />
-                      <input type="hidden" name="rangeFilter" value={range} />
-                      <ConfirmSubmit
-                        title="Otkazati upit?"
-                        message="Klijent će dobiti email da rezervacija nije potvrđena. Ovu radnju možete kasnije ručno izmijeniti."
-                        confirmLabel="Da, otkaži"
-                        cancelLabel="Nazad"
-                        tone="danger"
-                        className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-border px-3 text-sm font-medium text-foreground/80 transition-colors hover:border-brand hover:text-brand"
-                      >
-                        <X className="h-4 w-4" />
-                        Otkaži
-                      </ConfirmSubmit>
-                    </form>
+              <div className="mt-5 grid gap-6 sm:grid-cols-2">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand/10 text-brand-strong">
+                      <CarIcon className="h-5 w-5" />
+                    </span>
+                    <span className="text-lg font-bold tracking-tight">
+                      {q.car?.title ?? q.carTitleSnapshot ?? "— (opći upit)"}
+                    </span>
                   </div>
-                )}
-                {canAct && (
+                  <p className="mt-3 flex flex-wrap items-center gap-2 text-sm text-foreground/80">
+                    <CalendarDays className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    {fmt(q.pickupAt)}{" "}
+                    <span className="text-muted-foreground">→</span>{" "}
+                    {fmt(q.returnAt)}
+                    {q.status === "IN_PROGRESS" && (
+                      <DueBadge returnAt={q.returnAt.toISOString()} />
+                    )}
+                  </p>
+                  {q.totalPrice != null && (
+                    <p className="mt-3 inline-flex items-center gap-2 rounded-lg bg-surface-muted px-3 py-2 text-sm font-semibold">
+                      {Number(q.totalPrice).toFixed(0)} KM
+                      <span className="font-medium text-muted-foreground">
+                        najam i oprema
+                        {q.rentalDays ? ` · ${q.rentalDays} dana` : ""}
+                      </span>
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2.5">
+                  <p className="flex items-center gap-2 text-[15px] font-semibold">
+                    <User className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    {guestName}
+                  </p>
+                  <span className="flex flex-wrap items-center gap-2 text-sm text-foreground/80">
+                    <a
+                      href={`tel:${q.phone}`}
+                      className="flex items-center gap-2 transition-colors hover:text-brand"
+                    >
+                      <Phone className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      {q.phone}
+                    </a>
+                    <GuestWhatsApp
+                      phone={q.phone}
+                      lang={q.locale === "EN" || q.locale === "DE" || q.locale === "ES" ? q.locale : "HR"}
+                      guest={{
+                        firstName: q.firstName,
+                        reference: q.reference,
+                        status: q.status,
+                        carTitle: q.car?.title ?? q.carTitleSnapshot,
+                        pickupAt: q.pickupAt,
+                        returnAt: q.returnAt,
+                        pickupLocation: q.pickupLocation?.name,
+                        returnLocation: q.returnLocation?.name,
+                        reviewUrl,
+                      }}
+                    />
+                  </span>
+                  <a
+                    href={`mailto:${q.email}`}
+                    className="flex items-center gap-2 text-sm text-foreground/80 transition-colors hover:text-brand"
+                  >
+                    <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    {q.email}
+                  </a>
+                  {q.pickupLocation?.name && (
+                    <p className="flex items-center gap-2 text-sm text-foreground/80">
+                      <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      Preuzimanje: {q.pickupLocation.name}
+                    </p>
+                  )}
+                  {q.flightNumber && (
+                    <p className="flex items-center gap-2 text-sm text-foreground/80">
+                      <Plane className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      {q.flightNumber}
+                    </p>
+                  )}
+                  {q.extras.length > 0 && (
+                    <p className="flex items-start gap-2 text-sm text-foreground/80">
+                      <Package className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                      <span>
+                        {q.extras
+                          .map((x) => `${x.nameHr}${x.qty > 1 ? ` ×${x.qty}` : ""}`)
+                          .join(" · ")}
+                      </span>
+                    </p>
+                  )}
+                  {q.message && (
+                    <p className="flex items-start gap-2 rounded-lg border border-amber-200/70 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200">
+                      <StickyNote className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                      {q.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {canAct && (
+                <div className="mt-4">
                   <ConflictNotice
                     carId={q.carId}
                     pickupAt={q.pickupAt.toISOString()}
@@ -624,129 +728,26 @@ export default async function AdminPage({
                     occupancy={carOccupancy}
                     cars={carsForForm}
                   />
-                )}
+                </div>
+              )}
 
-                {q.carId &&
-                  (q.status === "IN_PROGRESS" ||
-                    (q.status === "CONFIRMED" && q.pickupAt <= new Date())) && (
-                  <div className="flex flex-wrap gap-2">
-                    <FinishRentalButton
-                      id={q.id}
-                      reference={q.reference}
-                      guest={[q.firstName, q.lastName].filter(Boolean).join(" ")}
-                      carTitle={q.car?.title ?? q.carTitleSnapshot ?? ""}
-                      returnAt={q.returnAt.toISOString()}
-                      handoverMissing={q.status === "CONFIRMED"}
-                    />
-                  </div>
-                )}
+              {canAct && q.car && !q.car.isAvailable && (
+                <p className="mt-3 rounded-xl border border-amber-500/50 bg-amber-500/[0.07] px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
+                  <strong className="font-semibold">
+                    Vozilo je povučeno iz ponude.
+                  </strong>{" "}
+                  Provjerite je li još raspoloživo prije nego potvrdite, ili kroz
+                  Uredi dodijelite drugo.
+                </p>
+              )}
 
-                {canAct && q.car && !q.car.isAvailable && (
-                  <p className="rounded-xl border border-amber-500/50 bg-amber-500/[0.07] px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
-                    <strong className="font-semibold">
-                      Vozilo je povučeno iz ponude.
-                    </strong>{" "}
-                    Provjerite je li još raspoloživo prije nego potvrdite, ili
-                    kroz Uredi dodijelite drugo.
+              {!q.carId &&
+                (q.status === "CONFIRMED" || q.status === "IN_PROGRESS") && (
+                  <p className="mt-3 rounded-xl border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
+                    Rezervacija nema dodijeljeno vozilo, pa se ne može izdati ni
+                    zatvoriti. Odaberite vozilo kroz Uredi.
                   </p>
                 )}
-
-                {!q.carId &&
-                  (q.status === "CONFIRMED" || q.status === "IN_PROGRESS") && (
-                    <p className="rounded-xl border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
-                      Rezervacija nema dodijeljeno vozilo, pa se ne može izdati
-                      ni zatvoriti. Odaberite vozilo kroz Uredi.
-                    </p>
-                  )}
-
-                {q.status === "CONFIRMED" && q.carId && (
-                  <div className="flex flex-wrap gap-2">
-                    <StartRentalButton
-                      id={q.id}
-                      reference={q.reference}
-                      guest={[q.firstName, q.lastName].filter(Boolean).join(" ")}
-                      carTitle={q.car?.title ?? q.carTitleSnapshot ?? ""}
-                    />
-                  </div>
-                )}
-
-                {q.status === "CONFIRMED" && (
-                  <form action={cancelInquiry}>
-                    <input type="hidden" name="id" value={q.id} />
-                    <input type="hidden" name="statusFilter" value={filter} />
-                    <input type="hidden" name="rangeFilter" value={range} />
-                    <ConfirmSubmit
-                      title="Otkazati potvrđenu rezervaciju?"
-                      message="Vozilo će ponovo postati dostupno za taj period, a klijent će dobiti email o otkazivanju."
-                      confirmLabel="Da, otkaži"
-                      cancelLabel="Nazad"
-                      tone="danger"
-                      className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-border px-3 text-sm font-medium text-foreground/80 transition-colors hover:border-brand hover:text-brand"
-                    >
-                      <X className="h-4 w-4" />
-                      Otkaži rezervaciju
-                    </ConfirmSubmit>
-                  </form>
-                )}
-              </div>
-
-              <div className="mt-3 grid gap-1.5 border-t border-border pt-3 text-sm text-muted-foreground sm:grid-cols-2">
-                <span className="truncate">
-                  {q.firstName} {q.lastName}
-                </span>
-                <a
-                  href={`mailto:${q.email}`}
-                  className="flex items-center gap-1.5 truncate transition-colors hover:text-brand"
-                >
-                  <Mail className="h-3.5 w-3.5 shrink-0" /> {q.email}
-                </a>
-                <span className="flex flex-wrap items-center gap-2">
-                  <a
-                    href={`tel:${q.phone}`}
-                    className="flex items-center gap-1.5 transition-colors hover:text-brand"
-                  >
-                    <Phone className="h-3.5 w-3.5 shrink-0" /> {q.phone}
-                  </a>
-                  <GuestWhatsApp
-                    phone={q.phone}
-                    lang={q.locale === "EN" || q.locale === "DE" || q.locale === "ES" ? q.locale : "HR"}
-                    guest={{
-                      firstName: q.firstName,
-                      reference: q.reference,
-                      status: q.status,
-                      carTitle: q.car?.title ?? q.carTitleSnapshot,
-                      pickupAt: q.pickupAt,
-                      returnAt: q.returnAt,
-                      pickupLocation: q.pickupLocation?.name,
-                      returnLocation: q.returnLocation?.name,
-                      reviewUrl,
-                    }}
-                  />
-                </span>
-                {q.flightNumber && (
-                  <span className="flex items-center gap-1.5">
-                    <Plane className="h-3.5 w-3.5 shrink-0" /> {q.flightNumber}
-                  </span>
-                )}
-                {q.extras.length > 0 && (
-                  <span className="flex items-start gap-1.5 sm:col-span-2">
-                    <Package className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                    <span>
-                      {q.extras
-                        .map(
-                          (x) => `${x.nameHr}${x.qty > 1 ? ` ×${x.qty}` : ""}`,
-                        )
-                        .join(" · ")}
-                    </span>
-                  </span>
-                )}
-                {q.message && (
-                  <span className="flex items-start gap-1.5 sm:col-span-2">
-                    <StickyNote className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                    {q.message}
-                  </span>
-                )}
-              </div>
             </div>
           );
         })}
