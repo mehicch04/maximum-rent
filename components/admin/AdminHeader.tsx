@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -30,11 +31,24 @@ export function AdminHeader({
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-border bg-background/85 px-4 backdrop-blur sm:px-6">
       <Link href="/admin" className="flex shrink-0 items-center gap-2.5 lg:w-60">
-        <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand text-sm font-extrabold text-white">
-          M
-        </span>
-        <span className="text-[17px] font-bold tracking-tight">
-          Maximum <span className="font-semibold text-brand">Admin</span>
+        <Image
+          src="/logo.png"
+          alt="Maximum Rent a Car"
+          width={800}
+          height={239}
+          priority
+          className="h-7 w-auto dark:hidden"
+        />
+        <Image
+          src="/logo-dark.png"
+          alt="Maximum Rent a Car"
+          width={800}
+          height={239}
+          priority
+          className="hidden h-7 w-auto dark:block"
+        />
+        <span className="border-l border-border pl-2.5 text-sm font-semibold text-brand">
+          Admin
         </span>
       </Link>
 
