@@ -464,7 +464,7 @@ export default async function AdminPage({
                   · {q.reference}
                 </span>
 
-                <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+                <div className="grid w-full grid-cols-2 gap-2 sm:ml-auto sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-end">
                   {canAct && (
                     <form action={confirmInquiry}>
                       <input type="hidden" name="id" value={q.id} />
@@ -476,7 +476,7 @@ export default async function AdminPage({
                         confirmLabel="Da, potvrdi"
                         cancelLabel="Odustani"
                         tone="confirm"
-                        className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 text-[13px] font-semibold text-white transition-colors hover:bg-emerald-700"
+                        className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 text-[13px] font-semibold text-white transition-colors hover:bg-emerald-700 sm:w-auto"
                       >
                         <Check className="h-4 w-4" />
                         Potvrdi
@@ -494,7 +494,7 @@ export default async function AdminPage({
                         confirmLabel="Da, otkaži"
                         cancelLabel="Nazad"
                         tone="danger"
-                        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border px-3.5 text-[13px] font-medium text-foreground/70 transition-colors hover:border-foreground/30 hover:text-foreground"
+                        className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-border px-3.5 text-[13px] font-medium text-foreground/70 transition-colors hover:border-foreground/30 hover:text-foreground sm:w-auto"
                       >
                         <X className="h-4 w-4" />
                         Otkaži
@@ -532,7 +532,7 @@ export default async function AdminPage({
                         confirmLabel="Da, otkaži"
                         cancelLabel="Nazad"
                         tone="danger"
-                        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border px-3.5 text-[13px] font-medium text-foreground/70 transition-colors hover:border-foreground/30 hover:text-foreground"
+                        className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-border px-3.5 text-[13px] font-medium text-foreground/70 transition-colors hover:border-foreground/30 hover:text-foreground sm:w-auto"
                       >
                         <X className="h-4 w-4" />
                         Otkaži rezervaciju

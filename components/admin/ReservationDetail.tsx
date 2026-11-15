@@ -117,7 +117,7 @@ export function ReservationDetail({ data }: { data: ReservationDetailData }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-medium text-foreground transition-colors hover:border-brand hover:text-brand-strong"
+        className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-border px-3 text-sm font-medium text-foreground transition-colors hover:border-brand hover:text-brand-strong sm:w-auto"
       >
         <Eye className="h-3.5 w-3.5" />
         Pogledaj
