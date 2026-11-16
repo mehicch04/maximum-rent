@@ -7,6 +7,7 @@ import { NAV_LINKS } from "@/lib/site-config";
 import type { Company } from "@/lib/company";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { ConsentLink } from "@/components/consent/CookieConsent";
+import { FooterWordmark } from "./FooterWordmark";
 
 type Props = {
   company: Company;
@@ -147,12 +148,7 @@ export function Footer({ company, locations }: Props) {
           </div>
         </div>
 
-        <div aria-hidden className="pointer-events-none relative mt-10 select-none overflow-hidden sm:mt-12">
-          <p className="translate-y-[18%] whitespace-nowrap text-center font-display text-[16.5vw] font-bold leading-[0.8] tracking-tighter text-transparent [-webkit-text-stroke:1px_rgba(255,255,255,0.09)] lg:text-[16.5rem]">
-            MAXIMUM
-          </p>
-          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-ink to-transparent" />
-        </div>
+        <FooterWordmark />
 
         <div className="relative border-t border-white/10">
           <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-5 text-center text-xs text-white/45 md:flex-row md:px-6 md:text-left">
