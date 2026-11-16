@@ -1,11 +1,10 @@
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { formatHours } from "@/lib/hours";
-import { ArrowUpRight, Clock3, Facebook, Instagram, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Clock3, MapPin } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { NAV_LINKS } from "@/lib/site-config";
 import type { Company } from "@/lib/company";
-import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { ConsentLink } from "@/components/consent/CookieConsent";
 import { FooterWordmark } from "./FooterWordmark";
 
@@ -21,79 +20,89 @@ export function Footer({ company, locations }: Props) {
   const year = new Date().getFullYear();
   const phone = company.phones[0];
   const head = "text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40";
-  const tile =
-    "group relative flex min-w-0 items-center gap-3 rounded-2xl bg-white/[0.05] p-3.5 ring-1 ring-white/10 transition-[background-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:bg-white/[0.08] hover:ring-white/20 sm:p-4";
-  const social =
-    "grid h-10 w-10 place-items-center rounded-full bg-white/[0.06] text-white/75 ring-1 ring-white/10 transition-colors hover:bg-brand hover:text-white hover:ring-brand";
+  const col =
+    "group block min-w-0 border-t border-white/10 py-6 first:border-t-0 sm:pr-6 sm:[&:nth-child(2)]:border-t-0 lg:border-l lg:border-t-0 lg:px-7 lg:py-7 lg:first:border-l-0 lg:first:pl-0";
+  const label = "flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40";
+  const value = "mt-3 block truncate text-lg font-semibold text-white transition-colors duration-200 group-hover:text-brand-400";
+  const note = "mt-1 block text-[13px] text-white/45";
+  const handle = company.socials.instagram?.match(/instagram\.com\/([^/?#]+)/)?.[1];
+  const socials = [
+    { href: company.socials.facebook, name: "Facebook" },
+    { href: company.socials.instagram, name: "Instagram" },
+  ].filter((s): s is { href: string; name: string } => Boolean(s.href));
 
   return (
     <footer className="site-footer mt-24 px-3 pb-3 sm:px-4 sm:pb-4">
       <div className="relative isolate overflow-hidden rounded-[28px] bg-ink text-white">
-        <div aria-hidden className="pointer-events-none absolute -left-32 -top-40 -z-10 h-80 w-[560px] rounded-full bg-[radial-gradient(closest-side,rgba(227,6,19,0.28),transparent)]" />
         <div aria-hidden className="pointer-events-none absolute -bottom-48 right-[-10%] -z-10 h-96 w-[640px] rounded-full bg-[radial-gradient(closest-side,rgba(227,6,19,0.14),transparent)]" />
 
-        <div className="mx-auto max-w-6xl px-5 pt-12 sm:px-6 sm:pt-16">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.65fr)] lg:items-end lg:gap-10">
+        <div className="mx-auto max-w-6xl px-5 pt-12 sm:px-6 sm:pt-14">
+          <div className="grid gap-8 pb-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:gap-12 lg:pb-11">
             <div>
-              <Image src="/logo-dark.png" alt={company.name} width={800} height={239} className="h-10 w-auto sm:h-11" />
-              <p className="mt-5 max-w-sm text-[15px] leading-relaxed text-white/60">{t("tagline")}</p>
-              <div className="mt-6 flex items-center gap-2">
-                {company.socials.facebook && (
-                  <a href={company.socials.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className={social}>
-                    <Facebook className="h-4 w-4" />
-                  </a>
-                )}
-                {company.socials.instagram && (
-                  <a href={company.socials.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className={social}>
-                    <Instagram className="h-4 w-4" />
-                  </a>
-                )}
-                <Link
-                  href="/vozila"
-                  className="ml-auto inline-flex h-10 items-center gap-1.5 rounded-full bg-brand pl-4 pr-1.5 text-sm font-semibold text-white shadow-[0_12px_26px_-14px_rgba(227,6,19,0.9)] transition-colors hover:bg-brand-700 lg:hidden"
-                >
-                  {nav("book")}
-                  <span className="grid h-7 w-7 place-items-center rounded-full bg-white text-brand">
-                    <ArrowUpRight className="h-3.5 w-3.5" />
-                  </span>
-                </Link>
-              </div>
+              <Image src="/logo-dark.png" alt={company.name} width={800} height={239} className="h-10 w-auto" />
+              <h2 className="mt-7 max-w-[780px] text-balance text-[34px] font-bold leading-[1.05] tracking-[-0.03em] sm:text-[44px] lg:text-[54px] lg:leading-[1.02]">
+                {t.rich("headline", { em: (c) => <span className="text-brand-400">{c}</span> })}
+              </h2>
             </div>
-
-            <div className="grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)_minmax(0,1.3fr)]">
-              {phone && (
-                <a href={phone.href} className={tile}>
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand text-white shadow-[0_10px_20px_-10px_rgba(227,6,19,0.9)]">
-                    <Phone className="h-[18px] w-[18px]" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-[11px] font-medium uppercase tracking-[0.12em] text-white/45">{phone.label}</span>
-                    <span className="block truncate text-sm font-semibold">{phone.value.replace("(0) ", "")}</span>
-                  </span>
-                </a>
-              )}
-              <a href={`https://wa.me/${company.whatsapp}`} target="_blank" rel="noopener noreferrer" className={tile}>
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#25D366] text-ink">
-                  <WhatsAppIcon className="h-[18px] w-[18px]" />
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-[11px] font-medium uppercase tracking-[0.12em] text-white/45">WhatsApp</span>
-                  <span className="block truncate text-sm font-semibold">{t("chat")}</span>
-                </span>
-              </a>
-              <a href={`mailto:${company.email}`} className={tile}>
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-ink">
-                  <Mail className="h-[18px] w-[18px]" />
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-[11px] font-medium uppercase tracking-[0.12em] text-white/45">{t("email")}</span>
-                  <span className="block truncate text-sm font-semibold">{company.email}</span>
-                </span>
-              </a>
-            </div>
+            <Link
+              href="/vozila"
+              className="inline-flex h-12 items-center gap-2.5 self-start rounded-[10px] bg-brand px-[22px] text-[14.5px] font-semibold text-white shadow-[0_10px_22px_-14px_rgba(227,6,19,0.9)] transition-[transform,background-color] duration-200 hover:bg-brand-700 active:scale-[0.98] lg:self-end"
+            >
+              {t("book")}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
 
-          <div className="mt-12 grid gap-10 border-t border-white/10 pt-10 sm:grid-cols-2 lg:mt-14 lg:grid-cols-[0.8fr_1fr_1.6fr] lg:gap-12">
+          <div className="grid border-t border-white/10 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1.3fr_1fr]">
+            {phone && (
+              <a href={phone.href} className={col}>
+                <span className={label}>
+                  <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-brand" />
+                  {t("phone")}
+                </span>
+                <span className={`${value} tabular-nums`}>{phone.value.replace("(0) ", "")}</span>
+                <span className={note}>{formatHours(company.hours, locale)}</span>
+              </a>
+            )}
+            <a href={`https://wa.me/${company.whatsapp}`} target="_blank" rel="noopener noreferrer" className={col}>
+              <span className={label}>
+                <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[#25D366]" />
+                WhatsApp
+              </span>
+              <span className={value}>{t("chat")}</span>
+              <span className={note}>{t("chatNote")}</span>
+            </a>
+            <a href={`mailto:${company.email}`} className={col}>
+              <span className={label}>
+                <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-white" />
+                {t("email")}
+              </span>
+              <span className={value}>{company.email}</span>
+              <span className={note}>{t("emailNote")}</span>
+            </a>
+            {socials.length > 0 && (
+              <div className={col}>
+                <span className={label}>{t("follow")}</span>
+                <span className="mt-3 flex flex-wrap gap-x-5 gap-y-1">
+                  {socials.map((s) => (
+                    <a
+                      key={s.name}
+                      href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-base font-semibold text-white transition-colors duration-200 hover:text-brand-400"
+                    >
+                      {s.name}
+                      <ArrowUpRight className="h-3.5 w-3.5" />
+                    </a>
+                  ))}
+                </span>
+                {handle && <span className={note}>@{handle}</span>}
+              </div>
+            )}
+          </div>
+
+          <div className="grid gap-10 border-t border-white/10 pt-10 sm:grid-cols-2 lg:grid-cols-[0.8fr_1fr_1.6fr] lg:gap-12">
             <nav aria-label={t("navTitle")}>
               <p className={head}>{t("navTitle")}</p>
               <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm sm:grid-cols-1">
