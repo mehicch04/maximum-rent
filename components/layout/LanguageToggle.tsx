@@ -51,7 +51,7 @@ export function LanguageToggle() {
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`${t("language")}: ${LOCALE_NAMES[locale]}`}
-        className="inline-flex h-9 items-center gap-1.5 rounded-full pl-2.5 pr-2 text-xs font-semibold text-foreground/80 transition-colors hover:bg-foreground/[0.06] hover:text-foreground aria-expanded:bg-foreground/[0.06]"
+        className="inline-flex h-9 items-center gap-1.5 rounded-lg pl-2.5 pr-2 text-xs font-semibold text-foreground/80 transition-colors hover:bg-foreground/[0.06] hover:text-foreground aria-expanded:bg-foreground/[0.06]"
       >
         <LangFlag locale={locale} />
         <span className="uppercase">{locale}</span>

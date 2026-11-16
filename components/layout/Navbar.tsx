@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Check, ChevronDown, Clock, Copy, Menu, Phone, Plane, Star, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -14,7 +14,6 @@ import { LanguageToggle } from "./LanguageToggle";
 import { intlLocale } from "@/i18n/routing";
 import { formatHours } from "@/lib/hours";
 
-const useIso = typeof window === "undefined" ? useEffect : useLayoutEffect;
 const EASE = [0.22, 1, 0.36, 1] as const;
 const MAIN = NAV_LINKS.filter((l) => l.href !== "/");
 
@@ -183,26 +182,8 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const bar = useRef<HTMLSpanElement>(null);
   const [open, setOpen] = useState(false);
-  const [hover, setHover] = useState<number | null>(null);
-  const [pill, setPill] = useState<{ left: number; width: number } | null>(null);
-  const items = useRef<(HTMLAnchorElement | null)[]>([]);
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
-  const active = MAIN.findIndex((l) => isActive(l.href));
-  const target = hover ?? (active >= 0 ? active : null);
-
-  const measure = useCallback(() => {
-    const el = target != null ? items.current[target] : null;
-    setPill(el ? { left: el.offsetLeft, width: el.offsetWidth } : null);
-  }, [target]);
-
-  useIso(measure, [measure]);
-
-  useEffect(() => {
-    window.addEventListener("resize", measure);
-    document.fonts?.ready.then(measure).catch(() => {});
-    return () => window.removeEventListener("resize", measure);
-  }, [measure]);
 
   useEffect(() => {
     let raf = 0;
@@ -272,60 +253,54 @@ export function Navbar() {
               : "border-border/70 bg-surface"
           }`}
         >
-          <nav className="mx-auto flex h-[68px] max-w-[1320px] items-center justify-between gap-3 px-4 sm:px-6 lg:grid lg:grid-cols-[minmax(max-content,1fr)_auto_minmax(max-content,1fr)] lg:gap-4">
+          <nav className="mx-auto flex h-[68px] max-w-[1320px] items-center justify-between gap-3 px-4 sm:px-6 lg:grid lg:h-[76px] lg:grid-cols-[minmax(max-content,1fr)_auto_minmax(max-content,1fr)] lg:gap-6">
             <Link href="/" className="flex shrink-0 items-center lg:justify-self-start" aria-label={SITE.name}>
               <Image src="/logo.png" alt={SITE.name} width={800} height={239} priority className="h-9 w-auto sm:h-10" />
             </Link>
 
-            <ul onMouseLeave={() => setHover(null)} className="relative hidden items-center rounded-full bg-surface-muted p-1 lg:flex">
-              <span
-                aria-hidden
-                className={`absolute inset-y-1 rounded-full bg-ink shadow-[0_8px_18px_-10px_rgba(17,17,19,0.8)] transition-[left,width,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${pill ? "opacity-100" : "opacity-0"}`}
-                style={pill ? { left: pill.left, width: pill.width } : undefined}
-              />
-              {MAIN.map((link, i) => (
-                <li key={link.href}>
-                  <Link
-                    ref={(el) => {
-                      items.current[i] = el;
-                    }}
-                    href={link.href}
-                    onMouseEnter={() => setHover(i)}
-                    onFocus={() => setHover(i)}
-                    onBlur={() => setHover(null)}
-                    aria-current={i === active ? "page" : undefined}
-                    className={`relative z-10 block whitespace-nowrap rounded-full px-3 py-2 text-[13px] font-medium transition-colors duration-200 xl:px-4 ${
-                      target === i ? "text-white" : "text-foreground/70 hover:text-foreground"
-                    }`}
-                  >
-                    {t(link.key)}
-                  </Link>
-                </li>
-              ))}
+            <ul className="hidden h-full items-stretch gap-6 lg:flex xl:gap-8">
+              {MAIN.map((link) => {
+                const on = isActive(link.href);
+                return (
+                  <li key={link.href} className="flex">
+                    <Link
+                      href={link.href}
+                      aria-current={on ? "page" : undefined}
+                      className={`group relative flex items-center whitespace-nowrap text-[14.5px] transition-colors duration-200 ${
+                        on ? "font-semibold text-foreground" : "font-medium text-foreground/70 hover:text-foreground"
+                      }`}
+                    >
+                      {t(link.key)}
+                      <span
+                        aria-hidden
+                        className={`absolute inset-x-0 -bottom-px h-[3px] origin-center rounded-t-[3px] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                          on ? "scale-x-100 bg-brand" : "scale-x-0 bg-foreground/20 group-hover:scale-x-100"
+                        }`}
+                      />
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
 
-            <div className="flex items-center gap-1.5 sm:gap-2 lg:justify-self-end">
-              <div className="flex items-center rounded-full bg-surface-muted p-0.5">
+            <div className="flex items-center gap-2 sm:gap-3 lg:justify-self-end">
+              <div className="flex items-center rounded-[10px] border border-border p-0.5">
                 <LanguageToggle />
                 <span aria-hidden className="h-4 w-px bg-border" />
                 <CurrencySwitch />
               </div>
               <Link
                 href="/vozila"
-                className="group relative hidden h-11 items-center gap-2 overflow-hidden rounded-full bg-brand pl-5 pr-1.5 text-sm font-semibold text-white shadow-[0_12px_26px_-14px_rgba(227,6,19,0.85)] transition-[transform,background-color] duration-300 hover:bg-brand-700 active:scale-[0.98] sm:inline-flex lg:hidden xl:inline-flex"
+                className="hidden h-11 items-center rounded-[10px] bg-brand px-5 text-sm font-semibold text-white shadow-[0_10px_22px_-14px_rgba(227,6,19,0.9)] transition-[transform,background-color] duration-200 hover:bg-brand-700 active:scale-[0.98] sm:inline-flex lg:hidden xl:inline-flex"
               >
-                <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/3 -skew-x-12 bg-white/25 opacity-0 transition-[transform,opacity] duration-700 group-hover:translate-x-[420%] group-hover:opacity-100" />
                 {t("book")}
-                <span className="grid h-8 w-8 place-items-center rounded-full bg-white text-brand transition-transform duration-300 group-hover:rotate-45">
-                  <ArrowUpRight className="h-4 w-4" />
-                </span>
               </Link>
               <button
                 type="button"
                 aria-label={t("menu")}
                 aria-expanded={open}
                 onClick={() => setOpen((v) => !v)}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-surface-muted text-foreground transition-colors hover:bg-border/70 lg:hidden"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-[10px] bg-surface-muted text-foreground transition-colors hover:bg-border/70 lg:hidden"
               >
                 {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>

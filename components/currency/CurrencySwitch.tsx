@@ -41,7 +41,7 @@ export function CurrencySwitch() {
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`Valuta: ${current.symbol}`}
-        className="inline-flex h-9 items-center gap-1 rounded-full px-3 text-xs font-semibold text-foreground/80 transition-colors hover:bg-foreground/[0.06] hover:text-foreground aria-expanded:bg-foreground/[0.06]"
+        className="inline-flex h-9 items-center gap-1 rounded-lg px-3 text-xs font-semibold text-foreground/80 transition-colors hover:bg-foreground/[0.06] hover:text-foreground aria-expanded:bg-foreground/[0.06]"
       >
         {current.symbol}
         <ChevronDown
