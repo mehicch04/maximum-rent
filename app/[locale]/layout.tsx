@@ -15,6 +15,7 @@ import { CompanyProvider } from "@/components/company/CompanyProvider";
 import { getCompany } from "@/lib/company";
 import { getGooglePlace } from "@/lib/google-reviews";
 import { getActiveLocations } from "@/lib/fleet-data";
+import { getNavData } from "@/lib/nav-data";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { PageBackground } from "@/components/layout/PageBackground";
@@ -127,7 +128,7 @@ export default async function LocaleLayout({
           },
         }
       : baseCompany;
-  const footerLocations = await getActiveLocations();
+  const [footerLocations, navData] = await Promise.all([getActiveLocations(), getNavData(locale)]);
 
   const messages = Object.fromEntries(
     CLIENT_NAMESPACES.filter((ns) => ns in all).map((ns) => [ns, all[ns]]),
@@ -144,7 +145,7 @@ export default async function LocaleLayout({
             <CurrencyProvider defaultCurrency={locale === "hr" ? "BAM" : "EUR"}>
               <PageBackground />
               <div className="flex min-h-dvh flex-col">
-                <Navbar />
+                <Navbar data={navData} />
                 <main className="flex-1">{children}</main>
                 <Footer company={company} locations={footerLocations} />
               </div>

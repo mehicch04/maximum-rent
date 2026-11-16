@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, Check, ChevronDown, Clock, Copy, Menu, Phone, Plane, Star, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, BookOpen, Check, ChevronDown, Church, Clock, Copy, Map as MapIcon, Menu, Phone, Plane, Signpost, Star, Ticket, X, type LucideIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { NAV_LINKS, SITE } from "@/lib/site-config";
@@ -13,6 +13,10 @@ import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { LanguageToggle } from "./LanguageToggle";
 import { intlLocale } from "@/i18n/routing";
 import { formatHours } from "@/lib/hours";
+import { Price } from "@/components/currency/Price";
+import type { CarCategory } from "@/lib/car-categories";
+import type { GuideIcon } from "@/lib/guides";
+import type { NavData } from "@/lib/nav-data";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const MAIN = NAV_LINKS.filter((l) => l.href !== "/");
@@ -175,15 +179,205 @@ function MobileTopBar() {
   );
 }
 
-export function Navbar() {
+type MenuKey = "fleet" | "guides";
+
+const LABEL = "text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground";
+
+const GUIDE_ICONS: Record<GuideIcon, LucideIcon> = {
+  fines: Ticket,
+  rules: Signpost,
+  trips: MapIcon,
+  airport: Plane,
+  medjugorje: Church,
+};
+
+const WARM: CarCategory[] = ["SUV", "LUXURY", "COUPE", "CABRIO"];
+const fallback = (c: CarCategory) => (WARM.includes(c) ? "/fleet-premium.webp" : "/fleet-aerial.webp");
+
+const FEATURED = [
+  { href: { pathname: "/", hash: "vjencanja" }, image: "/wed-5.webp", title: "wedding", note: "weddingNote" },
+  { href: "/vozila?tip=LUXURY", image: "/fleet-premium.webp", title: "premium", note: "premiumNote" },
+  { href: "/poslovna-ponuda", image: "/fleet-aerial.webp", title: "longTerm", note: "longTermNote" },
+] as const;
+
+function FleetPanel({ data, onEnter, onLeave, onPick }: { data: NavData; onEnter: () => void; onLeave: () => void; onPick: () => void }) {
+  const t = useTranslations("Nav");
+  const tf = useTranslations("Fleet");
+  const [cat, setCat] = useState<CarCategory | undefined>(data.categories[0]?.key);
+  const current = data.categories.find((c) => c.key === cat) ?? data.categories[0];
+  if (!current) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.22, ease: EASE }}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+      className="absolute inset-x-0 top-full hidden border-b border-border bg-surface shadow-[0_40px_60px_-30px_rgba(17,17,19,0.45)] lg:block"
+    >
+      <div className="mx-auto grid max-w-[1320px] grid-cols-[230px_minmax(0,1fr)_240px] gap-6 px-6 pb-8 pt-7 xl:grid-cols-[260px_minmax(0,1fr)_250px] xl:gap-7">
+        <div>
+          <p className={`${LABEL} mb-2.5 ml-3.5`}>{t("categories")}</p>
+          <ul>
+            {data.categories.map((c) => {
+              const on = c.key === current.key;
+              return (
+                <li key={c.key}>
+                  <Link
+                    href={`/vozila?tip=${c.key}`}
+                    onMouseEnter={() => setCat(c.key)}
+                    onFocus={() => setCat(c.key)}
+                    onClick={onPick}
+                    className={`relative flex h-11 items-center justify-between rounded-[10px] px-3.5 text-[14.5px] transition-colors duration-200 ${
+                      on ? "bg-surface-muted font-semibold text-foreground" : "font-medium text-foreground/75 hover:text-foreground"
+                    }`}
+                  >
+                    <span aria-hidden className={`absolute inset-y-3 left-0 w-[3px] origin-center rounded-full bg-brand transition-transform duration-200 ${on ? "scale-y-100" : "scale-y-0"}`} />
+                    {tf(`categories.${c.key}`)}
+                    <span className={`text-xs tabular-nums ${on ? "text-brand-strong" : "text-muted-foreground"}`}>{c.count}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        <Link href={`/vozila?tip=${current.key}`} onClick={onPick} className="group relative min-h-[300px] overflow-hidden rounded-2xl bg-ink">
+          {data.categories.map((c) => (
+            <Image
+              key={c.key}
+              src={c.image ?? fallback(c.key)}
+              alt=""
+              fill
+              sizes="(min-width: 1280px) 760px, 560px"
+              className={`object-cover transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                c.key === current.key ? "scale-100 opacity-100" : "scale-[1.04] opacity-0"
+              }`}
+            />
+          ))}
+          <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+          <span className="absolute left-5 top-4 rounded-full bg-white/15 px-2.5 py-1 text-[11.5px] font-semibold text-white backdrop-blur-md">
+            {t("carsCount", { count: current.count })}
+          </span>
+          <span className="absolute inset-x-6 bottom-5 flex items-end justify-between gap-6 text-white">
+            <span className="min-w-0">
+              <span className="block text-[28px] font-bold leading-tight tracking-[-0.02em]">{tf(`categories.${current.key}`)}</span>
+              <span className="mt-1 block text-[13.5px] text-white/75">{t(`catNote.${current.key}`)}</span>
+            </span>
+            {current.from != null && (
+              <span className="shrink-0 text-right text-xs text-white/70">
+                {t("from")}
+                <Price bam={current.from} className="block text-2xl font-bold leading-tight text-white" />
+                {t("perDay")}
+              </span>
+            )}
+          </span>
+        </Link>
+
+        <div className="flex flex-col gap-2">
+          <p className={`${LABEL} mb-1 ml-0.5`}>{t("featured")}</p>
+          {FEATURED.map((f) => (
+            <Link
+              key={f.title}
+              href={f.href}
+              onClick={onPick}
+              className="group flex items-center gap-3 rounded-xl border border-border p-3 transition-colors duration-200 hover:border-foreground/15 hover:bg-surface-muted"
+            >
+              <span className="relative h-10 w-[52px] shrink-0 overflow-hidden rounded-lg">
+                <Image src={f.image} alt="" fill sizes="52px" className="object-cover transition-transform duration-500 group-hover:scale-110" />
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-[13.5px] font-semibold text-foreground">{t(f.title)}</span>
+                <span className="block truncate text-xs text-muted-foreground">{t(f.note)}</span>
+              </span>
+            </Link>
+          ))}
+          <Link
+            href="/vozila"
+            onClick={onPick}
+            className="group mt-auto flex h-[52px] items-center justify-between rounded-xl bg-ink px-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-ink-700"
+          >
+            {t("allCars", { count: data.total })}
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </Link>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function GuidesPanel({ guides, onPick }: { guides: NavData["guides"]; onPick: () => void }) {
+  const t = useTranslations("Nav");
+  const items = [
+    ...guides.map((g) => ({ href: `/vodici/${g.slug}`, Icon: GUIDE_ICONS[g.icon] ?? BookOpen, title: g.title, sub: g.sub ?? t("minutes", { n: g.minutes }) })),
+    { href: "/uvjeti-najma", Icon: BookOpen, title: t("terms"), sub: t("termsNote") },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8, x: "-50%" }}
+      animate={{ opacity: 1, y: 0, x: "-50%" }}
+      exit={{ opacity: 0, y: 8, x: "-50%" }}
+      transition={{ duration: 0.2, ease: EASE }}
+      className="absolute left-1/2 top-full z-10 w-[620px] pt-3"
+    >
+      <span aria-hidden className="absolute left-1/2 top-[7px] h-3.5 w-3.5 -translate-x-1/2 rotate-45 rounded-[3px] bg-surface shadow-[-1px_-1px_0_rgba(17,17,19,0.06)]" />
+      <div className="overflow-hidden rounded-[18px] bg-surface shadow-[0_30px_70px_-20px_rgba(17,17,19,0.45)] ring-1 ring-black/[0.06]">
+        <ul className="grid grid-cols-2 gap-1 p-3">
+          {items.map(({ href, Icon, title, sub }) => (
+            <li key={href}>
+              <Link href={href} onClick={onPick} className="group flex gap-3.5 rounded-xl p-3.5 transition-colors duration-200 hover:bg-surface-muted">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] bg-brand/10 text-brand-strong transition-colors duration-200 group-hover:bg-brand group-hover:text-white">
+                  <Icon className="h-[18px] w-[18px]" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold leading-snug text-foreground">{title}</span>
+                  <span className="mt-0.5 line-clamp-2 text-[12.5px] leading-snug text-muted-foreground">{sub}</span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <div className="flex items-center justify-between border-t border-border/70 bg-surface-muted/70 px-6 py-3.5 text-[13px]">
+          <span className="text-muted-foreground">{t("guidesNote")}</span>
+          <Link href="/vodici" onClick={onPick} className="group inline-flex items-center gap-1.5 font-semibold text-brand-strong">
+            {t("allGuides")}
+            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
+          </Link>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+export function Navbar({ data }: { data: NavData }) {
   const t = useTranslations("Nav");
   const pathname = usePathname();
   const company = useCompany();
   const [scrolled, setScrolled] = useState(false);
   const bar = useRef<HTMLSpanElement>(null);
   const [open, setOpen] = useState(false);
+  const [menu, setMenu] = useState<MenuKey | null>(null);
+  const timer = useRef<number>();
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  const menuFor = (href: string): MenuKey | null =>
+    href === "/vozila" && data.categories.length ? "fleet" : href === "/vodici" && data.guides.length ? "guides" : null;
+  const keep = () => window.clearTimeout(timer.current);
+  const show = (m: MenuKey) => {
+    keep();
+    setMenu(m);
+  };
+  const hide = () => {
+    keep();
+    timer.current = window.setTimeout(() => setMenu(null), 140);
+  };
+  const pick = () => {
+    keep();
+    setMenu(null);
+  };
 
   useEffect(() => {
     let raf = 0;
@@ -207,7 +401,19 @@ export function Navbar() {
     };
   }, []);
 
-  useEffect(() => setOpen(false), [pathname]);
+  useEffect(() => {
+    setOpen(false);
+    setMenu(null);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!menu) return;
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setMenu(null);
+    window.addEventListener("keydown", esc);
+    return () => window.removeEventListener("keydown", esc);
+  }, [menu]);
+
+  useEffect(() => () => window.clearTimeout(timer.current), []);
 
   useEffect(() => {
     if (!open) return;
@@ -245,6 +451,19 @@ export function Navbar() {
           />
         )}
       </AnimatePresence>
+      <AnimatePresence>
+        {menu === "fleet" && (
+          <motion.div
+            key="mega-scrim"
+            aria-hidden
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="pointer-events-none fixed inset-0 z-40 hidden bg-ink/25 backdrop-blur-[2px] lg:block"
+          />
+        )}
+      </AnimatePresence>
       <header className="sticky top-0 z-50">
         <div
           className={`relative border-b transition-[background-color,box-shadow,border-color] duration-300 ${
@@ -261,23 +480,42 @@ export function Navbar() {
             <ul className="hidden h-full items-stretch gap-6 lg:flex xl:gap-8">
               {MAIN.map((link) => {
                 const on = isActive(link.href);
+                const m = menuFor(link.href);
+                const lit = on || (m != null && menu === m);
                 return (
-                  <li key={link.href} className="flex">
+                  <li
+                    key={link.href}
+                    className="relative flex"
+                    onMouseEnter={m ? () => show(m) : undefined}
+                    onMouseLeave={m ? hide : undefined}
+                  >
                     <Link
                       href={link.href}
+                      onClick={pick}
+                      onFocus={m ? () => show(m) : undefined}
                       aria-current={on ? "page" : undefined}
-                      className={`group relative flex items-center whitespace-nowrap text-[14.5px] transition-colors duration-200 ${
-                        on ? "font-semibold text-foreground" : "font-medium text-foreground/70 hover:text-foreground"
+                      aria-haspopup={m ? "true" : undefined}
+                      aria-expanded={m ? menu === m : undefined}
+                      className={`group relative flex items-center gap-1 whitespace-nowrap text-[14.5px] transition-colors duration-200 ${
+                        on ? "font-semibold text-foreground" : lit ? "font-medium text-foreground" : "font-medium text-foreground/70 hover:text-foreground"
                       }`}
                     >
                       {t(link.key)}
+                      {m && (
+                        <ChevronDown
+                          className={`h-3.5 w-3.5 transition-[transform,color] duration-200 ${menu === m ? "rotate-180 text-brand" : "text-foreground/35"}`}
+                        />
+                      )}
                       <span
                         aria-hidden
                         className={`absolute inset-x-0 -bottom-px h-[3px] origin-center rounded-t-[3px] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                          on ? "scale-x-100 bg-brand" : "scale-x-0 bg-foreground/20 group-hover:scale-x-100"
+                          lit ? "scale-x-100 bg-brand" : "scale-x-0 bg-foreground/20 group-hover:scale-x-100"
                         }`}
                       />
                     </Link>
+                    {m === "guides" && (
+                      <AnimatePresence>{menu === "guides" && <GuidesPanel guides={data.guides} onPick={pick} />}</AnimatePresence>
+                    )}
                   </li>
                 );
               })}
@@ -306,6 +544,9 @@ export function Navbar() {
               </button>
             </div>
           </nav>
+          <AnimatePresence>
+            {menu === "fleet" && <FleetPanel data={data} onEnter={keep} onLeave={hide} onPick={pick} />}
+          </AnimatePresence>
           <span aria-hidden className="absolute inset-x-0 -bottom-px h-[2px] overflow-hidden">
             <span ref={bar} className="block h-full origin-left bg-brand-gradient will-change-transform" style={{ transform: "scaleX(0)" }} />
           </span>

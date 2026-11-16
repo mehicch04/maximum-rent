@@ -129,6 +129,7 @@ export default async function VehiclesPage({
         {items.length > 0 ? (
           <div className="mt-10 sm:mt-12">
             <FleetGrid
+              key={initialType ?? "all"}
               cars={items}
               search={search}
               eagerFirstImages
